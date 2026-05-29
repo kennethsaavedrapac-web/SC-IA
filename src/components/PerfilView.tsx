@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import QRCode from "react-qr-code";
-import { ArrowLeft, Bell, Settings, User, Shield, AlertTriangle, Key, BellRing, Heart, ChevronRight, BadgeCheck, Check, Clipboard, CheckCircle } from "lucide-react";
+import { ArrowLeft, Bell, Settings, User, Shield, AlertTriangle, Key, BellRing, Heart, ChevronRight, BadgeCheck, Check, Clipboard, CheckCircle, LogOut } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -9,9 +9,10 @@ interface PerfilViewProps {
   isPremium: boolean;
   onGoBack: () => void;
   onUpdateUser: (updated: UserProfile) => void;
+  onLogout?: () => void;
 }
 
-export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser }: PerfilViewProps) {
+export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout }: PerfilViewProps) {
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
   
   // Forms state for updates
@@ -386,6 +387,22 @@ Emergency Contact: Cruz Roja Granada - 118`;
             </p>
           </div>
         </div>
+
+        {/* Logout Button */}
+        {onLogout && (
+          <button
+            id="btn-profile-logout"
+            onClick={() => {
+              if (window.confirm("¿Estás seguro de que deseas cerrar la sesión?")) {
+                onLogout();
+              }
+            }}
+            className="w-full mt-5 bg-red-50 hover:bg-red-100/80 text-red-600 border border-red-200/85 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />
+            <span>Cerrar sesión</span>
+          </button>
+        )}
 
       </main>
     </div>

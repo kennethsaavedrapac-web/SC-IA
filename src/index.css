@@ -6,6 +6,34 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(-5deg);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 12s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 15s ease-in-out infinite;
+}
+
 /* Custom scrollbar representing premium aesthetics */
 ::-webkit-scrollbar {
   width: 6px;

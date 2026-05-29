@@ -5,22 +5,57 @@ import CentrosView from "./components/CentrosView";
 import BuscarView from "./components/BuscarView";
 import PremiumView from "./components/PremiumView";
 import PerfilView from "./components/PerfilView";
+import LoginView from "./components/LoginView";
+import RegisterView from "./components/RegisterView";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<"home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("home");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
   const [user, setUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  // Global dark mode state
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem("theme") === "dark" || 
+      (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  });
+
+  // Synchronize dark mode class on document element
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
   // Auto scroll to top on page switches to mimic page routing
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView]);
+
+  const handleLoginSuccess = (name: string) => {
+    setUser((prev) => ({
+      ...prev,
+      name: name,
+    }));
+    setCurrentView("home");
+  };
+
+  const handleRegisterSuccess = (name: string) => {
+    setUser((prev) => ({
+      ...prev,
+      name: name,
+    }));
+    setCurrentView("home");
+  };
 
   const handleAddAppointment = (newApp: Appointment) => {
     setAppointments((prev) => [newApp, ...prev]);
@@ -50,6 +85,42 @@ export default function App() {
       <div className="flex-1 w-full max-w-lg mx-auto bg-white min-h-screen shadow-2xl shadow-blue-500/5 flex flex-col relative pb-20">
         
         <AnimatePresence mode="wait">
+          {currentView === "login" && (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col"
+            >
+              <LoginView
+                onLogin={handleLoginSuccess}
+                onNavigateToRegister={() => setCurrentView("register")}
+                darkMode={darkMode}
+                onToggleDarkMode={() => setDarkMode(!darkMode)}
+              />
+            </motion.div>
+          )}
+
+          {currentView === "register" && (
+            <motion.div
+              key="register"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col"
+            >
+              <RegisterView
+                onRegister={handleRegisterSuccess}
+                onNavigateToLogin={() => setCurrentView("login")}
+                darkMode={darkMode}
+                onToggleDarkMode={() => setDarkMode(!darkMode)}
+              />
+            </motion.div>
+          )}
+
           {currentView === "home" && (
             <motion.div
               key="home"
@@ -141,13 +212,14 @@ export default function App() {
                 isPremium={isPremium}
                 onGoBack={() => setCurrentView("home")}
                 onUpdateUser={handleUpdateUser}
+                onLogout={() => setCurrentView("login")}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
-        {currentView !== "perfil" && (
+        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
           <nav className="fixed bottom-0 inset-x-0 bg-white z-40 max-w-lg mx-auto w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom">
             <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
               
