@@ -1,0 +1,6 @@
+{
+  "name": "Salud-Conecta IA",
+  "description": "Plataforma de salud avanzada con triaje inteligente por IA, mapas de centros de salud y búsqueda de médicos y farmacias.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
