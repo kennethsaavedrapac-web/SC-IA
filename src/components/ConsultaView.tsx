@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { UserProfile } from "../types";
+import { AlertTriangle, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface ConsultaViewProps {
@@ -115,6 +116,7 @@ export default function ConsultaView({ user, onNavigate }: ConsultaViewProps) {
   const [activeChip, setActiveChip] = useState("fiebre");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
 
   // Carousel scroll ref and state
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -287,6 +289,7 @@ export default function ConsultaView({ user, onNavigate }: ConsultaViewProps) {
         {/* Emergency Button */}
         <motion.button
           whileTap={{ scale: 0.92 }}
+          onClick={() => setIsEmergencyModalOpen(true)}
           className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
@@ -651,6 +654,66 @@ export default function ConsultaView({ user, onNavigate }: ConsultaViewProps) {
           Cumplimos con normativas<br />de salud internacionales.
         </p>
       </motion.div>
+
+      {/* ═══════════════ EMERGENCY CONFIRMATION MODAL ═══════════════ */}
+      <AnimatePresence>
+        {isEmergencyModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100"
+            >
+              <div className="p-7 text-center">
+                <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-red-100 shadow-inner">
+                  <AlertTriangle className="w-8 h-8" />
+                </div>
+                
+                <h3 className="text-xl font-bold text-slate-900 leading-tight">¿Es una emergencia?</h3>
+                <p className="text-sm text-slate-500 mt-3 leading-relaxed">
+                  Llama de inmediato al 128 si presentas:
+                </p>
+
+                <ul className="mt-4 space-y-2.5 text-left bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                  {[
+                    "Dolor o presión en el pecho",
+                    "Dificultad severa para respirar",
+                    "Confusión o pérdida del conocimiento",
+                    "Convulsiones o parálisis súbita"
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="grid grid-cols-2 gap-3 mt-7">
+                  <button
+                    onClick={() => setIsEmergencyModalOpen(false)}
+                    className="py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition-colors active:scale-95"
+                  >
+                    Cancelar
+                  </button>
+                  <a
+                    href="tel:128"
+                    className="py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-200 transition-all active:scale-95"
+                  >
+                    <Phone className="w-4 h-4 fill-current" />
+                    Llamar al 128
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
