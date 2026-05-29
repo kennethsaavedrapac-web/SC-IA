@@ -1,55 +1,227 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import HomeView from "./components/HomeView";
 import ConsultaView from "./components/ConsultaView";
 import CentrosView from "./components/CentrosView";
 import BuscarView from "./components/BuscarView";
 import PremiumView from "./components/PremiumView";
 import PerfilView from "./components/PerfilView";
+import LoginView from "./components/LoginView";
+import RegisterView from "./components/RegisterView";
+import { ToastContainer, createToast, type ToastData } from "./components/Toast";
+import { useAuth } from "./contexts/AuthContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<"home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("home");
-  const [user, setUser] = useState<UserProfile>(DEFAULT_USER);
+  const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
+
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
+  const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  // Global dark mode state
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme) {
+        return savedTheme === "dark";
+      }
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } catch (e) {
+      console.warn("localStorage is blocked or window.matchMedia is unavailable:", e);
+      return false;
+    }
+  });
+
+  // Synchronize dark mode class on document element
+  useEffect(() => {
+    try {
+      if (darkMode) {
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      }
+    } catch (e) {
+      console.warn("Failed to set theme in localStorage:", e);
+    }
+  }, [darkMode]);
 
   // Auto scroll to top on page switches to mimic page routing
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView]);
 
+  // ─── Session-based navigation ─────────────────────────────
+  // Redirect to home if user is authenticated, or to login if not
+  useEffect(() => {
+    if (!initialized) return;
+
+    if (session && user) {
+      // User is authenticated — if on login/register, redirect to home
+      if (currentView === "login" || currentView === "register") {
+        setCurrentView("home");
+      }
+    } else {
+      // No session — force login screen
+      if (currentView !== "login" && currentView !== "register") {
+        setCurrentView("login");
+      }
+    }
+  }, [session, user, initialized]);
+
+  // Sync profile data from Supabase to local state
+  useEffect(() => {
+    if (profile) {
+      setLocalUser((prev) => ({
+        ...prev,
+        name: profile.nombre || prev.name,
+        email: profile.email || prev.email,
+        city: profile.ciudad || prev.city,
+        country: profile.pais || prev.country,
+        avatarUrl: profile.avatar_url || prev.avatarUrl,
+      }));
+    }
+  }, [profile]);
+
+  // ─── Toast Management ──────────────────────────────────────
+  const addToast = useCallback((toast: ToastData) => {
+    setToasts((prev) => [...prev, toast]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // ─── Handlers ──────────────────────────────────────────────
+  const handleLoginSuccess = (name: string) => {
+    // Profile sync happens via useEffect above
+    setCurrentView("home");
+  };
+
+  const handleRegisterSuccess = (name: string) => {
+    // Profile sync happens via useEffect above
+    setCurrentView("home");
+  };
+
   const handleAddAppointment = (newApp: Appointment) => {
     setAppointments((prev) => [newApp, ...prev]);
   };
 
   const handleUpdateUser = (updatedUser: UserProfile) => {
-    setUser(updatedUser);
+    setLocalUser(updatedUser);
   };
 
   const handleUnlockPremium = () => {
     setIsPremium(true);
   };
 
+  const handleLogout = async () => {
+    const result = await logout();
+    if (result.success) {
+      setLocalUser(DEFAULT_USER);
+      setAppointments(INITIAL_APPOINTMENTS);
+      setIsPremium(false);
+      setCurrentView("login");
+      addToast(createToast("Sesión cerrada correctamente.", "info"));
+    } else {
+      addToast(createToast(result.error || "Error al cerrar sesión.", "error"));
+    }
+  };
+
   const handleResetApp = () => {
-    setUser(DEFAULT_USER);
+    setLocalUser(DEFAULT_USER);
     setAppointments(INITIAL_APPOINTMENTS);
     setIsPremium(false);
     setCurrentView("home");
     setIsSettingsOpen(false);
-    alert("Aplicación reiniciada a sus valores por defecto.");
+    addToast(createToast("Aplicación reiniciada a sus valores por defecto.", "info"));
   };
+
+  // ─── Loading Screen ────────────────────────────────────────
+  if (!initialized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <svg className="w-16 h-16 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="26" cy="26" r="14" stroke="url(#splashGrad1)" strokeWidth="3.5" strokeLinecap="round" />
+            <circle cx="38" cy="38" r="14" stroke="url(#splashGrad2)" strokeWidth="3.5" strokeLinecap="round" />
+            <defs>
+              <linearGradient id="splashGrad1" x1="12" y1="12" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#2563eb" />
+                <stop offset="1" stopColor="#1d4ed8" />
+              </linearGradient>
+              <linearGradient id="splashGrad2" x1="24" y1="24" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#3b82f6" />
+                <stop offset="1" stopColor="#60a5fa" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+          <p className="text-sm text-slate-500 font-semibold">Verificando sesión...</p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none overflow-x-hidden antialiased">
       
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       {/* Dynamic Content Views based on Router State */}
       <div className="flex-1 w-full max-w-lg mx-auto bg-white min-h-screen shadow-2xl shadow-blue-500/5 flex flex-col relative pb-20">
         
         <AnimatePresence mode="wait">
+          {currentView === "login" && (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col"
+            >
+              <LoginView
+                onLogin={handleLoginSuccess}
+                onNavigateToRegister={() => setCurrentView("register")}
+                darkMode={darkMode}
+                onToggleDarkMode={() => setDarkMode(!darkMode)}
+                onToast={addToast}
+              />
+            </motion.div>
+          )}
+
+          {currentView === "register" && (
+            <motion.div
+              key="register"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col"
+            >
+              <RegisterView
+                onRegister={handleRegisterSuccess}
+                onNavigateToLogin={() => setCurrentView("login")}
+                darkMode={darkMode}
+                onToggleDarkMode={() => setDarkMode(!darkMode)}
+                onToast={addToast}
+              />
+            </motion.div>
+          )}
+
           {currentView === "home" && (
             <motion.div
               key="home"
@@ -60,7 +232,7 @@ export default function App() {
               className="flex-1"
             >
               <HomeView
-                user={user}
+                user={localUser}
                 onNavigate={(tab) => setCurrentView(tab)}
                 onOpenSettings={() => setIsSettingsOpen(true)}
               />
@@ -76,7 +248,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col h-[calc(100vh-80px)]"
             >
-              <ConsultaView user={user} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} />
+              <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} />
             </motion.div>
           )}
 
@@ -137,17 +309,18 @@ export default function App() {
               className="flex-1"
             >
               <PerfilView
-                user={user}
+                user={localUser}
                 isPremium={isPremium}
                 onGoBack={() => setCurrentView("home")}
                 onUpdateUser={handleUpdateUser}
+                onLogout={handleLogout}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
-        {currentView !== "perfil" && (
+        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
           <nav className="fixed bottom-0 inset-x-0 bg-white z-40 max-w-lg mx-auto w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom">
             <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
               
@@ -277,13 +450,28 @@ export default function App() {
               <div className="py-4 space-y-4">
                 {/* Simulated Diagnostic report of scheduled appointments */}
                 <div className="p-3 bg-blue-50 rounded-2xl border border-blue-100 text-xs">
-                  <span className="font-bold text-blue-800 block mb-1">Citas agendadas por Kenneth:</span>
+                  <span className="font-bold text-blue-800 block mb-1">Citas agendadas por {localUser.name}:</span>
                   <p className="text-slate-600">{appointments.length} citas registradas.</p>
                   <ul className="list-disc leading-normal list-inside pl-1 mt-1 text-slate-500 text-[11px]">
                     {appointments.map((a, i) => (
                       <li key={i}>{a.doctorName} - {a.specialty} ({a.date})</li>
                     ))}
                   </ul>
+                </div>
+
+                {/* Supabase Auth Status */}
+                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-800 leading-normal flex items-start space-x-2">
+                  <ShieldAlert className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold">Estado de Autenticación Supabase:</span>
+                    <p className="mt-0.5">
+                      {session ? (
+                        <>✅ Sesión activa — {user?.email}</>
+                      ) : (
+                        <>⚠️ Sin sesión activa (modo invitado)</>
+                      )}
+                    </p>
+                  </div>
                 </div>
 
                 {/* API Info key safety */}
