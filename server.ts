@@ -84,7 +84,7 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
       });
 
       const response = await client.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-1.5-flash",
         contents: contents,
         config: {
           systemInstruction: systemInstruction,
@@ -116,10 +116,10 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
     app.use(vite.middlewares);
   } else {
     console.log("Serving production build of client from /dist...");
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    const distPath = path.resolve(process.cwd(), 'dist');
+    app.use(express.static(distPath, { index: false }));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }
 

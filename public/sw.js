@@ -42,6 +42,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Estrategia Network-First para la navegación (HTML principal)
+  // Esto evita que se cargue un index.html viejo con hashes de JS/CSS inexistentes
+  if (event.request.mode === 'navigate') {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -64,3 +71,16 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (err) {
+    return caches.match(request) || caches.match("/");
+  }
+}
