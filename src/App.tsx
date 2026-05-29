@@ -22,6 +22,7 @@ export default function App() {
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   // Global dark mode state
@@ -248,7 +249,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col h-[calc(100vh-80px)]"
             >
-              <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} />
+              <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
             </motion.div>
           )}
 
@@ -261,7 +262,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <CentrosView onNavigate={(tab) => setCurrentView(tab)} />
+              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
             </motion.div>
           )}
 
@@ -496,6 +497,133 @@ export default function App() {
               <div className="text-[10px] text-slate-400 text-center pt-3 border-t border-slate-100">
                 Salud-Conecta IA • v1.0.0 PWA • 2026
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* EMERGENCY INFORMATIVE AND CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {isEmergencyModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-5 select-none"
+          >
+            <motion.div
+              initial={{ scale: 0.93, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.93, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 350 }}
+              className="bg-white rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(239,68,68,0.15)] border border-red-50 relative overflow-hidden"
+            >
+              {/* Subtle top decoration */}
+              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-rose-500 to-red-600" />
+              
+              {/* Pulse alert icon container */}
+              <div className="flex flex-col items-center text-center mt-3 mb-5">
+                <div className="w-[74px] h-[74px] rounded-full bg-red-50 flex items-center justify-center relative mb-4">
+                  {/* Ping effect */}
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-100 animate-ping opacity-75" />
+                  
+                  {/* Inner dark red icon container */}
+                  <div className="w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-red-500 to-rose-600 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(239,68,68,0.3)] relative z-10">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[28px] h-[28px] animate-pulse">
+                      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
+                      <circle cx="16.5" cy="17.5" r="2.5" />
+                      <circle cx="7.5" cy="17.5" r="2.5" />
+                      <path d="M10 10v4" />
+                      <path d="M8 12h4" />
+                    </svg>
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-slate-900 tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  Llamada de Emergencia
+                </h3>
+                <p className="text-xs text-red-500 font-bold uppercase tracking-wider mt-1 font-mono">
+                  Cruz Roja • Línea 128
+                </p>
+              </div>
+
+              {/* Informative Guidance Content */}
+              <div className="space-y-4 mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
+                
+                {/* When to call */}
+                <div className="bg-emerald-50/60 rounded-[20px] p-3.5 border border-emerald-100/50">
+                  <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                    ¿Cuándo sí debes llamar?
+                  </span>
+                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                    <li className="flex items-start gap-1">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>Dificultad respiratoria severa o asfixia.</span>
+                    </li>
+                    <li className="flex items-start gap-1">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>Dolor opresivo en el pecho (sospecha de infarto).</span>
+                    </li>
+                    <li className="flex items-start gap-1">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>Pérdida de conocimiento o convulsiones.</span>
+                    </li>
+                    <li className="flex items-start gap-1">
+                      <span className="text-emerald-500 font-bold">✓</span>
+                      <span>Accidentes graves o sangrado incontrolable.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* When NOT to call */}
+                <div className="bg-slate-50 rounded-[20px] p-3.5 border border-slate-200/50">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
+                    ¿Cuándo usar la Consulta IA en su lugar?
+                  </span>
+                  <ul className="text-[11px] text-slate-600 space-y-1 pl-1 leading-relaxed">
+                    <li className="flex items-start gap-1">
+                      <span className="text-slate-400 font-bold">•</span>
+                      <span>Fiebre moderada o síntomas de gripe.</span>
+                    </li>
+                    <li className="flex items-start gap-1">
+                      <span className="text-slate-400 font-bold">•</span>
+                      <span>Dolores corporales leves o de garganta.</span>
+                    </li>
+                    <li className="flex items-start gap-1">
+                      <span className="text-slate-400 font-bold">•</span>
+                      <span>Consultas sobre dosis de medicamentos o triaje.</span>
+                    </li>
+                  </ul>
+                </div>
+
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => {
+                    setIsEmergencyModalOpen(false);
+                    window.location.href = "tel:128";
+                  }}
+                  className="w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(239,68,68,0.28)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  <span>Llamar al 128 ahora</span>
+                </motion.button>
+                
+                <button
+                  onClick={() => setIsEmergencyModalOpen(false)}
+                  className="w-full py-3 text-slate-500 hover:text-slate-800 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
+                >
+                  Cancelar
+                </button>
+              </div>
+
             </motion.div>
           </motion.div>
         )}

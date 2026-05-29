@@ -28,7 +28,7 @@ Patient: Kenneth S.
 Location: Granada, Nicaragua
 Blood Type: O+ 
 Allergies: Polen
-Emergency Contact: Cruz Roja Granada - 118`;
+Emergency Contact: Cruz Roja Granada - 128`;
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();

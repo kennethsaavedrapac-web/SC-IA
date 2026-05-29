@@ -6,6 +6,7 @@ interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
   isPremium?: boolean;
+  onTriggerEmergency?: () => void;
 }
 
 const SYMPTOM_CHIPS = [
@@ -111,7 +112,7 @@ const SYMPTOM_CHIPS = [
   },
 ];
 
-export default function ConsultaView({ user, onNavigate }: ConsultaViewProps) {
+export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const [activeChip, setActiveChip] = useState("fiebre");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -287,6 +288,7 @@ export default function ConsultaView({ user, onNavigate }: ConsultaViewProps) {
         {/* Emergency Button */}
         <motion.button
           whileTap={{ scale: 0.92 }}
+          onClick={onTriggerEmergency}
           className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
           style={{
             background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
