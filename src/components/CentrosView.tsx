@@ -407,6 +407,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   </button>
                   <a
                     href="tel:128"
+                    onClick={() => setTimeout(() => setIsEmergencyModalOpen(false), 500)}
                     className="py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-200 transition-all active:scale-95"
                   >
                     <Phone className="w-4 h-4 fill-current" />
