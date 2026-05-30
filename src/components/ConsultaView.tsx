@@ -189,7 +189,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const firstName = user.name.split(" ")[0];
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden font-sans" style={{ background: "linear-gradient(180deg, #f8faff 0%, #ffffff 35%, #f8faff 70%, #ffffff 100%)" }}>
+    <div className="flex flex-col min-h-screen relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* ═══════════════ ORGANIC BACKGROUND BLOBS ═══════════════ */}
       {/* Top-right large blob — soft blue */}
@@ -274,14 +274,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         >
           <div className="w-[36px] h-[36px] relative shrink-0">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#1d4ed8" fillOpacity="0.12" />
-              <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#1d4ed8" fillOpacity="0.12" />
-              <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#3b82f6" fillOpacity="0.12" />
+              <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#3b82f6" fillOpacity="0.12" />
+              <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-[#0f172a]" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Salud-Conecta <span className="text-[#1d4ed8]">IA</span>
+          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+            Salud-Conecta <span className="text-blue-500">IA</span>
           </span>
         </div>
 
@@ -317,7 +317,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       >
         {/* Primary heading */}
         <h1
-          className="text-[#0f172a] tracking-[-0.03em]"
+          className="text-slate-900 dark:text-white tracking-[-0.03em]"
           style={{
             fontSize: "clamp(36px, 9vw, 44px)",
             lineHeight: 1.08,
@@ -330,7 +330,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
         {/* Secondary heading */}
         <h2
-          className="text-[#334155] mt-3 tracking-[-0.015em]"
+          className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]"
           style={{
             fontSize: "clamp(24px, 6.5vw, 30px)",
             lineHeight: 1.3,
@@ -339,16 +339,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           }}
         >
           Soy tu asistente de salud<br />
-          en <span className="text-[#2563eb] font-medium">Granada.</span>
+          en <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
         </h2>
 
         {/* Divider line */}
         <div
-          className="mt-8 mb-7 rounded-full"
+          className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800"
           style={{
             width: "36px",
             height: "2.5px",
-            background: "linear-gradient(90deg, #cbd5e1 0%, #e2e8f0 100%)",
           }}
         />
 
@@ -360,7 +359,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           }}
         >
           <p
-            className="text-[#64748b]"
+            className="text-slate-500 dark:text-slate-400"
             style={{
               fontSize: "clamp(15px, 4vw, 17px)",
               lineHeight: 1.5,
@@ -371,7 +370,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             Contame cómo te sentís hoy.
           </p>
           <p
-            className="text-[#94a3b8]"
+            className="text-slate-400 dark:text-slate-500"
             style={{
               fontSize: "clamp(15px, 4vw, 17px)",
               lineHeight: 1.5,
@@ -400,12 +399,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={() => scrollByAmount(-220)}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white border border-slate-200 shadow-md hover:bg-slate-50 transition-colors z-20 cursor-pointer active:scale-95"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95"
               style={{
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </motion.button>
@@ -420,12 +419,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={() => scrollByAmount(220)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white border border-slate-200 shadow-md hover:bg-slate-50 transition-colors z-20 cursor-pointer active:scale-95"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95"
               style={{
                 boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </motion.button>
@@ -437,7 +436,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           className="absolute left-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300"
           style={{
             width: "80px",
-            background: "linear-gradient(90deg, #f8faff 0%, rgba(248,250,255,0.7) 40%, transparent 100%)",
+            background: "linear-gradient(90deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)",
             opacity: showLeftArrow ? 1 : 0,
           }}
         />
@@ -446,7 +445,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           className="absolute right-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300"
           style={{
             width: "80px",
-            background: "linear-gradient(270deg, #f8faff 0%, rgba(248,250,255,0.7) 40%, transparent 100%)",
+            background: "linear-gradient(270deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)",
             opacity: showRightArrow ? 1 : 0,
           }}
         />
@@ -481,7 +480,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   setActiveChip(chip.id);
                   setInputValue(`Tengo ${chip.label.toLowerCase()}`);
                 }}
-                className="flex items-center gap-2 shrink-0 transition-all duration-300 ease-out"
+                className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${
+                  isActive
+                    ? "bg-blue-600 text-white border-transparent"
+                    : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"
+                }`}
                 style={{
                   padding: "12px 22px",
                   borderRadius: "100px",
@@ -489,11 +492,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   fontWeight: 600,
                   fontFamily: "'Inter', sans-serif",
                   letterSpacing: "0.01em",
-                  border: isActive ? "1.5px solid transparent" : "1.5px solid #cbd5e1",
-                  background: isActive
-                    ? "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)"
-                    : "#ffffff",
-                  color: isActive ? "#ffffff" : "#1e40af",
+                  borderWidth: "1.5px",
                   boxShadow: isActive
                     ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)"
                     : "0 2px 6px rgba(0,0,0,0.04)",
@@ -520,20 +519,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         className="w-full max-w-5xl mx-auto px-5 mb-5 relative z-20"
       >
         <div
-          className="relative overflow-hidden transition-all duration-300"
-          style={{
-            background: "#ffffff",
-            borderRadius: "28px",
-            padding: "20px 18px 14px 18px",
-            border: isFocused ? "1.5px solid #2563eb" : "1.5px solid #cbd5e1",
-            boxShadow: isFocused
-              ? "0 12px 35px rgba(37,99,235,0.15), 0 2px 10px rgba(37,99,235,0.08)"
-              : "0 8px 30px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.04)",
-          }}
+          className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${
+            isFocused ? "border-blue-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
+          }`}
         >
           {/* Subtle inner gradient for premium feel */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10"
             style={{
               background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)",
               borderRadius: "28px",
@@ -547,12 +539,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder="Describe tus síntomas…"
-            className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400"
+            className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200"
             style={{
               height: "56px",
               fontSize: "15px",
               lineHeight: 1.5,
-              color: "#1e293b",
               fontWeight: 400,
               fontFamily: "'Inter', sans-serif",
               paddingLeft: "4px",
@@ -641,7 +632,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
 
         <p
-          className="text-[#475569]"
+          className="text-slate-600 dark:text-slate-400"
           style={{
             fontSize: "13px",
             fontWeight: 500,
