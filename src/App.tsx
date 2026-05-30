@@ -217,25 +217,25 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none overflow-x-hidden antialiased">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* DESKTOP SIDEBAR NAVIGATION (Solo visible en Laptop/PC) */}
       {currentView !== "login" && currentView !== "register" && (
-        <aside className="hidden md:flex flex-col w-[260px] bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
             <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shrink-0">
               <span className="text-white font-bold text-base">S</span>
             </div>
-            <span className="font-display font-bold text-xl text-slate-800 tracking-tight">
+            <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
               Salud <span className="text-blue-600">IA</span>
             </span>
           </div>
 
           <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 pl-3">Menú Principal</div>
+            <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">Menú Principal</div>
 
             {[
               { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
@@ -248,8 +248,8 @@ export default function App() {
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id as any)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                  ? "bg-blue-50 text-blue-700 font-bold shadow-sm border border-blue-100/50"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
+                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold shadow-sm border border-blue-100/50 dark:border-blue-900/50"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
                   }`}
               >
                 <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
@@ -259,12 +259,12 @@ export default function App() {
           </div>
 
           {/* Bottom Profile Section */}
-          <div className="p-4 border-t border-slate-100">
-            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 border-slate-200" : "hover:bg-slate-50 border-transparent"} text-left`}>
-              <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm" />
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
+              <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-900 truncate">{localUser.name}</p>
-                <p className="text-[10px] text-slate-500 truncate font-mono">{localUser.email}</p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{localUser.name}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-mono">{localUser.email}</p>
               </div>
             </button>
           </div>
@@ -272,7 +272,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
 
         <AnimatePresence mode="wait">
           {currentView === "login" && (
@@ -412,14 +412,14 @@ export default function App() {
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
-          <nav className="fixed bottom-0 inset-x-0 bg-white z-40 w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
+          <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
             <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
 
               {/* Tab 1: Consulta */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -427,12 +427,12 @@ export default function App() {
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   Consulta
                 </span>
                 {/* Active indicator dot/lines */}
                 {currentView === "consulta" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
@@ -440,7 +440,7 @@ export default function App() {
               <button
                 id="btn-nav-centros"
                 onClick={() => setCurrentView("centros")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "centros" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "centros" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -449,11 +449,11 @@ export default function App() {
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   Centros
                 </span>
                 {currentView === "centros" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
@@ -461,7 +461,7 @@ export default function App() {
               <button
                 id="btn-nav-buscar"
                 onClick={() => setCurrentView("buscar")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -470,11 +470,11 @@ export default function App() {
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   Buscar
                 </span>
                 {currentView === "buscar" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
@@ -482,7 +482,7 @@ export default function App() {
               <button
                 id="btn-nav-premium"
                 onClick={() => setCurrentView("premium")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-[#1d4ed8]" : "text-[#94a3b8] hover:text-[#475569]"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -490,11 +490,11 @@ export default function App() {
                     <path d="M12 2L2 12l10 10 10-10z" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   Premium
                 </span>
                 {currentView === "premium" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
             </div>
