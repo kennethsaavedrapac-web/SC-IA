@@ -11,7 +11,7 @@ import { ToastContainer, createToast, type ToastData } from "./components/Toast"
 import { useAuth } from "./contexts/AuthContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2 } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -22,8 +22,27 @@ export default function App() {
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  // Font Size state
+  const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
+    try {
+      return (localStorage.getItem("fontSize") as "sm" | "base" | "lg") || "base";
+    } catch (e) {
+      return "base";
+    }
+  });
+
+  // Language state
+  const [language, setLanguage] = useState<"es" | "en">(() => {
+    try {
+      return (localStorage.getItem("language") as "es" | "en") || "es";
+    } catch (e) {
+      return "es";
+    }
+  });
 
   // Global dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -53,6 +72,27 @@ export default function App() {
       console.warn("Failed to set theme in localStorage:", e);
     }
   }, [darkMode]);
+
+  // Synchronize font size
+  useEffect(() => {
+    try {
+      const root = document.documentElement;
+      root.classList.remove("text-sm", "text-base", "text-lg");
+      root.classList.add(`text-${fontSize}`);
+      localStorage.setItem("fontSize", fontSize);
+    } catch (e) {
+      console.warn("Failed to set font size:", e);
+    }
+  }, [fontSize]);
+
+  // Synchronize language
+  useEffect(() => {
+    try {
+      localStorage.setItem("language", language);
+    } catch (e) {
+      console.warn("Failed to set language:", e);
+    }
+  }, [language]);
 
   // Auto scroll to top on page switches to mimic page routing
   useEffect(() => {
@@ -142,6 +182,7 @@ export default function App() {
     setIsPremium(false);
     setCurrentView("home");
     setIsSettingsOpen(false);
+    setSettingsView("menu");
     addToast(createToast("Aplicación reiniciada a sus valores por defecto.", "info"));
   };
 
@@ -461,7 +502,7 @@ export default function App() {
         )}
       </div>
 
-      {/* DYNAMIC SYSTEM / TESTING UTILITIES DIALOG MODAL (GIVES ASSESSOR GREAT CONTROL) */}
+      {/* REDESIGNED SETTINGS MODAL */}
       <AnimatePresence>
         {isSettingsOpen && (
           <motion.div
@@ -474,73 +515,234 @@ export default function App() {
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 text-slate-800"
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
             >
-              <div className="flex justify-between items-start pb-4 border-b border-slate-100">
-                <div>
-                  <h3 className="font-display font-bold text-lg text-slate-900 flex items-center gap-1.5">
-                    <Settings className="w-5 h-5 text-blue-600 animate-spin" />
-                    <span>Ajustes del Sistema</span>
+              {/* Modal Header */}
+              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="flex items-center gap-3">
+                  {settingsView !== "menu" && (
+                    <button
+                      onClick={() => setSettingsView("menu")}
+                      className="p-1.5 -ml-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5" />
+                    </button>
+                  )}
+                  <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <Settings className={`w-5 h-5 text-blue-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
+                    <span>
+                      {settingsView === "menu" && "Configuración"}
+                      {settingsView === "terms" && "Términos"}
+                      {settingsView === "privacy" && "Privacidad"}
+                      {settingsView === "guide" && "Guía de Uso"}
+                    </span>
                   </h3>
-                  <p className="text-xs text-slate-400">Panel de evaluación para Salud-Conecta IA</p>
                 </div>
                 <button
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    setTimeout(() => setSettingsView("menu"), 300);
+                  }}
+                  className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Body */}
-              <div className="py-4 space-y-4">
-                {/* Simulated Diagnostic report of scheduled appointments */}
-                <div className="p-3 bg-blue-50 rounded-2xl border border-blue-100 text-xs">
-                  <span className="font-bold text-blue-800 block mb-1">Citas agendadas por {localUser.name}:</span>
-                  <p className="text-slate-600">{appointments.length} citas registradas.</p>
-                  <ul className="list-disc leading-normal list-inside pl-1 mt-1 text-slate-500 text-[11px]">
-                    {appointments.map((a, i) => (
-                      <li key={i}>{a.doctorName} - {a.specialty} ({a.date})</li>
-                    ))}
-                  </ul>
-                </div>
+              {/* Modal Body */}
+              <div className="p-6 max-h-[70vh] overflow-y-auto no-scrollbar">
+                <AnimatePresence mode="wait">
+                  {settingsView === "menu" && (
+                    <motion.div
+                      key="menu"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      className="space-y-6"
+                    >
+                      {/* Appearance Section */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Apariencia</h4>
 
-                {/* Supabase Auth Status */}
-                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-800 leading-normal flex items-start space-x-2">
-                  <ShieldAlert className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Estado de Autenticación Supabase:</span>
-                    <p className="mt-0.5">
-                      {session ? (
-                        <>✅ Sesión activa — {user?.email}</>
-                      ) : (
-                        <>⚠️ Sin sesión activa (modo invitado)</>
-                      )}
-                    </p>
-                  </div>
-                </div>
+                        {/* Dark Mode Toggle */}
+                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-xl ${darkMode ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-500"}`}>
+                              {darkMode ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5" />}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Modo oscuro</span>
+                          </div>
+                          <button
+                            onClick={() => setDarkMode(!darkMode)}
+                            className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-700"}`}
+                          >
+                            <motion.div
+                              animate={{ x: darkMode ? 22 : 2 }}
+                              className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                            />
+                          </button>
+                        </div>
 
-                {/* API Info key safety */}
-                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-100 text-[11px] text-amber-800 leading-normal flex items-start space-x-2">
-                  <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Servicios Gemini AI Activos:</span>
-                    <p className="mt-0.5">La app enruta las consultas de triaje mediante una llamada server-side a `gemini-3.5-flash`.</p>
-                  </div>
-                </div>
+                        {/* Font Size Selector */}
+                        <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+                              <Type className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Tamaño de fuente</span>
+                          </div>
+                          <div className="flex bg-white dark:bg-slate-900 p-1 rounded-xl border border-slate-100 dark:border-slate-800">
+                            {(["sm", "base", "lg"] as const).map((size) => (
+                              <button
+                                key={size}
+                                onClick={() => setFontSize(size)}
+                                className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                              >
+                                {size === "sm" && "Pequeño"}
+                                {size === "base" && "Normal"}
+                                {size === "lg" && "Grande"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
 
-                {/* Reset system */}
-                <button
-                  onClick={handleResetApp}
-                  className="w-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Reiniciar base de datos local</span>
-                </button>
+                      {/* Region Section */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Regional</h4>
+                        <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500">
+                              <Languages className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Idioma</span>
+                          </div>
+                          <select
+                            value={language}
+                            onChange={(e) => setLanguage(e.target.value as "es" | "en")}
+                            className="bg-transparent text-sm font-bold text-blue-600 outline-none cursor-pointer"
+                          >
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Information Section */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Legal e Información</h4>
+                        <div className="space-y-2">
+                          {[
+                            { id: "terms", label: "Términos y condiciones", icon: FileText, color: "text-slate-500" },
+                            { id: "privacy", label: "Privacidad", icon: Shield, color: "text-slate-500" },
+                            { id: "guide", label: "Guía de uso", icon: BookOpen, color: "text-slate-500" },
+                          ].map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => setSettingsView(item.id as any)}
+                              className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all group"
+                            >
+                              <div className="flex items-center gap-3">
+                                <item.icon className={`w-4.5 h-4.5 ${item.color} group-hover:text-blue-500 transition-colors`} />
+                                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{item.label}</span>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-400 transition-all group-hover:translate-x-0.5" />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Advanced / Debug Section */}
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button
+                          onClick={handleResetApp}
+                          className="w-full bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 active:scale-95 text-white py-3 px-4 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow-sm"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          <span>Reiniciar base de datos local</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {settingsView === "terms" && (
+                    <motion.div
+                      key="terms"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
+                    >
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Términos de Servicio</h4>
+                      <p>Bienvenido a Salud-Conecta IA. Al utilizar nuestra aplicación, usted acepta los siguientes términos:</p>
+                      <ul className="list-disc pl-4 space-y-2">
+                        <li>La IA proporciona orientación informativa, no un diagnóstico médico profesional.</li>
+                        <li>En caso de emergencia real, siempre debe contactar con los servicios de emergencia (128).</li>
+                        <li>Usted es responsable de la veracidad de la información proporcionada.</li>
+                        <li>Nos reservamos el derecho de actualizar estos términos en cualquier momento.</li>
+                      </ul>
+                      <p className="pt-2">Última actualización: Mayo 2026</p>
+                    </motion.div>
+                  )}
+
+                  {settingsView === "privacy" && (
+                    <motion.div
+                      key="privacy"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="space-y-4 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
+                    >
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">Política de Privacidad</h4>
+                      <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 flex gap-3">
+                        <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <p className="text-emerald-800 dark:text-emerald-400 font-medium">Tus datos están protegidos con encriptación AES-256 de grado médico.</p>
+                      </div>
+                      <p>Respetamos su privacidad:</p>
+                      <ul className="list-disc pl-4 space-y-2">
+                        <li>No vendemos sus datos personales a terceros.</li>
+                        <li>Sus consultas con la IA son privadas y se utilizan únicamente para mejorar su experiencia.</li>
+                        <li>Usted tiene derecho a solicitar la eliminación de sus datos en cualquier momento.</li>
+                        <li>Cumplimos con las normativas internacionales de protección de datos médicos.</li>
+                      </ul>
+                    </motion.div>
+                  )}
+
+                  {settingsView === "guide" && (
+                    <motion.div
+                      key="guide"
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      className="space-y-4"
+                    >
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">¿Cómo usar Salud-Conecta IA?</h4>
+                      <div className="space-y-3">
+                        {[
+                          { step: "1", title: "Consulta IA", desc: "Describe tus síntomas detalladamente para recibir una orientación inicial." },
+                          { step: "2", title: "Centros Médicos", desc: "Encuentra el hospital o clínica más cercana a tu ubicación." },
+                          { step: "3", title: "Mis Citas", desc: "Gestiona y programa tus visitas al médico de forma organizada." },
+                          { step: "4", title: "Perfil de Emergencia", desc: "Mantén actualizado tu QR para casos de necesidad crítica." },
+                        ].map((item) => (
+                          <div key={item.step} className="flex gap-3">
+                            <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold shrink-0">
+                              {item.step}
+                            </div>
+                            <div>
+                              <h5 className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{item.title}</h5>
+                              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <div className="text-[10px] text-slate-400 text-center pt-3 border-t border-slate-100">
-                Salud-Conecta IA • v1.0.0 PWA • 2026
+              {/* Modal Footer */}
+              <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 dark:text-slate-500 text-center">
+                Salud-Conecta IA • v1.2.0 • 2026
               </div>
             </motion.div>
           </motion.div>
