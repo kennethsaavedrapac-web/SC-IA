@@ -75,7 +75,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-blue-50/10 to-slate-50">
       {/* Header */}
       <header className="flex flex-col px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div className="flex justify-between items-center w-full max-w-4xl mx-auto">
+        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
           <div
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
@@ -114,7 +114,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 px-6 pt-5 max-w-4xl mx-auto w-full">
+      <main className="flex-1 px-6 pt-5 max-w-3xl mx-auto w-full">
         {/* DOCTORS SCREEN VIEW */}
         <AnimatePresence mode="wait">
           {activeTab === "medicos" && (
@@ -186,8 +186,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           setSelectedSpecialty(spec.id);
                         }}
                         className={`px-4.5 py-3 rounded-2xl text-xs font-bold whitespace-nowrap active:scale-95 transition-all text-center flex flex-col items-center justify-center border shrink-0 ${isSelected
-                            ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/15"
-                            : "bg-white border-slate-100 text-slate-600 hover:border-slate-300"
+                          ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/15"
+                          : "bg-white border-slate-100 text-slate-600 hover:border-slate-300"
                           }`}
                       >
                         <span className="text-lg mb-1">{spec.icon}</span>
@@ -379,10 +379,10 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       {/* availability and GPS Navigation button */}
                       <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
                         <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : pharm.status === "Poco stock"
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-rose-50 text-rose-700"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : pharm.status === "Poco stock"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-rose-50 text-rose-700"
                           }`}>
                           ✓ {pharm.status}
                         </span>

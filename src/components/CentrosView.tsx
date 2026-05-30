@@ -29,48 +29,50 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     <div className="flex flex-col min-h-screen pb-24 relative overflow-x-hidden" style={{ background: "linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #ffffff 100%)" }}>
 
       {/* ═══════════════ HEADER ═══════════════ */}
-      <header className="flex justify-between items-center px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
-        <div
-          onClick={() => onNavigate && onNavigate("home")}
-          className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
-        >
-          <div className="w-[34px] h-[34px] relative shrink-0">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#1d4ed8" fillOpacity="0.12" />
-              <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#1d4ed8" fillOpacity="0.12" />
-              <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+      <div className="w-full max-w-4xl mx-auto">
+        <header className="flex justify-between items-center px-6 z-30 relative bg-transparent" style={{ paddingTop: "max(env(safe-area-inset-top, 16px), 36px)", paddingBottom: "12px" }}>
+          <div
+            onClick={() => onNavigate && onNavigate("home")}
+            className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
+          >
+            <div className="w-[34px] h-[34px] relative shrink-0">
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#1d4ed8" fillOpacity="0.12" />
+                <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#1d4ed8" fillOpacity="0.12" />
+                <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <span className="font-bold text-[19px] tracking-[-0.02em] text-[#0f172a]" style={{ fontFamily: "'Inter', sans-serif" }}>
+              Salud-Conecta <span className="text-[#1d4ed8]">IA</span>
+            </span>
           </div>
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-[#0f172a]" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Salud-Conecta <span className="text-[#1d4ed8]">IA</span>
-          </span>
-        </div>
 
-        {/* Emergency button */}
-        <motion.button
-          whileTap={{ scale: 0.92 }}
-          onClick={onTriggerEmergency}
-          className="relative flex flex-col items-center justify-center w-[50px] h-[50px] rounded-full overflow-hidden"
-          style={{
-            background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-            boxShadow: "0 6px 20px rgba(239,68,68,0.3)",
-          }}
-        >
-          <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
-            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-            <circle cx="16.5" cy="17.5" r="2.5" />
-            <circle cx="7.5" cy="17.5" r="2.5" />
-            <path d="M10 10v4" />
-            <path d="M8 12h4" />
-          </svg>
-          <span className="text-white text-[9px] font-bold relative z-10 leading-none">128</span>
-        </motion.button>
-      </header>
+          {/* Emergency button */}
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={onTriggerEmergency}
+            className="relative flex flex-col items-center justify-center w-[50px] h-[50px] rounded-full overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+              boxShadow: "0 6px 20px rgba(239,68,68,0.3)",
+            }}
+          >
+            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
+              <circle cx="16.5" cy="17.5" r="2.5" />
+              <circle cx="7.5" cy="17.5" r="2.5" />
+              <path d="M10 10v4" />
+              <path d="M8 12h4" />
+            </svg>
+            <span className="text-white text-[9px] font-bold relative z-10 leading-none">128</span>
+          </motion.button>
+        </header>
+      </div>
 
       {/* ═══════════════ TITLE & LOCATION SELECTOR ═══════════════ */}
-      <div className="px-6 pt-2 pb-3 z-10 relative">
+      <div className="px-6 pt-2 pb-3 z-10 relative w-full max-w-4xl mx-auto">
         <h1 className="text-[28px] font-bold text-[#0f172a] tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
           Centros de salud
         </h1>
@@ -91,7 +93,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:gap-8 max-w-6xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
+      <div className="flex flex-col md:flex-row md:gap-8 max-w-4xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
         {/* ═══════════════ MAP AREA ═══════════════ */}
         <div className="w-full md:w-1/2">
           <div
@@ -309,7 +311,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </div>
 
       {/* ═══════════════ BOTTOM ACTION BAR ═══════════════ */}
-      <div className="px-5 py-4 mt-4 z-10 relative">
+      <div className="px-5 py-4 mt-4 z-10 relative w-full max-w-4xl mx-auto">
         <div className="flex items-center justify-between gap-3">
           {/* Emergency call button */}
           <motion.button
@@ -333,8 +335,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <button
               onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
               className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "hospital"
-                  ? "bg-[#2563eb] text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]"
-                  : "bg-white text-[#475569] border border-[#e2e8f0]"
+                ? "bg-[#2563eb] text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]"
+                : "bg-white text-[#475569] border border-[#e2e8f0]"
                 }`}
             >
               <span className={`text-[10px] font-bold ${activeFilter === "hospital" ? "text-white" : "text-[#2563eb]"}`}>H</span>
@@ -343,8 +345,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <button
               onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
               className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "centro"
-                  ? "bg-[#10b981] text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
-                  : "bg-white text-[#475569] border border-[#e2e8f0]"
+                ? "bg-[#10b981] text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
+                : "bg-white text-[#475569] border border-[#e2e8f0]"
                 }`}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5">

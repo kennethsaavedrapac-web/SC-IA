@@ -49,40 +49,42 @@ Emergency Contact: Cruz Roja Granada - 128`;
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <button
-          id="btn-profile-go-back"
-          onClick={onGoBack}
-          className="p-2 -ml-2 text-slate-600 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100 active:scale-95 flex items-center"
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </button>
+        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
+          <button
+            id="btn-profile-go-back"
+            onClick={onGoBack}
+            className="p-2 -ml-2 text-slate-600 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100 active:scale-95 flex items-center"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
 
-        <h2 className="font-display font-bold text-lg text-slate-800 flex items-center">
-          Mi perfil
-          <span className="ml-1 px-2 py-0.5 bg-blue-100 rounded-full text-blue-700 text-[10px] uppercase font-bold flex items-center space-x-0.5">
-            <BadgeCheck className="w-3 h-3 text-blue-600 inline shrink-0" />
-            <span>Verificado</span>
-          </span>
-        </h2>
+          <h2 className="font-display font-bold text-lg text-slate-800 flex items-center">
+            Mi perfil
+            <span className="ml-1 px-2 py-0.5 bg-blue-100 rounded-full text-blue-700 text-[10px] uppercase font-bold flex items-center space-x-0.5">
+              <BadgeCheck className="w-3 h-3 text-blue-600 inline shrink-0" />
+              <span>Verificado</span>
+            </span>
+          </h2>
 
-        {/* Bells with alert badge */}
-        <button
-          id="btn-profile-bell"
-          onClick={() => {
-            alert("No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.");
-            setShowNotificationBadge(false);
-          }}
-          className="p-2 -mr-2 text-slate-600 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100 relative active:scale-95"
-        >
-          <Bell className="w-6 h-6" />
-          {showNotificationBadge && (
-            <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-bounce"></span>
-          )}
-        </button>
+          {/* Bells with alert badge */}
+          <button
+            id="btn-profile-bell"
+            onClick={() => {
+              alert("No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.");
+              setShowNotificationBadge(false);
+            }}
+            className="p-2 -mr-2 text-slate-600 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100 relative active:scale-95"
+          >
+            <Bell className="w-6 h-6" />
+            {showNotificationBadge && (
+              <span className="absolute top-1.5 right-1.5 w-3 h-3 bg-red-500 border-2 border-white rounded-full animate-bounce"></span>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Main Container */}
-      <main className="px-6 pt-6 flex-1 space-y-6 max-w-4xl mx-auto w-full">
+      <main className="px-6 pt-6 flex-1 space-y-6 max-w-3xl mx-auto w-full">
 
         {/* Profile Card Header segment */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 relative overflow-hidden">

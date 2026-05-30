@@ -264,7 +264,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative"
+        className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-3xl mx-auto"
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
         {/* Logo */}
@@ -313,7 +313,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
-        className="px-7 pt-10 z-10 relative"
+        className="px-7 pt-10 z-10 relative w-full max-w-3xl mx-auto"
       >
         {/* Primary heading */}
         <h1
@@ -390,7 +390,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
-        className="w-full relative mt-12 mb-4 z-20 group"
+        className="w-full max-w-3xl mx-auto relative mt-12 mb-4 z-20 group"
       >
         {/* Left Arrow Button */}
         <AnimatePresence>
@@ -517,7 +517,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.35, ease: "easeOut" }}
-        className="mx-5 mb-5 relative z-20"
+        className="w-full max-w-3xl mx-auto px-5 mb-5 relative z-20"
       >
         <div
           className="relative overflow-hidden transition-all duration-300"
@@ -626,7 +626,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.45 }}
-        className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full relative px-6"
+        className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full max-w-3xl mx-auto relative px-6"
       >
         {/* Shield icon with checkmark */}
         <div className="relative shrink-0" style={{ width: "32px", height: "34px" }}>

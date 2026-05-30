@@ -53,22 +53,24 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div
-          onClick={() => onNavigate && onNavigate("home")}
-          className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">S</span>
+        <div className="flex justify-between items-center w-full max-w-3xl mx-auto">
+          <div
+            onClick={() => onNavigate && onNavigate("home")}
+            className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">S</span>
+            </div>
+            <span className="font-display font-bold text-lg text-slate-800">
+              Salud-Conecta <span className="text-blue-600">IA</span>
+            </span>
           </div>
-          <span className="font-display font-bold text-lg text-slate-800">
-            Salud-Conecta <span className="text-blue-600">IA</span>
-          </span>
+          <span className="text-xs font-bold text-blue-600 animate-pulse bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">🔥 Premium</span>
         </div>
-        <span className="text-xs font-bold text-blue-600 animate-pulse bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">🔥 Premium</span>
       </header>
 
       {/* Hero Header */}
-      <div className="px-6 pt-5 pb-3 max-w-4xl mx-auto w-full">
+      <div className="px-6 pt-5 pb-3 max-w-3xl mx-auto w-full">
         <h2 className="font-display font-bold text-3.5xl text-slate-900 tracking-tight leading-tight">
           Premium
         </h2>
@@ -92,7 +94,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
       </div>
 
       {/* Main content grids */}
-      <main className="px-6 flex-1 space-y-6 max-w-4xl mx-auto w-full">
+      <main className="px-6 flex-1 space-y-6 max-w-3xl mx-auto w-full">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* PREMIUM BÁSICO CARD */}
