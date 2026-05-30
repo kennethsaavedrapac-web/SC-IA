@@ -181,8 +181,57 @@ export default function App() {
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Dynamic Content Views based on Router State */}
-      <div className="flex-1 w-full md:max-w-4xl lg:max-w-5xl mx-auto bg-white min-h-screen shadow-2xl shadow-blue-500/5 flex flex-col relative pb-20 md:border-x border-slate-100">
+      {/* DESKTOP SIDEBAR NAVIGATION (Solo visible en Laptop/PC) */}
+      {currentView !== "login" && currentView !== "register" && (
+        <aside className="hidden md:flex flex-col w-[260px] bg-white border-r border-slate-200 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+          <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-base">S</span>
+            </div>
+            <span className="font-display font-bold text-xl text-slate-800 tracking-tight">
+              Salud <span className="text-blue-600">IA</span>
+            </span>
+          </div>
+
+          <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 pl-3">Menú Principal</div>
+
+            {[
+              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
+              { id: "centros", label: "Centros Médicos", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
+              { id: "buscar", label: "Buscador / Citas", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
+              { id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setCurrentView(tab.id as any)}
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
+                    ? "bg-blue-50 text-blue-700 font-bold shadow-sm border border-blue-100/50"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
+                  }`}
+              >
+                <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
+                <span className="text-[13.5px]">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Bottom Profile Section */}
+          <div className="p-4 border-t border-slate-100">
+            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 border-slate-200" : "hover:bg-slate-50 border-transparent"} text-left`}>
+              <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900 truncate">{localUser.name}</p>
+                <p className="text-[10px] text-slate-500 truncate font-mono">{localUser.email}</p>
+              </div>
+            </button>
+          </div>
+        </aside>
+      )}
+
+      {/* Dynamic Content Views based on Router State (Con margen lateral en Laptop) */}
+      <div className={`flex-1 w-full bg-white min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:ml-[260px]" : ""}`}>
 
         <AnimatePresence mode="wait">
           {currentView === "login" && (
@@ -322,8 +371,8 @@ export default function App() {
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
-          <nav className="fixed bottom-0 inset-x-0 bg-white z-40 md:max-w-4xl lg:max-w-5xl mx-auto w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:border-x border-slate-100">
-            <div className="grid grid-cols-4 md:flex md:justify-around md:px-10 p-2.5 pt-3 pb-5 md:pb-3 relative font-sans">
+          <nav className="fixed bottom-0 inset-x-0 bg-white z-40 w-full border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
+            <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
 
               {/* Tab 1: Consulta */}
               <button

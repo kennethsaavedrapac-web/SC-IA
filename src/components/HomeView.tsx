@@ -13,7 +13,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
 
   return (
     <div className="flex flex-col min-h-screen pb-24 relative overflow-hidden" style={{ background: "linear-gradient(180deg, #f8faff 0%, #ffffff 40%, #f8faff 80%, #ffffff 100%)" }}>
-      
+
       {/* Background Decorators - Organic shapes */}
       <div
         className="absolute pointer-events-none z-0"
@@ -45,10 +45,10 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
         <div className="flex items-center gap-2.5">
           <div className="w-[34px] h-[34px] relative shrink-0">
             <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-              <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#1d4ed8" fillOpacity="0.12"/>
-              <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#1d4ed8" fillOpacity="0.12"/>
-              <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M26.6667 13.3333C26.6667 20.6971 20.6971 26.6667 13.3333 26.6667C5.96954 26.6667 0 20.6971 0 13.3333C0 5.96954 5.96954 0 13.3333 0C20.6971 0 26.6667 5.96954 26.6667 13.3333Z" fill="#1d4ed8" fillOpacity="0.12" />
+              <path d="M40 26.6667C40 34.0305 34.0305 40 26.6667 40C19.3029 40 13.3333 34.0305 13.3333 26.6667C13.3333 19.3029 19.3029 13.3333 26.6667 13.3333C34.0305 13.3333 40 19.3029 40 26.6667Z" fill="#1d4ed8" fillOpacity="0.12" />
+              <path d="M26.6667 26.6667C26.6667 22.9566 25.1481 19.5992 22.6866 17.1378C20.2251 14.6763 16.8677 13.1577 13.1577 13.1577C13.0458 13.1577 12.9344 13.1594 12.8236 13.1627C14.0734 7.57508 19.0432 3.33333 25 3.33333C31.4427 3.33333 36.6667 8.55734 36.6667 15C36.6667 20.9568 32.4249 25.9266 26.8373 27.1764C26.8406 27.0656 26.8423 26.9542 26.8423 26.8423L26.6667 26.6667Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13.3333 13.3333C13.3333 17.0434 14.8519 20.4008 17.3134 22.8622C19.7749 25.3237 23.1323 26.8423 26.8423 26.8423C26.9542 26.8423 27.0656 26.8406 27.1764 26.8373C25.9266 32.4249 20.9568 36.6667 15 36.6667C8.55734 36.6667 3.33333 31.4427 3.33333 25C3.33333 19.0432 7.57508 14.0734 13.1627 12.8236C13.2735 12.8269 13.3853 12.83 13.4981 12.8344L13.3333 13.3333Z" stroke="#1d4ed8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <span className="font-bold text-[19px] tracking-[-0.02em] text-[#0f172a]" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -67,8 +67,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       </header>
 
       {/* ═══════════════ MAIN HERO CONTAINER ═══════════════ */}
-      <main className="flex-1 px-6 pt-5 max-w-lg mx-auto w-full z-10 relative">
-        
+      <main className="flex-1 px-6 pt-5 max-w-5xl mx-auto w-full z-10 relative">
+
         {/* Welcome Section / Profile Header Area */}
         <div className="flex justify-between items-start mb-9">
           <div className="flex-1 pr-4">
@@ -106,8 +106,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
         </div>
 
         {/* ═══════════════ MAIN LIST MENU ITEMS ═══════════════ */}
-        <div className="space-y-4">
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4">
+
           {/* Card 1: Consulta con IA */}
           <motion.button
             whileTap={{ scale: 0.98 }}
