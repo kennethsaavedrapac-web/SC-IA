@@ -11,7 +11,7 @@ interface PremiumViewProps {
 export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: PremiumViewProps) {
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState<{ text: string; error: boolean } | null>(null);
-  
+
   // Checkout simulator
   const [checkoutPlan, setCheckoutPlan] = useState<{ name: string; price: string } | null>(null);
   const [cardNumber, setCardNumber] = useState("");
@@ -41,7 +41,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
       setIsProcessingCheckout(false);
       setCheckoutSuccess(true);
       onUnlockPremium(); // set parent State to premium
-      
+
       setTimeout(() => {
         setCheckoutSuccess(false);
         setCheckoutPlan(null);
@@ -53,7 +53,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
     <div className="flex flex-col min-h-screen pb-24 bg-gradient-to-b from-[#f5f8ff] to-[#f8fafc]">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50">
-        <div 
+        <div
           onClick={() => onNavigate && onNavigate("home")}
           className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
         >
@@ -93,7 +93,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
 
       {/* Main content grids */}
       <main className="px-6 flex-1 space-y-6 max-w-4xl mx-auto w-full">
-        
+
         {/* PREMIUM BÁSICO CARD */}
         <div className="bg-white rounded-3xl p-6 border border-slate-100/90 shadow-sm relative overflow-hidden flex flex-col md:flex-row gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
           <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -274,7 +274,7 @@ export default function PremiumView({ onUnlockPremium, isPremium, onNavigate }: 
                       <h3 className="font-display font-bold text-lg text-slate-900">Checkout Seguro</h3>
                       <p className="text-xs text-slate-400 mt-0.5">Introduce tus datos de facturación.</p>
                     </div>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setCheckoutPlan(null)}
                       className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"

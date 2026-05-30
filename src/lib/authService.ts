@@ -132,6 +132,14 @@ export async function signInWithEmail(
  */
 export async function signInWithGoogle(): Promise<AuthResult> {
   try {
+    // Evita intentar redirigir a Google si estamos usando el placeholder de Supabase
+    if (!import.meta.env.VITE_SUPABASE_URL) {
+      return {
+        success: false,
+        error: 'Faltan las credenciales de Supabase. No se puede iniciar con Google.'
+      };
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
