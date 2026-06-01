@@ -114,9 +114,9 @@ Nivel de prioridad: [🔴 Alta urgencia / 🟡 Moderado / 🟢 Leve]
 
       const response = await client.models.generateContent({
         model: "gemini-1.5-flash",
+        systemInstruction: systemInstruction,
         contents: contents,
-        config: {
-          systemInstruction: systemInstruction,
+        generationConfig: {
           temperature: 0.75,
         }
       });
