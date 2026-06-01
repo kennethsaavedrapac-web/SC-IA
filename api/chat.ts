@@ -5,35 +5,54 @@ let aiClient: GoogleGenerativeAI | null = null;
 function getGeminiClient() {
   if (!aiClient) {
     const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey.length < 10) {
+      console.warn("⚠️ Warning: GEMINI_API_KEY is not properly configured");
+    }
     aiClient = new GoogleGenerativeAI(apiKey || "");
   }
   return aiClient;
 }
 
 export default async function handler(
-  req: { method?: string; body?: any },
-  res: { status: (code: number) => { json: (data: any) => void } }
+  req: { method?: string; body?: any; headers?: Record<string, string> },
+  res: {
+    setHeader: (key: string, value: string) => void;
+    status: (code: number) => { json: (data: any) => void; end: () => void };
+  }
 ) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  // Enable CORS
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
+  res.setHeader("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
+
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
     const { message, history } = req.body;
+
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
+    // If API key is not configured, return simulated response
     if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
       console.log("Using simulated response (unconfigured API key).");
       return res.status(200).json({
-        text: `[Respuesta Simulada - Salud-Conecta IA]\n\n¡Hola Granada! He recibido tus síntomas sobre: "${message}". Como tu asistente de salud inteligente, te sugiero lo siguiente:\n\n1. **Autocuidado**: Mantente hidratado y descansa. \n2. **Centros recomendados**: Puedes acudir al **Centro de Salud Sócrates Flores** para una atención regular, o al **Hospital Bautista** si requieres consulta especializada urgente en Granada.\n3. **Urgencia**: Si presentas dolor abdominal agudo, dificultad para respirar o fiebre alta mayor a 39°C que no cede, por favor llama a emergencias al **118** de inmediato.\n\n*Nota: Recuerde configurar su clave GEMINI_API_KEY en la sección Secrets para recibir un verdadero análisis clínico avanzado de IA.*`,
+        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
       });
     }
 
     const client = getGeminiClient();
-    
+
     const systemInstruction = `Eres "Salud-Conecta IA", un asistente médico virtual y asesor de triaje clínico inteligente para Nicaragua.
 
 TU OBJETIVO PRINCIPAL:
@@ -96,30 +115,43 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
         });
       }
     }
-    
+
     contents.push({
       role: "user",
       parts: [{ text: message }]
     });
 
-    const model = client.getGenerativeModel({ 
+    const model = client.getGenerativeModel({
       model: "gemini-1.5-flash",
       systemInstruction: systemInstruction
     });
 
-    const result = await model.generateContent({ contents });
-    const response = await result.response;
+    const result = await model.generateContent({
+      contents: contents,
+      generationConfig: { temperature: 0.75 }
+    });
+
+    const responseAI = await result.response;
+    const responseText = responseAI.text();
 
     return res.status(200).json({
-      text: response.text() || "No obtuve una respuesta clara del asistente.",
+      text: responseText || "No obtuve una respuesta clara del asistente.",
       simulated: false,
     });
 
   } catch (error) {
     console.error("Gemini Error:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const isDevelopment = process.env.NODE_ENV !== 'production';
-    
+    const isDevelopment = process.env.NODE_ENV !== "production";
+
+    console.error("Full error details:", {
+      error: error,
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      apiKeyConfigured: !!process.env.GEMINI_API_KEY,
+      apiKeyLength: process.env.GEMINI_API_KEY?.length || 0
+    });
+
     return res.status(500).json({
       error: "Ocurrió un error procesando el triaje virtual con IA.",
       details: isDevelopment ? errorMessage : "Error interno del servidor",
