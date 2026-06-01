@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 let aiClient = null;
 
@@ -21,7 +21,7 @@ function getGeminiClient() {
   return aiClient;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -147,10 +147,22 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
   } catch (error) {
     console.error("Chat API Error:", error);
     
+    const errorMessage = error?.message || String(error) || "Error desconocido";
+    
+    // Provide more specific error info for debugging
+    let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
+    if (errorMessage.includes("API_KEY") || errorMessage.includes("401") || errorMessage.includes("403")) {
+      userMessage = "Error de autenticación con la API de Gemini. Verifica que la API key sea válida.";
+    } else if (errorMessage.includes("SAFETY")) {
+      userMessage = "La respuesta fue bloqueada por filtros de seguridad. Intenta reformular tu consulta.";
+    } else if (errorMessage.includes("quota") || errorMessage.includes("429")) {
+      userMessage = "Se ha excedido la cuota de la API. Intenta más tarde.";
+    }
+    
     return res.status(500).json({
-      error: "Ocurrió un error procesando el triaje virtual con IA.",
-      details: error?.message || error || "Error desconocido",
+      error: userMessage,
+      details: errorMessage,
       timestamp: new Date().toISOString(),
     });
   }
-}
+};
