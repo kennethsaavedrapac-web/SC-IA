@@ -48,6 +48,7 @@ export interface Appointment {
 }
 
 export interface UserProfile {
+  id?: string;
   name: string;
   email: string;
   city: string;

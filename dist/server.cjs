@@ -99,7 +99,7 @@ Responde en un espa\xF1ol amigable, estructurado y f\xE1cil de leer con vi\xF1et
         parts: [{ text: message }]
       });
       const response = await client.models.generateContent({
-        model: "gemini-3.5-flash",
+        model: "gemini-1.5-flash",
         contents,
         config: {
           systemInstruction,
@@ -127,10 +127,10 @@ Responde en un espa\xF1ol amigable, estructurado y f\xE1cil de leer con vi\xF1et
     app.use(vite.middlewares);
   } else {
     console.log("Serving production build of client from /dist...");
-    const distPath = import_path.default.join(process.cwd(), "dist");
-    app.use(import_express.default.static(distPath));
+    const distPath = import_path.default.resolve(process.cwd(), "dist");
+    app.use(import_express.default.static(distPath, { index: false }));
     app.get("*", (req, res) => {
-      res.sendFile(import_path.default.join(distPath, "index.html"));
+      res.sendFile(import_path.default.resolve(distPath, "index.html"));
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
