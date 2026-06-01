@@ -224,6 +224,20 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       
       const data = await response.json();
       
+      if (!response.ok) {
+        // API returned an error status - show the actual error details
+        const errorDetail = data.details || data.error || `Error del servidor (${response.status})`;
+        console.error("API Error Response:", data);
+        const errorMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: `⚠️ Error del servidor: ${errorDetail}`,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, errorMsg]);
+        return;
+      }
+      
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: data.text || "Lo siento, no pude procesar la respuesta.",
@@ -233,6 +247,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       
       setMessages(prev => [...prev, botMsg]);
     } catch (error) {
+      console.error("Fetch error:", error);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: "Error de red. Verifica tu conexión a internet o intenta de nuevo más tarde.",
