@@ -128,7 +128,7 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
     });
 
     const model = client.getGenerativeModel({
-      model: "gemini-pro",
+      model: "gemini-1.5-pro",
       systemInstruction: systemInstruction,
     });
 
