@@ -12,7 +12,7 @@ import { useAuth } from "./contexts/AuthContext";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -27,6 +27,21 @@ export default function App() {
   const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  // PWA states
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showIosGuideModal, setShowIosGuideModal] = useState(false);
+  const [showPwaBanner, setShowPwaBanner] = useState<boolean>(() => {
+    try {
+      const dismissed = localStorage.getItem("dismissedPwaBanner");
+      if (dismissed === "true") return false;
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+      if (isStandalone) return false;
+      return true;
+    } catch (e) {
+      return true;
+    }
+  });
 
   // Font Size state
   const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
@@ -129,6 +144,64 @@ export default function App() {
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
+
+  // Listen for PWA beforeinstallprompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      try {
+        const dismissed = localStorage.getItem("dismissedPwaBanner");
+        if (dismissed !== "true") {
+          setShowPwaBanner(true);
+        }
+      } catch (err) {
+        setShowPwaBanner(true);
+      }
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    const handleAppInstalled = () => {
+      setShowPwaBanner(false);
+      setDeferredPrompt(null);
+      addToast(createToast(t("pwaSuccessToast"), "success"));
+      try {
+        localStorage.setItem("dismissedPwaBanner", "true");
+      } catch (e) {}
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, [t, addToast]);
+
+  const handleInstallPwa = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === "accepted") {
+          addToast(createToast(t("pwaSuccessToast"), "success"));
+          setShowPwaBanner(false);
+          try {
+            localStorage.setItem("dismissedPwaBanner", "true");
+          } catch (e) {}
+        }
+        setDeferredPrompt(null);
+      });
+    } else {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isIos = /iphone|ipad|ipod/.test(userAgent);
+      if (isIos) {
+        setShowIosGuideModal(true);
+      } else {
+        addToast(createToast("Usa el botón de instalación en la barra de direcciones del navegador.", "info"));
+      }
+    }
+  };
 
   // ─── Handlers ──────────────────────────────────────────────
   const handleLoginSuccess = (idOrName: string) => {
@@ -272,6 +345,49 @@ export default function App() {
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
       <div className={`flex-1 w-full bg-white dark:bg-slate-950 min-h-screen flex flex-col relative pb-20 md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
+
+        {/* PWA Download/Install Banner */}
+        <AnimatePresence>
+          {showPwaBanner && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm border-b border-blue-500/20 z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden"
+            >
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4.5 h-4.5 text-blue-200 animate-pulse" />
+                </div>
+                <div className="text-left">
+                  <h4 className="font-display font-bold text-xs sm:text-sm tracking-tight">{t("pwaBannerTitle")}</h4>
+                  <p className="text-[10px] sm:text-xs text-blue-100 font-normal max-w-2xl leading-normal">{t("pwaBannerDesc")}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+                <button
+                  onClick={handleInstallPwa}
+                  className="bg-white text-blue-600 hover:bg-blue-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{t("pwaInstallButton")}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPwaBanner(false);
+                    try {
+                      localStorage.setItem("dismissedPwaBanner", "true");
+                    } catch (e) {}
+                  }}
+                  className="p-1.5 hover:bg-white/10 active:scale-95 rounded-lg text-blue-100 hover:text-white transition-all shrink-0 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
           {currentView === "login" && (
@@ -872,6 +988,108 @@ export default function App() {
                 </button>
               </div>
 
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* iOS PWA Installation Guide Modal */}
+      <AnimatePresence>
+        {showIosGuideModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6 select-none"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
+            >
+              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+                  <span>Instalar en iOS</span>
+                </h3>
+                <button
+                  onClick={() => setShowIosGuideModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5" style={{ fontFamily: "'Inter', sans-serif" }}>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Sigue estos pasos en tu dispositivo Apple para agregar la aplicación a tu pantalla de inicio:
+                </p>
+
+                <div className="space-y-4">
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200">Abre Safari</h5>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-0.5">
+                        Asegúrate de estar usando el navegador Safari oficial.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                        Presiona compartir
+                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                          <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                            <polyline points="16 6 12 2 8 6" />
+                            <line x1="12" y1="2" x2="12" y2="15" />
+                          </svg>
+                        </span>
+                      </h5>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-0.5">
+                        Toca el botón "Compartir" en la barra de herramientas inferior.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                      3
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                        Agregar a Inicio
+                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                          <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                          </svg>
+                        </span>
+                      </h5>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal mt-0.5">
+                        Desplázate hacia abajo y selecciona la opción "Agregar a la pantalla de inicio".
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setShowIosGuideModal(false)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
+                >
+                  Entendido
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

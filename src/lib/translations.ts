@@ -30,6 +30,13 @@ export const translations = {
     privacyTitle: "Política de Privacidad",
     guideTitle: "¿Cómo usar Salud-Conecta IA?",
 
+    // PWA Banner
+    pwaBannerTitle: "Instala la App Móvil",
+    pwaBannerDesc: "Accede al instante a tu triaje médico con IA y disfruta de funciones offline optimizadas.",
+    pwaInstallButton: "Instalar PWA",
+    pwaIosInstructions: "En iOS: presiona el botón compartir ⎋ y selecciona 'Agregar a Inicio' ⊞",
+    pwaSuccessToast: "¡Salud-Conecta IA se ha instalado correctamente!",
+
     // Misc
     welcome: "Bienvenido",
     guest: "Invitado",
@@ -256,6 +263,13 @@ export const translations = {
     termsTitle: "Terms of Service",
     privacyTitle: "Privacy Policy",
     guideTitle: "How to use Salud-Conecta IA?",
+
+    // PWA Banner
+    pwaBannerTitle: "Install the Mobile App",
+    pwaBannerDesc: "Instantly access your AI medical triage and enjoy optimized offline features.",
+    pwaInstallButton: "Install PWA",
+    pwaIosInstructions: "On iOS: tap the share button ⎋ and select 'Add to Home Screen' ⊞",
+    pwaSuccessToast: "Salud-Conecta IA has been installed successfully!",
 
     // Misc
     welcome: "Welcome",
