@@ -216,17 +216,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       };
     });
 
-    let finalCenters = centersWithStatus;
+    const openCenters = centersWithStatus.filter(center => center.isOpenNow);
+
+    let finalCenters = openCenters;
 
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
 
       // 2. Filtrar por radio y ORDENAR PRIORIZANDO LOS ABIERTOS
-      const centersByDistance = centersWithStatus
+      const centersByDistance = openCenters
         .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
         .sort((a, b) => {
-          if (a.isOpenNow && !b.isOpenNow) return -1; // Abiertos primero
-          if (!a.isOpenNow && b.isOpenNow) return 1;  // Cerrados después
           return (a.distanceKm ?? 0) - (b.distanceKm ?? 0); // Luego por distancia
         });
 
@@ -244,7 +244,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     } else {
       const query = normalizeQuery(locationQuery.trim());
       if (query) {
-        finalCenters = centersWithStatus.filter((center) => {
+        finalCenters = openCenters.filter((center) => {
           const searchableText = normalizeQuery(
             [center.name, center.department, center.municipality, center.locality, center.silais]
               .filter(Boolean)
@@ -253,13 +253,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           return searchableText.includes(query);
         });
       }
-
-      // En búsqueda manual, también ordenamos para mostrar abiertos arriba
-      finalCenters = finalCenters.sort((a, b) => {
-        if (a.isOpenNow && !b.isOpenNow) return -1;
-        if (!a.isOpenNow && b.isOpenNow) return 1;
-        return 0;
-      });
     }
 
     return finalCenters;
