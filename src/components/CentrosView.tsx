@@ -64,18 +64,26 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   }, [locationQuery]);
 
   const selectedLocationLabel = locationQuery.trim() || "Nicaragua";
-
-  const filteredMarkerCenters = visibleCenters.filter((center) => {
-    const typeText = normalizeQuery(center.type);
-    if (activeFilter === "hospital") return typeText.includes("hospital");
-    if (activeFilter === "centro") return typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto");
-    return true;
-  });
-
-  // Determine marker type
-  const getMarkerType = (center: HealthCenter) => {
-    return center.type.toLowerCase().includes("hospital") ? "hospital" : "centro";
-  };
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const selectedCenterSearch = selectedCenter
+    ? [
+        selectedCenter.name,
+        selectedCenter.locality,
+        selectedCenter.municipality,
+        selectedCenter.department,
+        "Nicaragua",
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : `${selectedLocationLabel}, Nicaragua`;
+  const selectedCenterMapQuery =
+    selectedCenter?.latitude && selectedCenter?.longitude
+      ? `${selectedCenter.latitude},${selectedCenter.longitude}`
+      : selectedCenterSearch;
+  const googleMapsEmbedUrl = googleMapsApiKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
+    : "";
+  const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
   return (
     <div className="flex flex-col min-h-screen pb-24 relative overflow-x-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
@@ -173,132 +181,53 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               boxShadow: "inset 0 2px 10px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)",
             }}
           >
-            {/* Map grid pattern */}
-            <div className="absolute inset-0" style={{ background: "radial-gradient(rgba(148,163,184,0.15) 1px, transparent 1px)", backgroundSize: "18px 18px" }} />
+            {googleMapsEmbedUrl ? (
+              <iframe
+                title={`Mapa de ${selectedCenter?.name ?? selectedLocationLabel}`}
+                src={googleMapsEmbedUrl}
+                className="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100 px-6 text-center dark:bg-slate-900">
+                <div>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Google Maps no está configurado</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Agrega VITE_GOOGLE_MAPS_API_KEY en tu archivo .env.</p>
+                </div>
+              </div>
+            )}
 
-            {/* Water/lake area top-right */}
-            <div className="absolute" style={{ top: "-20px", right: "-40px", width: "200px", height: "200px", background: "radial-gradient(ellipse at center, rgba(147,197,253,0.5) 0%, rgba(147,197,253,0.2) 50%, transparent 75%)", borderRadius: "60% 40% 55% 45% / 45% 60% 40% 55%", filter: "blur(8px)" }} />
-
-            {/* Faint green patches for land */}
-            <div className="absolute" style={{ top: "60%", left: "10%", width: "80px", height: "60px", background: "rgba(134,239,172,0.15)", borderRadius: "50%", filter: "blur(12px)" }} />
-            <div className="absolute" style={{ top: "40%", left: "60%", width: "100px", height: "80px", background: "rgba(134,239,172,0.1)", borderRadius: "50%", filter: "blur(15px)" }} />
-
-            {/* Road lines */}
-            <div className="absolute" style={{ top: "45%", left: "0", right: "0", height: "1.5px", background: "rgba(148,163,184,0.2)" }} />
-            <div className="absolute" style={{ top: "0", bottom: "0", left: "40%", width: "1.5px", background: "rgba(148,163,184,0.2)" }} />
-            <div className="absolute" style={{ top: "0", bottom: "0", left: "65%", width: "1px", background: "rgba(148,163,184,0.12)" }} />
-            <div className="absolute" style={{ top: "30%", left: "0", right: "0", height: "1px", background: "rgba(148,163,184,0.12)" }} />
-            <div className="absolute" style={{ top: "70%", left: "0", right: "0", height: "1px", background: "rgba(148,163,184,0.12)" }} />
-
-            {/* Location text label on map */}
-            <div className="absolute z-10 select-none pointer-events-none" style={{ top: "38%", left: "28%", transform: "translate(-50%, -50%)" }}>
-              <span className="text-[16px] font-bold text-slate-700/20 dark:text-slate-300/20 tracking-wide" style={{ fontFamily: "'Inter', sans-serif" }}>{selectedLocationLabel}</span>
-            </div>
-
-            {/* User location blue pulsing dot */}
-            <div className="absolute z-20 select-none" style={{ top: "50%", left: "38%", transform: "translate(-50%, -50%)" }}>
-              <span className="absolute inline-flex h-7 w-7 rounded-full bg-[#3b82f6]/30 animate-ping" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)" }} />
-              <div className="w-[14px] h-[14px] bg-[#2563eb] border-[2.5px] border-white rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)] relative z-10" />
-            </div>
-
-            {/* Map markers for health centers */}
-            {filteredMarkerCenters.map((hc) => {
-              const isSelected = selectedCenter?.id === hc.id;
-              const markerType = getMarkerType(hc);
-
-              return (
-                <button
-                  key={hc.id}
-                  onClick={() => setSelectedCenter(hc)}
-                  className="absolute z-20 transition-all duration-200"
-                  style={{
-                    top: `${hc.lat}%`,
-                    left: `${hc.lng}%`,
-                    transform: `translate(-50%, -50%) scale(${isSelected ? 1.15 : 1})`,
-                  }}
-                >
-                  <div
-                    className="flex items-center justify-center rounded-full transition-all"
-                    style={{
-                      width: markerType === "hospital" ? "36px" : "30px",
-                      height: markerType === "hospital" ? "36px" : "30px",
-                      background: isSelected
-                        ? "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)"
-                        : markerType === "hospital"
-                          ? "#ffffff"
-                          : "#ffffff",
-                      border: isSelected ? "2.5px solid #ffffff" : "2px solid " + (markerType === "hospital" ? "#93c5fd" : "#cbd5e1"),
-                      boxShadow: isSelected
-                        ? "0 4px 16px rgba(37,99,235,0.35)"
-                        : "0 2px 8px rgba(0,0,0,0.08)",
-                    }}
+            {selectedCenter && (
+              <motion.div
+                key={selectedCenter.id}
+                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className="absolute left-3 right-3 top-3 z-30 md:left-auto md:max-w-[260px]"
+              >
+                <div className="rounded-2xl border border-slate-100 bg-white/95 p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+                  <h4 className="text-[13px] font-bold leading-tight text-slate-900 dark:text-white">{selectedCenter.name}</h4>
+                  <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{selectedCenter.type}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <span className="flex items-center gap-1 text-[10px] font-medium text-[#10b981]">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#10b981]" />
+                      {selectedCenter.municipality}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.department}</span>
+                  </div>
+                  <a
+                    href={googleMapsSearchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex rounded-full bg-blue-600 px-3 py-1.5 text-[10px] font-bold text-white shadow-sm hover:bg-blue-700"
                   >
-                    {markerType === "hospital" ? (
-                      <span className={`text-[13px] font-bold ${isSelected ? "text-white" : "text-[#2563eb]"}`}>H</span>
-                    ) : (
-                      <svg viewBox="0 0 24 24" fill="none" stroke={isSelected ? "white" : "#64748b"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-
-            {/* Selected center tooltip / info popup */}
-            <AnimatePresence>
-              {selectedCenter && (
-                <motion.div
-                  key={selectedCenter.id}
-                  initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 6, scale: 0.96 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute z-30"
-                  style={{ top: "12px", right: "12px", left: "45%", maxWidth: "200px" }}
-                >
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl p-3 shadow-[0_8px_24px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800">
-                    <h4 className="text-[13px] font-bold text-slate-900 dark:text-white leading-tight">{selectedCenter.name}</h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{selectedCenter.type}</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="flex items-center gap-1 text-[10px] font-medium text-[#10b981]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] inline-block" />
-                        {selectedCenter.municipality}
-                      </span>
-                      <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.department}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Map controls (GPS + Filter) */}
-            <div className="absolute right-3 flex flex-col gap-2 z-20" style={{ bottom: "16px" }}>
-              <button className="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 active:scale-95 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="3" />
-                  <line x1="12" y1="2" x2="12" y2="5" />
-                  <line x1="12" y1="19" x2="12" y2="22" />
-                  <line x1="2" y1="12" x2="5" y2="12" />
-                  <line x1="19" y1="12" x2="22" y2="12" />
-                </svg>
-              </button>
-              <button className="w-10 h-10 bg-white dark:bg-slate-900 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.08)] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 active:scale-95 transition-transform">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-                  <line x1="4" y1="21" x2="4" y2="14" />
-                  <line x1="4" y1="10" x2="4" y2="3" />
-                  <line x1="12" y1="21" x2="12" y2="12" />
-                  <line x1="12" y1="8" x2="12" y2="3" />
-                  <line x1="20" y1="21" x2="20" y2="16" />
-                  <line x1="20" y1="12" x2="20" y2="3" />
-                  <line x1="1" y1="14" x2="7" y2="14" />
-                  <line x1="9" y1="8" x2="15" y2="8" />
-                  <line x1="17" y1="16" x2="23" y2="16" />
-                </svg>
-              </button>
-            </div>
+                    Abrir en Google Maps
+                  </a>
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
 

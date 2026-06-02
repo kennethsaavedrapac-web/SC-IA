@@ -125,6 +125,8 @@ export const HEALTH_CENTERS: HealthCenter[] = HEALTH_UNIT_DATABASE.flatMap((depa
       durationMin: estimateDuration(globalIndex),
       lat: position.lat,
       lng: position.lng,
+      latitude: unit.latitud ?? undefined,
+      longitude: unit.longitud ?? undefined,
       department: departmentName,
       municipality,
       locality: normalizeText(unit.localidad),
