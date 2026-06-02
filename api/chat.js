@@ -1,4 +1,4 @@
-const { GoogleGenAI } = require("@google/genai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 let aiClient = null;
 
@@ -6,14 +6,14 @@ function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
   
   if (!apiKey || apiKey.length < 10) {
-    throw new Error("GEMINI_API_KEY is not properly configured. Length: " + (apiKey?.length || 0));
+    return null;
   }
   
   if (!aiClient) {
     try {
-      aiClient = new GoogleGenAI({ apiKey });
+      aiClient = new GoogleGenerativeAI(apiKey);
     } catch (e) {
-      console.error("Error creating GoogleGenAI client:", e);
+      console.error("Error creating GoogleGenerativeAI client:", e);
       throw e;
     }
   }
@@ -111,23 +111,6 @@ module.exports = async function handler(req, res) {
 
     const ai = getGeminiClient();
 
-    // Build contents array for multi-turn conversation
-    const contents = [];
-    
-    if (history && Array.isArray(history)) {
-      for (const turn of history) {
-        contents.push({
-          role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-          parts: [{ text: turn.text || turn.content || "" }],
-        });
-      }
-    }
-
-    contents.push({
-      role: "user",
-      parts: [{ text: message }],
-    });
-
     // Evaluamos la hora actual para inyectarla en el contexto del agente
     const now = new Date();
     const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
@@ -136,17 +119,25 @@ module.exports = async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
-    // Use the new @google/genai SDK
-    const response = await ai.models.generateContent({
+    const systemPrompt = SYSTEM_INSTRUCTION + timeContext;
+
+    // Get the model with system instruction
+    const model = ai.getGenerativeModel({
       model: "gemini-2.0-flash-lite",
-      contents: contents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION + timeContext,
-        temperature: 0.75,
-      },
+      systemInstruction: systemPrompt,
     });
 
-    const responseText = response.text;
+    // Build chat with history
+    const chat = model.startChat({
+      history: history && Array.isArray(history) ? history.map(turn => ({
+        role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+        parts: [{ text: turn.text || turn.content || "" }],
+      })) : [],
+    });
+
+    // Generate response
+    const response = await chat.sendMessage(message);
+    const responseText = response.response.text();
 
     return res.status(200).json({
       text: responseText || "No obtuve una respuesta clara del asistente.",
