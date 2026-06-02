@@ -6,7 +6,7 @@ export const DEFAULT_USER: UserProfile = {
   email: "kenneth@gmail.com",
   city: "Granada",
   country: "Nicaragua",
-  avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256", // Stylish profile portrait
+  avatarUrl: "", // Empezar vacío
   healthConditions: ["Alergia al polen", "Presión arterial normal", "Tipo de sangre O+"]
 };
 
