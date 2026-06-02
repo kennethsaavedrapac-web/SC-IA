@@ -121,29 +121,26 @@ CENTROS DE REFERENCIA EN GRANADA:
 - Emergencias: Llamar al 118
 
 RECUERDA: Siempre finaliza con la advertencia m\xE9dica obligatoria.`;
-      const contents = [];
-      if (history && Array.isArray(history)) {
-        for (const turn of history) {
-          contents.push({
-            role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-            parts: [{ text: turn.text || turn.content || "" }]
-          });
-        }
-      }
-      contents.push({
-        role: "user",
-        parts: [{ text: message }]
-      });
+      const now = /* @__PURE__ */ new Date();
+      const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: "long", hour: "2-digit", minute: "2-digit" });
+      const timeContext = `
+
+[CONTEXTO TEMPORAL ACTUAL IMPORTANTE PARA TRIAGE]
+Hora y d\xEDa actual en Nicaragua: ${localTimeStr}
+REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden \xFAnicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba est\xE1 fuera de ese horario (noches o fines de semana), EST\xC1N CERRADOS. En caso de s\xEDntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos s\xED atienden 24/7. Es vital para la seguridad no derivarlos a cl\xEDnicas cerradas.`;
+      const finalSystemInstruction = systemInstruction + timeContext;
       const model = client.getGenerativeModel({
-        model: "gemini-1.5-pro",
-        systemInstruction
+        model: "gemini-2.0-flash-lite",
+        systemInstruction: finalSystemInstruction
       });
-      const result = await model.generateContent({
-        contents,
-        generationConfig: { temperature: 0.75 }
+      const chat = model.startChat({
+        history: history && Array.isArray(history) ? history.map((turn) => ({
+          role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+          parts: [{ text: turn.text || turn.content || "" }]
+        })) : []
       });
-      const responseAI = await result.response;
-      const responseText = responseAI.text();
+      const result = await chat.sendMessage(message);
+      const responseText = result.response.text();
       return res.json({
         text: responseText || "No obtuve una respuesta clara del asistente.",
         simulated: false

@@ -222,12 +222,19 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         body: JSON.stringify({ message: userText, history: messages })
       });
       
-      const data = await response.json();
+      let data: any;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { error: text || `Error del servidor (${response.status})` };
+      }
       
       if (!response.ok) {
         // API returned an error status - show the actual error details
         const errorDetail = data.details || data.error || `Error del servidor (${response.status})`;
-        console.error("API Error Response:", JSON.stringify(data, null, 2));
+        console.error("API Error Response:", data);
         console.error("Response status:", response.status);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
