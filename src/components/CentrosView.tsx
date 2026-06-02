@@ -425,6 +425,33 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 : "Búsqueda manual"}
             </span>
           </div>
+
+          {/* Filter chips at the top */}
+          <div className="flex items-center gap-1.5 mt-2">
+            <button
+              onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
+              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "hospital"
+                ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]"
+                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+            >
+              <span className={`text-[10px] font-bold ${activeFilter === "hospital" ? "text-white" : "text-blue-600"}`}>H</span>
+              {t('hospitals')}
+            </button>
+            <button
+              onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
+              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "centro"
+                ? "bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
+                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                }`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              {t('centers')}
+            </button>
+          </div>
           {geoStatus === "error" && (
             <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
               {geoError} Puedes buscar por ciudad manualmente.
@@ -448,11 +475,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
       <div className="flex flex-col md:flex-row md:gap-8 max-w-6xl mx-auto w-full px-0 md:px-6 relative z-10 mt-2">
         {/* ═══════════════ MAP AREA ═══════════════ */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 md:sticky md:top-24 self-start">
           <div
-            className="relative overflow-hidden mx-3 md:mx-0 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800"
+            className="relative overflow-hidden mx-3 md:mx-0 rounded-[24px] shadow-sm border border-slate-200 dark:border-slate-800 h-[340px] md:h-[500px]"
             style={{
-              height: "340px",
               background: "linear-gradient(135deg, #e8f0fe 0%, #dce8f5 30%, #d4e3f2 60%, #cddcee 100%)",
               boxShadow: "inset 0 2px 10px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.03)",
             }}
@@ -481,7 +507,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 initial={{ opacity: 0, y: 6, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.2 }}
-                className="absolute left-3 right-3 top-3 z-30 md:left-auto md:max-w-[260px]"
+                className="absolute left-3 right-3 bottom-3 md:bottom-auto md:top-3 md:right-3 md:left-auto md:max-w-[260px] z-30"
               >
                 <div className="rounded-2xl border border-slate-100 bg-white/95 p-3 shadow-[0_8px_24px_rgba(0,0,0,0.14)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
                   <h4 className="text-[13px] font-bold leading-tight text-slate-900 dark:text-white">{selectedCenter.name}</h4>
@@ -642,7 +668,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
       {/* ═══════════════ BOTTOM ACTION BAR ═══════════════ */}
       <div className="px-5 py-4 mt-4 z-10 relative w-full max-w-6xl mx-auto">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-start">
           {/* Emergency call button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
@@ -659,33 +685,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{t('call128')}</span>
             </div>
           </motion.button>
-
-          {/* Filter chips */}
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
-              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "hospital"
-                ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.25)]"
-                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
-                }`}
-            >
-              <span className={`text-[10px] font-bold ${activeFilter === "hospital" ? "text-white" : "text-blue-600"}`}>H</span>
-              {t('hospitals')}
-            </button>
-            <button
-              onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
-              className={`flex items-center gap-1 px-3 py-2 rounded-full text-[11px] font-semibold transition-all ${activeFilter === "centro"
-                ? "bg-emerald-500 text-white shadow-[0_2px_8px_rgba(16,185,129,0.25)]"
-                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
-                }`}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2.5 h-2.5">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              {t('centers')}
-            </button>
-          </div>
         </div>
       </div>
 
