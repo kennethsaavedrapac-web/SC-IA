@@ -13,7 +13,7 @@ import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
@@ -970,33 +970,27 @@ export default function App() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.93, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(239,68,68,0.15)] border border-red-50 dark:border-red-900/30 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(244,63,94,0.1)] border border-rose-50 dark:border-rose-900/20 relative overflow-hidden"
             >
               {/* Subtle top decoration */}
-              <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-rose-500 to-red-600" />
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-rose-500" />
 
               {/* Pulse alert icon container */}
               <div className="flex flex-col items-center text-center mt-3 mb-5">
-                <div className="w-[74px] h-[74px] rounded-full bg-red-50 flex items-center justify-center relative mb-4">
+                <div className="w-[74px] h-[74px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center relative mb-4">
                   {/* Ping effect */}
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-red-100 animate-ping opacity-75" />
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
 
                   {/* Inner dark red icon container */}
-                  <div className="w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-red-500 to-rose-600 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(239,68,68,0.3)] relative z-10">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[28px] h-[28px] animate-pulse">
-                      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-                      <circle cx="16.5" cy="17.5" r="2.5" />
-                      <circle cx="7.5" cy="17.5" r="2.5" />
-                      <path d="M10 10v4" />
-                      <path d="M8 12h4" />
-                    </svg>
+                  <div className="w-[56px] h-[56px] rounded-full bg-rose-500 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(244,63,94,0.3)] relative z-10">
+                    <Siren className="w-[28px] h-[28px] animate-pulse" />
                   </div>
                 </div>
 
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Llamada de Emergencia
                 </h3>
-                <p className="text-xs text-red-500 font-bold uppercase tracking-wider mt-1 font-mono">
+                <p className="text-xs text-rose-500 font-bold uppercase tracking-wider mt-1 font-mono">
                   Cruz Roja • Línea 128
                 </p>
               </div>
@@ -1063,11 +1057,9 @@ export default function App() {
                     // El ligero retraso evita que React cancele la llamada en el SO al desmontar el componente
                     setTimeout(() => setIsEmergencyModalOpen(false), 500);
                   }}
-                  className="w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(239,68,68,0.28)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-rose-500 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(244,63,94,0.25)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4.5 h-4.5">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
+                  <Siren className="w-4.5 h-4.5" />
                   <span>Llamar al 128 ahora</span>
                 </motion.a>
 

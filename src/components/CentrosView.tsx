@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
-import { AlertTriangle, Phone } from "lucide-react";
+import { AlertTriangle, Phone, Siren } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface CentrosViewProps {
@@ -355,15 +355,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={onTriggerEmergency}
-            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-red-600 shadow-[0_4px_12px_rgba(239,68,68,0.25)]"
+            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-rose-500 shadow-[0_4px_12px_rgba(244,63,94,0.2)]"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-              <circle cx="16.5" cy="17.5" r="2.5" />
-              <circle cx="7.5" cy="17.5" r="2.5" />
-              <path d="M10 10v4" />
-              <path d="M8 12h4" />
-            </svg>
+            <Siren className="w-4 h-4" />
           </motion.button>
         </header>
 
@@ -666,8 +660,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 font-sans"
             >
               <div className="p-7 text-center">
-                <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-red-100 shadow-inner">
-                  <AlertTriangle className="w-8 h-8" />
+                <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-rose-100 dark:border-rose-900/30 shadow-inner">
+                  <Siren className="w-8 h-8" />
                 </div>
 
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">¿Es una emergencia?</h3>
@@ -675,15 +669,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   Llama de inmediato al 128 si presentas:
                 </p>
 
-                <ul className="mt-4 space-y-2.5 text-left bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <ul className="mt-4 space-y-2.5 text-left bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
                   {[
                     "Dolor o presión en el pecho",
                     "Dificultad severa para respirar",
                     "Confusión o pérdida del conocimiento",
                     "Convulsiones o parálisis súbita"
                   ].map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                    <li key={idx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-400">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -699,9 +693,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   <a
                     href="tel:128"
                     onClick={() => setTimeout(() => setIsEmergencyModalOpen(false), 500)}
-                    className="py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-200 transition-all active:scale-95"
+                    className="py-3.5 px-4 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-200/50 transition-all active:scale-95"
                   >
-                    <Phone className="w-4 h-4 fill-current" />
+                    <Phone className="w-4 h-4" />
                     Llamar al 128
                   </a>
                 </div>

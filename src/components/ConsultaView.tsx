@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
+import { Siren } from "lucide-react";
 
 interface ConsultaViewProps {
   user: UserProfile;
@@ -352,19 +353,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onClick={onTriggerEmergency}
             className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
             style={{
-              background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-              boxShadow: "0 6px 24px rgba(239,68,68,0.35), 0 2px 8px rgba(239,68,68,0.2)",
+              background: "#f43f5e",
+              boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
             }}
           >
             {/* Inner glow */}
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10 mb-[1px]">
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v10H2" />
-              <circle cx="16.5" cy="17.5" r="2.5" />
-              <circle cx="7.5" cy="17.5" r="2.5" />
-              <path d="M10 10v4" />
-              <path d="M8 12h4" />
-            </svg>
+            <Siren className="w-5 h-5 text-white relative z-10 mb-[1px]" />
             <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
           </motion.button>
         </div>
