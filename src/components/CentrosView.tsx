@@ -477,7 +477,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 </button>
               </div>
             ) : (
-              visibleCenters.slice(0, 12).map((hc) => {
+              visibleCenters.map((hc) => {
                 const isHospital = hc.type.toLowerCase().includes("hospital");
                 const isSelected = selectedCenter?.id === hc.id;
                 const operatingStatus = getCenterOperatingStatus(hc.type);
