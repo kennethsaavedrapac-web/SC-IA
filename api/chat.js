@@ -110,6 +110,15 @@ module.exports = async function handler(req, res) {
     }
 
     const ai = getGeminiClient();
+    
+    if (!ai) {
+      console.error("Failed to initialize Gemini client - API key may be invalid");
+      return res.status(500).json({
+        error: "No se pudo inicializar el servicio de IA. Verifica la configuración de la API key.",
+        details: "GEMINI_API_KEY no está configurada o es inválida",
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     // Evaluamos la hora actual para inyectarla en el contexto del agente
     const now = new Date();

@@ -227,7 +227,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       if (!response.ok) {
         // API returned an error status - show the actual error details
         const errorDetail = data.details || data.error || `Error del servidor (${response.status})`;
-        console.error("API Error Response:", data);
+        console.error("API Error Response:", JSON.stringify(data, null, 2));
+        console.error("Response status:", response.status);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: `⚠️ Error del servidor: ${errorDetail}`,

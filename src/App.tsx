@@ -151,20 +151,27 @@ export default function App() {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
+      console.log("[PWA] beforeinstallprompt event captured, saved for later");
       setDeferredPrompt(e);
       try {
         const dismissed = localStorage.getItem("dismissedPwaBanner");
         if (dismissed !== "true") {
           setShowPwaBanner(true);
+          console.log("[PWA] Banner will be shown");
+        } else {
+          console.log("[PWA] Banner hidden (previously dismissed)");
         }
       } catch (err) {
+        console.log("[PWA] localStorage error, showing banner anyway");
         setShowPwaBanner(true);
       }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    console.log("[PWA] beforeinstallprompt listener registered");
 
     const handleAppInstalled = () => {
+      console.log("[PWA] App installed successfully");
       setShowPwaBanner(false);
       setDeferredPrompt(null);
       addToast(createToast(t("pwaSuccessToast"), "success"));
@@ -182,21 +189,33 @@ export default function App() {
   }, [t, addToast]);
 
   const handleInstallPwa = async () => {
+    console.log("[PWA] Install button clicked, deferredPrompt is:", deferredPrompt ? "available" : "null");
+    
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === "accepted") {
-          addToast(createToast(t("pwaSuccessToast"), "success"));
-          setShowPwaBanner(false);
-          try {
-            localStorage.setItem("dismissedPwaBanner", "true");
-          } catch (e) {}
-        }
-        setDeferredPrompt(null);
-      });
+      try {
+        deferredPrompt.prompt();
+        console.log("[PWA] prompt() called");
+        
+        deferredPrompt.userChoice.then((choiceResult: any) => {
+          console.log("[PWA] User choice:", choiceResult.outcome);
+          if (choiceResult.outcome === "accepted") {
+            addToast(createToast(t("pwaSuccessToast"), "success"));
+            setShowPwaBanner(false);
+            try {
+              localStorage.setItem("dismissedPwaBanner", "true");
+            } catch (e) {}
+          }
+          setDeferredPrompt(null);
+        });
+      } catch (error) {
+        console.error("[PWA] Error calling prompt():", error);
+        addToast(createToast("Error al intentar instalar. Por favor intenta de nuevo.", "error"));
+      }
     } else {
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(userAgent);
+      console.log("[PWA] No deferredPrompt available. iOS:", isIos);
+      
       if (isIos) {
         setShowIosGuideModal(true);
       } else {
