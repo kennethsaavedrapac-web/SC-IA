@@ -57,6 +57,30 @@ function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string
   return { isOpen: false, text: "Cerrado (Abre Lun-Vie 8am)", is24h: false };
 }
 
+function getNearestHospital(
+  from: UserLocation | { latitude: number; longitude: number }
+): { hospital: HealthCenter; distanceKm: number } | null {
+  const hospitals = HEALTH_CENTERS.filter((c) => {
+    const typeLower = c.type.toLowerCase();
+    return typeLower.includes("hospital");
+  });
+
+  if (hospitals.length === 0) return null;
+
+  let nearest: HealthCenter | null = null;
+  let minDistance = Number.POSITIVE_INFINITY;
+
+  for (const h of hospitals) {
+    const dist = getDistanceKm(from as UserLocation, h);
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearest = h;
+    }
+  }
+
+  return nearest ? { hospital: nearest, distanceKm: minDistance } : null;
+}
+
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
@@ -216,18 +240,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       };
     });
 
-    const openCenters = centersWithStatus.filter(center => center.isOpenNow);
-
-    let finalCenters = openCenters;
+    let finalCenters = centersWithStatus;
 
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
 
       // 2. Filtrar por radio y ORDENAR PRIORIZANDO LOS ABIERTOS
-      const centersByDistance = openCenters
+      const centersByDistance = centersWithStatus
         .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
         .sort((a, b) => {
-          return (a.distanceKm ?? 0) - (b.distanceKm ?? 0); // Luego por distancia
+          if (a.isOpenNow && !b.isOpenNow) return -1;
+          if (!a.isOpenNow && b.isOpenNow) return 1;
+          return (a.distanceKm ?? 0) - (b.distanceKm ?? 0);
         });
 
       const centersInDetectedCity = centersByDistance
@@ -244,7 +268,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     } else {
       const query = normalizeQuery(locationQuery.trim());
       if (query) {
-        finalCenters = openCenters.filter((center) => {
+        finalCenters = centersWithStatus.filter((center) => {
           const searchableText = normalizeQuery(
             [center.name, center.department, center.municipality, center.locality, center.silais]
               .filter(Boolean)
@@ -469,6 +493,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     </span>
                     <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{selectedCenter.department}</span>
                   </div>
+
+                  {!getCenterOperatingStatus(selectedCenter.type).isOpen && (() => {
+                    const referenceLocation = (selectedCenter.latitude && selectedCenter.longitude) 
+                      ? { latitude: selectedCenter.latitude, longitude: selectedCenter.longitude }
+                      : userLocation;
+                    const nearestHospitalInfo = referenceLocation ? getNearestHospital(referenceLocation) : null;
+                    return nearestHospitalInfo ? (
+                      <div className="mt-2.5 p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/40 rounded-xl text-[10px] text-amber-800 dark:text-amber-300">
+                        <p className="font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                          <span>Centro Cerrado</span>
+                        </p>
+                        <p className="mt-1 leading-normal">
+                          Te recomendamos acudir al hospital más cercano: <span className="font-bold">{nearestHospitalInfo.hospital.name}</span> ({nearestHospitalInfo.distanceKm.toFixed(1)} km).
+                        </p>
+                      </div>
+                    ) : null;
+                  })()}
+
                   <a
                     href={googleMapsSearchUrl}
                     target="_blank"
@@ -553,8 +596,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         <span className="text-[10.5px] font-medium text-slate-500 dark:text-slate-400 truncate">{hc.locality}</span>
                       </div>
                       {/* Horario de Atención Badge */}
-                      <div className="mt-1.5">
-                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                      <div className="mt-1.5 flex flex-col gap-1">
+                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded w-max ${
                           operatingStatus.isOpen
                             ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
                             : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
@@ -562,6 +605,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                           <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
                           {operatingStatus.text}
                         </span>
+
+                        {!operatingStatus.isOpen && (() => {
+                          const referenceLoc = (hc.latitude && hc.longitude)
+                            ? { latitude: hc.latitude, longitude: hc.longitude }
+                            : userLocation;
+                          const nearestHospitalInfo = referenceLoc ? getNearestHospital(referenceLoc) : null;
+                          return nearestHospitalInfo ? (
+                            <span className="text-[9.5px] font-medium text-amber-700 dark:text-amber-500">
+                              Hospital más cercano: <span className="font-bold">{nearestHospitalInfo.hospital.name}</span> ({nearestHospitalInfo.distanceKm.toFixed(1)} km)
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
                     </div>
                   </div>
