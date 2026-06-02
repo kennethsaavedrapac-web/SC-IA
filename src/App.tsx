@@ -123,18 +123,62 @@ export default function App() {
     }
   }, [session, user, initialized]);
 
-  // Sync profile data from Supabase to local state
+  // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
+  useEffect(() => {
+    if (initialized && user && user.id !== "guest") {
+      try {
+        const cachedAvatar = localStorage.getItem(`avatar_${user.id}`);
+        const cachedName = localStorage.getItem(`name_${user.id}`);
+        const cachedCity = localStorage.getItem(`city_${user.id}`);
+        const cachedCountry = localStorage.getItem(`country_${user.id}`);
+
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry) {
+          setLocalUser((prev) => ({
+            ...prev,
+            id: user.id,
+            email: user.email || prev.email,
+            name: cachedName || prev.name,
+            city: cachedCity || prev.city,
+            country: cachedCountry || prev.country,
+            avatarUrl: cachedAvatar || prev.avatarUrl,
+          }));
+        }
+      } catch (err) {
+        console.warn("Error al recuperar datos de perfil de cache:", err);
+      }
+    }
+  }, [initialized, user]);
+
+  // Sync profile data from Supabase to local state con persistencia en caché
   useEffect(() => {
     if (profile) {
-      setLocalUser((prev) => ({
-        ...prev,
-        id: profile.id || prev.id,
-        name: profile.nombre || prev.name,
-        email: profile.email || prev.email,
-        city: profile.ciudad || prev.city,
-        country: profile.pais || prev.country,
-        avatarUrl: profile.avatar_url || prev.avatarUrl,
-      }));
+      setLocalUser((prev) => {
+        const updatedAvatar = profile.avatar_url || "";
+        const updatedName = profile.nombre || prev.name;
+        const updatedCity = profile.ciudad || prev.city;
+        const updatedCountry = profile.pais || prev.country;
+
+        if (profile.id) {
+          try {
+            localStorage.setItem(`avatar_${profile.id}`, updatedAvatar);
+            localStorage.setItem(`name_${profile.id}`, updatedName);
+            localStorage.setItem(`city_${profile.id}`, updatedCity);
+            localStorage.setItem(`country_${profile.id}`, updatedCountry);
+          } catch (e) {
+            console.warn("Could not cache profile data:", e);
+          }
+        }
+
+        return {
+          ...prev,
+          id: profile.id || prev.id,
+          name: updatedName,
+          email: profile.email || prev.email,
+          city: updatedCity,
+          country: updatedCountry,
+          avatarUrl: updatedAvatar,
+        };
+      });
     }
   }, [profile]);
 
@@ -353,7 +397,13 @@ export default function App() {
           {/* Bottom Profile Section */}
           <div className="p-4 border-t border-slate-100 dark:border-slate-800">
             <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
-              <img src={localUser.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+              {localUser.avatarUrl ? (
+                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
+                  {localUser.name ? localUser.name.charAt(0).toUpperCase() : "U"}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
                   {(localUser.id === "guest" || localUser.name === "Invitado") ? t('guest') : localUser.name}

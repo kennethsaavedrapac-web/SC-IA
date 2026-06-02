@@ -93,12 +93,18 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
           <div className="flex flex-col items-center shrink-0 relative z-10">
             {/* Glossy ring avatar */}
             <div className="w-[104px] h-[104px] md:w-[120px] md:h-[120px] rounded-full p-[3px] bg-gradient-to-tr from-[#1d4ed8] via-[#06b6d4] to-[#1d4ed8] shadow-[0_8px_30px_rgba(29,78,216,0.15)] flex items-center justify-center relative transform md:hover:scale-105 transition-transform duration-300">
-              <img
-                src={user.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80"}
-                alt={user.name}
-                className="w-full h-full rounded-full object-cover border-[3px] border-white"
-                referrerPolicy="no-referrer"
-              />
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="w-full h-full rounded-full object-cover border-[3px] border-white"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold border-[3px] border-white shadow-inner select-none">
+                  {user.name ? user.name.split(" ")[0].charAt(0).toUpperCase() : "U"}
+                </div>
+              )}
             </div>
             {/* Pill style Ver perfil button */}
             <motion.button
