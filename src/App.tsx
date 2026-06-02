@@ -9,6 +9,7 @@ import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
+import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
@@ -127,6 +128,7 @@ export default function App() {
     if (profile) {
       setLocalUser((prev) => ({
         ...prev,
+        id: profile.id || prev.id,
         name: profile.nombre || prev.name,
         email: profile.email || prev.email,
         city: profile.ciudad || prev.city,
@@ -225,8 +227,28 @@ export default function App() {
     setAppointments((prev) => [newApp, ...prev]);
   };
 
-  const handleUpdateUser = (updatedUser: UserProfile) => {
+  const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
+
+    // Guardar cambios en Supabase si no es usuario invitado
+    if (user && user.id !== "guest") {
+      try {
+        const { success, error } = await updateUserProfile(user.id, {
+          nombre: updatedUser.name,
+          ciudad: updatedUser.city,
+          full_name: updatedUser.name,
+        } as any);
+
+        if (success) {
+          addToast(createToast("Perfil guardado en la base de datos.", "success"));
+        } else {
+          addToast(createToast(error || "Error al sincronizar perfil con la base de datos.", "error"));
+        }
+      } catch (err) {
+        console.error("Error updating profile:", err);
+        addToast(createToast("Error inesperado al guardar los cambios del perfil.", "error"));
+      }
+    }
   };
 
   const handleUnlockPremium = () => {

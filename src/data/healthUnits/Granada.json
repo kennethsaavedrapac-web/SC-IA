@@ -12,8 +12,8 @@
       "localidad": "Chico Tripa 2 cuadras al Lago Granada , Barrio Santa Emilia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.9395,
-      "longitud": -85.9487
+      "latitud": 11.94049,
+      "longitud": -85.95050
     },
     {
       "numero": 2,
@@ -51,21 +51,21 @@
       "localidad": "Frente al Parque Sandino, Bario Estación",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.935,
-      "longitud": -85.9558
+      "latitud": 11.93815,
+      "longitud": -85.95604
     },
     {
       "numero": 5,
       "silais": "GRANADA",
-      "nombre": "Centro de Salud Pedro José Chamorro",
+      "nombre": "Centro de Salud Pedro Joaquín Chamorro",
       "tipo_unidad_salud": "Centro de Salud",
       "departamento_region": "Granada",
       "municipio": "Granada",
       "localidad": "Shell Palmira 1/2 Cuadra al sur, Barrio Calle Palmira",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.9262,
-      "longitud": -85.958
+      "latitud": 11.92463,
+      "longitud": -85.95523
     },
     {
       "numero": 6,
@@ -363,8 +363,8 @@
       "localidad": "Comunidad Malacatoya INAA 3c. al sur, Comunidad Los Angeles",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.149,
-      "longitud": -85.8405
+      "latitud": 12.13516,
+      "longitud": -85.83750
     },
     {
       "numero": 29,

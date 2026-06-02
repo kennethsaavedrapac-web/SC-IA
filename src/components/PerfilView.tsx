@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import QRCode from "react-qr-code";
-import { ArrowLeft, Bell, Settings, User, Shield, AlertTriangle, Key, BellRing, Heart, ChevronRight, BadgeCheck, Check, Clipboard, CheckCircle, LogOut } from "lucide-react";
+import { ArrowLeft, Bell, Settings, User, Shield, AlertTriangle, Key, BellRing, Heart, ChevronRight, BadgeCheck, Check, Clipboard, CheckCircle, LogOut, Camera, Loader2 } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { uploadAvatar } from "../lib/avatarService";
+import { useAuth } from "../contexts/AuthContext";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -15,6 +17,7 @@ interface PerfilViewProps {
 
 export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, onLogout }: PerfilViewProps) {
   const { t } = useLanguage();
+  const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
   // Forms state for updates
@@ -23,6 +26,47 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCity, setEditCity] = useState(user.city);
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
+
+  // Avatar upload states
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAvatarClick = () => {
+    if (user.id === "guest" || !user.id) {
+      alert("Los usuarios invitados no pueden cambiar su foto de perfil.");
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+
+    try {
+      const result = await uploadAvatar(user.id || "", file, user.avatarUrl);
+      if (result.success && result.url) {
+        onUpdateUser({
+          ...user,
+          avatarUrl: result.url,
+        });
+        await refreshProfile();
+      } else {
+        alert(result.error || "Error al subir la imagen.");
+      }
+    } catch (err) {
+      console.error("Error upload avatar:", err);
+      alert("Ocurrió un error inesperado al subir el avatar.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name ? name.trim().charAt(0).toUpperCase() : "U";
+  };
 
   // QR Code secret text containing vital clinical metrics in case of real first-aid scans
   const qrTelemetryText = `Salud-Conecta IA EMERGENCY FILE:
@@ -92,16 +136,54 @@ Emergency Contact: Cruz Roja Granada - 128`;
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none"></div>
 
-          {/* Avatar Picture with verified ring */}
+          {/* Avatar Picture with upload overlay and verified ring */}
           <div className="relative group shrink-0">
-            <div className="w-24 h-24 rounded-full p-1.5 bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-md">
-              <img
-                src={user.avatarUrl}
-                alt={user.name}
-                className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-800"
-                referrerPolicy="no-referrer"
-              />
+            <div 
+              onClick={handleAvatarClick}
+              className={`w-24 h-24 rounded-full p-1.5 bg-gradient-to-tr from-blue-500 to-cyan-400 shadow-md relative overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 ${user.id === "guest" ? "cursor-not-allowed opacity-90" : ""}`}
+              title={user.id === "guest" ? "No disponible para invitados" : "Haga clic para cambiar foto de perfil"}
+            >
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="w-full h-full rounded-full object-cover border-4 border-white dark:border-slate-800"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border-4 border-white dark:border-slate-800">
+                  <span className="text-3xl font-bold text-slate-500 dark:text-slate-400">
+                    {getInitials(user.name)}
+                  </span>
+                </div>
+              )}
+
+              {/* Uploading overlay */}
+              {isUploading && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
+                  <Loader2 className="w-6 h-6 text-white animate-spin" />
+                </div>
+              )}
+
+              {/* Camera Icon Hover Overlay (only for non-guests, when not uploading) */}
+              {user.id !== "guest" && !isUploading && (
+                <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
+                  <Camera className="w-6 h-6 text-white drop-shadow-md" />
+                </div>
+              )}
             </div>
+
+            {/* Hidden File Input */}
+            {user.id !== "guest" && (
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                className="hidden"
+              />
+            )}
+            
             <span className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-white dark:border-slate-800 rounded-full shadow-inner animate-pulse"></span>
           </div>
 
