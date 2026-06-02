@@ -355,7 +355,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={onTriggerEmergency}
-            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-rose-500 shadow-[0_4px_12px_rgba(244,63,94,0.2)]"
+            className="flex items-center justify-center w-[36px] h-[36px] rounded-full text-white bg-rose-400 shadow-[0_4px_12px_rgba(251,113,133,0.15)]"
           >
             <Siren className="w-4 h-4" />
           </motion.button>
@@ -660,7 +660,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 font-sans"
             >
               <div className="p-7 text-center">
-                <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-rose-100 dark:border-rose-900/30 shadow-inner">
+                <div className="w-16 h-16 bg-rose-50 dark:bg-rose-400/10 text-rose-400 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-rose-100 dark:border-rose-900/20 shadow-inner">
                   <Siren className="w-8 h-8" />
                 </div>
 
@@ -677,7 +677,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     "Convulsiones o parálisis súbita"
                   ].map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2.5 text-xs font-semibold text-slate-700 dark:text-slate-400">
-                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-1.5 shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
@@ -693,7 +693,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   <a
                     href="tel:128"
                     onClick={() => setTimeout(() => setIsEmergencyModalOpen(false), 500)}
-                    className="py-3.5 px-4 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-200/50 transition-all active:scale-95"
+                    className="py-3.5 px-4 rounded-2xl bg-rose-400 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-100/50 transition-all active:scale-95"
                   >
                     <Phone className="w-4 h-4" />
                     Llamar al 128

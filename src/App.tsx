@@ -970,10 +970,10 @@ export default function App() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.93, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(244,63,94,0.1)] border border-rose-50 dark:border-rose-900/20 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(251,113,133,0.08)] border border-rose-50 dark:border-rose-900/10 relative overflow-hidden"
             >
               {/* Subtle top decoration */}
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-rose-500" />
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-rose-400" />
 
               {/* Pulse alert icon container */}
               <div className="flex flex-col items-center text-center mt-3 mb-5">
@@ -982,7 +982,7 @@ export default function App() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
 
                   {/* Inner dark red icon container */}
-                  <div className="w-[56px] h-[56px] rounded-full bg-rose-500 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(244,63,94,0.3)] relative z-10">
+                  <div className="w-[56px] h-[56px] rounded-full bg-rose-400 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(251,113,133,0.25)] relative z-10">
                     <Siren className="w-[28px] h-[28px] animate-pulse" />
                   </div>
                 </div>
@@ -990,7 +990,7 @@ export default function App() {
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
                   Llamada de Emergencia
                 </h3>
-                <p className="text-xs text-rose-500 font-bold uppercase tracking-wider mt-1 font-mono">
+                <p className="text-xs text-rose-400 font-bold uppercase tracking-wider mt-1 font-mono">
                   Cruz Roja • Línea 128
                 </p>
               </div>
@@ -1057,7 +1057,7 @@ export default function App() {
                     // El ligero retraso evita que React cancele la llamada en el SO al desmontar el componente
                     setTimeout(() => setIsEmergencyModalOpen(false), 500);
                   }}
-                  className="w-full py-3.5 bg-rose-500 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(244,63,94,0.25)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-rose-400 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(251,113,133,0.2)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
                 >
                   <Siren className="w-4.5 h-4.5" />
                   <span>Llamar al 128 ahora</span>

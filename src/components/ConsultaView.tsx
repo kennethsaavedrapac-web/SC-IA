@@ -346,8 +346,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onClick={onTriggerEmergency}
             className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
             style={{
-              background: "#f43f5e",
-              boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
+              background: "#fb7185",
+              boxShadow: "0 6px 20px rgba(251,113,133,0.25)",
             }}
           >
             {/* Inner glow */}

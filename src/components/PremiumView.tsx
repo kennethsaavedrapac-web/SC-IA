@@ -243,7 +243,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
         </div>
 
         {promoMessage && (
-          <p className={`text-xs ml-2 text-left font-medium ${promoMessage.error ? "text-rose-600" : "text-emerald-700"}`}>
+          <p className={`text-xs ml-2 text-left font-medium ${promoMessage.error ? "text-rose-400" : "text-emerald-700"}`}>
             {promoMessage.text}
           </p>
         )}
