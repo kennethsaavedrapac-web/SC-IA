@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -10,12 +10,43 @@ interface CentrosViewProps {
   onTriggerEmergency?: () => void;
 }
 
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+}
+
+const NEARBY_RADIUS_KM = 25;
+const COORDINATED_CENTER_COUNT = HEALTH_CENTERS.filter((center) => center.latitude && center.longitude).length;
+
+function getDistanceKm(from: UserLocation, to: HealthCenter): number {
+  if (!to.latitude || !to.longitude) return Number.POSITIVE_INFINITY;
+
+  const earthRadiusKm = 6371;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const deltaLat = toRadians(to.latitude - from.latitude);
+  const deltaLng = toRadians(to.longitude - from.longitude);
+  const fromLat = toRadians(from.latitude);
+  const toLat = toRadians(to.latitude);
+  const haversine =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(fromLat) * Math.cos(toLat) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
   );
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [detectedCity, setDetectedCity] = useState("");
+  const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
+  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [geoError, setGeoError] = useState("");
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
 
@@ -25,7 +56,123 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  const filteredCenters = useMemo(() => HEALTH_CENTERS.filter((center) => {
+  const requestCurrentLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setGeoStatus("error");
+      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
+      setLocationMode("manual");
+      return;
+    }
+
+    setGeoStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setGeoStatus("ready");
+        setGeoError("");
+        setLocationMode("nearby");
+      },
+      (error) => {
+        setGeoStatus("error");
+        setGeoError(error.message || "No se pudo obtener tu ubicación.");
+        setLocationMode("manual");
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 12000,
+      },
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!("geolocation" in navigator)) {
+      setGeoStatus("error");
+      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
+      setLocationMode("manual");
+      return;
+    }
+
+    setGeoStatus("loading");
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setGeoStatus("ready");
+        setGeoError("");
+        setLocationMode("nearby");
+      },
+      (error) => {
+        setGeoStatus("error");
+        setGeoError(error.message || "No se pudo obtener tu ubicación.");
+        setLocationMode("manual");
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 12000,
+      },
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
+
+  useEffect(() => {
+    if (!userLocation) return;
+
+    const nearestCenter = HEALTH_CENTERS
+      .filter((center) => center.latitude && center.longitude)
+      .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
+      .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+    const fallbackCity = nearestCenter?.municipality ?? "";
+
+    if (!googleMapsApiKey) {
+      setDetectedCity(fallbackCity);
+      setLocationQuery(fallbackCity || "Mi ubicación");
+      return;
+    }
+
+    const controller = new AbortController();
+    const reverseGeocode = async () => {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${userLocation.latitude},${userLocation.longitude}&key=${encodeURIComponent(googleMapsApiKey)}&language=es`,
+          { signal: controller.signal },
+        );
+        const data = await response.json();
+        const components = data.results?.[0]?.address_components ?? [];
+        const cityComponent = components.find((component: { types: string[] }) =>
+          component.types.includes("locality") ||
+          component.types.includes("administrative_area_level_2") ||
+          component.types.includes("administrative_area_level_1"),
+        );
+        const city = cityComponent?.long_name || fallbackCity;
+
+        setDetectedCity(city);
+        setLocationQuery(city || "Mi ubicación");
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setDetectedCity(fallbackCity);
+          setLocationQuery(fallbackCity || "Mi ubicación");
+        }
+      }
+    };
+
+    reverseGeocode();
+
+    return () => controller.abort();
+  }, [googleMapsApiKey, userLocation]);
+
+  const filteredCenters = useMemo(() => {
+    const typeFilteredCenters = HEALTH_CENTERS.filter((center) => {
     const typeText = normalizeQuery(center.type);
     const matchesType =
       activeFilter === "hospital"
@@ -34,17 +181,47 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
           : true;
 
+      return matchesType;
+    });
+
+    if (locationMode === "nearby" && userLocation) {
+      const normalizedCity = normalizeQuery(detectedCity);
+
+      const centersByDistance = typeFilteredCenters
+        .filter((center) => center.latitude && center.longitude)
+        .map((center) => ({
+          ...center,
+          distanceKm: getDistanceKm(userLocation, center),
+        }))
+        .filter((center) => center.distanceKm <= NEARBY_RADIUS_KM)
+        .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+
+      const centersInDetectedCity = centersByDistance
+        .filter((center) => {
+          const centerCity = normalizeQuery(center.municipality ?? "");
+          return (
+            !normalizedCity ||
+            centerCity.includes(normalizedCity) ||
+            normalizedCity.includes(centerCity)
+          );
+        });
+
+      return centersInDetectedCity.length > 0 ? centersInDetectedCity : centersByDistance;
+    }
+
     const query = normalizeQuery(locationQuery.trim());
-    if (!query) return matchesType;
+    if (!query) return typeFilteredCenters;
 
-    const searchableText = normalizeQuery(
-      [center.name, center.department, center.municipality, center.locality, center.silais]
-        .filter(Boolean)
-        .join(" "),
-    );
+    return typeFilteredCenters.filter((center) => {
+      const searchableText = normalizeQuery(
+        [center.name, center.department, center.municipality, center.locality, center.silais]
+          .filter(Boolean)
+          .join(" "),
+      );
 
-    return matchesType && searchableText.includes(query);
-  }), [activeFilter, locationQuery]);
+      return searchableText.includes(query);
+    });
+  }, [activeFilter, detectedCity, locationMode, locationQuery, userLocation]);
   const visibleCenters = filteredCenters.slice(0, 60);
 
   useEffect(() => {
@@ -63,8 +240,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return HEALTH_CENTER_DEPARTMENTS.filter((department) => normalizeQuery(department).includes(query)).slice(0, 5);
   }, [locationQuery]);
 
-  const selectedLocationLabel = locationQuery.trim() || "Nicaragua";
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const selectedLocationLabel = locationMode === "nearby"
+    ? detectedCity || "Mi ubicación"
+    : locationQuery.trim() || "Nicaragua";
   const selectedCenterSearch = selectedCenter
     ? [
         selectedCenter.name,
@@ -79,11 +257,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const selectedCenterMapQuery =
     selectedCenter?.latitude && selectedCenter?.longitude
       ? `${selectedCenter.latitude},${selectedCenter.longitude}`
-      : selectedCenterSearch;
+      : userLocation
+        ? `${userLocation.latitude},${userLocation.longitude}`
+        : selectedCenterSearch;
   const googleMapsEmbedUrl = googleMapsApiKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
     : "";
-  const googleMapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
+  const googleMapsSearchUrl =
+    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
+      ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
+      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
   return (
     <div className="flex flex-col min-h-screen pb-24 relative overflow-x-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
@@ -137,7 +320,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           {t('centros')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-[13px] mt-1.5 leading-relaxed max-w-[280px]">
-          {HEALTH_CENTER_TOTAL} registros oficiales cargados desde archivos JSON locales.
+          {locationMode === "nearby"
+            ? `Mostrando centros cercanos en ${selectedLocationLabel}.`
+            : `${HEALTH_CENTER_TOTAL} registros oficiales cargados desde archivos JSON locales.`}
         </p>
 
         {/* Location search pill */}
@@ -149,12 +334,44 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           </svg>
             <input
               value={locationQuery}
-              onChange={(event) => setLocationQuery(event.target.value)}
+              onChange={(event) => {
+                setLocationMode("manual");
+                setLocationQuery(event.target.value);
+              }}
               placeholder="Buscar departamento, municipio o centro"
               className="w-full bg-transparent text-[13px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
             />
           </div>
-          {filteredDepartments.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                if (userLocation) {
+                  setLocationMode("nearby");
+                  setLocationQuery(detectedCity || "Mi ubicación");
+                  return;
+                }
+                requestCurrentLocation();
+              }}
+              className={`rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${
+                locationMode === "nearby"
+                  ? "bg-blue-600 text-white shadow-[0_2px_8px_rgba(37,99,235,0.22)]"
+                  : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-900 dark:text-blue-300 dark:border-blue-900/40"
+              } active:scale-95`}
+            >
+              {geoStatus === "loading" ? "Detectando ubicación..." : "Usar mi ubicación"}
+            </button>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+              {locationMode === "nearby"
+                ? `${NEARBY_RADIUS_KM} km · ${COORDINATED_CENTER_COUNT} con coordenadas`
+                : "Búsqueda manual"}
+            </span>
+          </div>
+          {geoStatus === "error" && (
+            <p className="text-[11px] font-medium text-amber-600 dark:text-amber-400">
+              {geoError} Puedes buscar por ciudad manualmente.
+            </p>
+          )}
+          {locationMode === "manual" && filteredDepartments.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {filteredDepartments.map((department) => (
                 <button
@@ -235,13 +452,28 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <div className="w-full md:w-1/2 px-6 md:px-0 pt-6 md:pt-0 z-10 relative flex-1 flex flex-col">
           {/* Section header */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>{t('nearYou')}</h3>
+            <h3 className="text-[16px] font-bold text-slate-900 dark:text-white tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+              {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
+            </h3>
             <span className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{filteredCenters.length} encontrados</span>
           </div>
 
           {/* Center list */}
           <div className="space-y-3">
-            {visibleCenters.slice(0, 12).map((hc) => {
+            {visibleCenters.length === 0 ? (
+              <div className="rounded-[20px] border border-dashed border-slate-300 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-900">
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-200">No hay centros cercanos con coordenadas disponibles.</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Prueba buscar manualmente por departamento o ciudad mientras completamos coordenadas en la base local.
+                </p>
+                <button
+                  onClick={() => setLocationMode("manual")}
+                  className="mt-3 rounded-full bg-blue-600 px-4 py-2 text-xs font-bold text-white active:scale-95"
+                >
+                  Buscar manualmente
+                </button>
+              </div>
+            ) : visibleCenters.slice(0, 12).map((hc) => {
               const isHospital = hc.type.toLowerCase().includes("hospital");
               const isSelected = selectedCenter?.id === hc.id;
 
@@ -289,9 +521,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                   {/* Right side - distance & time */}
                   <div className="shrink-0 text-right ml-3 flex flex-col items-end gap-0.5">
-                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">{hc.municipality}</span>
+                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
+                      {hc.distanceKm !== undefined ? `${hc.distanceKm.toFixed(1)} km` : hc.municipality}
+                    </span>
                     <span className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-                      {hc.department}
+                      {hc.municipality} · {hc.department}
                     </span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 mt-0.5">
                       <polyline points="9 18 15 12 9 6" />

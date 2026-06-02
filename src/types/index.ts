@@ -31,6 +31,7 @@ export interface HealthCenter {
   lng: number; // percentage of map container X (0 - 100)
   latitude?: number;
   longitude?: number;
+  distanceKm?: number;
   department?: string;
   municipality?: string;
   locality?: string;
