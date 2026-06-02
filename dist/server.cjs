@@ -130,7 +130,7 @@ Hora y d\xEDa actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden \xFAnicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba est\xE1 fuera de ese horario (noches o fines de semana), EST\xC1N CERRADOS. En caso de s\xEDntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos s\xED atienden 24/7. Es vital para la seguridad no derivarlos a cl\xEDnicas cerradas.`;
       const finalSystemInstruction = systemInstruction + timeContext;
       const model = client.getGenerativeModel({
-        model: "gemini-2.0-flash-lite",
+        model: "gemini-2.5-flash",
         systemInstruction: finalSystemInstruction
       });
       const chat = model.startChat({
