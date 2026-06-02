@@ -239,9 +239,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         return;
       }
       
+      // Check if response is simulated (fallback mode)
+      if (data.simulated) {
+        console.warn("[ConsultaView] Simulated response received:", data.warning);
+      }
+      
+      let botText = data.text || "Lo siento, no pude procesar la respuesta.";
+      
+      // Add warning badge for simulated responses
+      if (data.simulated && data.warning) {
+        botText = `📋 ${data.warning}\n\n${botText}`;
+      }
+      
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: data.text || "Lo siento, no pude procesar la respuesta.",
+        text: botText,
         sender: "bot",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };

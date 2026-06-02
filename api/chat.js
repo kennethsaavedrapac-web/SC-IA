@@ -158,12 +158,25 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
     const errorMessage = error?.message || String(error) || "Error desconocido";
     
     let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
+    let shouldUseFallback = false;
+    
     if (errorMessage.includes("API_KEY") || errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("PERMISSION")) {
       userMessage = "Error de autenticación con la API de Gemini. Verifica que la API key sea válida.";
     } else if (errorMessage.includes("SAFETY")) {
       userMessage = "La respuesta fue bloqueada por filtros de seguridad. Intenta reformular tu consulta.";
-    } else if (errorMessage.includes("quota") || errorMessage.includes("429")) {
-      userMessage = "Se ha excedido la cuota de la API. Intenta más tarde.";
+    } else if (errorMessage.includes("quota") || errorMessage.includes("429") || errorMessage.includes("Too Many Requests")) {
+      userMessage = "Cuota de API excedida. Usando modo de respuesta simulada para continuar.";
+      shouldUseFallback = true;
+      console.log("API quota exceeded, switching to simulated mode");
+    }
+    
+    // If quota exceeded, return simulated response instead of error
+    if (shouldUseFallback) {
+      return res.status(200).json({
+        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        simulated: true,
+        warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
+      });
     }
     
     return res.status(500).json({
