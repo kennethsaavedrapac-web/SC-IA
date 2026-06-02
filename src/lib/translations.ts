@@ -115,6 +115,7 @@ export const translations = {
 
     // Perfil View
     verified: "Verificado",
+    changePhoto: "Cambiar foto",
     noAlerts: "No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.",
     premiumMember: "🏆 Miembro Premium Activo",
     emergencyCard: "Tarjeta de Emergencia GPS",
@@ -349,6 +350,7 @@ export const translations = {
 
     // Perfil View
     verified: "Verified",
+    changePhoto: "Change photo",
     noAlerts: "You have no pending critical alerts. Your virtual triage clinical history is in perfect order.",
     premiumMember: "🏆 Active Premium Member",
     emergencyCard: "GPS Emergency Card",
