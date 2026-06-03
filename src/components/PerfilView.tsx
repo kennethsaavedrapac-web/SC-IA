@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import QRCode from "react-qr-code";
+import { QRCodeSVG } from "qrcode.react";
 import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2 } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
@@ -114,36 +114,30 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const downloadQRCode = () => {
-    if (qrRef.current) {
-      const svg = qrRef.current.querySelector('svg') as SVGElement;
-      if (svg) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const size = 512;
-        
-        canvas.width = size;
-        canvas.height = size;
-        
-        if (ctx) {
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, size, size);
-          
-          ctx.strokeStyle = '#e2e8f0';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(5, 5, size - 10, size - 10);
-          
-          const image = new Image();
-          image.onload = () => {
-            ctx.drawImage(image, 20, 20, size - 40, size - 40);
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/png');
-            link.download = `Perfil-Medico-${user.name.replace(/\s+/g, '-')}.png`;
-            link.click();
-          };
-          image.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
-        }
+    const svg = qrRef.current?.querySelector("svg");
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      canvas.width = 512;
+      canvas.height = 512;
+      if (ctx) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, 512, 512);
+        ctx.drawImage(img, 0, 0, 512, 512);
+        const pngFile = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.download = `QR-Emergencia-${user.name}.png`;
+        downloadLink.href = pngFile;
+        downloadLink.click();
       }
-    }
+    };
+
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   };
 
   return (
@@ -650,12 +644,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   ref={qrRef}
                   className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-blue-300 dark:border-blue-700 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
                 >
-                  <QRCode
+                  <QRCodeSVG
                     value={qrTelemetryText}
                     size={320}
-                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                    fgColor="currentColor"
-                    className="text-slate-900 dark:text-white"
+                    level="H"
+                    className="w-full h-full text-slate-900 dark:text-white"
                   />
                 </div>
 
