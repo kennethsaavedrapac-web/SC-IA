@@ -298,65 +298,63 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         </section>
 
         {/* QR Code section segment card */}
-        <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-4 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)] space-y-4 sm:space-y-5">
-          <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 justify-between">
-
-            <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-5 flex-1 text-center sm:text-left">
-              <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_14px_28px_rgba(37,99,235,0.22)] sm:shadow-[0_20px_38px_rgba(37,99,235,0.28)] shrink-0">
-                <QrCode className="w-7 h-7 sm:w-12 sm:h-12" />
+        <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
+          <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
+            {/* Lado Izquierdo: Info */}
+            <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
+              <div className="flex items-center gap-2 sm:gap-5">
+                <div className="w-10 h-10 sm:w-24 sm:h-24 rounded-xl sm:rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md shrink-0">
+                  <QrCode className="w-5 h-5 sm:w-12 sm:h-12" />
+                </div>
+                <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
+                  {t('shareProfile')}
+                </h4>
               </div>
-              <div className="space-y-2 sm:space-y-3">
-                <h4 className="font-display font-bold text-slate-950 dark:text-white text-xl sm:text-3xl leading-tight">{t('shareProfile')}</h4>
-                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
+              <p className="hidden sm:block text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
                 {t('emergencyDesc')}
-                </p>
+              </p>
 
-                <span className="inline-flex items-center gap-2 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold">
-                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+              <div className="flex">
+                <span className="inline-flex items-center gap-1.5 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] sm:text-sm px-2.5 py-1.5 rounded-xl font-bold">
+                  <Lock className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                   <span>{t('authorizedOnly')}</span>
                 </span>
               </div>
             </div>
 
-            {/* QR Code Display and Action Buttons */}
-            <div className="flex flex-col items-center gap-4 sm:gap-5 w-full sm:w-auto">
-              {/* QR Code Container */}
+            {/* Lado Derecho: QR más pequeño y lateral */}
+            <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
               <div
                 ref={qrRef}
-                className="w-48 h-48 sm:w-64 sm:h-64 border-4 border-blue-200 dark:border-blue-800 p-4 sm:p-6 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg hover:shadow-2xl transition-all"
+                className="w-24 h-24 sm:w-64 sm:h-64 border-2 sm:border-4 border-blue-200 dark:border-blue-800 p-2 sm:p-6 bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-md"
               >
-                <QRCode
+                <QRCodeSVG
                   value={qrTelemetryText}
                   size={200}
-                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                  fgColor="currentColor"
-                  className="text-slate-900 dark:text-white"
+                  level="H"
+                  includeMargin={true}
+                  className="w-full h-full text-slate-900 dark:text-white"
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3 w-full sm:w-auto justify-center">
+              <div className="flex gap-2">
                 <button
                   onClick={() => setShowQRModal(true)}
-                  className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-md"
-                  title="Ampliar código QR"
+                  className="p-2 sm:px-5 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-xl font-bold transition-all active:scale-95 shadow-sm"
                 >
                   <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">{t('view') || 'Ver'}</span>
                 </button>
                 <button
                   onClick={downloadQRCode}
-                  className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-md"
-                  title="Descargar código QR como imagen"
+                  className="p-2 sm:px-5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg sm:rounded-xl font-bold transition-all active:scale-95 shadow-sm"
                 >
                   <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">{t('download') || 'Descargar'}</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="text-center text-xs sm:text-base text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-3 sm:pt-4 flex items-center justify-center gap-2">
+          <div className="text-center text-[10px] sm:text-base text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 mt-3.5 pt-3 sm:pt-4 flex items-center justify-center gap-2">
             <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 shrink-0" />
             <span>{t('qrDisclaimer')}</span>
           </div>
