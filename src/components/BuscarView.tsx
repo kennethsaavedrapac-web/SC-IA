@@ -362,17 +362,17 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     <div
                       id={`row-pharmacy-profile-${pharm.id}`}
                       key={pharm.id}
-                      className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group"
+                      className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group gap-4"
                     >
                       <div className="flex items-center space-x-3.5">
                         <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30 font-bold text-lg">
                           🏪
                         </div>
-                        <div>
-                          <h5 className="text-sm font-bold text-slate-800 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">{pharm.name}</h5>
+                        <div className="min-w-0">
+                          <h5 className="text-sm font-bold text-slate-800 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">{pharm.name}</h5>
                           <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center space-x-1 mt-0.5">
                             <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-300 dark:text-slate-600" />
-                            <span>{pharm.address}</span>
+                            <span className="truncate">{pharm.address}</span>
                           </p>
                           <div className="flex items-center space-x-2 mt-1.5 text-[10px] font-bold">
                             <span className="text-slate-500 dark:text-slate-400 font-mono">📍 {pharm.distance}</span>
@@ -385,8 +385,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       </div>
 
                       {/* availability, GPS Navigation and WhatsApp button */}
-                      <div className="text-right flex flex-col items-end gap-2 shrink-0 ml-4">
-                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
+                      <div className="flex flex-col items-center sm:items-end gap-2.5 shrink-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/60">
+                        <span className={`text-[10px] px-3 py-1.5 rounded-full font-bold w-full sm:w-auto text-center ${pharm.status === "Disponible"
                           ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                           : pharm.status === "Poco stock"
                             ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
@@ -398,9 +398,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                         <button
                           id={`btn-run-route-for-${pharm.id}`}
                           onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
-                          className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-blue-100 dark:border-blue-900/50"
+                          className="w-full sm:w-32 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-[11px] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-blue-500/10 h-10"
                         >
-                          <Navigation className="w-3 h-3" />
+                          <Navigation className="w-4 h-4" />
                           <span>{t('viewRoute')}</span>
                         </button>
 
@@ -412,9 +412,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                               : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
                             window.open(`https://wa.me/${pharm.phone}?text=${encodeURIComponent(message)}`, "_blank");
                           }}
-                          className="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 rounded-full text-emerald-600 dark:text-emerald-400 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-emerald-100 dark:border-emerald-900/50"
+                          className="w-full sm:w-32 px-4 py-2.5 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-[11px] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-emerald-500/10 h-10"
                         >
-                          <MessageCircle className="w-3 h-3" />
+                          <MessageCircle className="w-4 h-4 fill-current" />
                           <span>WhatsApp</span>
                         </button>
                       </div>
