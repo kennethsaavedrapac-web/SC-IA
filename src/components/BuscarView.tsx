@@ -362,61 +362,65 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     <div
                       id={`row-pharmacy-profile-${pharm.id}`}
                       key={pharm.id}
-                      className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group gap-4"
+                      className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group min-h-[280px] relative overflow-hidden"
                     >
-                      <div className="flex items-center space-x-3.5">
-                        <div className="w-14 h-14 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30 font-bold text-lg">
+                      <div className="flex items-start space-x-4">
+                        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30 font-bold text-lg">
                           🏪
                         </div>
-                        <div className="min-w-0">
-                          <h5 className="text-sm font-bold text-slate-800 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">{pharm.name}</h5>
-                          <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center space-x-1 mt-0.5">
+                        <div className="min-w-0 flex-1">
+                          <h5 className="text-[15px] font-bold text-slate-800 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">{pharm.name}</h5>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center space-x-1 mt-1">
                             <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-300 dark:text-slate-600" />
                             <span className="truncate">{pharm.address}</span>
                           </p>
-                          <div className="flex items-center space-x-2 mt-1.5 text-[10px] font-bold">
-                            <span className="text-slate-500 dark:text-slate-400 font-mono">📍 {pharm.distance}</span>
-                            <span>•</span>
-                            <span className={pharm.openNow ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500 dark:text-amber-400"}>
-                              {pharm.openNow ? t('openNow') : pharm.closingTime}
+
+                          <div className="mt-3 flex items-center gap-2">
+                             <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
+                              ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                              : pharm.status === "Poco stock"
+                                ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
+                                : "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
+                              }`}>
+                              ✓ {pharm.status === "Disponible" ? t('available') : pharm.status === "Poco stock" ? t('lowStock') : pharm.status}
                             </span>
                           </div>
                         </div>
                       </div>
 
                       {/* availability, GPS Navigation and WhatsApp button */}
-                      <div className="flex flex-col items-center sm:items-end gap-2.5 shrink-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/60">
-                        <span className={`text-[10px] px-3 py-1.5 rounded-full font-bold w-full sm:w-auto text-center ${pharm.status === "Disponible"
-                          ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                          : pharm.status === "Poco stock"
-                            ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"
-                            : "bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400"
-                          }`}>
-                          ✓ {pharm.status === "Disponible" ? t('available') : pharm.status === "Poco stock" ? t('lowStock') : pharm.status}
-                        </span>
+                      <div className="flex flex-col gap-3 shrink-0 pt-4 mt-auto">
+                        <div className="flex items-center justify-between text-[11px] font-bold px-1">
+                          <span className="text-slate-500 dark:text-slate-400 font-mono">📍 {pharm.distance}</span>
+                          <span className={pharm.openNow ? "text-emerald-600 dark:text-emerald-400" : "text-amber-500 dark:text-amber-400"}>
+                            {pharm.openNow ? t('openNow') : pharm.closingTime}
+                          </span>
+                        </div>
 
-                        <button
-                          id={`btn-run-route-for-${pharm.id}`}
-                          onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
-                          className="w-full sm:w-32 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-[11px] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-blue-500/10 h-10"
-                        >
-                          <Navigation className="w-4 h-4" />
-                          <span>{t('viewRoute')}</span>
-                        </button>
+                        <div className="flex flex-col gap-2 w-full">
+                          <button
+                            id={`btn-run-route-for-${pharm.id}`}
+                            onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
+                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                          >
+                            <Navigation className="w-4 h-4 shrink-0" />
+                            <span>{t('viewRoute')}</span>
+                          </button>
 
-                        <button
-                          id={`btn-whatsapp-for-${pharm.id}`}
-                          onClick={() => {
-                            const message = drugQuery && drugQuery.trim() !== ""
-                              ? `Hola ${pharm.name}, ¿tienen disponible ${drugQuery}?`
-                              : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
-                            window.open(`https://wa.me/${pharm.phone}?text=${encodeURIComponent(message)}`, "_blank");
-                          }}
-                          className="w-full sm:w-32 px-4 py-2.5 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-[11px] flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md shadow-emerald-500/10 h-10"
-                        >
-                          <MessageCircle className="w-4 h-4 fill-current" />
-                          <span>WhatsApp</span>
-                        </button>
+                          <button
+                            id={`btn-whatsapp-for-${pharm.id}`}
+                            onClick={() => {
+                              const message = drugQuery && drugQuery.trim() !== ""
+                                ? `Hola ${pharm.name}, ¿tienen disponible ${drugQuery}?`
+                                : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
+                              window.open(`https://wa.me/${pharm.phone}?text=${encodeURIComponent(message)}`, "_blank");
+                            }}
+                            className="w-full h-11 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                          >
+                            <MessageCircle className="w-4 h-4 fill-current shrink-0" />
+                            <span>WhatsApp</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
