@@ -68,13 +68,28 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     return name ? name.trim().charAt(0).toUpperCase() : "U";
   };
 
-  // QR Code secret text containing vital clinical metrics in case of real first-aid scans
-  const qrTelemetryText = `Salud-Conecta IA EMERGENCY FILE:
-Patient: Kenneth S. 
-Location: Granada, Nicaragua
-Blood Type: O+ 
-Allergies: Polen
-Emergency Contact: Cruz Roja Granada - 128`;
+  const displayName = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
+  const qrTelemetryText = React.useMemo(() => {
+    const qrGeneratedAt = new Date();
+    const qrExpiresAt = new Date(qrGeneratedAt.getTime() + 24 * 60 * 60 * 1000);
+
+    return JSON.stringify({
+      app: "Salud-Conecta IA",
+      type: "emergency-medical-profile",
+      version: 1,
+      generatedAt: qrGeneratedAt.toISOString(),
+      expiresAt: qrExpiresAt.toISOString(),
+      patient: {
+        id: user.id || "guest",
+        name: displayName,
+        email: user.email,
+        location: `${user.city}, ${user.country}`,
+        healthConditions: user.healthConditions,
+        bloodType: "O+",
+        emergencyContact: "+505 8888-9999",
+      },
+    });
+  }, [displayName, user.city, user.country, user.email, user.healthConditions, user.id]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,23 +116,23 @@ Emergency Contact: Cruz Roja Granada - 128`;
       </div>
 
       {/* Header */}
-      <header className="relative z-10 px-5 sm:px-8 pt-6 pb-2">
+      <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">
         <div className="flex justify-between items-start w-full max-w-5xl mx-auto">
           <button
             id="btn-profile-go-back"
             onClick={onGoBack}
-            className="w-16 h-16 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+            className="w-12 h-12 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
             title="Volver"
           >
-            <ArrowLeft className="w-8 h-8 sm:w-9 sm:h-9" />
+            <ArrowLeft className="w-6 h-6 sm:w-9 sm:h-9" />
           </button>
 
-          <div className="text-center pt-2">
-            <h2 className="font-display font-bold text-3xl sm:text-4xl text-slate-950 dark:text-white tracking-tight leading-none">
+          <div className="text-center pt-0.5 sm:pt-2">
+            <h2 className="font-display font-bold text-xl sm:text-4xl text-slate-950 dark:text-white tracking-tight leading-none">
               {t('perfil')}
             </h2>
-            <span className="mt-3 inline-flex items-center gap-2 text-base sm:text-lg font-bold text-slate-950 dark:text-slate-100">
-              <ShieldCheck className="w-6 h-6 text-blue-500" />
+            <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
+              <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-blue-500" />
               <span>Salud-Conecta <span className="text-blue-600">IA</span></span>
             </span>
           </div>
@@ -128,44 +143,44 @@ Emergency Contact: Cruz Roja Granada - 128`;
               alert(t('noAlerts'));
               setShowNotificationBadge(false);
             }}
-            className="w-16 h-16 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center relative hover:scale-105 active:scale-95 transition-all"
+            className="w-12 h-12 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center relative hover:scale-105 active:scale-95 transition-all"
             title={t('notifications')}
           >
-            <Bell className="w-7 h-7 sm:w-8 sm:h-8" />
+            <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
             {showNotificationBadge && (
-              <span className="absolute top-3 right-3 sm:top-4 sm:right-4 w-4 h-4 bg-blue-500 border-4 border-white dark:border-slate-900 rounded-full"></span>
+              <span className="absolute top-2 right-2 sm:top-4 sm:right-4 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-blue-500 border-[3px] sm:border-4 border-white dark:border-slate-900 rounded-full"></span>
             )}
           </button>
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="relative z-10 px-5 sm:px-8 pt-8 flex-1 space-y-7 max-w-5xl mx-auto w-full">
+      <main className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-8 flex-1 space-y-5 sm:space-y-7 max-w-5xl mx-auto w-full">
 
         {/* Profile Card Header segment */}
-        <section className="min-h-[330px] grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-8 md:gap-12">
+        <section className="grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-5 sm:gap-8 md:gap-12 md:min-h-[330px]">
 
           {/* Area de Avatar con Etiqueta */}
           <div className="flex justify-center md:justify-end">
             <div className="relative group shrink-0 select-none">
-              <div className="absolute inset-[-3rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
-              <div className="absolute inset-[-2rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
-              <div className="absolute inset-[-1rem] rounded-full border border-blue-200/70 dark:border-blue-900/40"></div>
+              <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
+              <div className="absolute inset-[-1.1rem] sm:inset-[-2rem] rounded-full border border-blue-200/60 dark:border-blue-900/40"></div>
+              <div className="absolute inset-[-0.55rem] sm:inset-[-1rem] rounded-full border border-blue-200/70 dark:border-blue-900/40"></div>
               <div 
                 onClick={handleAvatarClick}
-                className={`w-44 h-44 sm:w-56 sm:h-56 rounded-full p-2.5 bg-gradient-to-tr from-blue-700 via-blue-500 to-cyan-300 shadow-[0_26px_50px_rgba(37,99,235,0.28)] relative cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-95 active:opacity-85 ${user.id === "guest" ? "cursor-not-allowed opacity-90 hover:scale-100 active:scale-100 active:opacity-90" : ""}`}
+                className={`w-32 h-32 sm:w-56 sm:h-56 rounded-full p-1.5 sm:p-2.5 bg-gradient-to-tr from-blue-700 via-blue-500 to-cyan-300 shadow-[0_18px_36px_rgba(37,99,235,0.22)] sm:shadow-[0_26px_50px_rgba(37,99,235,0.28)] relative cursor-pointer transition-all duration-300 hover:scale-[1.03] active:scale-95 active:opacity-85 ${user.id === "guest" ? "cursor-not-allowed opacity-90 hover:scale-100 active:scale-100 active:opacity-90" : ""}`}
                 title={user.id === "guest" ? "No disponible para invitados" : t('changePhoto')}
               >
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
                     alt={user.name}
-                    className="w-full h-full rounded-full object-cover border-[10px] border-[#eef7ff] dark:border-slate-900 bg-slate-200"
+                    className="w-full h-full rounded-full object-cover border-[7px] sm:border-[10px] border-[#eef7ff] dark:border-slate-900 bg-slate-200"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border-[10px] border-[#eef7ff] dark:border-slate-900">
-                    <span className="text-6xl font-bold text-slate-500 dark:text-slate-400">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border-[7px] sm:border-[10px] border-[#eef7ff] dark:border-slate-900">
+                    <span className="text-4xl sm:text-6xl font-bold text-slate-500 dark:text-slate-400">
                       {getInitials(user.name)}
                     </span>
                   </div>
@@ -174,14 +189,14 @@ Emergency Contact: Cruz Roja Granada - 128`;
                 {/* Uploading overlay */}
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
-                    <Loader2 className="w-9 h-9 text-white animate-spin" />
+                    <Loader2 className="w-7 h-7 sm:w-9 sm:h-9 text-white animate-spin" />
                   </div>
                 )}
 
                 {/* Camera Icon Hover Overlay (only for non-guests, when not uploading) */}
                 {user.id !== "guest" && !isUploading && (
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
-                    <Camera className="w-9 h-9 text-white drop-shadow-md" />
+                    <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-white drop-shadow-md" />
                   </div>
                 )}
               </div>
@@ -197,7 +212,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
                 />
               )}
               
-              <span className="absolute bottom-4 right-3 sm:bottom-6 sm:right-4 w-9 h-9 sm:w-11 sm:h-11 bg-emerald-400 border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
+              <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
               {/* Small floating Camera/Pencil Button in bottom-right corner */}
               {user.id !== "guest" && (
@@ -208,33 +223,33 @@ Emergency Contact: Cruz Roja Granada - 128`;
                     handleAvatarClick();
                   }}
                   disabled={isUploading}
-                  className="absolute bottom-3 left-3 w-10 h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-blue-50 text-blue-600 flex items-center justify-center shadow-lg border border-blue-100 dark:border-slate-700 transition-all active:scale-90 hover:scale-110 cursor-pointer z-10"
+                  className="absolute bottom-1.5 left-1.5 sm:bottom-3 sm:left-3 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white dark:bg-slate-900 hover:bg-blue-50 text-blue-600 flex items-center justify-center shadow-lg border border-blue-100 dark:border-slate-700 transition-all active:scale-90 hover:scale-110 cursor-pointer z-10"
                   title={t('changePhoto')}
                 >
                   {isUploading ? (
-                    <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 animate-spin" />
                   ) : (
-                    <Camera className="w-4.5 h-4.5" />
+                    <Camera className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                   )}
                 </button>
               )}
             </div>
           </div>
 
-          <div className="text-center md:text-left space-y-5">
-            <h3 className="font-display font-bold text-5xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95]">
-              {(user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name}<span className="text-blue-600">.</span>
+          <div className="text-center md:text-left space-y-3 sm:space-y-5">
+            <h3 className="font-display font-bold text-4xl sm:text-7xl text-slate-950 dark:text-white tracking-tight leading-[0.95]">
+              {displayName}<span className="text-blue-600">.</span>
             </h3>
-            <div className="space-y-3.5">
-              <p className="text-slate-950 dark:text-slate-100 text-lg sm:text-xl font-semibold flex items-center justify-center md:justify-start gap-4">
-                <span className="w-11 h-11 rounded-xl bg-blue-100/85 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center shrink-0">
-                  <Mail className="w-6 h-6" />
+            <div className="space-y-2.5 sm:space-y-3.5">
+              <p className="text-slate-950 dark:text-slate-100 text-sm sm:text-xl font-semibold flex items-center justify-center md:justify-start gap-2.5 sm:gap-4">
+                <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-blue-100/85 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
                 </span>
                 <span className="break-all">{user.email}</span>
               </p>
-              <p className="text-slate-950 dark:text-slate-100 text-lg sm:text-xl font-semibold flex items-center justify-center md:justify-start gap-4">
-                <span className="w-11 h-11 rounded-xl bg-blue-100/85 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center shrink-0">
-                  <MapPin className="w-6 h-6" />
+              <p className="text-slate-950 dark:text-slate-100 text-sm sm:text-xl font-semibold flex items-center justify-center md:justify-start gap-2.5 sm:gap-4">
+                <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-blue-100/85 dark:bg-blue-900/40 text-blue-600 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
                 </span>
                 <span>{user.city}, {user.country}</span>
               </p>
@@ -249,21 +264,21 @@ Emergency Contact: Cruz Roja Granada - 128`;
         </section>
 
         {/* QR Code section segment card */}
-        <section className="bg-white/95 dark:bg-slate-900/95 rounded-[2rem] sm:rounded-[2.75rem] p-6 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_24px_70px_rgba(37,99,235,0.12)] space-y-5">
-          <div className="flex flex-col md:flex-row items-center gap-7 md:gap-8 justify-between">
+        <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-4 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)] space-y-4 sm:space-y-5">
+          <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 justify-between">
 
-            <div className="flex flex-col sm:flex-row items-center gap-5 flex-1 text-center sm:text-left">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_20px_38px_rgba(37,99,235,0.28)] shrink-0">
-                <QrCode className="w-10 h-10 sm:w-12 sm:h-12" />
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-5 flex-1 text-center sm:text-left">
+              <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_14px_28px_rgba(37,99,235,0.22)] sm:shadow-[0_20px_38px_rgba(37,99,235,0.28)] shrink-0">
+                <QrCode className="w-7 h-7 sm:w-12 sm:h-12" />
               </div>
-              <div className="space-y-3">
-                <h4 className="font-display font-bold text-slate-950 dark:text-white text-2xl sm:text-3xl leading-tight">{t('shareProfile')}</h4>
-                <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg leading-relaxed max-w-md">
+              <div className="space-y-2 sm:space-y-3">
+                <h4 className="font-display font-bold text-slate-950 dark:text-white text-xl sm:text-3xl leading-tight">{t('shareProfile')}</h4>
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
                 {t('emergencyDesc')}
                 </p>
 
-                <span className="inline-flex items-center gap-2 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm px-4 py-2 rounded-xl font-bold">
-                  <Lock className="w-5 h-5" />
+                <span className="inline-flex items-center gap-2 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold">
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>{t('authorizedOnly')}</span>
                 </span>
               </div>
@@ -272,7 +287,7 @@ Emergency Contact: Cruz Roja Granada - 128`;
             {/* Visual Real Active QR Generator Container */}
             <div
               onClick={() => alert(`Contenido del código de seguridad médica:\n\n${qrTelemetryText}`)}
-              className="w-44 h-44 sm:w-52 sm:h-52 border border-slate-200/80 dark:border-slate-700 p-4 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center cursor-pointer shadow-[0_18px_34px_rgba(15,23,42,0.08)] hover:scale-[1.03] transition-transform"
+              className="w-36 h-36 sm:w-52 sm:h-52 border border-slate-200/80 dark:border-slate-700 p-3 sm:p-4 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center cursor-pointer shadow-[0_18px_34px_rgba(15,23,42,0.08)] hover:scale-[1.03] transition-transform"
               title="Presiona para ampliar detalles clínicos del QR"
             >
               <QRCode
@@ -285,8 +300,8 @@ Emergency Contact: Cruz Roja Granada - 128`;
             </div>
           </div>
 
-          <div className="text-center text-sm sm:text-base text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-slate-400" />
+          <div className="text-center text-xs sm:text-base text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-3 sm:pt-4 flex items-center justify-center gap-2">
+            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 shrink-0" />
             <span>{t('qrDisclaimer')}</span>
           </div>
         </section>
