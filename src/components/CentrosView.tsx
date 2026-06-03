@@ -344,6 +344,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
   // Message listener for Leaflet marker clicks
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
@@ -358,25 +360,44 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => window.removeEventListener("message", handleMapMessage);
   }, []);
 
-  const mapCenters = useMemo(() => {
-    return HEALTH_CENTERS.filter((c) => c.latitude && c.longitude).map((c) => ({
-      id: c.id,
-      name: c.name,
-      type: c.type,
-      lat: c.latitude,
-      lng: c.longitude,
-      isHospital: c.type.toLowerCase().includes("hospital"),
-      isSelected: selectedCenter?.id === c.id,
-    }));
-  }, [selectedCenter]);
+  // Post updates to the Leaflet map iframe
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
 
-  const defaultCenter = selectedCenter?.latitude && selectedCenter?.longitude
-    ? [selectedCenter.latitude, selectedCenter.longitude]
-    : userLocation
-      ? [userLocation.latitude, userLocation.longitude]
-      : [12.1364, -86.2514]; // Managua fallback
+    const centersData = filteredCenters
+      .filter((c) => c.latitude && c.longitude)
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        type: c.type,
+        lat: c.latitude,
+        lng: c.longitude,
+        isHospital: c.type.toLowerCase().includes("hospital"),
+      }));
 
-  const defaultZoom = selectedCenter?.latitude && selectedCenter?.longitude ? 15 : 9;
+    const message = {
+      type: "UPDATE_DATA",
+      centers: centersData,
+      selectedId: selectedCenter?.id || null,
+      userLocation: userLocation,
+      centerOnId: selectedCenter?.id || null,
+      zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
+    };
+
+    const sendUpdate = () => {
+      if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage(message, "*");
+      }
+    };
+
+    sendUpdate();
+
+    iframe.addEventListener("load", sendUpdate);
+    return () => {
+      iframe.removeEventListener("load", sendUpdate);
+    };
+  }, [filteredCenters, selectedCenter, userLocation]);
 
   const leafletHtml = useMemo(() => {
     return `
@@ -392,6 +413,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
           .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
           .leaflet-bar a:hover { background-color: #f8fafc !important; }
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+          }
         </style>
       </head>
       <body>
@@ -400,61 +425,92 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           const map = L.map('map', {
             zoomControl: true,
             attributionControl: false
-          }).setView([${defaultCenter[0]}, ${defaultCenter[1]}], ${defaultZoom});
+          }).setView([12.1364, -86.2514], 9);
 
           L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 19
           }).addTo(map);
 
-          const centers = ${JSON.stringify(mapCenters)};
+          let markersGroup = L.layerGroup().addTo(map);
+          let userLocationMarker = null;
+          let markersMap = new Map();
 
-          centers.forEach(c => {
-            const isSelected = c.isSelected;
-            const size = isSelected ? 38 : 28;
-            const anchor = size / 2;
-            const borderSize = isSelected ? '3px' : '2px';
-            const borderColor = isSelected ? '#3b82f6' : '#ffffff';
-            const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
-            
-            const htmlIcon = c.isHospital
-              ? \`<div style="background-color: #2563eb; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 15 : 12}px; box-shadow: \${shadow}; transition: all 0.2s;">H</div>\`
-              : \`<div style="background-color: #10b981; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 19 : 15}px; box-shadow: \${shadow}; transition: all 0.2s;">+</div>\`;
+          function updateMarkers(centers, selectedId) {
+            markersGroup.clearLayers();
+            markersMap.clear();
 
-            const icon = L.divIcon({
-              html: htmlIcon,
-              className: '',
-              iconSize: [size, size],
-              iconAnchor: [anchor, anchor]
+            centers.forEach(c => {
+              if (!c.lat || !c.lng) return;
+              
+              const isSelected = c.id === selectedId;
+              const size = isSelected ? 38 : 28;
+              const anchor = size / 2;
+              const borderSize = isSelected ? '3px' : '2px';
+              const borderColor = isSelected ? '#3b82f6' : '#ffffff';
+              const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
+              
+              const htmlIcon = c.isHospital
+                ? \`<div style="background-color: #2563eb; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 15 : 12}px; box-shadow: \${shadow}; transition: all 0.2s;">H</div>\`
+                : \`<div style="background-color: #10b981; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 19 : 15}px; box-shadow: \${shadow}; transition: all 0.2s;">+</div>\`;
+
+              const icon = L.divIcon({
+                html: htmlIcon,
+                className: '',
+                iconSize: [size, size],
+                iconAnchor: [anchor, anchor]
+              });
+
+              const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
+              markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+
+              marker.on('click', () => {
+                window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
+              });
             });
-
-            const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(map);
-            
-            marker.on('click', () => {
-              window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
-            });
-          });
-
-          // User location marker
-          ${userLocation ? `
-            const userIcon = L.divIcon({
-              html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
-              className: '',
-              iconSize: [14, 14],
-              iconAnchor: [7, 7]
-            });
-            L.marker([${userLocation.latitude}, ${userLocation.longitude}], { icon: userIcon }).addTo(map);
-          ` : ''}
-        </script>
-        <style>
-          @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
           }
-        </style>
+
+          function updateUserLocation(loc) {
+            if (userLocationMarker) {
+              map.removeLayer(userLocationMarker);
+              userLocationMarker = null;
+            }
+            if (loc && loc.latitude && loc.longitude) {
+              const userIcon = L.divIcon({
+                html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+                className: '',
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+              });
+              userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
+            }
+          }
+
+          function centerOnSelected(selectedId, zoomLevel) {
+            const data = markersMap.get(selectedId);
+            if (data) {
+              map.setView([data.lat, data.lng], zoomLevel || 15);
+            }
+          }
+
+          window.addEventListener('message', (event) => {
+            const msg = event.data;
+            if (msg.type === 'UPDATE_DATA') {
+              updateMarkers(msg.centers, msg.selectedId);
+              updateUserLocation(msg.userLocation);
+              
+              if (msg.centerOnId) {
+                centerOnSelected(msg.centerOnId, msg.zoomLevel);
+              } else if (msg.fitBounds && msg.centers.length > 0) {
+                const bounds = L.latLngBounds(msg.centers.map(c => [c.lat, c.lng]));
+                map.fitBounds(bounds, { padding: [50, 50] });
+              }
+            }
+          });
+        </script>
       </body>
       </html>
     `;
-  }, [defaultCenter, defaultZoom, mapCenters, userLocation]);
+  }, []);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
@@ -784,6 +840,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       {/* ═══════════════ MAP PANEL (Right side on desktop) ═══════════════ */}
       <div className={`flex-1 relative z-10 shrink-0 ${mobileView === "map" ? "h-full flex flex-col" : "hidden md:flex md:flex-col md:h-full"}`}>
         <iframe
+          ref={iframeRef}
           title={`Mapa de Centros Médicos`}
           srcDoc={leafletHtml}
           className="w-full h-full border-0"
