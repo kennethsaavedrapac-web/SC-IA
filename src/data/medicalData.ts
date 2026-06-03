@@ -102,7 +102,7 @@ export const ALL_MEDICATIONS: string[] = [
   // ── 1. Analgésicos y Antipiréticos ──
   "Paracetamol 500 mg",
   "Paracetamol 1 g",
-  "Paracetamol 120 mg/5 ml Jarabe",
+  "Paracetamol 120 mg/5 ml Jarabe (Panadol)",
   "Paracetamol 100 mg Gotas pediátricas",
   "Paracetamol Supositorio 300 mg",
   "Aspirina 100 mg",
@@ -116,6 +116,10 @@ export const ALL_MEDICATIONS: string[] = [
   "Morfina 10 mg",
   "Codeína 30 mg",
   "Codeína + Paracetamol",
+  "Fentanilo 0.05 mg/ml inyectable",
+  "Metamizol Sódico 500 mg",
+  "Nefopam 20 mg",
+  "Buprenorfina 0.3 mg",
 
   // ── 2. Antiinflamatorios No Esteroideos (AINEs) ──
   "Ibuprofeno 400 mg",
@@ -136,6 +140,11 @@ export const ALL_MEDICATIONS: string[] = [
   "Celecoxib 200 mg",
   "Etoricoxib 90 mg",
   "Nimesulida 100 mg",
+  "Ketoprofeno 100 mg",
+  "Sulindaco 200 mg",
+  "Lornoxicam 8 mg",
+  "Acemetacina 60 mg",
+  "Dexketoprofeno 25 mg",
 
   // ── 3. Antibióticos ──
   "Amoxicilina 500 mg",
@@ -173,6 +182,14 @@ export const ALL_MEDICATIONS: string[] = [
   "Nitrofurantoína 100 mg",
   "Fosfomicina 3 g Sobre",
   "Rifampicina 300 mg",
+  "Linezolid 600 mg",
+  "Meropenem 1 g inyectable",
+  "Piperacilina + Tazobactam",
+  "Moxifloxacina 400 mg",
+  "Tigeciclina 50 mg",
+  "Colistina 100 mg",
+  "Vancomicina 1 g inyectable",
+  "Tobramicina 80 mg inyectable",
   "Tetraciclina 500 mg",
   "Oxacilina 500 mg",
   "Vancomicina 500 mg inyectable",
@@ -192,6 +209,12 @@ export const ALL_MEDICATIONS: string[] = [
   "Terbinafina Crema 1%",
   "Itraconazol 100 mg",
   "Miconazol Crema 2%",
+  "Anidulafungina 100 mg",
+  "Caspofungina 50 mg",
+  "Posaconazol 100 mg",
+  "Voriconazol 200 mg",
+  "Amfotericina B Liposomal",
+  "Amfotericina B Desoxicolato",
   "Miconazol Polvo",
   "Griseofulvina 500 mg",
 
@@ -208,6 +231,11 @@ export const ALL_MEDICATIONS: string[] = [
   "Secnidazol 500 mg",
   "Pirantel Pamoato 250 mg",
   "Niclosamida 500 mg",
+  "Nitazoxanida 500 mg",
+  "Nitazoxanida Suspensión",
+  "Praziquantel 150 mg",
+  "Artemetero + Lumefantrina",
+  "Miltefosina 50 mg",
 
   // ── 6. Antivirales ──
   "Aciclovir 200 mg",
@@ -216,6 +244,14 @@ export const ALL_MEDICATIONS: string[] = [
   "Aciclovir Crema 5%",
   "Valaciclovir 500 mg",
   "Oseltamivir 75 mg",
+  "Ganciclovir 500 mg",
+  "Ribavirina 200 mg",
+  "Tenofovir 300 mg",
+  "Entecavir 0.5 mg",
+  "Lopinavir + Ritonavir",
+  "Efavirenz 600 mg",
+  "Zidovudina 100 mg",
+  "Remdesivir 100 mg",
 
   // ── 7. Antimaláricos ──
   "Cloroquina 250 mg",
@@ -235,11 +271,20 @@ export const ALL_MEDICATIONS: string[] = [
   "Fexofenadina 120 mg",
   "Fexofenadina 180 mg",
   "Bilastina 20 mg",
+  "Levocetirizina 5 mg",
+  "Ebastina 10 mg",
+  "Ketotifeno 1 mg",
+  "Ciproheptadina 4 mg",
+  "Prometazina 25 mg",
   "Epinefrina (Adrenalina) 1 mg inyectable",
   "Hidrocortisona 100 mg inyectable (emergencia alérgica)",
 
   // ── 9. Sistema Digestivo ──
-  "Omeprazol 20 mg",
+  "Omeprazol 10 mg",
+  "Omeprazol 20 mg (Prilosec/Gastrogel)",
+  "Lansoprazol 30 mg",
+  "Dexlansoprazol 60 mg",
+  "Rabeprazol 20 mg",
   "Omeprazol 40 mg",
   "Omeprazol 40 mg inyectable",
   "Pantoprazol 40 mg",
@@ -271,6 +316,14 @@ export const ALL_MEDICATIONS: string[] = [
   "Ursodeoxicólico Ácido 250 mg",
   "Enzimas Pancreáticas (Pancreatina)",
   "Dimeticona 100 mg",
+  "Trimebutina 200 mg",
+  "Mebeverina 200 mg",
+  "Otilonio Bromuro 40 mg",
+  "Pinaverio Bromuro 100 mg",
+  "Linaclotida 290 mcg",
+  "Lubiprostona 24 mcg",
+  "Racecadotril 100 mg",
+  "Sulfasalazina 500 mg",
 
   // ── 10. Sistema Respiratorio ──
   "Salbutamol Inhalador 100 mcg",
@@ -301,6 +354,18 @@ export const ALL_MEDICATIONS: string[] = [
   "Pseudoefedrina 60 mg",
   "Teofilina 200 mg",
   "Cromoglicato de Sodio Spray Nasal",
+  "Indacaterol Inhalador",
+  "Tiotropio Bromuro 18 mcg",
+  "Umeclidinio Inhalador",
+  "Vilanterol Inhalador",
+  "Formoterol + Budesonida",
+  "Salmeterol + Fluticasona",
+  "Ciclesonida Inhalador",
+  "Teofilina de liberación prolongada",
+  "Aminofilina 250 mg inyectable",
+  "Erdosteína 300 mg",
+  "Levodropropizina Jarabe",
+  "Oxalamina Jarabe",
 
   // ── 11. Sistema Cardiovascular ──
   "Losartán 50 mg",
@@ -354,6 +419,31 @@ export const ALL_MEDICATIONS: string[] = [
   "Nitroglicerina 0.5 mg sublingual",
   "Isosorbide Dinitrato 10 mg",
   "Isosorbide Mononitrato 20 mg",
+  "Sacubitrilo + Valsartán 24/26 mg",
+  "Sacubitrilo + Valsartán 49/51 mg",
+  "Sacubitrilo + Valsartán 97/103 mg",
+  "Ivabradina 5 mg",
+  "Dabigatrán 110 mg",
+  "Dabigatrán 150 mg",
+  "Rivaroxabán 10 mg",
+  "Rivaroxabán 15 mg",
+  "Rivaroxabán 20 mg",
+  "Apixabán 2.5 mg",
+  "Apixabán 5 mg",
+  "Edoxabán 60 mg",
+  "Prasugrel 10 mg",
+  "Ticagrelor 90 mg",
+  "Ezetimiba 10 mg",
+  "Ezetimiba + Simvastatina",
+  "Evolocumab 140 mg",
+  "Lidocaína 2% (antiarrítmico)",
+  "Propafenona 150 mg",
+  "Sotalol 80 mg",
+  "Hidralazina 25 mg",
+  "Nitroprusiato de Sodio",
+  "Milrinona 10 mg",
+  "Levosimendán 2.5 mg/ml",
+  "Norepinefrina 4 mg/4 ml",
   "Dobutamina 250 mg inyectable",
 
   // ── 12. Diabetes y Metabolismo ──
@@ -367,6 +457,19 @@ export const ALL_MEDICATIONS: string[] = [
   "Sitagliptina 100 mg",
   "Insulina NPH 100 UI/ml",
   "Insulina Rápida 100 UI/ml",
+  "Vildagliptina 50 mg",
+  "Linagliptina 5 mg",
+  "Saxagliptina 5 mg",
+  "Dapagliflozina 10 mg",
+  "Empagliflozina 10 mg",
+  "Empagliflozina 25 mg",
+  "Canagliflozina 100 mg",
+  "Liraglutida (Victoza)",
+  "Semaglutida (Ozempic/Rybelsus)",
+  "Dulaglutida (Trulicity)",
+  "Exenatida inyectable",
+  "Insulina Asparta",
+  "Insulina Lispro",
   "Insulina Glargina 100 UI/ml",
   "Jeringas de Insulina 0.5 ml",
   "Jeringas de Insulina 1 ml",
@@ -378,6 +481,10 @@ export const ALL_MEDICATIONS: string[] = [
   "Levotiroxina 150 mcg",
   "Metimazol 5 mg",
   "Propiltiouracilo 50 mg",
+  "Yodo Radiactivo (Cápsula)",
+  "Calcitriol 0.25 mcg",
+  "Cinacalcet 30 mg",
+  "Teriparatida inyectable",
 
   // ── 13. Sistema Nervioso y Psiquiatría ──
   "Diazepam 5 mg",
@@ -429,11 +536,46 @@ export const ALL_MEDICATIONS: string[] = [
   "Gabapentina 300 mg",
   "Gabapentina 600 mg",
   "Pregabalina 75 mg",
-  "Pregabalina 150 mg",
+  "Pregabalina 150 mg (Lyrica)",
   "Litio Carbonato 300 mg",
   "Biperideno 2 mg",
   "Metilfenidato 10 mg",
-  "Zolpidem 10 mg",
+  "Atomoxetina 40 mg",
+  "Modafinilo 200 mg",
+  "Donepezilo 5 mg",
+  "Donepezilo 10 mg",
+  "Rivastigmina 1.5 mg",
+  "Rivastigmina Parche",
+  "Galantamina 8 mg",
+  "Memantina 10 mg",
+  "Memantina 20 mg",
+  "Levodopa + Carbidopa 250/25 mg",
+  "Levodopa + Carbidopa + Entacapona",
+  "Pramipexol 0.25 mg",
+  "Pramipexol 1 mg",
+  "Ropinirol 2 mg",
+  "Selegilina 5 mg",
+  "Rasagilina 1 mg",
+  "Zolpidem 10 mg (Ambien)",
+  "Zopiclona 7.5 mg",
+  "Eszopiclona 3 mg",
+  "Melatonina 3 mg",
+  "Midazolam 15 mg",
+  "Midazolam 5 mg inyectable",
+  "Propofol 1% inyectable",
+  "Ketamina 50 mg/ml",
+  "Bupivacaína Pesada",
+  "Ropivacaína 7.5 mg/ml",
+  "Escopolamina Butilbromuro (Buscapina)",
+  "Sumatriptán 50 mg (Imitrex)",
+  "Zolmitriptán 2.5 mg",
+  "Rizatriptán 10 mg",
+  "Eletriptán 40 mg",
+  "Ergotamina + Cafeína (Cafergot)",
+  "Dihidroergotamina",
+  "Valproato de Magnesio",
+  "Oxcarbazepina 300 mg",
+  "Vigabatrina 500 mg",
 
   // ── 14. Vitaminas y Suplementos ──
   "Ácido Fólico 5 mg",
@@ -467,6 +609,17 @@ export const ALL_MEDICATIONS: string[] = [
   "Omega 3 1000 mg Cápsulas",
   "Glucosamina + Condroitina",
   "Colágeno Hidrolizado",
+  "Biotina 5000 mcg",
+  "L-Carnitina 500 mg",
+  "Coenzima Q10 100 mg",
+  "Resveratrol 250 mg",
+  "Aceite de Hígado de Bacalao",
+  "Aceite de Prímula",
+  "Ginkgo Biloba 80 mg",
+  "Castaño de Indias",
+  "Valeriana 500 mg",
+  "Passiflora Cápsulas",
+  "Echinacea 400 mg",
   "Probióticos Cápsulas",
   "Electrolitos en Polvo",
 
@@ -495,6 +648,16 @@ export const ALL_MEDICATIONS: string[] = [
   "Vaselina pura",
   "Óxido de Zinc Pasta",
   "Urea Crema 10%",
+  "Urea Crema 40%",
+  "Ketoconazol + Desonida Crema",
+  "Calcipotriol Ungüento",
+  "Imiquimod Crema 5%",
+  "Podofilino Solución",
+  "Fluorouracilo Crema 5%",
+  "Tacrolimus Ungüento 0.1%",
+  "Pimecrolimus Crema 1%",
+  "Minoxidil Solución 2%",
+  "Minoxidil Solución 5% (Kirkland)",
   "Urea Crema 20%",
   "Emoliente Dermatológico (Crema base)",
 
@@ -510,6 +673,11 @@ export const ALL_MEDICATIONS: string[] = [
   "Prednisolona Gotas Oftálmicas 1%",
   "Timolol Gotas Oftálmicas 0.5%",
   "Dorzolamida Gotas Oftálmicas 2%",
+  "Latanoprost Gotas Oftálmicas",
+  "Bimatoprost Gotas Oftálmicas",
+  "Travoprost Gotas Oftálmicas",
+  "Olopatadina Gotas Oftálmicas",
+  "Ciclosporina Gotas Oftálmicas",
   "Tropicamida Gotas Oftálmicas 1%",
 
   // ── 17. Otorrinolaringología ──
@@ -517,6 +685,9 @@ export const ALL_MEDICATIONS: string[] = [
   "Neomicina + Polimixina B Gotas Óticas",
   "Cloranfenicol Gotas Óticas",
   "Peróxido de Hidrógeno Gotas Óticas 3%",
+  "Glicerina Boratada",
+  "Benzocaína + Antipirina Gotas Óticas",
+  "Fluticasona + Azelastina Spray Nasal",
 
   // ── 18. Anticonceptivos y Salud Reproductiva ──
   "Levonorgestrel + Etinilestradiol (Ciclo 21)",
@@ -525,6 +696,13 @@ export const ALL_MEDICATIONS: string[] = [
   "Medroxiprogesterona 150 mg inyectable",
   "Medroxiprogesterona + Cipionato de Estradiol inyectable",
   "Noretisterona 0.35 mg (Minipíldora)",
+  "Desogestrel 0.075 mg",
+  "Drospirenona + Etinilestradiol (Yasmín)",
+  "Anillo Vaginal (Etonogestrel)",
+  "Implante Subdérmico (Jadelle/Nexplanon)",
+  "Dispositivo Intrauterino T de Cobre",
+  "Dispositivo Intrauterino con Levonorgestrel (Mirena)",
+  "Estrógenos Conjugados 0.625 mg",
   "Misoprostol 200 mcg",
   "Condones masculinos (caja 3 unidades)",
   "Condones masculinos (caja 12 unidades)",
@@ -555,6 +733,9 @@ export const ALL_MEDICATIONS: string[] = [
   "Finasterida 5 mg",
   "Sildenafil 50 mg",
   "Sildenafil 100 mg",
+  "Dutasterida 0.5 mg",
+  "Alfuzosina 10 mg",
+  "Solifenacina 5 mg",
   "Tadalafil 5 mg",
   "Tadalafil 20 mg",
   "Oxibutinina 5 mg",
@@ -566,6 +747,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Benzocaína Gel Oral",
   "Enjuague Bucal Clorhexidina 0.12%",
   "Enjuague Bucal Fluoruro de Sodio",
+  "Pasta Dental con Flúor 1450 ppm",
 
   // ── 23. Anestésicos Locales ──
   "Lidocaína 2% inyectable",
@@ -582,6 +764,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Pastillas para la garganta (Miel y Limón)",
   "Mentol + Eucalipto Ungüento (Vaporub)",
   "Electrolitos Orales Saborizados",
+  "Solución de Hidratación Oral (Pedialyte)",
   "Suero Fisiológico Nasal",
 
   // ── 25. Antisépticos y Desinfectantes ──
@@ -627,26 +810,76 @@ export const ALL_MEDICATIONS: string[] = [
   "Metildopa 250 mg",
   "Ergotamina + Cafeína",
   "Sumatriptán 50 mg",
-  "Sumatriptán 100 mg",
   "Bencilpenicilina Procaínica 800,000 UI inyectable",
-  "Dapsona 100 mg",
-  "Hidroxicloroquina 200 mg",
-  "Metotrexato 2.5 mg",
-  "Azatioprina 50 mg",
-  "Amlodipina + Valsartán 5/160 mg",
-  "Losartán + Hidroclorotiazida 50/12.5 mg",
-  "Enalapril + Hidroclorotiazida 20/12.5 mg",
-  "Metformina + Glibenclamida 500/5 mg",
-  "Amoxicilina + Ácido Clavulánico Inyectable",
-  "Hierro Sacarato 100 mg inyectable",
-  "Carbón Activado 250 mg",
-  "Dimenhidrinato 50 mg",
-  "Escopolamina 10 mg",
-  "Escopolamina 20 mg inyectable",
-  "Buscapina Compuesta (Escopolamina+Dipirona)",
-  "Atropina 1 mg inyectable",
-  "Manitol 20% (500 ml)"
+  "Ciclosporina 100 mg",
+  "Sirolimus 1 mg",
+  "Everolimus 0.5 mg",
+  "Metotrexato 2.5 mg (Reumatrex)",
+  "Leflunomida 20 mg",
+  "Adalimumab (Humira)",
+  "Etanercept (Enbrel)",
+  "Infliximab inyectable",
+  "Rituximab 500 mg",
+  "Trastuzumab 440 mg",
+  "Capecitabina 500 mg",
+  "Ciclofosfamida 500 mg",
+  "Doxorrubicina 50 mg",
+  "Paclitaxel 100 mg",
+  "Vincristina 1 mg",
+  "Tamoxifeno 20 mg",
+  "Anastrozol 1 mg",
+  "Letrozol 2.5 mg",
+  "Bicalutamida 50 mg",
+  "Goserelina Implante",
+  "Interferón Alfa-2b",
+  "Eritropoyetina 4000 UI",
+  "Filgrastim 300 mcg",
+  "Oprelvekin inyectable",
+  "Levamisol 50 mg",
+  "Talidomida 100 mg",
+  "Octreótida 0.1 mg",
+  "Somatropina (Hormona de Crecimiento)",
+  "Desmopresina 0.1 mg",
+  "Vasopresina 20 UI",
+  "Oxitocina 10 UI",
+  "Bromocriptina 2.5 mg",
+  "Cabergolina 0.5 mg",
+  "Alprostadil inyectable",
+  "Sildenafil 20 mg (Hipertensión Pulmonar)",
+  "Bosentán 125 mg",
+  "Macitertán 10 mg",
+  "Selexipag 200 mcg",
+  "Riociguat 1 mg",
+  "Pirfenidona 267 mg",
+  "Nintedanib 150 mg"
 ];
+
+/**
+ * Normaliza una cadena de texto eliminando acentos, diacríticos y convirtiendo a minúsculas.
+ * Mejora drásticamente la precisión del buscador al permitir búsquedas como "corazon" para "corazón".
+ */
+export function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
+ * Realiza una búsqueda avanzada en la lista de medicamentos.
+ * Implementa lógica de coincidencia parcial y normalización de texto.
+ */
+export function searchMedications(query: string): string[] {
+  if (!query || query.trim().length < 2) return [];
+  
+  const normalizedQuery = normalizeText(query);
+  
+  return ALL_MEDICATIONS.filter(med => {
+    const normalizedMed = normalizeText(med);
+    // Coincidencia exacta o parcial
+    return normalizedMed.includes(normalizedQuery);
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // Utilidad para asignar medicamentos aleatorios a cada farmacia
@@ -942,4 +1175,3 @@ export const PHARMACIES: Pharmacy[] = [
     medsAvailable: getRandomMeds(25, 15, 25)
   }
 ];
-
