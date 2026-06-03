@@ -13,6 +13,7 @@ export interface Pharmacy {
   id: string;
   name: string;
   address: string;
+  phone: string;
   distance: string;
   status: "Disponible" | "Poco stock" | "Agotado";
   openNow: boolean;
