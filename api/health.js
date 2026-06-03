@@ -1,4 +1,4 @@
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
   
   res.setHeader("Content-Type", "application/json");

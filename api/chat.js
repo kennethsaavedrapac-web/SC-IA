@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 let aiClient = null;
 
@@ -74,7 +74,7 @@ CENTROS DE REFERENCIA EN GRANADA:
 
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
