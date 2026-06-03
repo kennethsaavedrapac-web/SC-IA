@@ -346,6 +346,29 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
+  const handleRecenter = () => {
+    if (userLocation) {
+      iframeRef.current?.contentWindow?.postMessage({
+        type: "UPDATE_DATA",
+        centers: filteredCenters
+          .filter((c) => c.latitude && c.longitude)
+          .map((c) => ({
+            id: c.id,
+            name: c.name,
+            type: c.type,
+            lat: c.latitude,
+            lng: c.longitude,
+            isHospital: c.type.toLowerCase().includes("hospital"),
+          })),
+        selectedId: selectedCenter?.id || null,
+        userLocation: userLocation,
+        forceCenterOnUser: true,
+      }, "*");
+    } else {
+      requestCurrentLocation();
+    }
+  };
+
   // Message listener for Leaflet marker clicks
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
@@ -492,17 +515,21 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             }
           }
 
+          let currentSelectedId = null;
+
           window.addEventListener('message', (event) => {
             const msg = event.data;
             if (msg.type === 'UPDATE_DATA') {
               updateMarkers(msg.centers, msg.selectedId);
               updateUserLocation(msg.userLocation);
               
-              if (msg.centerOnId) {
+              if (msg.forceCenterOnUser && msg.userLocation) {
+                map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15);
+              } else if (msg.centerOnId && msg.centerOnId !== currentSelectedId) {
+                currentSelectedId = msg.centerOnId;
                 centerOnSelected(msg.centerOnId, msg.zoomLevel);
-              } else if (msg.fitBounds && msg.centers.length > 0) {
-                const bounds = L.latLngBounds(msg.centers.map(c => [c.lat, c.lng]));
-                map.fitBounds(bounds, { padding: [50, 50] });
+              } else if (!msg.centerOnId) {
+                currentSelectedId = null;
               }
             }
           });
@@ -863,6 +890,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             </svg>
           </button>
         )}
+
+        {/* Floating Recenter Button */}
+        <button
+          onClick={handleRecenter}
+          className={`absolute ${mobileView === "map" ? "top-20" : "top-4"} right-4 z-30 flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all`}
+          title="Centrar en mi ubicación"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="3" />
+            <line x1="12" y1="1" x2="12" y2="4" />
+            <line x1="12" y1="20" x2="12" y2="23" />
+            <line x1="1" y1="12" x2="4" y2="12" />
+            <line x1="20" y1="12" x2="23" y2="12" />
+          </svg>
+        </button>
 
         {/* Floating selected center card on mobile when map is active */}
         {selectedCenter && mobileView === "map" && (
