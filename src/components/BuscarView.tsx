@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 // @ts-ignore: Falta @types/react en este entorno
 import type { ReactNode } from "react";
-import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X } from "lucide-react";
+import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X, MessageCircle } from "lucide-react";
 import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
 import { motion, AnimatePresence } from "motion/react";
@@ -384,8 +384,8 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                         </div>
                       </div>
 
-                      {/* availability and GPS Navigation button */}
-                      <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
+                      {/* availability, GPS Navigation and WhatsApp button */}
+                      <div className="text-right flex flex-col items-end gap-2 shrink-0 ml-4">
                         <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
                           ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                           : pharm.status === "Poco stock"
@@ -398,10 +398,24 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                         <button
                           id={`btn-run-route-for-${pharm.id}`}
                           onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
-                          className="mt-4 px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-full text-blue-600 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-blue-100"
+                          className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 rounded-full text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-blue-100 dark:border-blue-900/50"
                         >
                           <Navigation className="w-3 h-3" />
                           <span>{t('viewRoute')}</span>
+                        </button>
+
+                        <button
+                          id={`btn-whatsapp-for-${pharm.id}`}
+                          onClick={() => {
+                            const message = drugQuery && drugQuery.trim() !== ""
+                              ? `Hola ${pharm.name}, ¿tienen disponible ${drugQuery}?`
+                              : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
+                            window.open(`https://wa.me/${pharm.phone}?text=${encodeURIComponent(message)}`, "_blank");
+                          }}
+                          className="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 rounded-full text-emerald-600 dark:text-emerald-400 font-bold text-[10px] flex items-center space-x-1 transition-all active:scale-95 shadow-sm border border-emerald-100 dark:border-emerald-900/50"
+                        >
+                          <MessageCircle className="w-3 h-3" />
+                          <span>WhatsApp</span>
                         </button>
                       </div>
                     </div>
