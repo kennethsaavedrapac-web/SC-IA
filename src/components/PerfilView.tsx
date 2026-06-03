@@ -364,7 +364,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {/* Menu Option items collapsible blocks */}
             {[
               {
