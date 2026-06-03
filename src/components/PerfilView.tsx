@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import QRCode from "react-qr-code";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2 } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -26,9 +26,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCity, setEditCity] = useState(user.city);
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Avatar upload states
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleAvatarClick = () => {
@@ -109,6 +111,39 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       setIsSavedAlertOpen(false);
       setActiveMenuSection(null);
     }, 2000);
+  };
+
+  const downloadQRCode = () => {
+    if (qrRef.current) {
+      const svg = qrRef.current.querySelector('svg') as SVGElement;
+      if (svg) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 512;
+        
+        canvas.width = size;
+        canvas.height = size;
+        
+        if (ctx) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, size, size);
+          
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(5, 5, size - 10, size - 10);
+          
+          const image = new Image();
+          image.onload = () => {
+            ctx.drawImage(image, 20, 20, size - 40, size - 40);
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `Perfil-Medico-${user.name.replace(/\s+/g, '-')}.png`;
+            link.click();
+          };
+          image.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svg));
+        }
+      }
+    }
   };
 
   return (
@@ -270,7 +305,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
         {/* QR Code section segment card */}
         <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-4 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)] space-y-4 sm:space-y-5">
-          <div className="flex flex-col md:flex-row items-center gap-5 md:gap-8 justify-between">
+          <div className="flex flex-col lg:flex-row items-center gap-6 md:gap-8 justify-between">
 
             <div className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-5 flex-1 text-center sm:text-left">
               <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-[0_14px_28px_rgba(37,99,235,0.22)] sm:shadow-[0_20px_38px_rgba(37,99,235,0.28)] shrink-0">
@@ -289,19 +324,41 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </div>
             </div>
 
-            {/* Visual Real Active QR Generator Container */}
-            <div
-              onClick={() => alert(`Contenido del código de seguridad médica:\n\n${qrTelemetryText}`)}
-              className="w-36 h-36 sm:w-52 sm:h-52 border border-slate-200/80 dark:border-slate-700 p-3 sm:p-4 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center cursor-pointer shadow-[0_18px_34px_rgba(15,23,42,0.08)] hover:scale-[1.03] transition-transform"
-              title="Presiona para ampliar detalles clínicos del QR"
-            >
-              <QRCode
-                value={qrTelemetryText}
-                size={168}
-                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                fgColor="currentColor"
-                className="text-slate-900 dark:text-white"
-              />
+            {/* QR Code Display and Action Buttons */}
+            <div className="flex flex-col items-center gap-4 sm:gap-5 w-full sm:w-auto">
+              {/* QR Code Container */}
+              <div
+                ref={qrRef}
+                className="w-48 h-48 sm:w-64 sm:h-64 border-4 border-blue-200 dark:border-blue-800 p-4 sm:p-6 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg hover:shadow-2xl transition-all"
+              >
+                <QRCode
+                  value={qrTelemetryText}
+                  size={200}
+                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  fgColor="currentColor"
+                  className="text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 w-full sm:w-auto justify-center">
+                <button
+                  onClick={() => setShowQRModal(true)}
+                  className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-md"
+                  title="Ampliar código QR"
+                >
+                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">{t('view') || 'Ver'}</span>
+                </button>
+                <button
+                  onClick={downloadQRCode}
+                  className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs sm:text-sm transition-all active:scale-95 shadow-md"
+                  title="Descargar código QR como imagen"
+                >
+                  <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">{t('download') || 'Descargar'}</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -555,6 +612,85 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
 
       </main>
+
+      {/* QR Modal - Fullscreen View */}
+      <AnimatePresence>
+        {showQRModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowQRModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl"
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-display font-bold text-2xl sm:text-3xl text-slate-950 dark:text-white">
+                  {t('shareProfile')}
+                </h3>
+                <button
+                  onClick={() => setShowQRModal(false)}
+                  className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex flex-col items-center space-y-6">
+                {/* Large QR Code */}
+                <div
+                  ref={qrRef}
+                  className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-blue-300 dark:border-blue-700 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
+                >
+                  <QRCode
+                    value={qrTelemetryText}
+                    size={320}
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                    fgColor="currentColor"
+                    className="text-slate-900 dark:text-white"
+                  />
+                </div>
+
+                {/* QR Info */}
+                <div className="w-full space-y-3 text-center">
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                    {t('emergencyDesc')}
+                  </p>
+                  <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs px-3 py-2 rounded-xl font-bold">
+                    <Lock className="w-4 h-4" />
+                    <span>{t('authorizedOnly')}</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 w-full pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={downloadQRCode}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-md"
+                  >
+                    <Download className="w-5 h-5" />
+                    <span>{t('download') || 'Descargar'}</span>
+                  </button>
+                  <button
+                    onClick={() => setShowQRModal(false)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-2xl font-bold text-sm transition-all active:scale-95"
+                  >
+                    <span>{t('close') || 'Cerrar'}</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
