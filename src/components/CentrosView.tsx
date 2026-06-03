@@ -345,7 +345,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
+    <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
 
       {/* ═══════════════ SIDEBAR PANEL (Left side on desktop) ═══════════════ */}
       <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>
@@ -492,7 +492,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         </div>
 
         {/* Scrollable Centers List */}
-        <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-32 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
+        <div className={`flex-1 overflow-y-auto px-4 py-3 space-y-3 no-scrollbar pb-6 ${mobileView === "list" ? "block" : "hidden md:block"}`}>
           <div className="flex justify-between items-center mb-1.5">
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
