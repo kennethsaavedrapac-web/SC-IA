@@ -69,4 +69,5 @@ export interface UserProfile {
   healthConditions: string[];
   emergencyPhone?: string;
   bloodType?: string;
+  role: 'user' | 'admin';
 }

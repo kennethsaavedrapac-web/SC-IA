@@ -20,7 +20,7 @@ export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -107,21 +107,38 @@ export default function App() {
 
   // ─── Session-based navigation ─────────────────────────────
   // Redirect to home if user is authenticated, or to login if not
+  // Also protect admin route: only admins can access /admin
   useEffect(() => {
     if (!initialized) return;
 
     if (session && user) {
-      // User is authenticated — if on login/register, redirect to home
-      if (currentView === "login" || currentView === "register") {
-        setCurrentView("home");
+      // User is authenticated
+      if (profile) {
+        // Check if user is trying to access admin without permission
+        if (currentView === "admin" && profile.role !== "admin") {
+          // Redirect non-admins away from admin page
+          setCurrentView("home");
+          return;
+        }
+        // If admin is on login/register, redirect to home (or maybe admin?)
+        if (currentView === "login" || currentView === "register") {
+          // Admins go to admin panel, regular users go to home
+          setCurrentView(profile.role === "admin" ? "admin" : "home");
+          return;
+        }
+      } else {
+        // Profile not loaded yet, default to home for safety
+        if (currentView === "login" || currentView === "register") {
+          setCurrentView("home");
+        }
       }
     } else {
       // No session — force login screen
-      if (currentView !== "login" && currentView !== "register") {
+      if (currentView !== "login" && currentView !== "register" && currentView !== "admin") {
         setCurrentView("login");
       }
     }
-  }, [session, user, initialized]);
+  }, [session, user, initialized, profile, currentView]);
 
   // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
   useEffect(() => {
@@ -614,6 +631,19 @@ export default function App() {
                 onUnlockPremium={handleUnlockPremium}
                 onNavigate={(tab) => setCurrentView(tab)}
               />
+            </motion.div>
+          )}
+
+          {currentView === "admin" && (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1"
+            >
+              <AdminView />
             </motion.div>
           )}
 

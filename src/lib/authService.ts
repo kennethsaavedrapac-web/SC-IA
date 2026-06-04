@@ -11,6 +11,7 @@ export interface UserProfile {
   ciudad: string;
   pais: string;
   created_at: string;
+  role: string;
 }
 
 export interface AuthResult {
@@ -75,6 +76,7 @@ export async function signUpWithEmail(
         data: {
           nombre: nombre,
           full_name: nombre,
+          role: 'user', // Default role for new users
         },
       },
     });
