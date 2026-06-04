@@ -127,7 +127,8 @@ export default function App() {
 
   const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
   const maintenanceMode = globalSettings?.maintenanceMode || false;
-  const isMaintenanceBlocked = maintenanceMode && profile && profile.role !== 'admin';
+  const profileRole = (profile as any)?.role ?? (profile as any)?.rol;
+  const isMaintenanceBlocked = maintenanceMode && profile && profileRole !== 'admin';
 
   // Auto-redirect if feature is disabled
   useEffect(() => {
