@@ -13,7 +13,22 @@ export const MORNING_TIPS = [
   "Consejo del día: Realizar respiraciones profundas ayuda a calmar la ansiedad y el estrés.",
   "Consejo del día: Evita el exceso de sal y azúcares añadidos en tus comidas diarias.",
   "Consejo del día: Lava tus manos frecuentemente con agua y jabón para evitar infecciones.",
-  "Consejo del día: Desayunar de forma equilibrada te da energía para rendir todo el día."
+  "Consejo del día: Desayunar de forma equilibrada te da energía para rendir todo el día.",
+  "Consejo del día: Mantén una postura erguida al sentarte para evitar dolores de espalda.",
+  "Consejo del día: Reemplaza las bebidas azucaradas por agua o infusiones naturales.",
+  "Consejo del día: Practicar la gratitud puede mejorar tu bienestar mental significativamente.",
+  "Consejo del día: Intenta aprender algo nuevo hoy para mantener tu cerebro activo.",
+  "Consejo del día: Organiza tu espacio de trabajo para reducir el estrés visual y aumentar tu concentración.",
+  "Consejo del día: Evita automedicarte y siempre consulta a un profesional ante cualquier duda.",
+  "Consejo del día: Agrega nueces y semillas a tu dieta para mejorar tu salud cardiovascular.",
+  "Consejo del día: Tomar un breve descanso al aire libre puede recargar tu energía.",
+  "Consejo del día: Escucha tu cuerpo; si sientes dolor, detén la actividad y descansa.",
+  "Consejo del día: Mantén tus vacunas al día para protegerte a ti y a los demás.",
+  "Consejo del día: Evita consumir alimentos pesados al menos dos horas antes de dormir.",
+  "Consejo del día: Realiza pausas activas durante tu jornada laboral para prevenir lesiones.",
+  "Consejo del día: Cultiva relaciones sociales positivas, son clave para una buena salud emocional.",
+  "Consejo del día: Leer un libro antes de acostarte es una excelente forma de relajar la mente.",
+  "Consejo del día: Prioriza tu salud mental tanto como tu salud física."
 ];
 
 export const AFTERNOON_REMINDERS = [
@@ -31,7 +46,22 @@ export const AFTERNOON_REMINDERS = [
   "Verifica la información de las unidades de salud en tu zona usando nuestra herramienta.",
   "¿Todo en orden con tu salud general? No olvides usar el buscador para aprender más.",
   "Dedica un momento para registrar cualquier cambio en tus condiciones médicas preexistentes.",
-  "Tu bienestar es nuestra prioridad. Inicia una consulta rápida si tienes alguna inquietud."
+  "Tu bienestar es nuestra prioridad. Inicia una consulta rápida si tienes alguna inquietud.",
+  "¿Sabes cuáles son los centros médicos más cercanos a tu ubicación actual? Revisa el mapa.",
+  "Mantén tu historial médico al día en la sección de perfil para una mejor atención.",
+  "Comparte con tus seres queridos cómo configurar su propio perfil de emergencia.",
+  "¿Te sientes estresado por el trabajo? Inicia una consulta para recibir consejos de manejo de estrés.",
+  "Recuerda que nuestra IA está disponible 24/7 para responder tus preguntas de salud.",
+  "Verifica si tienes todos tus medicamentos registrados en tu historial médico.",
+  "Un diagnóstico a tiempo puede marcar la diferencia. No ignores ninguna molestia constante.",
+  "Asegúrate de tener el contacto de tu médico de cabecera a la mano en tu perfil.",
+  "¿Conoces los beneficios de nuestro plan premium? Descúbrelos en la aplicación.",
+  "Es un buen momento para repasar las recomendaciones de salud personalizadas para ti.",
+  "Tu información de salud está segura con nosotros. Revisa tus ajustes de privacidad.",
+  "¿Has experimentado cambios en tu sueño últimamente? Consúltalo con la IA.",
+  "Explora las diferentes categorías en nuestra sección de búsqueda para aprender sobre salud preventiva.",
+  "Recuerda actualizar tu peso y altura en el perfil para un cálculo preciso del IMC.",
+  "Estar informado es el primer paso hacia una mejor salud. Revisa los artículos disponibles en el inicio."
 ];
 
 export const requestNotificationPermission = async () => {
