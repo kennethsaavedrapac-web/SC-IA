@@ -57,7 +57,7 @@ export const showDailyNotification = async (userId: string) => {
           icon: "/app-logo-v1.jpg",
           badge: "/app-logo-v1.jpg",
           vibrate: [200, 100, 200]
-        });
+        } as NotificationOptions);
       } else {
         // Fallback a notificación estándar
         new Notification("Salud-Conecta IA", {

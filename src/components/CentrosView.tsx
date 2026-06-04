@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
-import { AlertTriangle, Phone, Siren } from "lucide-react";
+import { AlertTriangle, Phone, Siren, Navigation, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface CentrosViewProps {
@@ -96,6 +96,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [activeRouteCenter, setActiveRouteCenter] = useState<HealthCenter | null>(null);
+  const [routeSummary, setRouteSummary] = useState<{ distanceKm: string; timeMinutes: number } | null>(null);
+  const [routeError, setRouteError] = useState<string | null>(null);
 
   const normalizeQuery = (value?: string) =>
     (value ?? "")
@@ -339,11 +343,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const googleMapsEmbedUrl = googleMapsApiKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
     : "";
-  const googleMapsSearchUrl =
-    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
-
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const handleRecenter = () => {
@@ -369,19 +368,133 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
   };
 
-  // Message listener for Leaflet marker clicks
+  const handleClearRoute = useCallback(() => {
+    setActiveRouteCenter(null);
+    setRouteSummary(null);
+    setRouteError(null);
+    setIsCalculatingRoute(false);
+    iframeRef.current?.contentWindow?.postMessage(
+      {
+        type: "CLEAR_ROUTE",
+      },
+      "*"
+    );
+  }, []);
+
+  const handleGetDirections = useCallback((center: HealthCenter) => {
+    if (!center.latitude || !center.longitude) {
+      setRouteError(`El centro "${center.name}" no dispone de coordenadas GPS exactas.`);
+      return;
+    }
+
+    setRouteError(null);
+    setIsCalculatingRoute(true);
+    setActiveRouteCenter(center);
+
+    // En móvil, conmutar directamente al mapa para visualizar la ruta
+    if (mobileView === "list") {
+      setMobileView("map");
+    }
+
+    const sendRouteToIframe = (coords: { latitude: number; longitude: number }) => {
+      iframeRef.current?.contentWindow?.postMessage(
+        {
+          type: "DRAW_ROUTE",
+          origin: {
+            lat: coords.latitude,
+            lng: coords.longitude,
+          },
+          destination: {
+            lat: center.latitude,
+            lng: center.longitude,
+            name: center.name,
+          },
+        },
+        "*"
+      );
+    };
+
+    if (!("geolocation" in navigator)) {
+      if (userLocation) {
+        sendRouteToIframe(userLocation);
+      } else {
+        setIsCalculatingRoute(false);
+        setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
+      }
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userCoords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        };
+        setUserLocation(userCoords);
+        sendRouteToIframe(userCoords);
+      },
+      (error) => {
+        // Fallback a ubicación previa si existe
+        if (userLocation) {
+          sendRouteToIframe(userLocation);
+          return;
+        }
+
+        setIsCalculatingRoute(false);
+        let errMsg = "No se pudo obtener tu ubicación actual.";
+        if (error.code === error.PERMISSION_DENIED) {
+          errMsg = "Permiso de ubicación denegado. Activa el GPS para trazar la ruta.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          errMsg = "Señal GPS no disponible. Verifica tus servicios de ubicación.";
+        } else if (error.code === error.TIMEOUT) {
+          errMsg = "Tiempo de espera agotado al consultar la señal GPS.";
+        }
+        setRouteError(errMsg);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 15000,
+        timeout: 10000,
+      }
+    );
+  }, [mobileView, userLocation]);
+
+  // Message listener for Leaflet marker clicks & route events
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === "SELECT_CENTER") {
+      if (!event.data) return;
+
+      if (event.data.type === "SELECT_CENTER") {
         const center = HEALTH_CENTERS.find((c) => c.id === event.data.centerId);
         if (center) {
           setSelectedCenter(center);
         }
+      } else if (event.data.type === "REQUEST_ROUTE") {
+        const center = HEALTH_CENTERS.find((c) => c.id === event.data.centerId);
+        if (center) {
+          setSelectedCenter(center);
+          handleGetDirections(center);
+        }
+      } else if (event.data.type === "ROUTE_FOUND") {
+        setIsCalculatingRoute(false);
+        setRouteError(null);
+        setRouteSummary({
+          distanceKm: event.data.distance,
+          timeMinutes: event.data.time,
+        });
+      } else if (event.data.type === "ROUTE_ERROR") {
+        setIsCalculatingRoute(false);
+        setRouteError(event.data.message || "No se pudo calcular la ruta vial.");
+      } else if (event.data.type === "ROUTE_CLEARED") {
+        setActiveRouteCenter(null);
+        setRouteSummary(null);
+        setIsCalculatingRoute(false);
       }
     };
     window.addEventListener("message", handleMapMessage);
     return () => window.removeEventListener("message", handleMapMessage);
-  }, []);
+  }, [handleGetDirections]);
 
   // Post updates to the Leaflet map iframe
   useEffect(() => {
@@ -430,15 +543,97 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
         <style>
-          html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
-          .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+          html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+          .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; border-radius: 12px !important; overflow: hidden; }
           .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
           .leaflet-bar a:hover { background-color: #f8fafc !important; }
           @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: scale(2.5); opacity: 0; }
+          }
+
+          /* Panel de Rutas Moderno */
+          .leaflet-routing-container {
+            background: rgba(255, 255, 255, 0.96) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.08) !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            padding: 12px 14px !important;
+            font-family: inherit !important;
+            font-size: 11.5px !important;
+            color: #1e293b !important;
+            max-width: 320px !important;
+            max-height: 260px !important;
+            overflow-y: auto !important;
+            box-sizing: border-box !important;
+          }
+
+          @media (max-width: 768px) {
+            .leaflet-routing-container {
+              max-width: calc(100vw - 32px) !important;
+              max-height: 190px !important;
+              font-size: 11px !important;
+              margin: 8px !important;
+            }
+          }
+
+          .leaflet-routing-container h2 {
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            margin: 0 0 6px 0 !important;
+          }
+
+          .leaflet-routing-container h3 {
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            color: #2563eb !important;
+            margin: 4px 0 !important;
+          }
+
+          .leaflet-routing-alt {
+            max-height: 170px !important;
+            overflow-y: auto !important;
+            padding: 2px 0 !important;
+          }
+
+          .leaflet-routing-alt table {
+            width: 100% !important;
+          }
+
+          .leaflet-routing-alt tr:hover {
+            background-color: #f1f5f9 !important;
+          }
+
+          .leaflet-routing-container::-webkit-scrollbar,
+          .leaflet-routing-alt::-webkit-scrollbar {
+            width: 4px;
+          }
+          .leaflet-routing-container::-webkit-scrollbar-thumb,
+          .leaflet-routing-alt::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+          }
+
+          /* Popups de Centros en Mapa */
+          .custom-route-popup .leaflet-popup-content-wrapper {
+            border-radius: 16px !important;
+            box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.15) !important;
+            border: 1px solid #e2e8f0 !important;
+            padding: 4px !important;
+          }
+          .custom-route-popup .leaflet-popup-content {
+            margin: 8px 10px !important;
+            font-family: inherit !important;
+          }
+          .custom-route-popup .leaflet-popup-tip {
+            background: white !important;
           }
         </style>
       </head>
@@ -457,6 +652,96 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           let markersGroup = L.layerGroup().addTo(map);
           let userLocationMarker = null;
           let markersMap = new Map();
+          let routingControl = null;
+
+          function clearRoute() {
+            if (routingControl) {
+              try {
+                map.removeControl(routingControl);
+              } catch (e) {
+                console.warn("Could not remove routing control", e);
+              }
+              routingControl = null;
+            }
+          }
+
+          function calculateRoute(origin, destination) {
+            clearRoute();
+
+            try {
+              routingControl = L.Routing.control({
+                waypoints: [
+                  L.latLng(origin.lat, origin.lng),
+                  L.latLng(destination.lat, destination.lng)
+                ],
+                router: L.Routing.osrmv1({
+                  serviceUrl: 'https://router.project-osrm.org/route/v1',
+                  language: 'es',
+                  profile: 'car'
+                }),
+                language: 'es',
+                collapsible: true,
+                show: true,
+                autoRoute: true,
+                routeWhileDragging: false,
+                addWaypoints: false,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                  styles: [
+                    { color: '#1d4ed8', opacity: 0.25, weight: 10 },
+                    { color: '#2563eb', opacity: 0.95, weight: 5 }
+                  ]
+                },
+                createMarker: function(i, wp) {
+                  if (i === 0) {
+                    return L.marker(wp.latLng, {
+                      icon: L.divIcon({
+                        html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(59,130,246,0.8); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+                        className: '',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                      })
+                    }).bindPopup('<b>Tu ubicación de salida</b>');
+                  } else {
+                    return L.marker(wp.latLng, {
+                      icon: L.divIcon({
+                        html: '<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">📍</div>',
+                        className: '',
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                      })
+                    }).bindPopup('<b>' + (destination.name || 'Destino') + '</b>');
+                  }
+                }
+              }).addTo(map);
+
+              routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                if (routes && routes.length > 0) {
+                  const summary = routes[0].summary;
+                  window.parent.postMessage({
+                    type: 'ROUTE_FOUND',
+                    distance: (summary.totalDistance / 1000).toFixed(1),
+                    time: Math.round(summary.totalTime / 60)
+                  }, '*');
+                }
+              });
+
+              routingControl.on('routingerror', function(e) {
+                console.warn("Routing error", e);
+                window.parent.postMessage({
+                  type: 'ROUTE_ERROR',
+                  message: 'No se pudo trazar una ruta vial directa hacia este centro.'
+                }, '*');
+              });
+            } catch (err) {
+              console.error("Error creating routing control:", err);
+              window.parent.postMessage({
+                type: 'ROUTE_ERROR',
+                message: 'Error al inicializar el servicio de navegación.'
+              }, '*');
+            }
+          }
 
           function updateMarkers(centers, selectedId) {
             markersGroup.clearLayers();
@@ -485,6 +770,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
               const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
               markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+
+              // Popup enriquecido con acción interna de ruta
+              const popupHtml = \`
+                <div style="min-width: 170px; max-width: 220px; font-family: system-ui, sans-serif; text-align: left;">
+                  <div style="font-weight: 700; font-size: 12.5px; color: #0f172a; line-height: 1.25; margin-bottom: 2px;">\${c.name}</div>
+                  <div style="font-size: 10px; color: #64748b; margin-bottom: 8px;">\${c.type}</div>
+                  <button onclick="window.parent.postMessage({ type: 'REQUEST_ROUTE', centerId: '\${c.id}' }, '*')" style="display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; background: #2563eb; color: white; border: none; border-radius: 10px; padding: 7px 10px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                    </svg>
+                    <span>Cómo llegar</span>
+                  </button>
+                </div>
+              \`;
+
+              marker.bindPopup(popupHtml, {
+                className: 'custom-route-popup',
+                offset: [0, -size / 2]
+              });
 
               marker.on('click', () => {
                 window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
@@ -519,6 +823,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
           window.addEventListener('message', (event) => {
             const msg = event.data;
+            if (!msg) return;
+
             if (msg.type === 'UPDATE_DATA') {
               updateMarkers(msg.centers, msg.selectedId);
               updateUserLocation(msg.userLocation);
@@ -531,6 +837,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               } else if (!msg.centerOnId) {
                 currentSelectedId = null;
               }
+            } else if (msg.type === 'DRAW_ROUTE') {
+              if (msg.origin && msg.destination) {
+                calculateRoute(msg.origin, msg.destination);
+              }
+            } else if (msg.type === 'CLEAR_ROUTE') {
+              clearRoute();
             }
           });
         </script>
@@ -818,18 +1130,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                             {/* CTA Action buttons inside the card */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
-                              <a
-                                href={googleMapsSearchUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                              <button
+                                onClick={() => handleGetDirections(hc)}
+                                disabled={isCalculatingRoute && activeRouteCenter?.id === hc.id}
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 hover:bg-blue-700 transition-all text-center disabled:opacity-75 cursor-pointer"
                               >
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                  <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                <span>Cómo llegar</span>
-                              </a>
+                                {isCalculatingRoute && activeRouteCenter?.id === hc.id ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Calculando...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                                      <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                                    </svg>
+                                    <span>{activeRouteCenter?.id === hc.id ? "Ruta activa" : "Cómo llegar"}</span>
+                                  </>
+                                )}
+                              </button>
 
                               {hc.phone ? (
                                 <a
@@ -870,6 +1189,78 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           className="w-full h-full border-0"
           loading="lazy"
         />
+
+        {/* Floating Active Route Information Banner */}
+        <AnimatePresence>
+          {activeRouteCenter && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-4 left-4 right-16 md:left-6 md:right-auto md:max-w-sm z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-blue-100 dark:border-blue-900/50 flex items-center justify-between gap-2.5"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+                  <Navigation className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                      Ruta activa
+                    </span>
+                    {routeSummary && (
+                      <span className="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold px-1.5 py-0.5 rounded-full">
+                        {routeSummary.distanceKm} km • {routeSummary.timeMinutes} min
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[12px] font-bold text-slate-900 dark:text-white truncate">
+                    {activeRouteCenter.name}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleClearRoute}
+                className="shrink-0 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Cerrar ruta"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Loading Route Indicator */}
+        {isCalculatingRoute && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg backdrop-blur flex items-center gap-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
+            <span>Calculando ruta vial...</span>
+          </div>
+        )}
+
+        {/* Route Error Notification */}
+        <AnimatePresence>
+          {routeError && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-4 left-4 right-16 md:left-auto md:right-16 md:max-w-sm z-30 bg-rose-50 dark:bg-rose-950/90 border border-rose-200 dark:border-rose-900 rounded-2xl p-3 shadow-lg flex items-start gap-2.5"
+            >
+              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+              <div className="flex-1 text-xs text-rose-800 dark:text-rose-200">
+                <p className="font-bold">Aviso de navegación</p>
+                <p className="mt-0.5 leading-snug">{routeError}</p>
+              </div>
+              <button
+                onClick={() => setRouteError(null)}
+                className="text-rose-400 hover:text-rose-600 dark:hover:text-rose-200"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Floating Toggle Button on Mobile Map View */}
         {mobileView === "map" && (
@@ -966,18 +1357,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <a
-                    href={googleMapsSearchUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                  <button
+                    onClick={() => handleGetDirections(selectedCenter)}
+                    disabled={isCalculatingRoute && activeRouteCenter?.id === selectedCenter.id}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 hover:bg-blue-700 transition-all text-center disabled:opacity-75 cursor-pointer"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                      <circle cx="12" cy="10" r="3" />
-                    </svg>
-                    <span>Cómo llegar</span>
-                  </a>
+                    {isCalculatingRoute && activeRouteCenter?.id === selectedCenter.id ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Calculando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                          <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                        </svg>
+                        <span>{activeRouteCenter?.id === selectedCenter.id ? "Ruta activa" : "Cómo llegar"}</span>
+                      </>
+                    )}
+                  </button>
 
                   {selectedCenter.phone ? (
                     <a
