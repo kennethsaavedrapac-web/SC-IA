@@ -13,7 +13,7 @@ import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
+import { requestNotificationPermission, checkAndShowNotifications } from "./lib/notificationService";
 import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -116,19 +116,34 @@ export default function App() {
       if (currentView === "login" || currentView === "register") {
         setCurrentView("home");
       }
-      
-      // Request notification permissions and show daily message
-      requestNotificationPermission().then((granted) => {
-        if (granted) {
-          showDailyNotification(user.id);
-        }
-      });
     } else {
       // No session — force login screen
       if (currentView !== "login" && currentView !== "register") {
         setCurrentView("login");
       }
     }
+  }, [session, user, initialized, currentView]);
+
+  // ─── Daily Notifications Scheduler ──────────────────────────
+  useEffect(() => {
+    if (!initialized) return;
+    let intervalId: any;
+
+    if (session && user && user.id !== "guest") {
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          checkAndShowNotifications(user.id);
+          // Verificar cada minuto por si el usuario deja la aplicación abierta
+          intervalId = setInterval(() => {
+            checkAndShowNotifications(user.id);
+          }, 60000);
+        }
+      });
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [session, user, initialized]);
 
   // Carga inicial del perfil desde caché local para evitar parpadeos visuales en móviles
