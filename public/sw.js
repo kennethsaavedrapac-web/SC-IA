@@ -1,8 +1,9 @@
-const CACHE_NAME = "salud-conecta-v3";
+const CACHE_NAME = "salud-conecta-v4";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/manifest.json"
+  "/manifest.json",
+  "/logo.jpg"
 ];
 
 // Install Event

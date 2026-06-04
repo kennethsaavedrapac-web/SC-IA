@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2 } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -24,9 +24,38 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
+  const [editCountry, setEditCountry] = useState(user.country);
+  const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
+  const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
+  const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
+  const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
+
+  // Notifications State (Local Storage)
+  const [alertVaccines, setAlertVaccines] = useState(() => localStorage.getItem("alertVaccines") !== "false");
+  const [alertAppointments, setAlertAppointments] = useState(() => localStorage.getItem("alertAppointments") !== "false");
+  const [alertEmails, setAlertEmails] = useState(() => localStorage.getItem("alertEmails") === "true");
+
+  const handleToggle = useCallback((key: string, current: boolean, setter: (v: boolean) => void) => {
+    const newVal = !current;
+    setter(newVal);
+    localStorage.setItem(key, newVal.toString());
+  }, []);
+
+  // Condition management
+  const handleAddCondition = useCallback(() => {
+    const trimmed = newCondition.trim();
+    if (trimmed && !editConditions.includes(trimmed)) {
+      setEditConditions(prev => [...prev, trimmed]);
+      setNewCondition("");
+    }
+  }, [newCondition, editConditions]);
+
+  const handleRemoveCondition = useCallback((index: number) => {
+    setEditConditions(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   // Avatar upload states
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -92,11 +121,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         email: user.email,
         location: `${user.city}, ${user.country}`,
         healthConditions: user.healthConditions,
-        bloodType: "O+",
-        emergencyContact: "+505 8888-9999",
+        bloodType: user.bloodType || "O+",
+        emergencyContact: user.emergencyPhone || "+505 8888-9999",
       },
     });
-  }, [displayName, qrRefreshWindow, user.city, user.country, user.email, user.healthConditions, user.id]);
+  }, [displayName, qrRefreshWindow, user]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,39 +134,74 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       name: editName,
       email: editEmail,
       city: editCity,
+      country: editCountry,
+      emergencyPhone: editPhone,
+      bloodType: editBloodType,
+      healthConditions: editConditions,
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
       setIsSavedAlertOpen(false);
       setActiveMenuSection(null);
-    }, 2000);
+    }, 2500);
   };
 
   const downloadQRCode = () => {
-    const svg = qrRef.current?.querySelector("svg");
-    if (!svg) return;
+    import("jspdf").then(({ default: jsPDF }) => {
+      const doc = new jsPDF();
+      
+      // Título
+      doc.setFontSize(22);
+      doc.setTextColor(30, 58, 138); // Azul
+      doc.text("Tarjeta de Emergencia Médica", 20, 20);
 
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
+      // Info del usuario
+      doc.setFontSize(14);
+      doc.setTextColor(51, 65, 85); // Slate
+      doc.text(`Nombre: ${user.name}`, 20, 40);
+      doc.text(`Tipo de Sangre: ${user.bloodType || "No especificado"}`, 20, 50);
+      doc.text(`Contacto de Emergencia: ${user.emergencyPhone || "+505 8888-9999"}`, 20, 60);
 
-    img.onload = () => {
-      canvas.width = 512;
-      canvas.height = 512;
-      if (ctx) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, 512, 512);
-        ctx.drawImage(img, 0, 0, 512, 512);
-        const pngFile = canvas.toDataURL("image/png");
-        const downloadLink = document.createElement("a");
-        downloadLink.download = `QR-Emergencia-${user.name}.png`;
-        downloadLink.href = pngFile;
-        downloadLink.click();
+      // Condiciones médicas
+      doc.text("Condiciones Médicas:", 20, 75);
+      doc.setFontSize(12);
+      doc.setTextColor(100, 116, 139);
+      if (user.healthConditions && user.healthConditions.length > 0) {
+        user.healthConditions.forEach((cond, idx) => {
+          doc.text(`• ${cond}`, 25, 85 + (idx * 8));
+        });
+      } else {
+        doc.text("Ninguna registrada.", 25, 85);
       }
-    };
 
-    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+      const svg = qrRef.current?.querySelector("svg");
+      if (svg) {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const img = new Image();
+        
+        img.onload = () => {
+          canvas.width = 512;
+          canvas.height = 512;
+          if (ctx) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.drawImage(img, 0, 0, 512, 512);
+          }
+          const pngData = canvas.toDataURL("image/png");
+          // Añadir la imagen al PDF (x, y, width, height)
+          doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
+          
+          doc.save(`Info-Emergencia-${user.name}.pdf`);
+        };
+        img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+      } else {
+        doc.save(`Info-Emergencia-${user.name}.pdf`);
+      }
+    }).catch(err => {
+      console.error("Error cargando jsPDF", err);
+    });
   };
 
   return (
@@ -166,7 +230,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               {t('perfil')}
             </h2>
             <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
-              <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-blue-500" />
+              <img
+                src="/logo.jpg"
+                alt="Logo"
+                className="w-4 h-4 sm:w-6 sm:h-6 rounded shadow-sm object-cover"
+              />
               <span>Salud-Conecta <span className="text-blue-600">IA</span></span>
             </span>
           </div>
@@ -289,6 +357,22 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
+            {/* Quick info badges */}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
+              {user.emergencyPhone && (
+                <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
+                  <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
+                  {user.emergencyPhone}
+                </span>
+              )}
+              {user.bloodType && (
+                <span className="inline-flex items-center gap-1.5 bg-rose-50/80 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full border border-rose-100/60 dark:border-rose-900/40 font-mono">
+                  <Droplets className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  {user.bloodType}
+                </span>
+              )}
+            </div>
+
             {isPremium && (
               <span className="inline-flex bg-amber-100/90 border border-amber-200 text-amber-700 font-mono text-[11px] font-bold uppercase tracking-wider py-2 px-4 rounded-full">
                 {t('premiumMember')}
@@ -364,7 +448,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {/* Menu Option items collapsible blocks */}
             {[
               {
@@ -431,48 +515,69 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {/* Nested Personal info update Form */}
                           {item.id === "personal" && (
-                            <form onSubmit={handleUpdateProfile} className="space-y-3.5 text-left">
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400">{t('patientName')}</label>
+                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
+                                    <User className="w-3 h-3" /> {t('patientName')}
+                                  </label>
                                   <input
                                     id="input-edit-username"
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('secureEmail')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Mail className="w-3 h-3" /> {t('secureEmail')}
+                                  </label>
                                   <input
                                     id="input-edit-useremail"
                                     type="email"
                                     value={editEmail}
                                     onChange={(e) => setEditEmail(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-mono font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-mono font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('residence')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <MapPin className="w-3 h-3" /> {t('residence')}
+                                  </label>
                                   <input
                                     id="input-edit-usercity"
                                     type="text"
                                     value={editCity}
                                     onChange={(e) => setEditCity(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('emergencyPhone')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Globe className="w-3 h-3" /> País
+                                  </label>
                                   <input
                                     type="text"
-                                    defaultValue="+505 8888-9999"
-                                    className="w-full text-slate-800 dark:text-slate-400 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
-                                    disabled
+                                    value={editCountry}
+                                    onChange={(e) => setEditCountry(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Phone className="w-3 h-3" /> {t('emergencyPhone')}
+                                  </label>
+                                  <input
+                                    type="tel"
+                                    value={editPhone}
+                                    onChange={(e) => setEditPhone(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                    placeholder="+505 0000-0000"
                                   />
                                 </div>
                               </div>
@@ -480,8 +585,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                               <button
                                 id="btn-save-personal-info"
                                 type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide"
+                                className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
+                                <Save className="w-3.5 h-3.5" />
                                 {t('saveChanges')}
                               </button>
                             </form>
@@ -489,62 +595,142 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {/* Nested secure privacy content panel */}
                           {item.id === "seguridad" && (
-                            <div className="space-y-3.5 text-left">
-                              <p className="text-slate-500 dark:text-slate-400 leading-normal">
-                                {t('securityDesc')}
+                            <div className="space-y-3 text-left">
+                              <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
+                                Configuración de seguridad y acceso a la cuenta.
                               </p>
-                              <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('biometricAuth')}</span>
-                                <span className="text-[10px] bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full font-bold">{t('inactive')}</span>
-                              </div>
-                              <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('encryptionTitle')}</span>
-                                <span className="text-[10px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-full font-bold">{t('activeAES')}</span>
+                              <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
+                                    <svg viewBox="0 0 24 24" className="w-full h-full">
+                                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                                    </svg>
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="text-sm font-bold text-slate-800 dark:text-white">Cuenta de Google</h4>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">Has iniciado sesión con tu cuenta de Google</p>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           )}
 
                           {/* Nested alert notifications checker options */}
                           {item.id === "notificaciones" && (
-                            <div className="space-y-3 text-left">
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertVaccines')}</span>
-                              </label>
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" defaultChecked className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertAppointments')}</span>
-                              </label>
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertEmails')}</span>
-                              </label>
+                            <div className="space-y-2.5 text-left">
+                              {[
+                                { label: t('alertVaccines'), desc: "Recordatorios de esquema de vacunación", checked: alertVaccines, key: "alertVaccines", setter: setAlertVaccines },
+                                { label: t('alertAppointments'), desc: "Avisos de citas médicas programadas", checked: alertAppointments, key: "alertAppointments", setter: setAlertAppointments },
+                                { label: t('alertEmails'), desc: "Recibir resúmenes por correo electrónico", checked: alertEmails, key: "alertEmails", setter: setAlertEmails },
+                              ].map((opt) => (
+                                <div
+                                  key={opt.key}
+                                  className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                  onClick={() => handleToggle(opt.key, opt.checked, opt.setter)}
+                                >
+                                  <div className="flex-1 min-w-0 mr-3">
+                                    <span className="font-semibold text-slate-700 dark:text-slate-200 text-xs block">{opt.label}</span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
+                                  </div>
+                                  <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${opt.checked ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${opt.checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
 
-                          {/* Nested Allergologies condition list */}
+                          {/* Nested Health Preferences Editor */}
                           {item.id === "preferencias" && (
-                            <div className="space-y-4 text-left">
-                              <div>
-                                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">{t('recordedConditions')}</span>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  {user.healthConditions.map((cond, i) => (
-                                    <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 flex items-center space-x-1">
-                                      <span>⚕️</span>
+                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
+                              {/* Conditions Tags */}
+                              <div className="space-y-2">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                                  <Heart className="w-3 h-3" /> {t('recordedConditions')}
+                                </span>
+
+                                {/* Existing conditions as removable tags */}
+                                <div className="flex flex-wrap gap-2">
+                                  {editConditions.map((cond, i) => (
+                                    <span
+                                      key={i}
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 group hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                    >
                                       <span>{cond}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveCondition(i)}
+                                        className="w-4 h-4 rounded-full bg-blue-200/60 dark:bg-blue-800/60 hover:bg-red-200 dark:hover:bg-red-800/60 text-blue-600 hover:text-red-600 dark:text-blue-400 dark:hover:text-red-400 flex items-center justify-center transition-colors"
+                                      >
+                                        <X className="w-2.5 h-2.5" />
+                                      </button>
                                     </span>
                                   ))}
+                                  {editConditions.length === 0 && (
+                                    <span className="text-[11px] text-slate-400 italic py-1">Sin condiciones registradas</span>
+                                  )}
+                                </div>
+
+                                {/* Add new condition */}
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={newCondition}
+                                    onChange={(e) => setNewCondition(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddCondition(); } }}
+                                    placeholder="Ej: Alergia al polen"
+                                    className="flex-1 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={handleAddCondition}
+                                    disabled={!newCondition.trim()}
+                                    className="px-3 py-2 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 text-blue-600 dark:text-blue-400 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-xs font-bold"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">Agregar</span>
+                                  </button>
                                 </div>
                               </div>
 
-                              <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                <div>
-                                  <span className="font-bold text-slate-800 dark:text-white">{t('bloodType')}</span>
-                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
+                              {/* Blood Type Select */}
+                              <div className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shrink-0">
+                                    <Droplets className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-800 dark:text-white text-xs">{t('bloodType')}</span>
+                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
+                                  </div>
                                 </div>
-                                <span className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-full font-mono border border-rose-100 dark:border-rose-900/50">{t('bloodOPos')}</span>
+                                <select
+                                  value={editBloodType}
+                                  onChange={(e) => setEditBloodType(e.target.value)}
+                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer transition-all focus:ring-2 focus:ring-rose-500/30"
+                                >
+                                  <option value="A+">A+</option>
+                                  <option value="A-">A-</option>
+                                  <option value="B+">B+</option>
+                                  <option value="B-">B-</option>
+                                  <option value="AB+">AB+</option>
+                                  <option value="AB-">AB-</option>
+                                  <option value="O+">O+</option>
+                                  <option value="O-">O-</option>
+                                </select>
                               </div>
-                            </div>
+                              
+                              <button
+                                type="submit"
+                                className="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                              >
+                                <Save className="w-3.5 h-3.5" />
+                                {t('saveChanges')}
+                              </button>
+                            </form>
                           )}
 
                         </div>
@@ -556,21 +742,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             })}
           </div>
         </div>
-
-        {/* Saved feedback card banner */}
-        <AnimatePresence>
-          {isSavedAlertOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-emerald-50 border border-emerald-250/20 text-emerald-800 p-4 rounded-2xl text-xs font-bold flex items-center space-x-2 shadow-sm"
-            >
-              <CheckCircle className="w-4 h-4 text-emerald-600 focus:outline-none shrink-0" />
-              <span>{t('saveSuccess')}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Protection standard banner at end */}
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
@@ -604,6 +775,22 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
 
       </main>
+
+      {/* Floating Save Success Toast */}
+      <AnimatePresence>
+        {isSavedAlertOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-emerald-500 text-white px-6 py-3 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-[0_10px_40px_rgba(16,185,129,0.35)]"
+          >
+            <CheckCircle className="w-4.5 h-4.5 shrink-0" />
+            <span>{t('saveSuccess')}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QR Modal - Fullscreen View */}
       <AnimatePresence>

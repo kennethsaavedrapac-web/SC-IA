@@ -131,16 +131,23 @@ export default function App() {
         const cachedName = localStorage.getItem(`name_${user.id}`);
         const cachedCity = localStorage.getItem(`city_${user.id}`);
         const cachedCountry = localStorage.getItem(`country_${user.id}`);
+        const cachedEmail = localStorage.getItem(`email_${user.id}`);
+        const cachedPhone = localStorage.getItem(`phone_${user.id}`);
+        const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
+        const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
-            email: user.email || prev.email,
+            email: cachedEmail || user.email || prev.email,
             name: cachedName || prev.name,
             city: cachedCity || prev.city,
             country: cachedCountry || prev.country,
             avatarUrl: cachedAvatar || prev.avatarUrl,
+            emergencyPhone: cachedPhone || prev.emergencyPhone,
+            bloodType: cachedBloodType || prev.bloodType,
+            healthConditions: cachedConditions ? JSON.parse(cachedConditions) : prev.healthConditions,
           }));
         }
       } catch (err) {
@@ -292,6 +299,22 @@ export default function App() {
 
   const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
+    
+    // Save locally
+    try {
+      const userId = user?.id !== "guest" ? user?.id : "guest";
+      if (userId) {
+        localStorage.setItem(`name_${userId}`, updatedUser.name);
+        localStorage.setItem(`email_${userId}`, updatedUser.email);
+        localStorage.setItem(`city_${userId}`, updatedUser.city);
+        localStorage.setItem(`country_${userId}`, updatedUser.country);
+        if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
+        if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
+        localStorage.setItem(`conditions_${userId}`, JSON.stringify(updatedUser.healthConditions));
+      }
+    } catch (e) {
+      console.warn("Could not save to localStorage", e);
+    }
 
     // Guardar cambios en Supabase si no es usuario invitado
     if (user && user.id !== "guest") {
@@ -381,11 +404,13 @@ export default function App() {
       {currentView !== "login" && currentView !== "register" && (
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-base">S</span>
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="Logo"
+              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+            />
             <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-              Salud <span className="text-blue-600">IA</span>
+              Salud-Conecta <span className="text-blue-600">IA</span>
             </span>
           </div>
 
@@ -972,100 +997,65 @@ export default function App() {
               transition={{ type: "spring", damping: 25, stiffness: 350 }}
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-[380px] p-6 shadow-[0_20px_50px_rgba(251,113,133,0.08)] border border-rose-50 dark:border-rose-900/10 relative overflow-hidden"
             >
-              {/* Subtle top decoration */}
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-rose-400" />
-
-              {/* Pulse alert icon container */}
-              <div className="flex flex-col items-center text-center mt-3 mb-5">
-                <div className="w-[74px] h-[74px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center relative mb-4">
-                  {/* Ping effect */}
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
-
-                  {/* Inner dark red icon container */}
-                  <div className="w-[56px] h-[56px] rounded-full bg-rose-400 flex items-center justify-center text-white shadow-[0_4px_16px_rgba(251,113,133,0.25)] relative z-10">
-                    <Siren className="w-[28px] h-[28px] animate-pulse" />
+              {/* Professional Emergency Content */}
+              <div className="flex flex-col mt-2 mb-5">
+                <div className="flex flex-col items-center justify-center text-center mb-5 mt-2">
+                  <div className="w-[64px] h-[64px] rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center mb-3 shadow-[0_4px_16px_rgba(251,113,133,0.15)] relative">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
+                    <Siren className="w-[32px] h-[32px] text-[#d32f2f] relative z-10" />
                   </div>
+                  <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                    Emergencia médica
+                  </h3>
                 </div>
-
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  Llamada de Emergencia
-                </h3>
-                <p className="text-xs text-rose-400 font-bold uppercase tracking-wider mt-1 font-mono">
-                  Cruz Roja • Línea 128
+                
+                <p className="text-slate-600 dark:text-slate-400 text-[14px] font-medium leading-snug mb-3 text-left px-1">
+                  Si presentas alguno de estos síntomas, actúa de inmediato:
                 </p>
-              </div>
 
-              {/* Informative Guidance Content */}
-              <div className="space-y-4 mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
-
-                {/* When to call */}
-                <div className="bg-emerald-50/60 dark:bg-emerald-500/10 rounded-[20px] p-3.5 border border-emerald-100/50 dark:border-emerald-500/20">
-                  <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
-                    ¿Cuándo sí debes llamar?
-                  </span>
-                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
-                    <li className="flex items-start gap-1">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>Dificultad respiratoria severa o asfixia.</span>
+                <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200/80 dark:border-slate-700/80 p-4 py-4 text-left mb-2">
+                  <ul className="space-y-3.5 text-[14px] text-slate-700 dark:text-slate-300 font-medium leading-tight">
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Dolor o presión en el pecho</span>
                     </li>
-                    <li className="flex items-start gap-1">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>Dolor opresivo en el pecho (sospecha de infarto).</span>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Dificultad severa para respirar</span>
                     </li>
-                    <li className="flex items-start gap-1">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>Pérdida de conocimiento o convulsiones.</span>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Sangrado abundante</span>
                     </li>
-                    <li className="flex items-start gap-1">
-                      <span className="text-emerald-500 font-bold">✓</span>
-                      <span>Accidentes graves o sangrado incontrolable.</span>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0 mt-1.5" />
+                      <span>Confusión o pérdida del conocimiento</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                      <span>Convulsiones o parálisis súbita</span>
                     </li>
                   </ul>
                 </div>
-
-                {/* When NOT to call */}
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-[20px] p-3.5 border border-slate-200/50 dark:border-slate-700/50">
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
-                    <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
-                    ¿Cuándo usar la Consulta IA en su lugar?
-                  </span>
-                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 pl-1 leading-relaxed">
-                    <li className="flex items-start gap-1">
-                      <span className="text-slate-400 font-bold">•</span>
-                      <span>Fiebre moderada o síntomas de gripe.</span>
-                    </li>
-                    <li className="flex items-start gap-1">
-                      <span className="text-slate-400 font-bold">•</span>
-                      <span>Dolores corporales leves o de garganta.</span>
-                    </li>
-                    <li className="flex items-start gap-1">
-                      <span className="text-slate-400 font-bold">•</span>
-                      <span>Consultas sobre dosis de medicamentos o triaje.</span>
-                    </li>
-                  </ul>
-                </div>
-
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="flex flex-col gap-3" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <motion.a
                   href="tel:128"
                   whileTap={{ scale: 0.96 }}
                   onClick={() => {
-                    // El ligero retraso evita que React cancele la llamada en el SO al desmontar el componente
                     setTimeout(() => setIsEmergencyModalOpen(false), 500);
                   }}
-                  className="w-full py-3.5 bg-rose-400 text-white font-bold text-sm tracking-wide rounded-2xl shadow-[0_6px_20px_rgba(251,113,133,0.2)] hover:brightness-105 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-[#d32f2f] text-white font-bold text-[15px] tracking-wide rounded-[12px] shadow-sm hover:brightness-105 transition-all flex items-center justify-center gap-2.5"
                 >
-                  <Siren className="w-4.5 h-4.5" />
-                  <span>Llamar al 128 ahora</span>
+                  <Siren className="w-5 h-5" />
+                  <span>Llamar al 128 — Cruz Blanca</span>
                 </motion.a>
 
                 <button
                   onClick={() => setIsEmergencyModalOpen(false)}
-                  className="w-full py-3 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold text-[13px] tracking-wide transition-colors active:scale-95"
+                  className="w-full py-3 bg-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 font-bold text-[14px] rounded-[12px] transition-colors active:scale-95"
                 >
                   Cancelar
                 </button>

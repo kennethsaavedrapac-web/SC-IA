@@ -3,14 +3,19 @@
   "name": "Salud-Conecta IA",
   "icons": [
     {
-      "src": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=192&h=192",
-      "type": "image/png",
+      "src": "/logo.jpg",
+      "type": "image/jpeg",
       "sizes": "192x192"
     },
     {
-      "src": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=512&h=512",
-      "type": "image/png",
+      "src": "/logo.jpg",
+      "type": "image/jpeg",
       "sizes": "512x512"
+    },
+    {
+      "src": "/logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "1254x1254"
     }
   ],
   "start_url": "/",
