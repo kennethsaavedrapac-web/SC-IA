@@ -348,22 +348,13 @@ export default function App() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
+          className="flex flex-col items-center gap-5"
         >
-          <svg className="w-16 h-16 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="26" r="14" stroke="url(#splashGrad1)" strokeWidth="3.5" strokeLinecap="round" />
-            <circle cx="38" cy="38" r="14" stroke="url(#splashGrad2)" strokeWidth="3.5" strokeLinecap="round" />
-            <defs>
-              <linearGradient id="splashGrad1" x1="12" y1="12" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#2563eb" />
-                <stop offset="1" stopColor="#1d4ed8" />
-              </linearGradient>
-              <linearGradient id="splashGrad2" x1="24" y1="24" x2="52" y2="52" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3b82f6" />
-                <stop offset="1" stopColor="#60a5fa" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img
+            src="/app-logo-v1.jpg"
+            alt="Logo"
+            className="w-20 h-20 rounded-[28px] shadow-2xl object-cover border-2 border-white dark:border-slate-800"
+          />
           <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
           <p className="text-sm text-slate-500 font-semibold">{t('verifyingSession')}</p>
         </motion.div>
@@ -382,7 +373,7 @@ export default function App() {
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
             <img
-              src="/logo.jpg"
+              src="/app-logo-v1.jpg"
               alt="Logo"
               className="w-9 h-9 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
             />

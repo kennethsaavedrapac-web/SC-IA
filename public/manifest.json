@@ -1,26 +1,37 @@
 {
   "short_name": "SaludConecta",
   "name": "Salud-Conecta IA",
+  "description": "Plataforma de salud avanzada con triaje inteligente por IA, mapas de centros de salud y búsqueda de médicos y farmacias.",
   "icons": [
     {
-      "src": "/logo.jpg",
+      "src": "/app-logo-v1.jpg",
       "type": "image/jpeg",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "/logo.jpg",
+      "src": "/app-logo-v1.jpg",
       "type": "image/jpeg",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
-      "src": "/logo.jpg",
+      "src": "/app-logo-v1.jpg",
       "type": "image/jpeg",
-      "sizes": "1254x1254"
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/app-logo-v1.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
-  "background_color": "#f8fafc",
+  "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "display": "standalone",
+  "scope": "/",
   "orientation": "portrait"
 }

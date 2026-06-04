@@ -188,7 +188,7 @@ export default function RegisterView({
         {/* Brand Logo & Name */}
         <div className="flex flex-col items-center mb-5">
           <img
-            src="/logo.jpg"
+            src="/app-logo-v1.jpg"
             alt="Logo"
             className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-blue-100 dark:border-blue-900/30"
           />

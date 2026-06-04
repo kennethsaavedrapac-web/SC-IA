@@ -86,7 +86,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
           >
             <img
-              src="/logo.jpg"
+              src="/app-logo-v1.jpg"
               alt="Logo"
               className="w-8 h-8 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
             />
