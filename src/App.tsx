@@ -404,11 +404,13 @@ export default function App() {
       {currentView !== "login" && currentView !== "register" && (
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-base">S</span>
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="Logo"
+              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+            />
             <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-              Salud <span className="text-blue-600">IA</span>
+              Salud-Conecta <span className="text-blue-600">IA</span>
             </span>
           </div>
 

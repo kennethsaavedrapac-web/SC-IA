@@ -152,20 +152,11 @@ export default function LoginView({
 
         {/* Brand Logo & Name */}
         <div className="flex flex-col items-center mb-7">
-          <svg className="w-14 h-14 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="26" r="14" stroke="url(#logoGrad1)" strokeWidth="3.5" strokeLinecap="round" />
-            <circle cx="38" cy="38" r="14" stroke="url(#logoGrad2)" strokeWidth="3.5" strokeLinecap="round" />
-            <defs>
-              <linearGradient id="logoGrad1" x1="12" y1="12" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#2563eb" />
-                <stop offset="1" stopColor="#1d4ed8" />
-              </linearGradient>
-              <linearGradient id="logoGrad2" x1="24" y1="24" x2="52" y2="52" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3b82f6" />
-                <stop offset="1" stopColor="#60a5fa" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img
+            src="/logo.jpg"
+            alt="Logo"
+            className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-blue-100 dark:border-blue-900/30"
+          />
           <h1 className="mt-3 text-lg font-bold tracking-tight text-slate-800 dark:text-slate-200">
             Salud-Conecta <span className="text-blue-600 dark:text-blue-500">IA</span>
           </h1>

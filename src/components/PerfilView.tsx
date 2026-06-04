@@ -193,7 +193,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               {t('perfil')}
             </h2>
             <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
-              <ShieldCheck className="w-4 h-4 sm:w-6 sm:h-6 text-blue-500" />
+              <img
+                src="/logo.jpg"
+                alt="Logo"
+                className="w-4 h-4 sm:w-6 sm:h-6 rounded shadow-sm object-cover"
+              />
               <span>Salud-Conecta <span className="text-blue-600">IA</span></span>
             </span>
           </div>
