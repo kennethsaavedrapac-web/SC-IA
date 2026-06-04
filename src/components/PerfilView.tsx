@@ -1,6 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2 } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -24,9 +24,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
+  const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
-  const [editConditionsText, setEditConditionsText] = useState(user.healthConditions.join(", "));
+  const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
+  const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -36,21 +38,24 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [alertAppointments, setAlertAppointments] = useState(() => localStorage.getItem("alertAppointments") !== "false");
   const [alertEmails, setAlertEmails] = useState(() => localStorage.getItem("alertEmails") === "true");
 
-  const handleToggleVaccines = () => {
-    const newVal = !alertVaccines;
-    setAlertVaccines(newVal);
-    localStorage.setItem("alertVaccines", newVal.toString());
-  };
-  const handleToggleAppointments = () => {
-    const newVal = !alertAppointments;
-    setAlertAppointments(newVal);
-    localStorage.setItem("alertAppointments", newVal.toString());
-  };
-  const handleToggleEmails = () => {
-    const newVal = !alertEmails;
-    setAlertEmails(newVal);
-    localStorage.setItem("alertEmails", newVal.toString());
-  };
+  const handleToggle = useCallback((key: string, current: boolean, setter: (v: boolean) => void) => {
+    const newVal = !current;
+    setter(newVal);
+    localStorage.setItem(key, newVal.toString());
+  }, []);
+
+  // Condition management
+  const handleAddCondition = useCallback(() => {
+    const trimmed = newCondition.trim();
+    if (trimmed && !editConditions.includes(trimmed)) {
+      setEditConditions(prev => [...prev, trimmed]);
+      setNewCondition("");
+    }
+  }, [newCondition, editConditions]);
+
+  const handleRemoveCondition = useCallback((index: number) => {
+    setEditConditions(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   // Avatar upload states
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -116,11 +121,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         email: user.email,
         location: `${user.city}, ${user.country}`,
         healthConditions: user.healthConditions,
-        bloodType: "O+",
-        emergencyContact: "+505 8888-9999",
+        bloodType: user.bloodType || "O+",
+        emergencyContact: user.emergencyPhone || "+505 8888-9999",
       },
     });
-  }, [displayName, qrRefreshWindow, user.city, user.country, user.email, user.healthConditions, user.id]);
+  }, [displayName, qrRefreshWindow, user]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,15 +134,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       name: editName,
       email: editEmail,
       city: editCity,
+      country: editCountry,
       emergencyPhone: editPhone,
       bloodType: editBloodType,
-      healthConditions: editConditionsText.split(",").map(c => c.trim()).filter(c => c.length > 0)
+      healthConditions: editConditions,
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
       setIsSavedAlertOpen(false);
       setActiveMenuSection(null);
-    }, 2000);
+    }, 2500);
   };
 
   const downloadQRCode = () => {
@@ -316,6 +322,22 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
+            {/* Quick info badges */}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
+              {user.emergencyPhone && (
+                <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
+                  <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-500" />
+                  {user.emergencyPhone}
+                </span>
+              )}
+              {user.bloodType && (
+                <span className="inline-flex items-center gap-1.5 bg-rose-50/80 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full border border-rose-100/60 dark:border-rose-900/40 font-mono">
+                  <Droplets className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  {user.bloodType}
+                </span>
+              )}
+            </div>
+
             {isPremium && (
               <span className="inline-flex bg-amber-100/90 border border-amber-200 text-amber-700 font-mono text-[11px] font-bold uppercase tracking-wider py-2 px-4 rounded-full">
                 {t('premiumMember')}
@@ -458,48 +480,69 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {/* Nested Personal info update Form */}
                           {item.id === "personal" && (
-                            <form onSubmit={handleUpdateProfile} className="space-y-3.5 text-left">
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400">{t('patientName')}</label>
+                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
+                                    <User className="w-3 h-3" /> {t('patientName')}
+                                  </label>
                                   <input
                                     id="input-edit-username"
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('secureEmail')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Mail className="w-3 h-3" /> {t('secureEmail')}
+                                  </label>
                                   <input
                                     id="input-edit-useremail"
                                     type="email"
                                     value={editEmail}
                                     onChange={(e) => setEditEmail(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-mono font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-mono font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('residence')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <MapPin className="w-3 h-3" /> {t('residence')}
+                                  </label>
                                   <input
                                     id="input-edit-usercity"
                                     type="text"
                                     value={editCity}
                                     onChange={(e) => setEditCity(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('emergencyPhone')}</label>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Globe className="w-3 h-3" /> País
+                                  </label>
                                   <input
                                     type="text"
+                                    value={editCountry}
+                                    onChange={(e) => setEditCountry(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Phone className="w-3 h-3" /> {t('emergencyPhone')}
+                                  </label>
+                                  <input
+                                    type="tel"
                                     value={editPhone}
                                     onChange={(e) => setEditPhone(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                    placeholder="+505 0000-0000"
                                   />
                                 </div>
                               </div>
@@ -507,8 +550,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                               <button
                                 id="btn-save-personal-info"
                                 type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide"
+                                className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
+                                <Save className="w-3.5 h-3.5" />
                                 {t('saveChanges')}
                               </button>
                             </form>
@@ -541,44 +585,97 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {/* Nested alert notifications checker options */}
                           {item.id === "notificaciones" && (
-                            <div className="space-y-3 text-left">
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" checked={alertVaccines} onChange={handleToggleVaccines} className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertVaccines')}</span>
-                              </label>
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" checked={alertAppointments} onChange={handleToggleAppointments} className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertAppointments')}</span>
-                              </label>
-                              <label className="flex items-center space-x-3 cursor-pointer p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <input type="checkbox" checked={alertEmails} onChange={handleToggleEmails} className="w-4.5 h-4.5 rounded text-blue-600 focus:ring-0 cursor-pointer ml-2" />
-                                <span className="font-semibold text-slate-700 dark:text-slate-300">{t('alertEmails')}</span>
-                              </label>
+                            <div className="space-y-2.5 text-left">
+                              {[
+                                { label: t('alertVaccines'), desc: "Recordatorios de esquema de vacunación", checked: alertVaccines, key: "alertVaccines", setter: setAlertVaccines },
+                                { label: t('alertAppointments'), desc: "Avisos de citas médicas programadas", checked: alertAppointments, key: "alertAppointments", setter: setAlertAppointments },
+                                { label: t('alertEmails'), desc: "Recibir resúmenes por correo electrónico", checked: alertEmails, key: "alertEmails", setter: setAlertEmails },
+                              ].map((opt) => (
+                                <div
+                                  key={opt.key}
+                                  className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                  onClick={() => handleToggle(opt.key, opt.checked, opt.setter)}
+                                >
+                                  <div className="flex-1 min-w-0 mr-3">
+                                    <span className="font-semibold text-slate-700 dark:text-slate-200 text-xs block">{opt.label}</span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
+                                  </div>
+                                  <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${opt.checked ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${opt.checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
 
-                          {/* Nested Allergologies condition list */}
+                          {/* Nested Health Preferences Editor */}
                           {item.id === "preferencias" && (
                             <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
-                              <div>
-                                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">{t('recordedConditions')}</span>
-                                <textarea
-                                  value={editConditionsText}
-                                  onChange={(e) => setEditConditionsText(e.target.value)}
-                                  placeholder="Ej: Alergia al polen, Hipertensión"
-                                  className="w-full mt-2 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold min-h-[60px] resize-none"
-                                />
+                              {/* Conditions Tags */}
+                              <div className="space-y-2">
+                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                                  <Heart className="w-3 h-3" /> {t('recordedConditions')}
+                                </span>
+
+                                {/* Existing conditions as removable tags */}
+                                <div className="flex flex-wrap gap-2">
+                                  {editConditions.map((cond, i) => (
+                                    <span
+                                      key={i}
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 group hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                    >
+                                      <span>{cond}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveCondition(i)}
+                                        className="w-4 h-4 rounded-full bg-blue-200/60 dark:bg-blue-800/60 hover:bg-red-200 dark:hover:bg-red-800/60 text-blue-600 hover:text-red-600 dark:text-blue-400 dark:hover:text-red-400 flex items-center justify-center transition-colors"
+                                      >
+                                        <X className="w-2.5 h-2.5" />
+                                      </button>
+                                    </span>
+                                  ))}
+                                  {editConditions.length === 0 && (
+                                    <span className="text-[11px] text-slate-400 italic py-1">Sin condiciones registradas</span>
+                                  )}
+                                </div>
+
+                                {/* Add new condition */}
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={newCondition}
+                                    onChange={(e) => setNewCondition(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddCondition(); } }}
+                                    placeholder="Ej: Alergia al polen"
+                                    className="flex-1 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={handleAddCondition}
+                                    disabled={!newCondition.trim()}
+                                    className="px-3 py-2 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 text-blue-600 dark:text-blue-400 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-xs font-bold"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">Agregar</span>
+                                  </button>
+                                </div>
                               </div>
 
-                              <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                <div>
-                                  <span className="font-bold text-slate-800 dark:text-white">{t('bloodType')}</span>
-                                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
+                              {/* Blood Type Select */}
+                              <div className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shrink-0">
+                                    <Droplets className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-800 dark:text-white text-xs">{t('bloodType')}</span>
+                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
+                                  </div>
                                 </div>
                                 <select
                                   value={editBloodType}
                                   onChange={(e) => setEditBloodType(e.target.value)}
-                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer"
+                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer transition-all focus:ring-2 focus:ring-rose-500/30"
                                 >
                                   <option value="A+">A+</option>
                                   <option value="A-">A-</option>
@@ -593,8 +690,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                               
                               <button
                                 type="submit"
-                                className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide w-full"
+                                className="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
+                                <Save className="w-3.5 h-3.5" />
                                 {t('saveChanges')}
                               </button>
                             </form>
@@ -609,21 +707,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             })}
           </div>
         </div>
-
-        {/* Saved feedback card banner */}
-        <AnimatePresence>
-          {isSavedAlertOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-emerald-50 border border-emerald-250/20 text-emerald-800 p-4 rounded-2xl text-xs font-bold flex items-center space-x-2 shadow-sm"
-            >
-              <CheckCircle className="w-4 h-4 text-emerald-600 focus:outline-none shrink-0" />
-              <span>{t('saveSuccess')}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Protection standard banner at end */}
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
@@ -657,6 +740,22 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
 
       </main>
+
+      {/* Floating Save Success Toast */}
+      <AnimatePresence>
+        {isSavedAlertOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-emerald-500 text-white px-6 py-3 rounded-2xl text-xs font-bold flex items-center gap-2.5 shadow-[0_10px_40px_rgba(16,185,129,0.35)]"
+          >
+            <CheckCircle className="w-4.5 h-4.5 shrink-0" />
+            <span>{t('saveSuccess')}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QR Modal - Fullscreen View */}
       <AnimatePresence>
