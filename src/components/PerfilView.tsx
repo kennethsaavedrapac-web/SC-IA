@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -32,6 +32,33 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
+
+  // Local Medical Data State
+  const [localMedicalData, setLocalMedicalData] = useState(() => {
+    const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
+    return saved ? JSON.parse(saved) : {
+      enfermedades: "",
+      alergias: "",
+      tipoSangre: "",
+      tratamientos: "",
+      pastillas: "",
+      vacunas: "",
+      peso: "",
+      altura: "",
+      cedula: "",
+      contactoEmergencia: "",
+    };
+  });
+
+  const handleUpdateMedicalData = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem(`medicalData_${user.id || 'guest'}`, JSON.stringify(localMedicalData));
+    setIsSavedAlertOpen(true);
+    setTimeout(() => {
+      setIsSavedAlertOpen(false);
+      setActiveMenuSection(null);
+    }, 2500);
+  };
 
   // Notifications State (Local Storage)
   const [alertVaccines, setAlertVaccines] = useState(() => localStorage.getItem("alertVaccines") !== "false");
@@ -150,29 +177,175 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
       
-      // Título
+      // Colores de la app (Paleta Profesional)
+      const primaryColor = [30, 58, 138]; // slate-blue darker
+      const secondaryColor = [13, 148, 136]; // text-teal-600
+      const accentColor = [56, 189, 248]; // sky-400
+      const slateDark = [15, 23, 42]; // text-slate-900
+      const slateLight = [100, 116, 139]; // text-slate-500
+      const bgPage = [255, 255, 255]; // Fondo blanco limpio
+      const sectionBg = [248, 250, 252]; // Fondo muy tenue para secciones (slate-50)
+
+      // Función para pintar el diseño base en cada página
+      const drawBackground = (pageDoc: any) => {
+        // Fondo blanco
+        pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
+        pageDoc.rect(0, 0, 210, 297, 'F');
+        
+        // Header (Banner principal azul oscuro)
+        pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+        pageDoc.rect(0, 0, 210, 35, 'F');
+        
+        // Línea acento teal
+        pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+        pageDoc.rect(0, 35, 210, 2, 'F');
+
+        // Línea decorativa lateral izquierda
+        pageDoc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
+        pageDoc.rect(10, 45, 1.5, 240, 'F');
+
+        // Footer
+        pageDoc.setFillColor(241, 245, 249); // slate-100
+        pageDoc.rect(0, 285, 210, 12, 'F');
+        pageDoc.setFontSize(8);
+        pageDoc.setFont("helvetica", "italic");
+        pageDoc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+        pageDoc.text("Documento oficial clínico emitido por Salud-Conecta IA", 105, 292, { align: "center" });
+      };
+
+      drawBackground(doc);
+      
+      // Título en el Header
       doc.setFontSize(22);
-      doc.setTextColor(30, 58, 138); // Azul
-      doc.text("Tarjeta de Emergencia Médica", 20, 20);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(255, 255, 255);
+      doc.text("Tarjeta de Emergencia Médica", 15, 20);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(200, 215, 255);
+      doc.text("Resumen Clínico Confidencial", 15, 28);
 
-      // Info del usuario
+      // --- Info del paciente (General) ---
+      let yPos = 55;
+      
+      // Rectángulo contenedor para Información Personal
+      doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
+      doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'S');
+
       doc.setFontSize(14);
-      doc.setTextColor(51, 65, 85); // Slate
-      doc.text(`Nombre: ${user.name}`, 20, 40);
-      doc.text(`Tipo de Sangre: ${user.bloodType || "No especificado"}`, 20, 50);
-      doc.text(`Contacto de Emergencia: ${user.emergencyPhone || "+505 8888-9999"}`, 20, 60);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("Información Personal", 20, yPos);
+      yPos += 8;
 
-      // Condiciones médicas
-      doc.text("Condiciones Médicas:", 20, 75);
-      doc.setFontSize(12);
-      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+      doc.text("Paciente:", 20, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${user.name}`, 40, yPos);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Cédula:", 110, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${localMedicalData.cedula || "No registrada"}`, 130, yPos);
+      yPos += 7;
+      
+      doc.setFont("helvetica", "bold");
+      doc.text("Sangre:", 20, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(225, 29, 72); // rose-600 para sangre
+      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || "No espec."}`, 40, yPos);
+      
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+      doc.text("Contacto Emer.:", 110, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999"}`, 140, yPos);
+      yPos += 7;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Peso:", 20, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : 'No reg.'}`, 40, yPos);
+      
+      doc.setFont("helvetica", "bold");
+      doc.text("Altura:", 110, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : 'No reg.'}`, 130, yPos);
+      yPos += 18;
+
+      // --- Datos Médicos Especializados ---
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+      doc.text("Datos Médicos Especializados", 15, yPos);
+      yPos += 8;
+
+      doc.setFontSize(10);
+      
+      const renderMedicalItem = (label: string, value: string) => {
+        // Cuadro para el item
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'F');
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'S');
+
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
+        doc.text(`${label}:`, 20, yPos + 2);
+        
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+        
+        // Manejar texto largo
+        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 120);
+        doc.text(splitText, 60, yPos + 2);
+        yPos += (splitText.length * 5) + 8;
+      };
+
+      renderMedicalItem("Enfermedades", localMedicalData.enfermedades);
+      renderMedicalItem("Alergias", localMedicalData.alergias);
+      renderMedicalItem("Tratamientos", localMedicalData.tratamientos);
+      renderMedicalItem("Pastillas", localMedicalData.pastillas);
+      renderMedicalItem("Vacunas", localMedicalData.vacunas);
+
+      // Condiciones de salud
       if (user.healthConditions && user.healthConditions.length > 0) {
-        user.healthConditions.forEach((cond, idx) => {
-          doc.text(`• ${cond}`, 25, 85 + (idx * 8));
-        });
-      } else {
-        doc.text("Ninguna registrada.", 25, 85);
+        renderMedicalItem("Otras cond.", user.healthConditions.join(", "));
       }
+
+      // --- QR Code ---
+      yPos += 5;
+      if (yPos > 210) {
+        doc.addPage();
+        drawBackground(doc);
+        yPos = 55;
+      }
+
+      // Contenedor del QR
+      doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
+      doc.roundedRect(15, yPos, 180, 50, 3, 3, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.roundedRect(15, yPos, 180, 50, 3, 3, 'S');
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+      doc.text("Código QR de Emergencia", 85, yPos + 15);
+      
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
+      doc.text("Escanea este código para ver el perfil completo.", 85, yPos + 22);
+      doc.text("Acceso restringido para personal médico autorizado.", 85, yPos + 28);
+      
+      doc.setFontSize(8);
+      doc.setTextColor(225, 29, 72); // rose
+      doc.text("En caso de emergencia, contactar inmediatamente a los familiares.", 85, yPos + 38);
 
       const svg = qrRef.current?.querySelector("svg");
       if (svg) {
@@ -190,8 +363,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          // Añadir la imagen al PDF (x, y, width, height)
-          doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
+          // QR dentro de su caja
+          doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
           
           doc.save(`Info-Emergencia-${user.name}.pdf`);
         };
@@ -473,11 +646,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 color: "text-purple-600 bg-purple-50 border border-purple-100",
               },
               {
-                id: "preferencias",
-                title: t('healthPrefs'),
-                subtitle: t('healthSubtitle'),
-                icon: Heart,
-                color: "text-rose-600 bg-rose-50 border border-rose-100",
+                id: "datos_medicos",
+                title: "Datos Médicos",
+                subtitle: "Información clínica especializada",
+                icon: Activity,
+                color: "text-teal-600 bg-teal-50 border border-teal-100",
               },
             ].map((item) => {
               const Icon = item.icon;
@@ -643,95 +816,151 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {/* Nested Health Preferences Editor */}
-                          {item.id === "preferencias" && (
-                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
-                              {/* Conditions Tags */}
-                              <div className="space-y-2">
-                                <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-                                  <Heart className="w-3 h-3" /> {t('recordedConditions')}
-                                </span>
-
-                                {/* Existing conditions as removable tags */}
-                                <div className="flex flex-wrap gap-2">
-                                  {editConditions.map((cond, i) => (
-                                    <span
-                                      key={i}
-                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 group hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                    >
-                                      <span>{cond}</span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleRemoveCondition(i)}
-                                        className="w-4 h-4 rounded-full bg-blue-200/60 dark:bg-blue-800/60 hover:bg-red-200 dark:hover:bg-red-800/60 text-blue-600 hover:text-red-600 dark:text-blue-400 dark:hover:text-red-400 flex items-center justify-center transition-colors"
-                                      >
-                                        <X className="w-2.5 h-2.5" />
-                                      </button>
-                                    </span>
-                                  ))}
-                                  {editConditions.length === 0 && (
-                                    <span className="text-[11px] text-slate-400 italic py-1">Sin condiciones registradas</span>
-                                  )}
-                                </div>
-
-                                {/* Add new condition */}
-                                <div className="flex gap-2">
+                          {/* Nested Datos Medicos Form */}
+                          {item.id === "datos_medicos" && (
+                            <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Enfermedades que padece
+                                  </label>
                                   <input
                                     type="text"
-                                    value={newCondition}
-                                    onChange={(e) => setNewCondition(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddCondition(); } }}
-                                    placeholder="Ej: Alergia al polen"
-                                    className="flex-1 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 text-xs font-semibold transition-all"
+                                    value={localMedicalData.enfermedades}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, enfermedades: e.target.value})}
+                                    placeholder="Ej: Diabetes, Hipertensión"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
-                                  <button
-                                    type="button"
-                                    onClick={handleAddCondition}
-                                    disabled={!newCondition.trim()}
-                                    className="px-3 py-2 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 dark:hover:bg-blue-800/60 text-blue-600 dark:text-blue-400 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 text-xs font-bold"
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Alergias
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.alergias}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, alergias: e.target.value})}
+                                    placeholder="Ej: Penicilina, Nueces"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Tipo de Sangre
+                                  </label>
+                                  <select
+                                    value={localMedicalData.tipoSangre}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tipoSangre: e.target.value})}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   >
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span className="hidden sm:inline">Agregar</span>
-                                  </button>
+                                    <option value="">Seleccione...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                  </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Tratamientos actuales
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.tratamientos}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tratamientos: e.target.value})}
+                                    placeholder="Ej: Fisioterapia"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Pastillas que toma
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.pastillas}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, pastillas: e.target.value})}
+                                    placeholder="Ej: Losartán 50mg"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Vacunas aplicadas
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.vacunas}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, vacunas: e.target.value})}
+                                    placeholder="Ej: COVID-19, Tétanos"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Peso (kg)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={localMedicalData.peso}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, peso: e.target.value})}
+                                    placeholder="Ej: 70"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Altura (cm)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={localMedicalData.altura}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, altura: e.target.value})}
+                                    placeholder="Ej: 175"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Cédula de Identidad
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.cedula}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, cedula: e.target.value})}
+                                    placeholder="000-000000-0000A"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Contacto de Emergencia
+                                  </label>
+                                  <input
+                                    type="tel"
+                                    value={localMedicalData.contactoEmergencia}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, contactoEmergencia: e.target.value})}
+                                    placeholder="+505 0000-0000"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
                                 </div>
                               </div>
 
-                              {/* Blood Type Select */}
-                              <div className="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center shrink-0">
-                                    <Droplets className="w-4 h-4" />
-                                  </div>
-                                  <div>
-                                    <span className="font-bold text-slate-800 dark:text-white text-xs">{t('bloodType')}</span>
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
-                                  </div>
-                                </div>
-                                <select
-                                  value={editBloodType}
-                                  onChange={(e) => setEditBloodType(e.target.value)}
-                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer transition-all focus:ring-2 focus:ring-rose-500/30"
-                                >
-                                  <option value="A+">A+</option>
-                                  <option value="A-">A-</option>
-                                  <option value="B+">B+</option>
-                                  <option value="B-">B-</option>
-                                  <option value="AB+">AB+</option>
-                                  <option value="AB-">AB-</option>
-                                  <option value="O+">O+</option>
-                                  <option value="O-">O-</option>
-                                </select>
-                              </div>
-                              
                               <button
                                 type="submit"
-                                className="w-full bg-rose-600 hover:bg-rose-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                {t('saveChanges')}
+                                Guardar Datos Médicos
                               </button>
                             </form>
                           )}
+
+
 
                         </div>
                       </motion.div>
