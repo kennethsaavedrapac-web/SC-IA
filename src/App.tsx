@@ -131,16 +131,23 @@ export default function App() {
         const cachedName = localStorage.getItem(`name_${user.id}`);
         const cachedCity = localStorage.getItem(`city_${user.id}`);
         const cachedCountry = localStorage.getItem(`country_${user.id}`);
+        const cachedEmail = localStorage.getItem(`email_${user.id}`);
+        const cachedPhone = localStorage.getItem(`phone_${user.id}`);
+        const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
+        const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
-            email: user.email || prev.email,
+            email: cachedEmail || user.email || prev.email,
             name: cachedName || prev.name,
             city: cachedCity || prev.city,
             country: cachedCountry || prev.country,
             avatarUrl: cachedAvatar || prev.avatarUrl,
+            emergencyPhone: cachedPhone || prev.emergencyPhone,
+            bloodType: cachedBloodType || prev.bloodType,
+            healthConditions: cachedConditions ? JSON.parse(cachedConditions) : prev.healthConditions,
           }));
         }
       } catch (err) {
@@ -292,6 +299,22 @@ export default function App() {
 
   const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
+    
+    // Save locally
+    try {
+      const userId = user?.id !== "guest" ? user?.id : "guest";
+      if (userId) {
+        localStorage.setItem(`name_${userId}`, updatedUser.name);
+        localStorage.setItem(`email_${userId}`, updatedUser.email);
+        localStorage.setItem(`city_${userId}`, updatedUser.city);
+        localStorage.setItem(`country_${userId}`, updatedUser.country);
+        if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
+        if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
+        localStorage.setItem(`conditions_${userId}`, JSON.stringify(updatedUser.healthConditions));
+      }
+    } catch (e) {
+      console.warn("Could not save to localStorage", e);
+    }
 
     // Guardar cambios en Supabase si no es usuario invitado
     if (user && user.id !== "guest") {
