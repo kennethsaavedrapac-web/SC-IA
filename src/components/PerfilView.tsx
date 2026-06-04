@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -32,6 +32,33 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
+
+  // Local Medical Data State
+  const [localMedicalData, setLocalMedicalData] = useState(() => {
+    const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
+    return saved ? JSON.parse(saved) : {
+      enfermedades: "",
+      alergias: "",
+      tipoSangre: "",
+      tratamientos: "",
+      pastillas: "",
+      vacunas: "",
+      peso: "",
+      altura: "",
+      cedula: "",
+      contactoEmergencia: "",
+    };
+  });
+
+  const handleUpdateMedicalData = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem(`medicalData_${user.id || 'guest'}`, JSON.stringify(localMedicalData));
+    setIsSavedAlertOpen(true);
+    setTimeout(() => {
+      setIsSavedAlertOpen(false);
+      setActiveMenuSection(null);
+    }, 2500);
+  };
 
   // Notifications State (Local Storage)
   const [alertVaccines, setAlertVaccines] = useState(() => localStorage.getItem("alertVaccines") !== "false");
@@ -473,6 +500,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 color: "text-purple-600 bg-purple-50 border border-purple-100",
               },
               {
+                id: "datos_medicos",
+                title: "Datos Médicos",
+                subtitle: "Información clínica especializada",
+                icon: Activity,
+                color: "text-teal-600 bg-teal-50 border border-teal-100",
+              },
+              {
                 id: "preferencias",
                 title: t('healthPrefs'),
                 subtitle: t('healthSubtitle'),
@@ -641,6 +675,150 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                               ))}
                             </div>
+                          )}
+
+                          {/* Nested Datos Medicos Form */}
+                          {item.id === "datos_medicos" && (
+                            <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Enfermedades que padece
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.enfermedades}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, enfermedades: e.target.value})}
+                                    placeholder="Ej: Diabetes, Hipertensión"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Alergias
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.alergias}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, alergias: e.target.value})}
+                                    placeholder="Ej: Penicilina, Nueces"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Tipo de Sangre
+                                  </label>
+                                  <select
+                                    value={localMedicalData.tipoSangre}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tipoSangre: e.target.value})}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  >
+                                    <option value="">Seleccione...</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                  </select>
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Tratamientos actuales
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.tratamientos}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, tratamientos: e.target.value})}
+                                    placeholder="Ej: Fisioterapia"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Pastillas que toma
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.pastillas}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, pastillas: e.target.value})}
+                                    placeholder="Ej: Losartán 50mg"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Vacunas aplicadas
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.vacunas}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, vacunas: e.target.value})}
+                                    placeholder="Ej: COVID-19, Tétanos"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Peso (kg)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={localMedicalData.peso}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, peso: e.target.value})}
+                                    placeholder="Ej: 70"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Altura (cm)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={localMedicalData.altura}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, altura: e.target.value})}
+                                    placeholder="Ej: 175"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Cédula de Identidad
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.cedula}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, cedula: e.target.value})}
+                                    placeholder="000-000000-0000A"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                    Contacto de Emergencia
+                                  </label>
+                                  <input
+                                    type="tel"
+                                    value={localMedicalData.contactoEmergencia}
+                                    onChange={(e) => setLocalMedicalData({...localMedicalData, contactoEmergencia: e.target.value})}
+                                    placeholder="+505 0000-0000"
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
+                                  />
+                                </div>
+                              </div>
+
+                              <button
+                                type="submit"
+                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                              >
+                                <Save className="w-3.5 h-3.5" />
+                                Guardar Datos Médicos
+                              </button>
+                            </form>
                           )}
 
                           {/* Nested Health Preferences Editor */}
