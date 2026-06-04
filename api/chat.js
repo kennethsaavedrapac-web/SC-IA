@@ -1,4 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from "@supabase/supabase-js";
+
+// Inicializar cliente de Supabase (usando las variables de entorno de Vercel)
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 let aiClient = null;
 
@@ -21,7 +27,7 @@ function getGeminiClient() {
   return aiClient;
 }
 
-const SYSTEM_INSTRUCTION = `Eres el "Asistente de Triaje Digital de Salud-Conecta IA", un sistema profesional de orientación clínica diseñado para la población de Nicaragua.
+const FALLBACK_SYSTEM_INSTRUCTION = `Eres el "Asistente de Triaje Digital de Salud-Conecta IA", un sistema profesional de orientación clínica diseñado para la población de Nicaragua.
 
 TU OBJETIVO PRINCIPAL:
 Realizar un análisis técnico-clínico de los síntomas reportados para determinar la prioridad de atención (Triage), proporcionando una respuesta estructurada, empática y de alta precisión.
@@ -93,7 +99,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history } = req.body;
+    const { message, history, userProfile } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -128,7 +134,38 @@ export default async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
-    const systemPrompt = SYSTEM_INSTRUCTION + timeContext;
+    let profileContext = "";
+    if (userProfile && typeof userProfile === 'object' && Object.keys(userProfile).length > 0) {
+      profileContext = `\n\n[CONTEXTO DEL PACIENTE]
+Nombre: ${userProfile.name || 'No especificado'}
+Ciudad: ${userProfile.city || 'No especificada'}
+Tipo de Sangre: ${userProfile.bloodType || 'No especificado'}
+Condiciones Médicas Preexistentes: ${userProfile.healthConditions && userProfile.healthConditions.length > 0 ? userProfile.healthConditions.join(', ') : 'Ninguna reportada'}
+
+INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas preexistentes al evaluar los síntomas y proporcionar recomendaciones. Nunca indiques medicamentos contraindicados.`;
+    }
+
+    // 1. Obtener SYSTEM_PROMPT dinámico desde Supabase
+    let dynamicSystemPrompt = FALLBACK_SYSTEM_INSTRUCTION;
+    
+    if (supabase) {
+      try {
+        const { data: promptData, error: promptError } = await supabase
+          .from('ai_configurations')
+          .select('config_value')
+          .eq('config_key', 'SYSTEM_PROMPT')
+          .single();
+          
+        if (!promptError && promptData?.config_value) {
+          dynamicSystemPrompt = promptData.config_value;
+        }
+      } catch (dbErr) {
+        console.error("Error fetching SYSTEM_PROMPT from Supabase:", dbErr);
+      }
+    }
+
+    // Combinar el prompt de la BD con el contexto temporal y el perfil médico
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext;
 
     // Get the model with system instruction
     const model = ai.getGenerativeModel({

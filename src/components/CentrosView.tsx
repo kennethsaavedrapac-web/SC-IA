@@ -4,6 +4,7 @@ import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "
 import { useLanguage } from "../contexts/LanguageContext";
 import { AlertTriangle, Phone, Siren } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { supabase } from "../lib/supabaseClient";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
@@ -58,9 +59,10 @@ function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string
 }
 
 function getNearestHospital(
-  from: UserLocation | { latitude: number; longitude: number }
+  from: UserLocation | { latitude: number; longitude: number },
+  hospitalsList: HealthCenter[]
 ): { hospital: HealthCenter; distanceKm: number } | null {
-  const hospitals = HEALTH_CENTERS.filter((c) => {
+  const hospitals = hospitalsList.filter((c) => {
     const typeLower = c.type.toLowerCase();
     return typeLower.includes("hospital");
   });
@@ -96,6 +98,49 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
+  const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
+
+  // Cargar overrides y custom centers desde Supabase
+  useEffect(() => {
+    const fetchOverrides = async () => {
+      try {
+        const { data, error } = await supabase.from('health_center_overrides').select('*');
+        if (error || !data) return;
+
+        const overrideMap = new Map(data.map(o => [o.center_id, o]));
+
+        const updatedCenters = HEALTH_CENTERS.map(c => {
+          const o = overrideMap.get(c.id);
+          if (o) {
+            return {
+              ...c,
+              name: o.nombre_nuevo || c.name,
+              type: o.tipo || c.type,
+              municipality: o.municipio || c.municipality,
+              locality: o.localidad || c.locality,
+              department: o.departamento || c.department,
+              zone: o.zona || c.zone,
+              phone: o.telefono || c.phone,
+              latitude: o.latitud_ajustada !== null ? o.latitud_ajustada : c.latitude,
+              longitude: o.longitud_ajustada !== null ? o.longitud_ajustada : c.longitude,
+              hasCoordinates: !!((o.latitud_ajustada !== null ? o.latitud_ajustada : c.latitude) && (o.longitud_ajustada !== null ? o.longitud_ajustada : c.longitude)),
+              _activo: o.activo !== false
+            };
+          }
+          return { ...c, _activo: true };
+        }).filter(c => c._activo !== false);
+
+        const customCenters = data.filter(o => o.center_id.startsWith('custom-') && o.activo !== false).map(o => ({
+          id: o.center_id, name: o.nombre_nuevo, type: o.tipo, department: o.departamento, municipality: o.municipio, locality: o.localidad, zone: o.zona, phone: o.telefono, silais: o.silais || "", latitude: o.latitud_ajustada, longitude: o.longitud_ajustada, sourceNumber: 0, hasCoordinates: !!(o.latitud_ajustada && o.longitud_ajustada)
+        }));
+
+        setMergedCenters([...updatedCenters, ...customCenters] as HealthCenter[]);
+      } catch (err) {
+        console.error("Error syncing centers from database:", err);
+      }
+    };
+    fetchOverrides();
+  }, []);
 
   const normalizeQuery = (value?: string) =>
     (value ?? "")
@@ -174,7 +219,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   useEffect(() => {
     if (!userLocation) return;
 
-    const nearestCenter = HEALTH_CENTERS
+    const nearestCenter = mergedCenters
       .filter((center) => center.latitude && center.longitude)
       .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
@@ -232,10 +277,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     reverseGeocode();
 
     return () => controller.abort();
-  }, [googleMapsApiKey, userLocation]);
+  }, [googleMapsApiKey, userLocation, mergedCenters]);
 
   const filteredCenters = useMemo(() => {
-    const typeFilteredCenters = HEALTH_CENTERS.filter((center) => {
+    const typeFilteredCenters = mergedCenters.filter((center) => {
     const typeText = normalizeQuery(center.type);
     const matchesType =
       activeFilter === "hospital"
@@ -297,7 +342,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
 
     return finalCenters;
-  }, [activeFilter, detectedCity, locationMode, locationQuery, userLocation]);
+  }, [activeFilter, detectedCity, locationMode, locationQuery, userLocation, mergedCenters]);
   const visibleCenters = filteredCenters.slice(0, 60);
 
   useEffect(() => {
@@ -373,7 +418,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === "SELECT_CENTER") {
-        const center = HEALTH_CENTERS.find((c) => c.id === event.data.centerId);
+        const center = mergedCenters.find((c) => c.id === event.data.centerId);
         if (center) {
           setSelectedCenter(center);
         }
@@ -381,7 +426,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
     window.addEventListener("message", handleMapMessage);
     return () => window.removeEventListener("message", handleMapMessage);
-  }, []);
+  }, [mergedCenters]);
 
   // Post updates to the Leaflet map iframe
   useEffect(() => {
@@ -603,7 +648,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
               {locationMode === "nearby"
                 ? `Cercanos en ${selectedLocationLabel}.`
-                : `${HEALTH_CENTER_TOTAL} registros cargados.`}
+                : `${mergedCenters.length} registros cargados.`}
             </p>
           </div>
 
@@ -798,7 +843,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                               const referenceLoc = (hc.latitude && hc.longitude)
                                 ? { latitude: hc.latitude, longitude: hc.longitude }
                                 : userLocation;
-                              const nearestHospitalInfo = referenceLoc ? getNearestHospital(referenceLoc) : null;
+                              const nearestHospitalInfo = referenceLoc ? getNearestHospital(referenceLoc, mergedCenters) : null;
                               return nearestHospitalInfo ? (
                                 <div className="p-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
                                   <span className="font-bold flex items-center gap-1 mb-0.5">

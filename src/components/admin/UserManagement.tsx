@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { UserProfile } from "../../types";
 import { supabase } from "../../lib/supabaseClient";
+import { Shield, Star, Users, CheckCircle } from "lucide-react";
 
 const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
   const { t } = useLanguage();
@@ -34,6 +35,26 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
 
     fetchUsers();
   }, []);
+
+  // Handle Premium Toggle
+  const handlePremiumToggle = async (userId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_premium: newStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      // Update local state
+      setUsers(prevUsers =>
+        prevUsers.map(u => u.id === userId ? { ...u, is_premium: newStatus } as UserProfile : u)
+      );
+    } catch (err: any) {
+      alert(err.message || 'Error al actualizar el estado Premium del usuario');
+    }
+  };
 
   // Handle role change
   const handleRoleChange = async (userId: string, newRole: "user" | "admin") => {
@@ -72,15 +93,44 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
     );
   }
 
+  // Calculate Stats
+  const totalAdmins = users.filter(u => u.role === 'admin').length;
+  const totalPremium = users.filter(u => (u as any).is_premium).length;
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('userManagement')}</h2>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            {t('totalUsers')}: {users.length}
-          </span>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase">{t('totalUsers')}</p>
+            <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{users.length}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><Users className="w-5 h-5" /></div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase">Administradores</p>
+            <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{totalAdmins}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><Shield className="w-5 h-5" /></div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase">Usuarios Premium</p>
+            <div className="flex items-baseline gap-2 mt-1">
+              <p className="text-2xl font-black text-slate-800 dark:text-white">{totalPremium}</p>
+              <span className="text-xs font-semibold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md border border-amber-100 dark:border-amber-900/50">
+                Activos
+              </span>
+            </div>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500"><Star className="w-5 h-5" /></div>
         </div>
       </div>
 
@@ -92,6 +142,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('avatar')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('name')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('email')}</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Suscripción</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('role')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('actions')}</th>
             </tr>
@@ -114,6 +165,14 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                   <span className="font-medium text-slate-900 dark:text-white">{userItem.name}</span>
                 </td>
                 <td className="px-6 py-4 text-slate-900 dark:text-white">{userItem.email || '-'}</td>
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => handlePremiumToggle(userItem.id, (userItem as any).is_premium)}
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1.5 w-fit ${(userItem as any).is_premium ? 'bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50' : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
+                  >
+                    {(userItem as any).is_premium ? <><Star className="w-3 h-3 fill-current" /> Premium</> : 'Básico'}
+                  </button>
+                </td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     userItem.role === 'admin'

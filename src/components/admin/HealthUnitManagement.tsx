@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { HealthCenter } from "../../types";
-import * as fs from "fs";
+import { supabase } from "../../lib/supabaseClient";
+import { HEALTH_CENTERS } from "../../data/healthUnits";
+import { Loader2 } from "lucide-react";
 
 // Mock data for departments - in a real app, this would come from an API or file listing
 const DEPARTAMENTOS = [
@@ -30,10 +32,11 @@ const HealthUnitManagement: React.FC = () => {
   const { t } = useLanguage();
   const [departments, setDepartments] = useState<string[]>(DEPARTAMENTOS);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("MANAGUA");
-  const [healthUnits, setHealthUnits] = useState<HealthCenter[]>([]);
+  const [healthUnits, setHealthUnits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState<{ id: string; unit: HealthCenter } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editMode, setEditMode] = useState<{ id: string; unit: any } | null>(null);
   const [newUnit, setNewUnit] = useState<Partial<HealthCenter>>({
     nombre: "",
     tipo_unidad_salud: "",
@@ -48,66 +51,78 @@ const HealthUnitManagement: React.FC = () => {
   });
 
   // Load health units for selected department
-  useEffect(() => {
-    const loadHealthUnits = async () => {
-      try {
-        setLoading(true);
-        // In a real app, we would fetch from an API or Supabase
-        // For now, we'll simulate loading from JSON files
-        // Since we can't actually read files in the browser, we'll mock this
-
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Mock data - in reality, this would come from JSON files or database
-        const mockData: HealthCenter[] = [
-          {
-            id: "1",
-            name: "Puesto de Salud Esquipulas",
-            type: "Puesto de Salud",
-            schedule: "Lunes a Viernes 8:00 - 16:00",
-            distance: "2.5 km",
-            durationMin: 10,
-            lat: 50,
-            lng: 50,
-            department: "CARAZO",
-            municipality: "La Paz de Oriente",
-            locality: "Iglesia de Esquipulas, 100 mts arriba, Esquipulas",
-            zone: "Urbano",
-            phone: "+505  XXXXXXXX",
-            silais: "CARAZO",
-            sourceNumber: 1
-          },
-          {
-            id: "2",
-            name: "Centro de Salud Sócrates Flores",
-            type: "Centro de Salud",
-            schedule: "Lunes a Viernes 7:00 - 19:00",
-            distance: "5.2 km",
-            durationMin: 15,
-            lat: 60,
-            lng: 40,
-            department: "CARAZO",
-            municipality: "San Marcos",
-            locality: "Instituto Juan XXII, 1 ½c. Al norte, colonia Manuel Moya, Manuel Moya",
-            zone: "Rural",
-            phone: "+505  XXXXXXXX",
-            silais: "CARAZO",
-            sourceNumber: 6
-          }
-        ];
-
-        setHealthUnits(mockData);
-      } catch (err) {
-        setError("Failed to load health units");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadHealthUnits();
+  const loadHealthUnits = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // 1. Fetch overrides from Supabase
+      const { data: overrides, error: overridesError } = await supabase
+        .from('health_center_overrides')
+        .select('*')
+        .ilike('departamento', selectedDepartment);
+        
+      if (overridesError) throw overridesError;
+      
+      const overrideMap = new Map(overrides?.map(o => [o.center_id, o]));
+      
+      // 2. Get JSON centers for this department
+      const jsonCenters = HEALTH_CENTERS.filter(
+        c => c.department?.toUpperCase() === selectedDepartment.toUpperCase()
+      );
+      
+      // 3. Merge JSON with overrides
+      const mergedCenters = jsonCenters.map(center => {
+        const override = overrideMap.get(center.id);
+        if (override) {
+          return {
+            ...center,
+            name: override.nombre_nuevo || center.name,
+            type: override.tipo || center.type,
+            municipality: override.municipio || center.municipality,
+            locality: override.localidad || center.locality,
+            zone: override.zona || center.zone,
+            phone: override.telefono || center.phone,
+            latitude: override.latitud_ajustada || center.latitude,
+            longitude: override.longitud_ajustada || center.longitude,
+            _activo: override.activo !== false, // Default to true if null
+            _hasOverride: true
+          };
+        }
+        return { ...center, _activo: true, _hasOverride: false };
+      });
+      
+      // 4. Add custom centers (not in JSON)
+      const customCenters = overrides
+        ?.filter(o => o.center_id.startsWith('custom-'))
+        .map(o => ({
+          id: o.center_id,
+          name: o.nombre_nuevo,
+          type: o.tipo,
+          department: o.departamento,
+          municipality: o.municipio,
+          locality: o.localidad,
+          zone: o.zona,
+          phone: o.telefono,
+          silais: o.silais,
+          latitude: o.latitud_ajustada,
+          longitude: o.longitud_ajustada,
+          _activo: o.activo !== false,
+          _hasOverride: true,
+          isCustom: true
+        })) || [];
+        
+      setHealthUnits([...mergedCenters, ...customCenters]);
+    } catch (err: any) {
+      setError(err.message || "Error al cargar las unidades de salud.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [selectedDepartment]);
+
+  useEffect(() => {
+    loadHealthUnits();
+  }, [loadHealthUnits]);
 
   // Handle form input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -118,58 +133,35 @@ const HealthUnitManagement: React.FC = () => {
     }));
   };
 
-  // Handle adding new health unit
-  const handleAddUnit = async () => {
+  // Handle saving (Add or Edit)
+  const handleSaveUnit = async () => {
+    if (!newUnit.nombre || !newUnit.tipo_unidad_salud) return;
+    setIsSaving(true);
     try {
-      // In a real app, this would send to API/Supabase
-      // For now, we'll just add to local state with a mock ID
-      const newUnitWithId: HealthCenter = {
-        ...newUnit,
-        id: Date.now().toString(),
-        lat: Number(newUnit.lat) || 50,
-        lng: Number(newUnit.lng) || 50
-      } as HealthCenter;
-
-      setHealthUnits(prev => [newUnitWithId, ...prev]);
-
-      // Reset form
-      setNewUnit({
-        nombre: "",
-        tipo_unidad_salud: "",
-        municipio: "",
-        localidad: "",
-        zona: "",
-        departamento_region: selectedDepartment,
-        silais: "",
-        telefono: "",
-        latitud: null,
-        longitud: null
-      });
-    } catch (err) {
-      setError("Failed to add health unit");
-      console.error(err);
-    }
-  };
-
-  // Handle updating health unit
-  const handleUpdateUnit = async () => {
-    if (!editMode) return;
-
-    try {
-      // In a real app, this would send to API/Supabase
-      // Update local state
-      setHealthUnits(prev =>
-        prev.map(unit =>
-          unit.id === editMode!.id
-            ? { ...editMode!.unit, ...newUnit } as HealthCenter
-            : unit
-        )
-      );
-
-      // Exit edit mode
+      const isNew = !editMode;
+      const centerId = isNew ? `custom-${Date.now()}` : editMode!.id;
+      
+      const payload = {
+        center_id: centerId,
+        departamento: selectedDepartment,
+        nombre_nuevo: newUnit.nombre,
+        tipo: newUnit.tipo_unidad_salud,
+        municipio: newUnit.municipio,
+        localidad: newUnit.localidad,
+        zona: newUnit.zona,
+        silais: newUnit.silais,
+        telefono: newUnit.telefono,
+        latitud_ajustada: newUnit.latitud ? Number(newUnit.latitud) : null,
+        longitud_ajustada: newUnit.longitud ? Number(newUnit.longitud) : null,
+        actualizado_en: new Date().toISOString()
+      };
+      
+      const { error } = await supabase.from('health_center_overrides').upsert(payload, { onConflict: 'center_id' });
+      if (error) throw error;
+      
+      await loadHealthUnits();
+      
       setEditMode(null);
-
-      // Reset form to blank
       setNewUnit({
         nombre: "",
         tipo_unidad_salud: "",
@@ -182,25 +174,46 @@ const HealthUnitManagement: React.FC = () => {
         latitud: null,
         longitud: null
       });
-    } catch (err) {
-      setError("Failed to update health unit");
+    } catch (err: any) {
+      alert("Error al guardar: " + err.message);
       console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // Handle deleting health unit
-  const handleDeleteUnit = async (id: string) => {
-    try {
-      // In a real app, this would send to API/Supabase
-      setHealthUnits(prev => prev.filter(unit => unit.id !== id));
-    } catch (err) {
-      setError("Failed to delete health unit");
-      console.error(err);
+  const handleDeleteUnit = async (unit: any) => {
+    if (unit.isCustom) {
+      if (!window.confirm("¿Seguro que deseas eliminar este centro personalizado?")) return;
+      try {
+        const { error } = await supabase.from('health_center_overrides').delete().eq('center_id', unit.id);
+        if (error) throw error;
+        await loadHealthUnits();
+      } catch (err: any) {
+        alert("Error al eliminar: " + err.message);
+      }
+    } else {
+      // Logical delete (Toggle Activo status) for JSON centers
+      try {
+        const newState = !(unit._activo ?? true);
+        const { error } = await supabase.from('health_center_overrides').upsert({
+          center_id: unit.id,
+          departamento: unit.department,
+          activo: newState,
+          actualizado_en: new Date().toISOString()
+        }, { onConflict: 'center_id' });
+        
+        if (error) throw error;
+        await loadHealthUnits();
+      } catch (err: any) {
+        alert("Error al cambiar estado: " + err.message);
+      }
     }
   };
 
   // Handle edit button click
-  const handleEditUnit = (unit: HealthCenter) => {
+  const handleEditUnit = (unit: any) => {
     setEditMode({ id: unit.id, unit });
     setNewUnit({
       nombre: unit.name,
@@ -211,8 +224,8 @@ const HealthUnitManagement: React.FC = () => {
       departamento_region: unit.department || "",
       silais: unit.silais || "",
       telefono: unit.phone || "",
-      latitud: unit.lat,
-      longitud: unit.lng
+      latitud: unit.latitude || null,
+      longitud: unit.longitude || null
     });
   };
 
@@ -254,10 +267,11 @@ const HealthUnitManagement: React.FC = () => {
             ))}
           </select>
           <button
-            onClick={handleAddUnit}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud}
+            onClick={handleSaveUnit}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center gap-2"
+            disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud || isSaving}
           >
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
             {t('addHealthUnit')}
           </button>
         </div>
@@ -404,20 +418,22 @@ const HealthUnitManagement: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={handleUpdateUnit}
-                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud}
+                  onClick={handleSaveUnit}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 flex items-center gap-2"
+                  disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud || isSaving}
                 >
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {t('saveChanges')}
                 </button>
               </>
             ) : (
               <button
                 type="button"
-                onClick={handleAddUnit}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud}
+                onClick={handleSaveUnit}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 flex items-center gap-2"
+                disabled={!newUnit.nombre || !newUnit.tipo_unidad_salud || isSaving}
               >
+                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {t('addHealthUnit')}
               </button>
             )}
@@ -438,14 +454,19 @@ const HealthUnitManagement: React.FC = () => {
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {healthUnits.map((unit) => (
-                <div key={unit.id} className="px-6 py-4 flex justify-between items-center">
+                <div key={unit.id} className={`px-6 py-4 flex justify-between items-center ${unit._activo === false ? 'opacity-60 bg-slate-50 dark:bg-slate-800/30' : ''}`}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${unit.isCustom ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'}`}>
                         {unit.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <h4 className="font-medium text-slate-900 dark:text-white">{unit.name}</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className={`font-medium text-slate-900 dark:text-white truncate ${unit._activo === false ? 'line-through text-slate-500 dark:text-slate-400' : ''}`}>{unit.name}</h4>
+                          {unit._activo === false && <span className="text-[10px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full font-bold">{t('inactive')}</span>}
+                          {unit.isCustom && <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold shrink-0">Custom</span>}
+                          {unit._hasOverride && !unit.isCustom && <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold shrink-0">Modificado</span>}
+                        </div>
                         <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                           {unit.type} • {unit.municipality || '-'}
                         </p>
@@ -466,10 +487,10 @@ const HealthUnitManagement: React.FC = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDeleteUnit(unit.id)}
-                        className="px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                        onClick={() => handleDeleteUnit(unit)}
+                        className={`px-3 py-1.5 text-xs font-medium ${unit._activo === false ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white rounded-md focus:outline-none focus:ring-2`}
                       >
-                        {t('delete')}
+                        {unit.isCustom ? t('delete') : (unit._activo === false ? t('activate') : t('deactivate'))}
                       </button>
                     </div>
                   </div>

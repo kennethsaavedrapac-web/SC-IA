@@ -1,517 +1,331 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { HealthCenter } from "../../types";
+import { HEALTH_CENTERS } from "../../data/healthUnits";
+import { MapPin, Search, Save, RotateCcw, Crosshair, Loader2 } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
-import { AlertTriangle, Clock, RefreshCw, Share2, Trash2, Zap } from "lucide-react";
 
-interface HealthCenterOverride {
-  id: string;
-  center_id: string;
-  lat_override: number | null;
-  lng_override: number | null;
-  original_lat: number;
-  original_lng: number;
-  is_active: boolean;
-  adjustment_reason: string | null;
-  adjusted_by: string;
-  adjusted_at: string;
-  edit_history: any[]; // JSON array of previous changes
-}
-
-interface MapCenter extends HealthCenter {
-  hasOverride: boolean;
-  overrideLat: number | null;
-  overrideLng: number | null;
-}
-
-const LocationManagement: React.FC = () => {
+export default function LocationManagement() {
   const { t } = useLanguage();
-  const { user, profile } = useAuth();
-  const [healthCenters, setHealthCenters] = useState<MapCenter[]>([]);
-  - [overrides, setOverrides] = useState<HealthCenterOverride[]>([]);
-  - [loading, setLoading] = useState(true);
-  - [error, setError] = useState<string | null>(null);
-  - [selectedCenterId, setSelectedCenterId] = useState<string | null>(null);
-  - [mapRef, setMapRef] = useCallback((node: HTMLDivElement | null) => {
-      if (node) setMapRef(node);
-    }, []);
-  - [mapInstance, setMapInstance] = useState<any>(null);
-  - [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCenter, setSelectedCenter] = useState<any>(null);
+  const [reason, setReason] = useState("");
+  
+  // Coordenadas ajustadas (temporales antes de guardar)
+  const [adjustedLat, setAdjustedLat] = useState<number | null>(null);
+  const [adjustedLng, setAdjustedLng] = useState<number | null>(null);
+  
+  const [overrides, setOverrides] = useState<Record<string, any>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Check if user is admin
-  const isAdmin = profile?.role === "admin";
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Fetch overrides (ajustes existentes) desde Supabase al iniciar
   useEffect(() => {
-    if (!isAdmin) {
-      setError("Acceso denegado");
-      return;
-    }
-
-    const loadData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch health centers (from existing data source)
-        // In a real implementation, we'd fetch from Supabase or use existing HEALTH_CENTERS
-        // For now, we'll use the existing data and combine with overrides
-
-        // Fetch overrides from Supabase
-        const { data: overridesData, error: overridesError } = await supabase
-          .from('health_center_overrides')
-          .select('*')
-          .order('adjusted_at', { ascending: false });
-
-        if (overridesError) throw overridesError;
-        setOverrides(overridesData || []);
-
-        // For now, we'll use mock data since we don't have direct access to HEALTH_CENTERS
-        // In production, this would import from src/data/healthUnits.ts
-        const mockHealthCenters: MapCenter[] = [
-          {
-            id: "carazo-1-0",
-            name: "Puesto de Salud Esquipulas",
-            type: "Puesto de Salud",
-            schedule: "Lunes a Viernes 8:00 - 16:00",
-            distance: "2.5 km",
-            durationMin: 10,
-            lat: 50,
-            lng: 50,
-            latitude: 11.9024,
-            longitude: -86.1642,
-            department: "Carazo",
-            municipality: "La Paz de Oriente",
-            locality: "Iglesia de Esquipulas, 100 mts arriba, Esquipulas",
-            zone: "Urbano",
-            phone: "+505  XXXXXXXX",
-            silais: "CARAZO",
-            sourceNumber: 1,
-            hasCoordinates: true,
-            hasOverride: false,
-            overrideLat: null,
-            overrideLng: null
-          },
-          {
-            id: "carazo-6-0",
-            name: "Centro de Salud Sócrates Flores",
-            type: "Centro de Salud",
-            schedule: "Lunes a Viernes 7:00 - 19:00",
-            distance: "5.2 km",
-            durationMin: 15,
-            lat: 60,
-            lng: 40,
-            latitude: 11.8562,
-            longitude: -86.1878,
-            department: "Carazo",
-            municipality: "San Marcos",
-            locality: "Instituto Juan XXII, 1 ½c. Al norte, colonia Manuel Moya, Manuel Moya",
-            zone: "Rural",
-            phone: "+505  XXXXXXXX",
-            silais: "CARAZO",
-            sourceNumber: 6,
-            hasCoordinates: true,
-            hasOverride: false,
-            overrideLat: null,
-            overrideLng: null
-          }
-        ];
-
-        // Combine with overrides
-        const centersWithOverrides = mockHealthCenters.map(center => {
-          const override = overridesData?.find(
-            ov => ov.center_id === center.id && ov.is_active
-          );
-
-          return {
-            ...center,
-            hasOverride: !!override,
-            overrideLat: override?.lat_override ?? null,
-            overrideLng: override?.lng_override ?? null
-          };
+    const fetchOverrides = async () => {
+      const { data, error } = await supabase.from('health_center_overrides').select('*');
+      if (!error && data) {
+        const map: Record<string, any> = {};
+        data.forEach(d => {
+          map[d.center_id] = d;
         });
-
-        setHealthCenters(centersWithOverrides);
-      } catch (err: any) {
-        setError(err.message || 'Error loading data');
-        console.error('Error loading location data:', err);
-      } finally {
-        setLoading(false);
+        setOverrides(map);
       }
     };
-
-    loadData();
+    fetchOverrides();
   }, []);
 
-  // Initialize map
+  // Escuchar mensajes desde el iframe (cuando el usuario arrastra el pin)
   useEffect(() => {
-    if (!mapRef.current) return;
-
-    // Initialize Leaflet map
-    const map = L.map(mapRef.current, {
-      center: [12.1, -85.5],
-      zoom: 8,
-      zoomControl: true
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    setMapInstance(map);
-
-    // Cleanup
-    return () => {
-      map.remove();
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "MARKER_DRAGGED") {
+        setAdjustedLat(event.data.lat);
+        setAdjustedLng(event.data.lng);
+      }
     };
-  }, [mapRef]);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
-  // Update map markers when data changes
+  // Enviar datos al mapa cuando cambia el centro seleccionado
+  const updateMapCenter = () => {
+    if (selectedCenter && iframeRef.current?.contentWindow) {
+      // Coordenadas por defecto (Managua) si el centro no tiene
+      const defaultLat = 12.1364;
+      const defaultLng = -86.2514;
+      
+      // Usamos el override si existe, si no, el original, y si no, por defecto
+      const lat = overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || defaultLat;
+      const lng = overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || defaultLng;
+
+      iframeRef.current.contentWindow.postMessage({
+        type: "UPDATE_CENTER",
+        center: {
+          id: selectedCenter.id,
+          name: selectedCenter.name,
+          lat: lat,
+          lng: lng,
+          hasCoords: !!(lat !== defaultLat && lng !== defaultLng)
+        }
+      }, "*");
+    }
+  };
+
   useEffect(() => {
-    if (!mapInstance || healthCenters.length === 0) return;
+    if (selectedCenter) {
+      setAdjustedLat(overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || null);
+      setAdjustedLng(overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || null);
+      setReason(overrides[selectedCenter.id]?.razon_ajuste || ""); 
+      updateMapCenter();
+    }
+  }, [selectedCenter, overrides]);
 
-    // Clear existing markers
-    mapInstance.eachLayer((layer: any) => {
-      if (layer instanceof L.Marker) {
-        mapInstance.removeLayer(layer);
-      }
-    });
+  // Código HTML inyectado para el mapa de Leaflet
+  const leafletHtml = useMemo(() => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>
+        html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
+        .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+        .leaflet-popup-content-wrapper { border-radius: 12px; font-family: system-ui; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        const map = L.map('map', { zoomControl: true, attributionControl: false }).setView([12.1364, -86.2514], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
-    // Add markers for each health center
-    healthCenters.forEach(center => {
-      const lat = center.overrideLat !== null ? center.overrideLat : center.latitude;
-      const lng = center.overrideLng !== null ? center.overrideLng : center.longitude;
+        let currentMarker = null;
 
-      if (!lat || !lng) return;
+        window.addEventListener('message', (event) => {
+          const msg = event.data;
+          if (msg.type === 'UPDATE_CENTER' && msg.center) {
+            const { lat, lng, name, hasCoords } = msg.center;
+            
+            if (currentMarker) map.removeLayer(currentMarker);
 
-      // Determine marker color based on override status
-      const markerColor = center.hasOverride ? '#ff9800' : '#4caf50'; // Orange for overridden, green for original
+            const iconHtml = '<div style="background-color: #3b82f6; width: 36px; height: 36px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.2s;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>';
+            const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
 
-      const marker = L.marker([lat, lng], {
-        draggable: isAdmin, // Only admins can drag
-        icon: L.divIcon({
-          className: 'custom-marker',
-          html: `<div style="background-color: ${markerColor}; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">${center.type.includes('Hospital') ? 'H' : '+'}</div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        })
-      });
+            currentMarker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(map);
+            
+            // Mensaje del popup
+            const popupMsg = hasCoords ? "<b>" + name + "</b><br><span style='font-size: 12px; color: #64748b;'>Arrastrame para corregir la posición</span>" : "<b>" + name + "</b><br><span style='font-size: 12px; color: #eab308;'>📍 Sin coordenadas.<br/>Arrástrame a la ubicación real.</span>";
+            currentMarker.bindPopup(popupMsg).openPopup();
 
-      marker.addTo(mapInstance);
+            currentMarker.on('dragend', function(e) {
+              const position = currentMarker.getLatLng();
+              window.parent.postMessage({ type: 'MARKER_DRAGGED', lat: position.lat, lng: position.lng }, '*');
+              currentMarker.bindPopup("<b>" + name + "</b><br><span style='font-size: 12px; color: #10b981;'>✓ Nueva posición seleccionada</span>").openPopup();
+            });
 
-      // Bind popup
-      marker.bindPopup(`
-        <b>${center.name}</b><br/>
-        ${center.type}<br/>
-        ${center.municipality}, ${center.department}<br/>
-        ${center.hasOverride ? '<span style="color: #ff9800;">Posición ajustada</span>' : '<span style="color: #4caf50;">Posición original</span>'}
-      `);
-
-      // Handle drag end (only for admins)
-      if (isAdmin) {
-        marker.on('dragend', (e: any) => {
-          const pos = e.target.getLatLng();
-          // Update state temporarily - actual save happens on confirm
-          setHealthCenters(prev =>
-            prev.map(c =>
-              c.id === center.id
-                ? {
-                    ...c,
-                    overrideLat: pos.lat,
-                    overrideLng: pos.lng,
-                    hasOverride: true
-                  }
-                : c
-            )
-          );
+            map.setView([lat, lng], hasCoords ? 16 : 8);
+          }
         });
-      }
-    });
+      </script>
+    </body>
+    </html>
+  `, []);
 
-    // If we have a selected center, pan to it
-    if (selectedCenterId) {
-      const selected = healthCenters.find(c => c.id === selectedCenterId);
-      if (selected) {
-        const lat = selected.overrideLat !== null ? selected.overrideLat : selected.latitude;
-        const lng = selected.overrideLng !== null ? selected.overrideLng : selected.longitude;
-        if (lat && lng) {
-          mapInstance.setView([lat, lng], 15);
-        }
-      }
+  // Filter centers from existing JSON Data
+  const filteredCenters = HEALTH_CENTERS.filter((c) => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.municipality?.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, 15); // limit for UI performance
+
+  // Mock total stats calculation
+  const totalCenters = HEALTH_CENTERS.length;
+  // Centros con coordenadas originales + los que hemos sobrescrito
+  const withCoords = HEALTH_CENTERS.filter(c => c.latitude && c.longitude || overrides[c.id]).length;
+
+  // Identificar si hubo un cambio en las coordenadas
+  const hasChanges = selectedCenter && (
+    adjustedLat !== (overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude) || 
+    adjustedLng !== (overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude)
+  );
+
+  const handleRevert = () => {
+    if (selectedCenter) {
+      setAdjustedLat(overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || null);
+      setAdjustedLng(overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || null);
+      setReason(overrides[selectedCenter.id]?.razon_ajuste || "");
+      updateMapCenter(); // Restaurar el pin en el iframe
     }
-  }, [mapInstance, healthCenters, selectedCenterId, isAdmin]);
+  };
 
-  // Save override to Supabase
-  const saveOverride = useCallback(async (centerId: string) => {
+  const handleSave = async () => {
+    if (!selectedCenter || !adjustedLat || !adjustedLng) return;
+    setIsSaving(true);
     try {
-      const center = healthCenters.find(c => c.id === centerId);
-      if (!center) return;
+      const { error } = await supabase.from('health_center_overrides').upsert({
+        center_id: selectedCenter.id,
+        departamento: selectedCenter.department,
+        nombre_nuevo: selectedCenter.name,
+        latitud_ajustada: adjustedLat,
+        longitud_ajustada: adjustedLng,
+        razon_ajuste: reason,
+        actualizado_en: new Date().toISOString()
+      }, { onConflict: 'center_id' });
 
-      const lat = center.overrideLat;
-      const lng = center.overrideLng;
-
-      if (lat === null || lng === null) {
-        // If coordinates are null, we're reverting to original - delete override
-        const override = overrides.find(ov => ov.center_id === centerId && ov.is_active);
-        if (override) {
-          const { error } = await supabase
-            .from('health_center_overrides')
-            .update({ is_active: false })
-            .eq('id', override.id);
-
-          if (error) throw error;
+      if (error) throw error;
+      
+      // Actualizar estado local
+      setOverrides(prev => ({
+        ...prev,
+        [selectedCenter.id]: {
+          latitud_ajustada: adjustedLat,
+          longitud_ajustada: adjustedLng,
+          razon_ajuste: reason
         }
-      } else {
-        // Check if there's an existing active override
-        const existingOverride = overrides.find(ov => ov.center_id === centerId && ov.is_active);
-
-        const overrideData = {
-          center_id: centerId,
-          lat_override: lat,
-          lng_override: lng,
-          original_lat: center.latitude,
-          original_lng: center.longitude,
-          is_active: true,
-          adjustment_reason: `Posición ajustada por administrador`,
-          adjusted_by: user?.id || 'unknown',
-          // edit_history would be handled in a more complex implementation
-        };
-
-        if (existingOverride) {
-          // Update existing override
-          const { error } = await supabase
-            .from('health_center_overrides')
-            .update(overrideData)
-            .eq('id', existingOverride.id);
-
-          if (error) throw error;
-        } else {
-          // Insert new override
-          const { error } = await supabase
-            .from('health_center_overwards')
-            .insert(overrideData);
-
-          if (error) throw error;
-        }
-      }
-
-      // Refresh data
-      await loadData();
-
-      // Show success (would use toast in real implementation)
-      alert('Posición guardada exitosamente');
-    } catch (err: any) {
-      setError(err.message || 'Error saving position');
-      console.error('Error saving override:', err);
-      throw err;
+      }));
+    } catch (err) {
+      console.error("Error saving location:", err);
+      alert("Error al guardar la posición en la base de datos.");
+    } finally {
+      setIsSaving(false);
     }
-  }, [healthCenters, overrides, user, supabase]);
-
-  // Reload data function
-  const reloadData = useCallback(async () => {
-    await loadData();
-  }, [loadData]);
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center py-12">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-        <p className="mt-4 text-slate-500">{t('loading')}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <p className="text-red-600 dark:text-red-400">{error}</p>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-slate-500 dark:text-slate-400">{t('accessDenied')}</p>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('locationManagement')}</h2>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={reloadData}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <RefreshCw className="w-4 h-4" /> {t('refresh')}
-          </button>
+    <div className="flex flex-col h-[calc(100vh-140px)] gap-6">
+      
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold text-slate-500 uppercase">{t('totalCenters')}</p>
+            <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{totalCenters}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-5 h-5" /></div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold text-slate-500 uppercase">{t('centersWithCoords')}</p>
+            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{withCoords}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><Crosshair className="w-5 h-5" /></div>
+        </div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between md:col-span-2">
+          <div className="flex-1">
+            <p className="text-[11px] font-bold text-slate-500 uppercase">{t('howToUse')}</p>
+            <p className="text-[12px] text-slate-600 dark:text-slate-400 font-medium mt-1 leading-snug">
+              1. {t('instructionsStep1')}<br/>
+              2. Arrastra el pin en el mapa para corregir las coordenadas.<br/>
+              3. {t('instructionsStep3')}<br/>
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Instructions */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('howToUse')}</h3>
-        <ol className="list-decimal pl-6 space-y-2 text-slate-700 dark:text-slate-300">
-          <li>{t('instructionsStep1')}</li>
-          <li>{t('instructionsStep2')}</li>
-          <li>{t('instructionsStep3')}</li>
-          <li>{t('instructionsStep4')}</li>
-        </ol>
-      </div>
-
-      {/* Map Container */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg h-[500px]">
-        <div ref={mapRef} className="h-full w-full" />
-
-        {/* Map Controls */}
-        <div className="absolute top-4 left-4 z-10 flex flex-col space-y-2">
-          <button
-            onClick={() => {
-              // Center map on user location if available
-              if (userLocation) {
-                mapInstance?.setView([userLocation.latitude, userLocation.longitude], 12);
-              }
-            }}
-            className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800/50 rounded-full shadow-md hover:bg-white/90 dark:hover:bg-slate-700/60 transition-colors"
-            title={t('centerOnMe')}
-          >
-            <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
-              📍
+      <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+        
+        {/* Left Side: Search and List */}
+        <div className="w-full lg:w-1/3 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Buscar por nombre o ciudad..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
-          </button>
-
-          <button
-            onClick={() => {
-              // Reset map view to default Nicaragua view
-              mapInstance?.setView([12.1, -85.5], 8);
-            }}
-            className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-800/50 rounded-full shadow-md hover:bg-white/90 dark:hover:bg-slate-700/60 transition-colors"
-            title={t('resetView')}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            {filteredCenters.map(center => (
+              <button 
+                key={center.id}
+                onClick={() => setSelectedCenter(center)}
+                className={`w-full text-left p-3 rounded-xl transition-colors border ${selectedCenter?.id === center.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+              >
+                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{center.name}</h4>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-[10px] text-slate-500 truncate">{center.municipality}</p>
+                  {(center.latitude || overrides[center.id]) ? (
+                    <span className={`w-2 h-2 rounded-full ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} title={overrides[center.id] ? "Coordenadas ajustadas manualmente" : "Tiene coordenadas originales"}></span>
+                  ) : (
+                    <span className="w-2 h-2 rounded-full bg-amber-500" title="Faltan coordenadas"></span>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Controls Panel */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('selectedCenter')}</h3>
-        </div>
-        <div className="px-6 py-4 space-y-4">
-          {selectedCenterId ? (
+        {/* Right Side: Map & Adjustment Area */}
+        <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
+          {selectedCenter ? (
             <>
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center">
-                    {healthCenters.find(c => c.id === selectedCenterId)?.hasOverride ? (
-                      <div className="w-8 h-8 bg-orange-500 rounded-full" />
-                    ) : (
-                      <div className="w-8 h-8 bg-green-500 rounded-full" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-slate-900 dark:text-white">
-                      {healthCenters.find(c => c.id === selectedCenterId)?.name || 'Centro desconocido'}
-                    </h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {t('centerType', { type: healthCenters.find(c => c.id === selectedCenterId)?.type || '' }}) |
-                      {t('municipality', { municipality: healthCenters.find(c => c.id === selectedCenterId)?.municipality || '' }},
-                      {t('department', { department: healthCenters.find(c => c.id === selectedCenterId)?.department || '' })}
-                    </p>
+              {/* Interactive Map Area */}
+              <div className="flex-1 relative flex items-center justify-center border-b border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950">
+                <iframe
+                  ref={iframeRef}
+                  srcDoc={leafletHtml}
+                  onLoad={updateMapCenter}
+                  className="w-full h-full border-0 absolute inset-0 z-0"
+                  title="Mapa de Ajuste"
+                />
+                
+                {/* Coordenadas overlay superior */}
+                <div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 text-xs font-mono">
+                  <div className="text-slate-500 mb-1 font-sans font-bold text-[10px] uppercase tracking-wider">{overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}</div>
+                  <div className={hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}>
+                    Lat: {adjustedLat?.toFixed(6) || "---"}<br/>
+                    Lng: {adjustedLng?.toFixed(6) || "---"}
                   </div>
                 </div>
+              </div>
 
-                {/* Change reason input */}
-                <div className={t('adjustmentReason')}>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('adjustmentReasonLabel')}</label>
-                  <textarea
-                    placeholder={t('adjustmentReasonPlaceholder')}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows="3"
-                  />
+              {/* Controls Area */}
+              <div className="p-5 bg-slate-50 dark:bg-slate-900 shrink-0">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">{t('adjustmentReasonLabel')}</label>
+                    <input 
+                      type="text" 
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder={t('adjustmentReasonPlaceholder')}
+                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="flex gap-2 items-end">
+                    <button 
+                      onClick={handleRevert}
+                      disabled={!hasChanges}
+                      className="h-[42px] px-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95">
+                      <RotateCcw className="w-4 h-4" />
+                      <span className="hidden xl:inline">{t('revertToOriginal')}</span>
+                    </button>
+                    <button 
+                      onClick={handleSave}
+                      disabled={(!hasChanges && overrides[selectedCenter.id]?.razon_ajuste === reason) || isSaving}
+                      className="h-[42px] px-6 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md min-w-[140px]">
+                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      <span>{isSaving ? "Guardando..." : t('savePosition')}</span>
+                    </button>
+                  </div>
                 </div>
-
-                {/* Action buttons */}
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    onClick={() => {
-                      // Revert to original position
-                      const center = healthCenters.find(c => c.id === selectedCenterId);
-                      if (center) {
-                        setHealthCenters(prev =>
-                          prev.map(c =>
-                            c.id === center.id
-                              ? {
-                                  ...c,
-                                  overrideLat: null,
-                                  overrideLng: null,
-                                  hasOverride: false
-                                }
-                              : c
-                          )
-                        );
-                        // Save the revert (this will delete the override)
-                        saveOverride(selectedCenterId);
-                      }
-                    }}
-                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                  >
-                    {t('revertToOriginal')}
-                  </button>
-
-                  <button
-                    onClick={() => saveOverride(selectedCenterId!)}
-                    disabled ={true} // Would enable when form is valid
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {t('savePosition')}
-                  </button>
-                </div>
-              </>
+              </div>
+            </>
           ) : (
-            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-              <p>{t('selectCenterToAdjust')}</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
+              <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
+              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">{t('selectCenterToAdjust')}</h3>
+              <p className="text-sm mt-2 max-w-sm text-center">Selecciona un centro de salud de la lista izquierda para visualizar y corregir sus coordenadas geográficas.</p>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Statistics */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('statistics')}</h3>
-        </div>
-        <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t('totalCenters')}</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{healthCenters.length}</p>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t('adjustedCenters')}</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {healthCenters.filter(c => c.hasOverride).length}
-            </p>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t('centersWithCoords')}</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {healthCenters.filter(c => c.hasCoordinates).length}
-            </p>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-            <p className="text-sm text-slate-500 dark:text-slate-400">{t('centersWithoutCoords')}</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">
-              {healthCenters.filter(c => !c.hasCoordinates).length}
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
-};
-
-export default LocationManagement;
+}
