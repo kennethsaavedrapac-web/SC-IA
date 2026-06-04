@@ -67,4 +67,6 @@ export interface UserProfile {
   country: string;
   avatarUrl: string;
   healthConditions: string[];
+  emergencyPhone?: string;
+  bloodType?: string;
 }

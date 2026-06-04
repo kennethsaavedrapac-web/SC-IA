@@ -24,6 +24,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
+  const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
+  const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
+  const [editConditionsText, setEditConditionsText] = useState(user.healthConditions.join(", "));
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -126,6 +129,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       name: editName,
       email: editEmail,
       city: editCity,
+      emergencyPhone: editPhone,
+      bloodType: editBloodType,
+      healthConditions: editConditionsText.split(",").map(c => c.trim()).filter(c => c.length > 0)
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
@@ -491,9 +497,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500">{t('emergencyPhone')}</label>
                                   <input
                                     type="text"
-                                    defaultValue="+505 8888-9999"
-                                    className="w-full text-slate-800 dark:text-slate-400 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
-                                    disabled
+                                    value={editPhone}
+                                    onChange={(e) => setEditPhone(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold"
                                   />
                                 </div>
                               </div>
@@ -553,17 +559,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {/* Nested Allergologies condition list */}
                           {item.id === "preferencias" && (
-                            <div className="space-y-4 text-left">
+                            <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
                               <div>
                                 <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 dark:text-slate-500">{t('recordedConditions')}</span>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  {user.healthConditions.map((cond, i) => (
-                                    <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-bold text-[10px] border border-blue-100 dark:border-blue-900/50 flex items-center space-x-1">
-                                      <span>⚕️</span>
-                                      <span>{cond}</span>
-                                    </span>
-                                  ))}
-                                </div>
+                                <textarea
+                                  value={editConditionsText}
+                                  onChange={(e) => setEditConditionsText(e.target.value)}
+                                  placeholder="Ej: Alergia al polen, Hipertensión"
+                                  className="w-full mt-2 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-1 focus:ring-blue-500 text-xs font-semibold min-h-[60px] resize-none"
+                                />
                               </div>
 
                               <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 flex items-center justify-between">
@@ -571,9 +575,29 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <span className="font-bold text-slate-800 dark:text-white">{t('bloodType')}</span>
                                   <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{t('bloodDesc')}</p>
                                 </div>
-                                <span className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-full font-mono border border-rose-100 dark:border-rose-900/50">{t('bloodOPos')}</span>
+                                <select
+                                  value={editBloodType}
+                                  onChange={(e) => setEditBloodType(e.target.value)}
+                                  className="text-sm font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 rounded-xl font-mono border border-rose-100 dark:border-rose-900/50 outline-none cursor-pointer"
+                                >
+                                  <option value="A+">A+</option>
+                                  <option value="A-">A-</option>
+                                  <option value="B+">B+</option>
+                                  <option value="B-">B-</option>
+                                  <option value="AB+">AB+</option>
+                                  <option value="AB-">AB-</option>
+                                  <option value="O+">O+</option>
+                                  <option value="O-">O-</option>
+                                </select>
                               </div>
-                            </div>
+                              
+                              <button
+                                type="submit"
+                                className="bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold py-2 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide w-full"
+                              >
+                                {t('saveChanges')}
+                              </button>
+                            </form>
                           )}
 
                         </div>
