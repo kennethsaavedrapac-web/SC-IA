@@ -525,6 +525,7 @@ export default function App() {
 
   const bottomNavCount = 1 + (featureFlags.healthUnitSearch ? 1 : 0) + (featureFlags.appointmentBooking ? 1 : 0) + (featureFlags.premiumFeatures ? 1 : 0);
   const gridColsClass = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[bottomNavCount] || "grid-cols-4";
+  const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
@@ -592,7 +593,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {/* PWA Download/Install Banner */}
         <AnimatePresence>

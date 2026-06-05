@@ -16,7 +16,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
   const firstName = isGuest ? t('guest') : user.name.split(" ")[0];
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* Background Decorators - Organic shapes */}
       <div

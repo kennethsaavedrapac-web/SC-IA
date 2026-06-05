@@ -55,7 +55,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
       {/* Ambient Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-blue-500/10 dark:bg-blue-600/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 dark:bg-cyan-500/10 blur-[100px] pointer-events-none"></div>
