@@ -50,16 +50,18 @@ export default function LocationManagement() {
     return () => window.removeEventListener("message", handleMessage);
   }, [selectedCenter, overrides]);
 
-  // Enviar datos al mapa cuando cambia el centro seleccionado
+  // Enviar datos al mapa cuando cambia el centro seleccionado o cambian las coordenadas
   const updateMapCenter = () => {
     if (selectedCenter && iframeRef.current?.contentWindow) {
       // Coordenadas por defecto (Managua) si el centro no tiene
       const defaultLat = 12.1364;
       const defaultLng = -86.2514;
       
-      // Usamos el override si existe, si no, el original, y si no, por defecto
-      const lat = overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || defaultLat;
-      const lng = overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || defaultLng;
+      // Usamos el valor temporal ajustado si existe, de lo contrario el override, el original o el default
+      const lat = adjustedLat !== null ? adjustedLat : (overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || defaultLat);
+      const lng = adjustedLng !== null ? adjustedLng : (overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || defaultLng);
+
+      if (isNaN(lat) || isNaN(lng)) return;
 
       iframeRef.current.contentWindow.postMessage({
         type: "UPDATE_CENTER",
@@ -79,9 +81,15 @@ export default function LocationManagement() {
       setAdjustedLat(overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || null);
       setAdjustedLng(overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || null);
       setReason(overrides[selectedCenter.id]?.razon_ajuste || ""); 
-      updateMapCenter();
     }
   }, [selectedCenter, overrides]);
+
+  // Actualizar el mapa cuando cambian las coordenadas temporales
+  useEffect(() => {
+    if (selectedCenter && adjustedLat !== null && adjustedLng !== null) {
+      updateMapCenter();
+    }
+  }, [adjustedLat, adjustedLng]);
 
   // Código HTML inyectado para el mapa de Leaflet
   const leafletHtml = useMemo(() => `
@@ -299,7 +307,38 @@ export default function LocationManagement() {
               </div>
 
               {/* Controls Area */}
-              <div className="p-5 bg-slate-50 dark:bg-slate-900 shrink-0">
+              <div className="p-5 bg-slate-50 dark:bg-slate-900 shrink-0 border-t border-slate-200 dark:border-slate-800">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">Latitud (Manual)</label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      value={adjustedLat !== null ? adjustedLat : ""}
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? null : Number(e.target.value);
+                        setAdjustedLat(val);
+                      }}
+                      placeholder="Ej: 12.1364"
+                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">Longitud (Manual)</label>
+                    <input 
+                      type="number" 
+                      step="0.000001"
+                      value={adjustedLng !== null ? adjustedLng : ""}
+                      onChange={(e) => {
+                        const val = e.target.value === "" ? null : Number(e.target.value);
+                        setAdjustedLng(val);
+                      }}
+                      placeholder="Ej: -86.2514"
+                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 font-mono"
+                    />
+                  </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-1">
                     <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">{t('adjustmentReasonLabel')}</label>
