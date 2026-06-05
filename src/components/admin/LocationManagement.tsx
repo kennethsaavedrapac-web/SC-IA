@@ -34,17 +34,21 @@ export default function LocationManagement() {
     fetchOverrides();
   }, []);
 
-  // Escuchar mensajes desde el iframe (cuando el usuario arrastra el pin)
+  // Escuchar mensajes desde el iframe (cuando el usuario arrastra el pin o el mapa está listo)
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === "MARKER_DRAGGED") {
-        setAdjustedLat(event.data.lat);
-        setAdjustedLng(event.data.lng);
+      if (event.data) {
+        if (event.data.type === "MARKER_DRAGGED") {
+          setAdjustedLat(event.data.lat);
+          setAdjustedLng(event.data.lng);
+        } else if (event.data.type === "MAP_READY") {
+          updateMapCenter();
+        }
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [selectedCenter, overrides]);
 
   // Enviar datos al mapa cuando cambia el centro seleccionado
   const updateMapCenter = () => {
@@ -127,6 +131,9 @@ export default function LocationManagement() {
             map.setView([lat, lng], hasCoords ? 16 : 8);
           }
         });
+
+        // Notify parent that the map is ready to receive updates
+        window.parent.postMessage({ type: 'MAP_READY' }, '*');
       </script>
     </body>
     </html>
@@ -166,6 +173,12 @@ export default function LocationManagement() {
         center_id: selectedCenter.id,
         departamento: selectedCenter.department,
         nombre_nuevo: selectedCenter.name,
+        tipo: selectedCenter.type,
+        municipio: selectedCenter.municipality,
+        localidad: selectedCenter.locality,
+        zona: selectedCenter.zone,
+        silais: selectedCenter.silais,
+        telefono: selectedCenter.phone,
         latitud_ajustada: adjustedLat,
         longitud_ajustada: adjustedLng,
         razon_ajuste: reason,
@@ -178,21 +191,22 @@ export default function LocationManagement() {
       setOverrides(prev => ({
         ...prev,
         [selectedCenter.id]: {
+          ...prev[selectedCenter.id],
           latitud_ajustada: adjustedLat,
           longitud_ajustada: adjustedLng,
           razon_ajuste: reason
         }
       }));
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error saving location:", err);
-      alert("Error al guardar la posición en la base de datos.");
+      alert("Error al guardar la posición en la base de datos: " + (err.message || err.details || JSON.stringify(err)));
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] gap-6">
+    <div className="flex flex-col h-auto lg:h-[calc(100vh-140px)] gap-6">
       
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
