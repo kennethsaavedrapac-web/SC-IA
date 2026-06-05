@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Star, Building, Check, ShieldCheck, Ticket, Sparkles, X, Gift, Heart, ShieldAlert, CreditCard } from "lucide-react";
+import { Star, Building, Check, ShieldCheck, Ticket, Sparkles, X, Gift, Heart, ShieldAlert, CreditCard, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -16,6 +16,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   const { t } = useLanguage();
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState<{ text: string; error: boolean } | null>(null);
+  const [showBadgeMessage, setShowBadgeMessage] = useState(false);
 
   // Checkout simulator
   const [checkoutPlan, setCheckoutPlan] = useState<{ name: string; price: string } | null>(null);
@@ -77,7 +78,31 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
               Salud-Conecta <span className="text-blue-600">IA</span>
             </span>
           </div>
-          <span className="text-xs font-bold text-blue-700 dark:text-blue-300 animate-pulse bg-blue-100/50 dark:bg-blue-900/40 px-3 py-1.5 rounded-full border border-blue-200/50 dark:border-blue-800/50 backdrop-blur-sm">🔥 Premium</span>
+
+          <div className="relative flex flex-col items-end">
+            <button
+              onClick={() => {
+                setShowBadgeMessage(true);
+                setTimeout(() => setShowBadgeMessage(false), 3000);
+              }}
+              className="flex items-center space-x-1.5 text-[11px] font-extrabold text-amber-800 dark:text-amber-300 bg-gradient-to-r from-amber-100 to-yellow-50 dark:from-amber-900/50 dark:to-amber-800/30 px-4 py-1.5 rounded-full border border-amber-300/60 dark:border-amber-700/50 backdrop-blur-sm transition-all active:scale-95 shadow-sm uppercase tracking-wider"
+            >
+              <Crown className="w-4 h-4" />
+              <span>Premium</span>
+            </button>
+            <AnimatePresence>
+              {showBadgeMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                  className="absolute top-full right-0 mt-2 w-48 bg-slate-900 dark:bg-slate-800 text-white text-[11px] p-3 rounded-2xl shadow-xl border border-slate-700 z-50 text-center font-medium leading-relaxed"
+                >
+                  Servicios exclusivos y atención prioritaria para tu salud.
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </header>
 
