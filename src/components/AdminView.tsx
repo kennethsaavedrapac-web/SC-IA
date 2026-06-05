@@ -21,7 +21,7 @@ const AdminView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is admin
-  const isAdmin = (profile as any)?.userRole === "admin";
+  const isAdmin = (profile as any)?.role === "admin" || (profile as any)?.rol === "admin";
 
   useEffect(() => {
     // Simulate loading delay
