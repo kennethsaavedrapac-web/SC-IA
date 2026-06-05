@@ -103,38 +103,39 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
       {/* Main content grids */}
       <main className="px-6 flex-1 space-y-6 max-w-5xl mx-auto w-full">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-center">
           {/* PREMIUM BÁSICO CARD */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100/90 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left relative z-10">
               <div className="flex items-center space-x-2.5 mb-2.5">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-                  <Star className="w-5 h-5 fill-blue-500 stroke-blue-700" />
+                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">
+                  <Star className="w-5 h-5 fill-slate-300 stroke-slate-500 dark:fill-slate-600 dark:stroke-slate-400" />
                 </div>
                 <h4 className="font-display font-bold text-xl text-slate-900 dark:text-white">{t('basicPlan')}</h4>
               </div>
 
-              <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
+              <div className="mb-4 mt-2">
+                <span className="text-3xl font-display font-bold text-slate-900 dark:text-white">$4.99</span>
+                <span className="text-slate-500 text-sm">/mes</span>
+              </div>
+
+              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
                 {t('basicDesc')}
               </p>
-
-              <span className="inline-block bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-blue-100 dark:border-blue-900/50 mb-4 font-mono">
-                {t('idealForYou')}
-              </span>
 
               <button
                 id="btn-choose-plan-basic"
                 onClick={() => setCheckoutPlan({ name: t('basicPlan'), price: "$4.99/mes" })}
-                className="block w-full sm:max-w-xs bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-blue-500/10 mb-4"
+                className="block w-full sm:max-w-xs bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md mb-4"
               >
                 {t('selectPlan')}
               </button>
             </div>
 
             {/* Checklist list */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4.5 rounded-2xl border border-slate-100 dark:border-slate-800 shrink-0 select-none md:w-64">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-4.5 rounded-2xl border border-slate-100 dark:border-slate-800 shrink-0 select-none md:w-64 relative z-10">
               <ul className="space-y-3">
                 {[
                   t('basicBenefit1'),
@@ -144,7 +145,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('basicBenefit5')
                 ].map((benefit, i) => (
                   <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-slate-500 shrink-0" />
                     <span>{benefit}</span>
                   </li>
                 ))}
@@ -152,37 +153,44 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
             </div>
           </div>
 
-          {/* PREMIUM INSTITUCIÓN CARD */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-100/90 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col gap-6 justify-between transform hover:scale-[1.01] transition-transform duration-200">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-purple-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          {/* PREMIUM INSTITUCIÓN CARD (BLUE) */}
+          <div className="bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-blue-900 rounded-3xl p-6 shadow-xl shadow-blue-500/30 relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 ring-4 ring-blue-500/30 dark:ring-blue-600/30 ring-offset-2 dark:ring-offset-slate-950 scale-100 md:scale-[1.03] z-10">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
+            
+            <div className="absolute top-4 right-4 text-[10px] font-bold text-blue-700 bg-white px-3 py-1 rounded-full shadow-sm flex items-center space-x-1">
+              <Sparkles className="w-3 h-3 text-blue-600" />
+              <span>PRO</span>
+            </div>
 
-            <div className="flex-1 text-left">
+            <div className="flex-1 text-left relative z-10">
               <div className="flex items-center space-x-2.5 mb-2.5">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-                  <Building className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold backdrop-blur-sm border border-white/10 shadow-inner">
+                  <Building className="w-5 h-5 text-white" />
                 </div>
-                <h4 className="font-display font-bold text-xl text-slate-900 dark:text-white">{t('institutionPlan')}</h4>
+                <h4 className="font-display font-bold text-xl text-white">{t('institutionPlan')}</h4>
               </div>
 
-              <p className="text-slate-400 text-xs leading-relaxed max-w-sm mb-4">
+              <div className="mb-4 mt-2">
+                <span className="text-3xl font-display font-bold text-white">$9.99</span>
+                <span className="text-blue-200 text-sm">/mes</span>
+              </div>
+
+              <p className="text-blue-100 text-xs leading-relaxed max-w-sm mb-4">
                 {t('institutionDesc')}
               </p>
 
-              <span className="inline-block bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[10px] px-3.5 py-1.5 rounded-full font-bold border border-purple-100 dark:border-purple-900/50 mb-4 font-mono">
-                {t('forTeams')}
-              </span>
-
               <button
                 id="btn-choose-plan-institution"
-                onClick={() => setCheckoutPlan({ name: t('institutionPlan'), price: "$49.99/mes" })}
-                className="block w-full sm:max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-md shadow-indigo-500/10 mb-4"
+                onClick={() => setCheckoutPlan({ name: t('institutionPlan'), price: "$9.99/mes" })}
+                className="block w-full sm:max-w-xs bg-white text-blue-700 hover:bg-blue-50 font-bold py-3 px-6 rounded-2xl text-xs tracking-wider transition-all active:scale-95 text-center shadow-lg mb-4"
               >
                 {t('selectPlan')}
               </button>
             </div>
 
             {/* Checklist list */}
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4.5 rounded-2xl border border-slate-100 dark:border-slate-800 shrink-0 select-none md:w-64">
+            <div className="bg-white/10 backdrop-blur-md p-4.5 rounded-2xl border border-white/10 shrink-0 select-none md:w-64 relative z-10">
               <ul className="space-y-3">
                 {[
                   t('institutionBenefit1'),
@@ -192,8 +200,8 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                   t('institutionBenefit5'),
                   t('institutionBenefit6')
                 ].map((benefit, i) => (
-                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    <Check className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <li key={i} className="flex items-center space-x-2 text-xs font-semibold text-white/95">
+                    <Check className="w-4 h-4 text-blue-200 shrink-0" />
                     <span>{benefit}</span>
                   </li>
                 ))}
