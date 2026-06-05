@@ -162,9 +162,9 @@ export default function AnnouncementManagement() {
             <div className="space-y-1.5">
               <label className="text-[11px] uppercase font-bold text-slate-500">{t('announcementType')}</label>
               <select name="tipo" value={formData.tipo} onChange={handleInputChange} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500">
-                <option value="alert">{t('announcementType_alert')}</option>
-                <option value="banner">{t('announcementType_banner')}</option>
-                <option value="promotion">{t('announcementType_promotion')}</option>
+                <option value="alert">{t('announcementType_alert' as any)}</option>
+                <option value="banner">{t('announcementType_banner' as any)}</option>
+                <option value="promotion">{t('announcementType_promotion' as any)}</option>
               </select>
             </div>
 

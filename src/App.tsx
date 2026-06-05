@@ -300,22 +300,18 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-<<<<<<< HEAD
   const dismissAnnouncement = (id: string) => {
     const updated = [...dismissedAnnouncements, id];
     setDismissedAnnouncements(updated);
     localStorage.setItem("dismissedAnnouncements", JSON.stringify(updated));
   };
 
-  // Listen for PWA beforeinstallprompt
-=======
   /**
    * LÓGICA DE INSTALACIÓN PWA
    * 1. Registrar el Service Worker.
    * 2. Escuchar y capturar el evento 'beforeinstallprompt'.
    * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
    */
->>>>>>> b32d21f742c083d5f22327810c4df4bf68cbb5c6
   useEffect(() => {
     // 1. Registro del Service Worker (también en index.html, pero reforzado aquí)
     if ('serviceWorker' in navigator) {

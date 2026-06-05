@@ -21,7 +21,7 @@ const AnalyticsView: React.FC = () => {
   });
 
   // Check if user is admin
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
     const fetchStats = async () => {

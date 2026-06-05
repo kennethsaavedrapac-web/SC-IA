@@ -139,7 +139,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
         <table className="min-w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('avatar')}</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Avatar</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('name')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('email')}</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Suscripción</th>
@@ -199,7 +199,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                     <span className="text-xs text-slate-500 dark:slasate-400">{t('yourRole')}</span>
                   )}
                   <button
-                    onClick={() => handleRoleChange(userItem.id, newRole)}
+                    onClick={() => userItem.id && handleRoleChange(userItem.id, newRole)}
                     disabled={editingUserId === userItem.id}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                       editingUserId === userItem.id
@@ -214,7 +214,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
             ))}
             {users.length === 0 && (
               <tr>
-                <td colSpan="5" className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan={6} className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">
                   {t('noUsersFound')}
                 </td>
               </tr>

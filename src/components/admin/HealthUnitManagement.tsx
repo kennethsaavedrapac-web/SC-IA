@@ -37,7 +37,7 @@ const HealthUnitManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [editMode, setEditMode] = useState<{ id: string; unit: any } | null>(null);
-  const [newUnit, setNewUnit] = useState<Partial<HealthCenter>>({
+  const [newUnit, setNewUnit] = useState<any>({
     nombre: "",
     tipo_unidad_salud: "",
     municipio: "",
@@ -127,7 +127,7 @@ const HealthUnitManagement: React.FC = () => {
   // Handle form input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setNewUnit(prev => ({
+    setNewUnit((prev: typeof newUnit) => ({
       ...prev,
       [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value
     }));
@@ -252,7 +252,7 @@ const HealthUnitManagement: React.FC = () => {
       <div className="flex justify-between items-center flex-wrap">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('healthUnitManagement')}</h2>
-          <p className="text-slate-500 dark:text-slate-400">{t('manageHealthUnitsDesc')}</p>
+          <p className="text-slate-500 dark:text-slate-400">Manage and organize health units</p>
         </div>
         <div className="flex items-center gap-4">
           <select
@@ -372,8 +372,8 @@ const HealthUnitManagement: React.FC = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('latitude')}</label>
               <input
                 type="number"
-                name="lat"
-                value={newUnit.lat ? String(newUnit.lat) : ""}
+                name="latitud"
+                value={newUnit.latitud ? String(newUnit.latitud) : ""}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 step="0.000001"
@@ -383,8 +383,8 @@ const HealthUnitManagement: React.FC = () => {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('longitude')}</label>
               <input
                 type="number"
-                name="lng"
-                value={newUnit.lng ? String(newUnit.lng) : ""}
+                name="longitud"
+                value={newUnit.longitud ? String(newUnit.longitud) : ""}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 step="0.000001"

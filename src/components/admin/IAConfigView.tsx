@@ -375,7 +375,7 @@ const IAConfigView: React.FC = () => {
                     value={formData.config_value || ''}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    rows="4"
+                    rows={4}
                     required
                   />
                 </div>
@@ -388,7 +388,7 @@ const IAConfigView: React.FC = () => {
                   value={formData.description || ''}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="3"
+                  rows={3}
                 />
               </div>
 

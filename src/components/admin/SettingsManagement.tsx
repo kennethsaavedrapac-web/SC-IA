@@ -39,8 +39,8 @@ const SettingsManagement: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
-  // Check if user is admin
-  const isAdmin = profile?.role === "admin";
+  // Check if user is admin (profile type may not include 'role')
+  const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
     const fetchSettings = async () => {

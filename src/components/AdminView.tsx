@@ -21,7 +21,7 @@ const AdminView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is admin
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = (profile as any)?.userRole === "admin";
 
   useEffect(() => {
     // Simulate loading delay
@@ -38,7 +38,7 @@ const AdminView: React.FC = () => {
     { id: "announcements", icon: Megaphone, label: t('announcementManagement') },
     { id: "health", icon: Hospital, label: t('healthUnitManagement') },
     { id: "users", icon: Users, label: t('userManagement') },
-    { id: "ia", icon: Bot, label: t('iaConfiguration') },
+    { id: "ia", icon: Bot, label: t('settings') },
     { id: "analytics", icon: BarChart3, label: t('analytics') },
     { id: "settings", icon: Settings, label: t('generalSettings') },
   ] as const;
@@ -104,7 +104,7 @@ const AdminView: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="max-w-5xl mx-auto"
             >
-              {activeSection === "users" && <UserManagement user={profile as UserProfile} />}
+              {activeSection === "users" && profile && <UserManagement user={profile as UserProfile} />}
               {activeSection === "health" && <HealthUnitManagement />}
               {activeSection === "settings" && <SettingsManagement />}
               {activeSection === "analytics" && <AnalyticsView />}
