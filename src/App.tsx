@@ -823,7 +823,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col h-screen"
             >
-              <AdminView />
+              <AdminView onGoBack={() => setCurrentView("home")} />
             </motion.div>
           )}
         </AnimatePresence>
