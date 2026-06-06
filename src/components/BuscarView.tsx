@@ -11,7 +11,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 interface BuscarViewProps {
   onAddAppointment: (appointment: Appointment) => void;
   appointments: Appointment[];
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
 }
 
 export default function BuscarView({ onAddAppointment, appointments, onNavigate }: BuscarViewProps) {
@@ -77,7 +77,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   };
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Header */}
       <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">

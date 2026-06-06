@@ -49,7 +49,6 @@ export const showDailyNotification = async (userId: string) => {
     const message = DAILY_MESSAGES[randomIndex];
 
     try {
-      // Intentar mostrar notificación a través del Service Worker si existe
       const registration = await navigator.serviceWorker.getRegistration();
       if (registration) {
         registration.showNotification("Salud-Conecta IA", {
@@ -57,7 +56,7 @@ export const showDailyNotification = async (userId: string) => {
           icon: "/app-logo-v1.jpg",
           badge: "/app-logo-v1.jpg",
           vibrate: [200, 100, 200]
-        });
+        } as any);
       } else {
         // Fallback a notificación estándar
         new Notification("Salud-Conecta IA", {

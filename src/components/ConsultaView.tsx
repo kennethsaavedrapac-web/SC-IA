@@ -6,7 +6,7 @@ import { Siren, Mic, MicOff } from "lucide-react";
 
 interface ConsultaViewProps {
   user: UserProfile;
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
   isPremium?: boolean;
   onTriggerEmergency?: () => void;
 }

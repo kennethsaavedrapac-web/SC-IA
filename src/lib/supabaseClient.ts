@@ -4,9 +4,12 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://TU_PROYECTO.supabase.co";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "TU_CLAVE_ANONIMA";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    '⚠️ Supabase: Faltan variables de entorno VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. ' +
+const isPlaceholderUrl = supabaseUrl?.includes("TU_PROYECTO");
+const isPlaceholderKey = supabaseAnonKey?.includes("TU_CLAVE_ANONIMA");
+
+if (!supabaseUrl || !supabaseAnonKey || isPlaceholderUrl || isPlaceholderKey) {
+  console.warn(
+    '⚠️ Supabase: Las credenciales están vacías o en modo placeholder. ' +
     'Verifica tu archivo .env'
   );
 }

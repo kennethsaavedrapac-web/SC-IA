@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 
 interface HomeViewProps {
   user: UserProfile;
-  onNavigate: (tab: "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate: (tab: "consulta" | "buscar" | "premium" | "perfil") => void;
   onOpenSettings: () => void;
 }
 
@@ -16,7 +16,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
   const firstName = isGuest ? t('guest') : user.name.split(" ")[0];
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* Background Decorators - Organic shapes */}
       <div
@@ -149,7 +149,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
           {/* Card 2: Hospitales y centros de salud */}
           <motion.button
             whileTap={{ scale: 0.98 }}
-            onClick={() => onNavigate("centros")}
+            onClick={() => onNavigate("buscar")}
             className="w-full bg-white dark:bg-slate-900 rounded-[24px] p-4.5 lg:p-6 border border-slate-100 dark:border-slate-800 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all text-left group relative overflow-hidden"
           >
             <div className="flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-5 w-full relative z-10">
@@ -175,32 +175,6 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             </div>
           </motion.button>
 
-          {/* Card 3: Buscar */}
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={() => onNavigate("buscar")}
-            className="w-full bg-white dark:bg-slate-900 rounded-[24px] p-4.5 lg:p-6 border border-slate-100 dark:border-slate-800 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all text-left group relative overflow-hidden"
-          >
-            <div className="flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-5 w-full relative z-10">
-              {/* Icon box light purple */}
-              <div className="w-[54px] h-[54px] lg:w-[60px] lg:h-[60px] rounded-[18px] lg:rounded-[20px] bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center shrink-0 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform duration-300">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-[24px] h-[24px] lg:w-[28px] lg:h-[28px]">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-              </div>
-              <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-slate-900 dark:text-white text-[15.5px] lg:text-[17px] tracking-tight">{t('myAppointments')}</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[12.5px] lg:text-[13.5px] font-normal mt-0.5 lg:mt-1.5 lg:min-h-[40px]">{t('manageAppointments')}</p>
-              </div>
-            </div>
-            {/* Arrow key box */}
-            <div className="w-9 h-9 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 lg:absolute lg:bottom-6 lg:right-6 lg:opacity-0 lg:-translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[15px] h-[15px]">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </div>
-          </motion.button>
 
           {/* Card 4: Security Shield Badge */}
           <div className="w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-[24px] p-4.5 lg:p-6 border border-slate-100 dark:border-slate-800 flex flex-row lg:flex-col items-center lg:items-start justify-between lg:justify-start shadow-[0_2px_10px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all text-left relative overflow-hidden group">

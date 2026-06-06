@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import HomeView from "./components/HomeView";
 import ConsultaView from "./components/ConsultaView";
 import CentrosView from "./components/CentrosView";
-import BuscarView from "./components/BuscarView";
 import PremiumView from "./components/PremiumView";
 import PerfilView from "./components/PerfilView";
 import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
+import AdminView from "./components/AdminView";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
@@ -15,14 +15,15 @@ import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VERSION } from "./lib/updateNotification";
-import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { supabase } from "./lib/supabaseClient";
 
 export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
-  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
+  const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -36,6 +37,8 @@ export default function App() {
   const [showIosGuideModal, setShowIosGuideModal] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [globalSettings, setGlobalSettings] = useState<any>(null);
   const [showPwaBanner, setShowPwaBanner] = useState<boolean>(() => {
     try {
       const dismissed = localStorage.getItem("dismissedPwaBanner");
@@ -47,6 +50,95 @@ export default function App() {
       return true;
     }
   });
+
+  // Alertas / Banners descartados por el usuario
+  const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("dismissedAnnouncements") || "[]");
+    } catch {
+      return [];
+    }
+  });
+
+  // Cargar Anuncios Activos
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const { data, error } = await supabase.from('admin_announcements').select('*').eq('activo', true);
+        if (!error && data) {
+          const now = new Date();
+          const active = data.filter((a: any) => {
+            // Asegurar cobertura de todo el día para las fechas
+            const start = new Date(a.fecha_inicio + "T00:00:00");
+            const end = new Date(a.fecha_fin + "T23:59:59");
+            return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
+          });
+          setAnnouncements(active);
+        }
+      } catch (err) {
+        console.error("Error fetching announcements", err);
+      }
+    };
+    fetchAnnouncements();
+
+    // Suscripción en tiempo real a anuncios
+    const announcementsSub = supabase
+      .channel('announcements-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'admin_announcements' },
+        () => {
+          fetchAnnouncements(); // Recargar los anuncios si el admin añade o elimina uno
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(announcementsSub); };
+  }, [dismissedAnnouncements]);
+
+  // Cargar Configuración Global
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data, error } = await supabase.from('app_settings').select('valor').eq('clave', 'global_config').single();
+        if (!error && data) {
+          setGlobalSettings(data.valor);
+        }
+      } catch (err) {
+        console.error("Error fetching global settings:", err);
+      }
+    };
+    fetchSettings();
+
+    // Suscripción en tiempo real a configuraciones globales (Feature flags y Mantenimiento)
+    const settingsSub = supabase
+      .channel('global-settings-channel')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'app_settings', filter: "clave=eq.global_config" },
+        (payload) => {
+          if (payload.new && payload.new.valor) {
+            setGlobalSettings(payload.new.valor);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(settingsSub); };
+  }, []);
+
+  const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
+  const maintenanceMode = globalSettings?.maintenanceMode || false;
+  const profileRole = (profile as any)?.role ?? (profile as any)?.rol;
+  const isMaintenanceBlocked = maintenanceMode && profile && profileRole !== 'admin';
+
+  // Auto-redirect if feature is disabled
+  useEffect(() => {
+    if (globalSettings) {
+      if (currentView === "buscar" && !featureFlags.healthUnitSearch) setCurrentView("home");
+      if (currentView === "premium" && !featureFlags.premiumFeatures) setCurrentView("home");
+    }
+  }, [currentView, featureFlags, globalSettings]);
 
   // Font Size state
   const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
@@ -243,6 +335,12 @@ export default function App() {
     }
   };
 
+  const dismissAnnouncement = (id: string) => {
+    const updated = [...dismissedAnnouncements, id];
+    setDismissedAnnouncements(updated);
+    localStorage.setItem("dismissedAnnouncements", JSON.stringify(updated));
+  };
+
   /**
    * LÓGICA DE INSTALACIÓN PWA
    * 1. Registrar el Service Worker.
@@ -250,9 +348,9 @@ export default function App() {
    * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
    */
   useEffect(() => {
-    // 1. Registro del Service Worker (también en index.html, pero reforzado aquí)
+    // 1. Registro del Service Worker (también en index.html, pero de soporte aquí)
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const registerSW = () => {
         navigator.serviceWorker.register('/sw.js')
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
@@ -276,7 +374,13 @@ export default function App() {
             });
           })
           .catch(err => console.error('[PWA] Error al registrar SW:', err));
-      });
+      };
+
+      if (document.readyState === 'complete') {
+        registerSW();
+      } else {
+        window.addEventListener('load', registerSW);
+      }
 
       // Escuchar si hay cambios de controlador
       navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -471,6 +575,25 @@ export default function App() {
     );
   }
 
+  if (isMaintenanceBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+        <ShieldAlert className="w-16 h-16 text-amber-500 mb-6" />
+        <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">En Mantenimiento</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-8 leading-relaxed">
+          Estamos realizando mejoras en la plataforma. Por favor, vuelve a intentarlo más tarde.
+        </p>
+        <button onClick={handleLogout} className="px-6 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold rounded-xl active:scale-95 transition-all text-sm">
+          Cerrar Sesión
+        </button>
+      </div>
+    );
+  }
+
+  const bottomNavCount = 1 + (featureFlags.healthUnitSearch ? 1 : 0) + (featureFlags.appointmentBooking ? 1 : 0) + (featureFlags.premiumFeatures ? 1 : 0);
+  const gridColsClass = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[bottomNavCount] || "grid-cols-4";
+  const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
 
@@ -478,7 +601,7 @@ export default function App() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* DESKTOP SIDEBAR NAVIGATION (Solo visible en Laptop/PC) */}
-      {currentView !== "login" && currentView !== "register" && (
+      {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
         <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
           <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
             <img
@@ -495,11 +618,11 @@ export default function App() {
             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
             {[
-              { id: "home", label: t('home'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-              { id: "consulta", label: t('consulta'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
-              { id: "centros", label: t('centros'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
-              { id: "buscar", label: t('buscar'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
-              { id: "premium", label: t('premium'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
+              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" /><path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" /></svg> },
+              ...(featureFlags.healthUnitSearch ? [{ id: "buscar", label: "Buscador", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> }] : []),
+              ...(featureFlags.premiumFeatures ? [{ id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" /></svg> }] : []),
+              ...(profileRole === "admin" ? [{ id: "admin", label: t('adminPanel'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="21" x2="9" y2="9" /><line x1="3" y1="9" x2="21" y2="9" /></svg> }] : []),
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -537,7 +660,7 @@ export default function App() {
       )}
 
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "centros" ? "h-[100dvh] overflow-hidden pb-0" : "min-h-screen pb-20"} md:pb-0 ${currentView !== "login" && currentView !== "register" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {/* PWA Download/Install Banner */}
         <AnimatePresence>
@@ -581,6 +704,42 @@ export default function App() {
               </div>
             </motion.div>
           )}
+        </AnimatePresence>
+
+        {/* Admin Announcements (Alertas y Promociones) */}
+        <AnimatePresence>
+          {announcements.map(ann => {
+            const isAlert = ann.tipo === 'alert';
+            const isPromo = ann.tipo === 'promotion';
+            return (
+              <motion.div
+                key={ann.id}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className={`w-full text-white shadow-sm border-b z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden ${
+                  isAlert ? 'bg-gradient-to-r from-rose-600 to-red-600 border-rose-500/20' :
+                  isPromo ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/20' :
+                  'bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700/20'
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                    {isAlert ? <AlertTriangle className="w-4.5 h-4.5 text-rose-100" /> :
+                     isPromo ? <Star className="w-4.5 h-4.5 text-amber-100" /> :
+                     <Megaphone className="w-4.5 h-4.5 text-slate-100" />}
+                  </div>
+                  <div className="text-left">
+                    <h4 className="font-display font-bold text-xs sm:text-sm tracking-tight">{ann.titulo}</h4>
+                    <p className="text-[10px] sm:text-xs text-white/90 font-normal max-w-2xl leading-normal">{ann.mensaje}</p>
+                  </div>
+                </div>
+                <button onClick={() => dismissAnnouncement(ann.id)} className="p-1.5 hover:bg-white/20 active:scale-95 rounded-lg text-white/80 hover:text-white transition-all shrink-0 cursor-pointer absolute top-2 right-2 sm:relative sm:top-0 sm:right-0">
+                  <X className="w-4 h-4" />
+                </button>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
@@ -652,9 +811,9 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "centros" && (
+          {currentView === "buscar" && featureFlags.healthUnitSearch && (
             <motion.div
-              key="centros"
+              key="buscar"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -665,24 +824,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "buscar" && (
-            <motion.div
-              key="buscar"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <BuscarView
-                appointments={appointments}
-                onAddAppointment={handleAddAppointment}
-                onNavigate={(tab) => setCurrentView(tab)}
-              />
-            </motion.div>
-          )}
-
-          {currentView === "premium" && (
+          {currentView === "premium" && featureFlags.premiumFeatures && (
             <motion.div
               key="premium"
               initial={{ opacity: 0 }}
@@ -715,17 +857,52 @@ export default function App() {
                 onGoBack={() => setCurrentView("home")}
                 onUpdateUser={handleUpdateUser}
                 onLogout={handleLogout}
+                onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
               />
+            </motion.div>
+          )}
+
+          {currentView === "admin" && (
+            <motion.div
+              key="admin"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex-1 flex flex-col h-screen"
+            >
+              <AdminView onGoBack={() => setCurrentView("home")} />
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* PERSISTENT 4-TAB NAVIGATION BAR IN PAGE FOOTERS */}
-        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && (
+        {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
           <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
-            <div className="grid grid-cols-4 p-2.5 pt-3 pb-5 relative font-sans">
+            <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
-              {/* Tab 1: Consulta */}
+              {/* Tab 1: Inicio */}
+              <button
+                id="btn-nav-home"
+                onClick={() => setCurrentView("home")}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  }`}
+              >
+                <div className="p-1 mb-0.5">
+                  <svg className={`w-[25px] h-[25px] ${currentView === "home" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "home" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </div>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  Inicio
+                </span>
+                {currentView === "home" && (
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                )}
+              </button>
+
+              {/* Tab 2: Consulta IA */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
@@ -735,40 +912,21 @@ export default function App() {
                 <div className="p-1 mb-0.5">
                   <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
+                    <path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" />
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('consulta')}
+                  Consulta IA
                 </span>
-                {/* Active indicator dot/lines */}
                 {currentView === "consulta" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
-              {/* Tab 2: Centros */}
-              <button
-                id="btn-nav-centros"
-                onClick={() => setCurrentView("centros")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "centros" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
-                  }`}
-              >
-                <div className="p-1 mb-0.5">
-                  <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('centros')}
-                </span>
-                {currentView === "centros" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
-                )}
-              </button>
-
-              {/* Tab 3: Buscar */}
-              <button
+              {/* Tab 3: Buscador (Centros) */}
+              {featureFlags.healthUnitSearch && (
+               <button
                 id="btn-nav-buscar"
                 onClick={() => setCurrentView("buscar")}
                 className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
@@ -781,15 +939,17 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('buscar')}
+                  Buscador
                 </span>
                 {currentView === "buscar" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
+              )}
 
               {/* Tab 4: Premium */}
-              <button
+              {featureFlags.premiumFeatures && (
+               <button
                 id="btn-nav-premium"
                 onClick={() => setCurrentView("premium")}
                 className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
@@ -797,16 +957,17 @@ export default function App() {
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2L2 12l10 10 10-10z" />
+                    <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  {t('premium')}
+                  Premium
                 </span>
                 {currentView === "premium" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
+              )}
             </div>
           </nav>
         )}
