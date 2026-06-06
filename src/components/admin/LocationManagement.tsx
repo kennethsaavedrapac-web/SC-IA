@@ -39,6 +39,7 @@ export default function LocationManagement() {
           setAdjustedLat(event.data.lat);
           setAdjustedLng(event.data.lng);
         } else if (event.data.type === "MAP_READY") {
+          // El iframe está listo, enviar el centro actual si hay uno
           sendCenterToMap();
         }
       }
@@ -61,7 +62,13 @@ export default function LocationManagement() {
 
     iframeRef.current.contentWindow.postMessage({
       type: "UPDATE_CENTER",
-      center: { id: selectedCenter.id, name: selectedCenter.name, lat, lng, hasCoords: !!(lat !== defaultLat && lng !== defaultLng) }
+      center: {
+        id: selectedCenter.id,
+        name: selectedCenter.name,
+        lat,
+        lng,
+        hasCoords: !!(lat !== defaultLat && lng !== defaultLng)
+      }
     }, "*");
   }, [selectedCenter, adjustedLat, adjustedLng, overrides]);
 
@@ -107,26 +114,40 @@ export default function LocationManagement() {
       <script>
         const map = L.map('map', {zoomControl: true, attributionControl: false}).setView([12.1364, -86.2514], 8);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {maxZoom: 19}).addTo(map);
+
         let currentMarker = null;
+
         function updateCenter(center) {
           const { lat, lng, name, hasCoords } = center;
+          
           if (currentMarker) map.removeLayer(currentMarker);
+
           const iconHtml = '<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:transform .2s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>';
           const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
+
           currentMarker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(map);
-          const popupMsg = hasCoords ? '<b>' + name + '</b><br><span style="font-size:12px;color:#64748b">Arrástrame para corregir la posición</span>' : '<b>' + name + '</b><br><span style="font-size:12px;color:#eab308">📍 Sin coordenadas.<br/>Arrástrame a la ubicación real.</span>';
+          
+          const popupMsg = hasCoords
+            ? '<b>' + name + '</b><br><span style="font-size:12px;color:#64748b">Arrástrame para corregir la posición</span>'
+            : '<b>' + name + '</b><br><span style="font-size:12px;color:#eab308">📍 Sin coordenadas.<br/>Arrástrame a la ubicación real.</span>';
           currentMarker.bindPopup(popupMsg).openPopup();
+
           currentMarker.on('dragend', function() {
             const pos = currentMarker.getLatLng();
             window.parent.postMessage({ type: 'MARKER_DRAGGED', lat: pos.lat, lng: pos.lng }, '*');
             currentMarker.bindPopup('<b>' + name + '</b><br><span style="font-size:12px;color:#10b981">✓ Nueva posición seleccionada</span>').openPopup();
           });
+
           map.setView([lat, lng], hasCoords ? 16 : 8);
         }
+
         window.addEventListener('message', function(event) {
           const msg = event.data;
-          if (msg.type === 'UPDATE_CENTER' && msg.center) { updateCenter(msg.center); }
+          if (msg.type === 'UPDATE_CENTER' && msg.center) {
+            updateCenter(msg.center);
+          }
         });
+
         window.parent.postMessage({ type: 'MAP_READY' }, '*');
       </script>
     </body>
@@ -175,166 +196,162 @@ export default function LocationManagement() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-100px)] gap-4 lg:gap-6">
 
-      {/* ═══ STATS - ARRIBA DEL TODO, OCUPANDO TODO EL ANCHO ═══ */}
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-3 shrink-0">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase">{t('totalCenters')}</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{totalCenters}</p>
+      {/* ═══ PANEL IZQUIERDO ═══ */}
+      <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-3 shrink-0 lg:h-full">
+        
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2 shrink-0">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase">{t('totalCenters')}</p>
+              <p className="text-lg font-black text-slate-800 dark:text-white mt-0">{totalCenters}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-5 h-5" /></div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-emerald-500 uppercase">Con coordenadas</p>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{withCoords}</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-emerald-500 uppercase">Con coord.</p>
+              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0">{withCoords}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><MapPin className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><MapPin className="w-5 h-5" /></div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-blue-500 uppercase">Ajustados manualmente</p>
-            <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">{adjustedCount}</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-blue-500 uppercase">Ajustados</p>
+              <p className="text-lg font-black text-blue-600 dark:text-blue-400 mt-0">{adjustedCount}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><RotateCcw className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><RotateCcw className="w-5 h-5" /></div>
         </div>
-      </div>
 
-      {/* ═══ CUERPO: Buscador + Mapa ═══ */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 flex-1 min-h-0">
+        {/* Buscador */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
+          <div className="p-3">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar centro..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
+        </div>
 
-        {/* PANEL IZQUIERDO */}
-        <div className="w-full lg:w-[400px] xl:w-[460px] flex flex-col gap-3 shrink-0 lg:h-full">
+        {/* Área scrollable interna */}
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
           
-          {/* Buscador */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
-            <div className="p-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Buscar centro..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                />
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              </div>
-            </div>
-          </div>
-
-          {/* Área scrollable: Lista + Edición */}
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
-            
-            {/* Lista */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-              <div className="p-2 space-y-1">
-                {filteredCenters.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center py-6">No se encontraron centros.</p>
-                ) : (
-                  filteredCenters.map(center => (
-                    <button
-                      key={center.id}
-                      onClick={() => setSelectedCenter(center)}
-                      className={`w-full text-left p-2.5 rounded-xl transition-all border ${
-                        selectedCenter?.id === center.id 
-                          ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm' 
-                          : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{center.name}</h4>
-                          <p className="text-[10px] text-slate-500 truncate mt-0.5">{center.municipality}{center.department ? `, ${center.department}` : ''}</p>
-                        </div>
-                        {(center.latitude || overrides[center.id]) ? (
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} />
-                        ) : (
-                          <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
-                        )}
+          {/* Lista de centros */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="p-2 space-y-1">
+              {filteredCenters.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-6">No se encontraron centros.</p>
+              ) : (
+                filteredCenters.map(center => (
+                  <button
+                    key={center.id}
+                    onClick={() => setSelectedCenter(center)}
+                    className={`w-full text-left p-2.5 rounded-xl transition-all border ${
+                      selectedCenter?.id === center.id 
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm' 
+                        : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{center.name}</h4>
+                        <p className="text-[10px] text-slate-500 truncate mt-0.5">{center.municipality}{center.department ? `, ${center.department}` : ''}</p>
                       </div>
-                    </button>
-                  ))
-                )}
-              </div>
+                      {(center.latitude || overrides[center.id]) ? (
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} />
+                      ) : (
+                        <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
+                      )}
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
+          </div>
 
-            {/* Panel de edición */}
-            {selectedCenter && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                    Ajustar coordenadas
-                  </h3>
-                  <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[140px]">
-                    {selectedCenter.name}
-                  </span>
+          {/* Panel de edición */}
+          {selectedCenter && (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                  Ajustar coordenadas
+                </h3>
+                <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[140px]">
+                  {selectedCenter.name}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-100 dark:border-slate-700/50">
+                <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  {overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}
                 </div>
-
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-100 dark:border-slate-700/50">
-                  <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    {overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}
-                  </div>
-                  <div className={`font-mono text-[11px] mt-0.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}`}>
-                    <span className="inline-block min-w-[90px]">Lat: {adjustedLat?.toFixed(6) || "---"}</span>
-                    <span className="inline-block min-w-[90px] ml-2">Lng: {adjustedLng?.toFixed(6) || "---"}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Latitud</label>
-                    <input type="number" step="any" value={adjustedLat ?? ""} onChange={(e) => setAdjustedLat(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
-                      placeholder="12.1364" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Longitud</label>
-                    <input type="number" step="any" value={adjustedLng ?? ""} onChange={(e) => setAdjustedLng(parseFloat(e.target.value) || 0)}
-                      className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
-                      placeholder="-86.2514" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Razón de ajuste</label>
-                  <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2}
-                    placeholder="Ej: Coordenadas corregidas según ubicación real."
-                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 transition-all resize-none" />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button onClick={handleRevert} disabled={!hasChanges}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${hasChanges ? "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95" : "bg-slate-50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600 cursor-not-allowed"}`}>
-                    <RotateCcw className="w-3 h-3" />
-                    Revertir
-                  </button>
-                  <button onClick={handleSave} disabled={!hasChanges || isSaving || !adjustedLat || !adjustedLng}
-                    className={`flex items-center gap-1 px-4 py-2 rounded-lg text-[10px] font-bold transition-all flex-1 justify-center ${hasChanges && !isSaving ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm active:scale-[0.98]" : "bg-blue-100 dark:bg-blue-900/30 text-blue-300 dark:text-blue-600 cursor-not-allowed"}`}>
-                    {isSaving ? (<><Loader2 className="w-3 h-3 animate-spin" />Guardando...</>) : (<><Save className="w-3 h-3" />{hasChanges ? "Guardar cambios" : "Sin cambios"}</>)}
-                  </button>
+                <div className={`font-mono text-[11px] mt-0.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}`}>
+                  <span className="inline-block min-w-[90px]">Lat: {adjustedLat?.toFixed(6) || "---"}</span>
+                  <span className="inline-block min-w-[90px] ml-2">Lng: {adjustedLng?.toFixed(6) || "---"}</span>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* MAPA */}
-        <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
-          {selectedCenter ? (
-            <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
-              <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">{t('selectCenterToAdjust')}</h3>
-              <p className="text-sm mt-2 max-w-sm text-center">Selecciona un centro de salud de la lista para visualizar y corregir sus coordenadas.</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Latitud</label>
+                  <input type="number" step="any" value={adjustedLat ?? ""} onChange={(e) => setAdjustedLat(parseFloat(e.target.value) || 0)}
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
+                    placeholder="12.1364" />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Longitud</label>
+                  <input type="number" step="any" value={adjustedLng ?? ""} onChange={(e) => setAdjustedLng(parseFloat(e.target.value) || 0)}
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
+                    placeholder="-86.2514" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Razón de ajuste</label>
+                <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2}
+                  placeholder="Ej: Coordenadas corregidas según ubicación real."
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 transition-all resize-none" />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button onClick={handleRevert} disabled={!hasChanges}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${hasChanges ? "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95" : "bg-slate-50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600 cursor-not-allowed"}`}>
+                  <RotateCcw className="w-3 h-3" />
+                  Revertir
+                </button>
+                <button onClick={handleSave} disabled={!hasChanges || isSaving || !adjustedLat || !adjustedLng}
+                  className={`flex items-center gap-1 px-4 py-2 rounded-lg text-[10px] font-bold transition-all flex-1 justify-center ${hasChanges && !isSaving ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm active:scale-[0.98]" : "bg-blue-100 dark:bg-blue-900/30 text-blue-300 dark:text-blue-600 cursor-not-allowed"}`}>
+                  {isSaving ? (<><Loader2 className="w-3 h-3 animate-spin" />Guardando...</>) : (<><Save className="w-3 h-3" />{hasChanges ? "Guardar cambios" : "Sin cambios"}</>)}
+                </button>
+              </div>
             </div>
           )}
         </div>
-
       </div>
+
+      {/* ═══ MAPA ═══ */}
+      <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
+        {selectedCenter ? (
+          <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
+            <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
+            <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">{t('selectCenterToAdjust')}</h3>
+            <p className="text-sm mt-2 max-w-sm text-center">Selecciona un centro de salud de la lista para visualizar y corregir sus coordenadas.</p>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
