@@ -557,7 +557,7 @@ export default function App() {
   // ─── Loading Screen ────────────────────────────────────────
   if (!initialized) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
+      <div className="min-h-dvh bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -577,7 +577,7 @@ export default function App() {
 
   if (isMaintenanceBlocked) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+      <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
         <ShieldAlert className="w-16 h-16 text-amber-500 mb-6" />
         <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">En Mantenimiento</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-8 leading-relaxed">
@@ -595,7 +595,7 @@ export default function App() {
   const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
+    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

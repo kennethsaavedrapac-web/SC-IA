@@ -343,7 +343,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
 
       {/* ═══════════════ ORGANIC BACKGROUND BLOBS ═══════════════ */}
       <div className="absolute pointer-events-none z-0" style={{ top: "-8%", right: "-15%", width: "420px", height: "420px", background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)", borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%", filter: "blur(40px)" }} />

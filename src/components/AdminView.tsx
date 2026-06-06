@@ -71,7 +71,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const currentLabel = sections.find(s => s.id === activeSection)?.label;
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
+    <div className="flex h-dvh bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
       
       {/* Drawer Backdrop */}
       <AnimatePresence>

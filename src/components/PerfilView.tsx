@@ -406,7 +406,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f3f8ff] dark:bg-slate-950 transition-colors duration-300">
+    <div className="flex flex-col min-h-dvh bg-[#f3f8ff] dark:bg-slate-950 transition-colors duration-300">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
         <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>

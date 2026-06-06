@@ -8,6 +8,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@layer utilities {
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top, 44px);
+  }
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+  .h-dvh {
+    height: 100dvh;
+  }
+}
+
 @keyframes float-slow {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
