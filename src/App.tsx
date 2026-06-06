@@ -219,8 +219,13 @@ export default function App() {
       }, 300);
     }, () => {
       console.log("[PWA] Actualización pospuesta.");
-    }, force);
-  }, []);
+    }, force, {
+      title: t('updateAvailable'),
+      desc: t('updateDesc'),
+      later: t('updateLater'),
+      update: t('updateNow')
+    });
+  }, [t]);
 
   const handleCheckForUpdates = async () => {
     setCheckingUpdates(true);
@@ -235,11 +240,11 @@ export default function App() {
         triggerUpdateNotification(swRegistration, true);
       } else {
         setCheckingUpdates(false);
-        addToast(createToast(`Tu aplicación está al día (${APP_VERSION})`, "success"));
+        addToast(createToast(`${t('appUpToDate')} (${APP_VERSION})`, "success"));
       }
     } else {
       setCheckingUpdates(false);
-      addToast(createToast(`Tu aplicación está al día (${APP_VERSION})`, "success"));
+      addToast(createToast(`${t('appUpToDate')} (${APP_VERSION})`, "success"));
     }
   };
 
@@ -257,6 +262,9 @@ export default function App() {
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
             setSwRegistration(reg);
+
+            // Forzar búsqueda de actualizaciones al cargar
+            reg.update();
 
             // Verificar si ya hay una actualización esperando al cargar
             if (reg.waiting) {
@@ -964,7 +972,7 @@ export default function App() {
 
                       {/* Updates Section */}
                       <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Actualizaciones</h4>
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{t('updates')}</h4>
                         
                         {/* Check updates button */}
                         <button
@@ -980,7 +988,7 @@ export default function App() {
                                 <RefreshCw className="w-4.5 h-4.5 text-blue-600" />
                               )}
                             </div>
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Buscar actualizaciones</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('checkForUpdates')}</span>
                           </div>
                           <span className="text-xs font-bold text-slate-400 dark:text-slate-500 font-mono">{APP_VERSION}</span>
                         </button>
@@ -995,7 +1003,12 @@ export default function App() {
                               setTimeout(() => window.location.reload(), 1500);
                             }, () => {
                               addToast(createToast("Actualización pospuesta (Simulado)", "info"));
-                            }, true);
+                            }, true, {
+                              title: t('updateAvailable'),
+                              desc: t('updateDesc'),
+                              later: t('updateLater'),
+                              update: t('updateNow')
+                            });
                           }}
                           className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all group cursor-pointer"
                         >
@@ -1003,7 +1016,7 @@ export default function App() {
                             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
                               <Sparkles className="w-4.5 h-4.5 text-indigo-600" />
                             </div>
-                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Simular notificación</span>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('simulateNotification')}</span>
                           </div>
                           <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5" />
                         </button>

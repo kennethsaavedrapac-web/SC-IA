@@ -3,7 +3,7 @@
  * Salud-Conecta IA
  */
 
-export const APP_VERSION = "v1.0.9";
+export const APP_VERSION = "v1.2.1";
 const DISMISS_KEY = "updateNotificationDismissedAt";
 const REAPPEAR_INTERVAL = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 
@@ -334,7 +334,13 @@ export function dismissUpdateNotification(): void {
 export function showUpdateNotification(
   onConfirm: () => void,
   onCancel?: () => void,
-  force = false
+  force = false,
+  translations?: {
+    title: string;
+    desc: string;
+    later: string;
+    update: string;
+  }
 ): void {
   // Evitar duplicados
   if (document.getElementById("update-notification-root")) {
@@ -354,6 +360,14 @@ export function showUpdateNotification(
   const container = document.createElement("div");
   container.id = "update-notification-root";
 
+  // Default values for translations if not provided
+  const t = translations || {
+    title: "¡Nueva versión disponible!",
+    desc: "Hay mejoras y correcciones listas. Actualiza ahora para disfrutar de la mejor experiencia en Salud-Conecta IA.",
+    later: "Más tarde",
+    update: "Actualizar"
+  };
+
   // Estructura HTML interna
   container.innerHTML = `
     <div class="un-container">
@@ -365,15 +379,15 @@ export function showUpdateNotification(
           <span class="un-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
           </span>
-          ¡Nueva versión disponible!
+          ${t.title}
         </h4>
-        <p class="un-desc">Hay mejoras y correcciones listas. Actualiza ahora para disfrutar de la mejor experiencia en Salud-Conecta IA.</p>
+        <p class="un-desc">${t.desc}</p>
       </div>
       <div class="un-actions">
-        <button class="un-btn-secondary" id="un-later">Más tarde</button>
+        <button class="un-btn-secondary" id="un-later">${t.later}</button>
         <button class="un-btn-primary" id="un-update">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          Actualizar
+          ${t.update}
         </button>
       </div>
     </div>
