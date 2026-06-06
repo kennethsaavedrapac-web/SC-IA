@@ -172,27 +172,27 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
 
             {/* Stats compactas solo para Location Management, posicionadas al centro de manera absoluta */}
             {activeSection === "location" && (
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-blue-50/80 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/20">
-                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                    {t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400">{totalCenters}</span>
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl px-3.5 py-2 border border-blue-200 dark:border-blue-900/40 shadow-xs">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    {t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400 text-sm">{totalCenters}</span>
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-lg px-2.5 py-1 border border-emerald-100 dark:border-emerald-900/20">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                    Con coord.: <span className="text-emerald-600 dark:text-emerald-400">{withCoords}</span>
+                <span className="inline-flex items-center gap-2 bg-emerald-50/90 dark:bg-emerald-950/40 rounded-xl px-3.5 py-2 border border-emerald-200 dark:border-emerald-900/40 shadow-xs">
+                  <MapPin className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    Con coord.: <span className="text-emerald-600 dark:text-emerald-450 text-sm">{withCoords}</span>
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-blue-50/80 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/20">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-blue-500">
+                <span className="inline-flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl px-3.5 py-2 border border-blue-200 dark:border-blue-900/40 shadow-xs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-blue-500">
                     <polyline points="23 4 23 10 17 10" />
                     <polyline points="1 20 1 14 7 14" />
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                   </svg>
-                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
-                    Ajustados: <span className="text-blue-600 dark:text-blue-400">{overridesCount}</span>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    Ajustados: <span className="text-blue-600 dark:text-blue-450 text-sm">{overridesCount}</span>
                   </span>
                 </span>
               </div>
