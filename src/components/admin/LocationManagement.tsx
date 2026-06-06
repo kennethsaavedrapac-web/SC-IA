@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { HEALTH_CENTERS } from "../../data/healthUnits";
-import { MapPin, Search, Save, RotateCcw, Crosshair, Loader2 } from "lucide-react";
+import { MapPin, Search, Save, RotateCcw, Crosshair, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 
 export default function LocationManagement() {
@@ -16,6 +16,7 @@ export default function LocationManagement() {
   
   const [overrides, setOverrides] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Para controlar el sidebar colapsable
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -215,7 +216,7 @@ export default function LocationManagement() {
 
   return (
     <div className="flex flex-col h-auto lg:h-[calc(100vh-80px)] gap-6">
-      
+
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
         <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
@@ -246,43 +247,47 @@ export default function LocationManagement() {
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
         
-        {/* Left Side: Search and List */}
-        <div className="w-full lg:w-1/6 lg:h-auto shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-            <div className="relative">
-              <input 
-                type="text" 
-                placeholder="Buscar por nombre o ciudad..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500"
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {filteredCenters.map(center => (
-              <button 
-                key={center.id}
-                onClick={() => setSelectedCenter(center)}
-                className={`w-full text-left p-3 rounded-xl transition-colors border ${selectedCenter?.id === center.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
-              >
-                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{center.name}</h4>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-[10px] text-slate-500 truncate">{center.municipality}</p>
-                  {(center.latitude || overrides[center.id]) ? (
-                    <span className={`w-2 h-2 rounded-full ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} title={overrides[center.id] ? "Coordenadas ajustadas manualmente" : "Tiene coordenadas originales"}></span>
-                  ) : (
-                    <span className="w-2 h-2 rounded-full bg-amber-500" title="Faltan coordenadas"></span>
-                  )}
+        {/* Left Side: Search and List - Hamburger Menu */}
+        <div className={`w-full lg:h-auto shrink-0 flex flex-col bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-[width] duration-300 ${sidebarOpen ? 'lg:w-1/6' : 'lg:w-0'}`}>
+          {sidebarOpen && (
+            <React.Fragment>
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Buscar por nombre o ciudad..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500"
+                  />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 </div>
-              </button>
-            ))}
-          </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                {filteredCenters.map(center => (
+                  <button
+                    key={center.id}
+                    onClick={() => setSelectedCenter(center)}
+                    className={`w-full text-left p-3 rounded-xl transition-colors border ${selectedCenter?.id === center.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                  >
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 truncate">{center.name}</h4>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-[10px] text-slate-500 truncate">{center.municipality}</p>
+                      {(center.latitude || overrides[center.id]) ? (
+                        <span className={`w-2 h-2 rounded-full ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} title={overrides[center.id] ? "Coordenadas ajustadas manualmente" : "Tiene coordenadas originales"}></span>
+                      ) : (
+                        <span className="w-2 h-2 rounded-full bg-amber-500" title="Faltan coordenadas"></span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </React.Fragment>
+          )}
         </div>
  
-        {/* Right Side: Map & Adjustment Area */}
+        {/* Right Side: Map Only */}
         <div className="w-full lg:flex-1 h-[90vh] lg:h-auto bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden relative">
           {selectedCenter ? (
             <>
@@ -295,76 +300,13 @@ export default function LocationManagement() {
                   className="w-full h-full border-0 absolute inset-0 z-0"
                   title="Mapa de Ajuste"
                 />
-                
+
                 {/* Coordenadas overlay superior */}
                 <div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 text-xs font-mono">
                   <div className="text-slate-500 mb-1 font-sans font-bold text-[10px] uppercase tracking-wider">{overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}</div>
                   <div className={hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}>
                     Lat: {adjustedLat?.toFixed(6) || "---"}<br/>
                     Lng: {adjustedLng?.toFixed(6) || "---"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Controls Area */}
-              <div className="p-5 bg-slate-50 dark:bg-slate-900 shrink-0 border-t border-slate-200 dark:border-slate-800">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">Latitud (Manual)</label>
-                    <input 
-                      type="number" 
-                      step="0.000001"
-                      value={adjustedLat !== null ? adjustedLat : ""}
-                      onChange={(e) => {
-                        const val = e.target.value === "" ? null : Number(e.target.value);
-                        setAdjustedLat(val);
-                      }}
-                      placeholder="Ej: 12.1364"
-                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">Longitud (Manual)</label>
-                    <input 
-                      type="number" 
-                      step="0.000001"
-                      value={adjustedLng !== null ? adjustedLng : ""}
-                      onChange={(e) => {
-                        const val = e.target.value === "" ? null : Number(e.target.value);
-                        setAdjustedLng(val);
-                      }}
-                      placeholder="Ej: -86.2514"
-                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <label className="text-[11px] uppercase font-bold text-slate-500 mb-1.5 block">{t('adjustmentReasonLabel')}</label>
-                    <input 
-                      type="text" 
-                      value={reason}
-                      onChange={(e) => setReason(e.target.value)}
-                      placeholder={t('adjustmentReasonPlaceholder')}
-                      className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500"
-                    />
-                  </div>
-                  <div className="flex gap-2 items-end">
-                    <button 
-                      onClick={handleRevert}
-                      disabled={!hasChanges}
-                      className="h-[42px] px-4 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95">
-                      <RotateCcw className="w-4 h-4" />
-                      <span className="hidden xl:inline">{t('revertToOriginal')}</span>
-                    </button>
-                    <button 
-                      onClick={handleSave}
-                      disabled={(!hasChanges && overrides[selectedCenter.id]?.razon_ajuste === reason) || isSaving}
-                      className="h-[42px] px-6 bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md min-w-[140px]">
-                      {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                      <span>{isSaving ? "Guardando..." : t('savePosition')}</span>
-                    </button>
                   </div>
                 </div>
               </div>
