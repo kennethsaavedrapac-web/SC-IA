@@ -24,6 +24,7 @@ export default function App() {
   const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
+  const [searchCategory, setSearchCategory] = useState<string>("centros");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -618,21 +619,31 @@ export default function App() {
             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
             {[
-              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" /><path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" /></svg> },
-              ...(featureFlags.healthUnitSearch ? [{ id: "buscar", label: "Buscador", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> }] : []),
-              ...(featureFlags.premiumFeatures ? [{ id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" /></svg> }] : []),
+              { id: "home", label: t('home'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: t('consulta'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" /><path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" /></svg> },
+              ...(featureFlags.healthUnitSearch ? [
+                { id: "buscar", category: "centros", label: t('centros'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M8 10h.01" /><path d="M16 10h.01" /><path d="M8 14h.01" /><path d="M16 14h.01" /></svg> },
+                { id: "buscar", category: "farmacias", label: t('pharmacies'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg> },
+                { id: "buscar", category: "medicos", label: t('doctors'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> }
+              ] : []),
+              ...(featureFlags.premiumFeatures ? [{ id: "premium", label: t('premium'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" /></svg> }] : []),
               ...(profileRole === "admin" ? [{ id: "admin", label: t('adminPanel'), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="21" x2="9" y2="9" /><line x1="3" y1="9" x2="21" y2="9" /></svg> }] : []),
-            ].map((tab) => (
+            ].map((tab, idx) => (
               <button
-                key={tab.id}
-                onClick={() => setCurrentView(tab.id as any)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold shadow-sm border border-blue-100/50 dark:border-blue-900/50"
-                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
-                  }`}
+                key={`${tab.id}-${idx}`}
+                onClick={() => {
+                  setCurrentView(tab.id as any);
+                  if (tab.category) {
+                    setSearchCategory(tab.category);
+                  }
+                }}
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${
+                  currentView === tab.id && (!tab.category || searchCategory === tab.category)
+                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold shadow-sm border border-blue-100/50 dark:border-blue-900/50"
+                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
+                }`}
               >
-                <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
+                <div className={`w-5 h-5 ${currentView === tab.id && (!tab.category || searchCategory === tab.category) ? "fill-current/20" : ""}`}>{tab.icon}</div>
                 <span className="text-[13.5px]">{tab.label}</span>
               </button>
             ))}
@@ -820,7 +831,7 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} initialCategory={searchCategory} />
             </motion.div>
           )}
 
@@ -895,7 +906,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Inicio
+                  {t('home')}
                 </span>
                 {currentView === "home" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -917,7 +928,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Consulta IA
+                  {t('consulta')}
                 </span>
                 {currentView === "consulta" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -928,20 +939,22 @@ export default function App() {
               {featureFlags.healthUnitSearch && (
                <button
                 id="btn-nav-buscar"
-                onClick={() => setCurrentView("buscar")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                onClick={() => {
+                  setCurrentView("buscar");
+                  setSearchCategory("centros");
+                }}
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" && searchCategory === "centros" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
                   <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M8 10h.01" /><path d="M16 10h.01" /><path d="M8 14h.01" /><path d="M16 14h.01" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Buscador
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" && searchCategory === "centros" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  {t('centros')}
                 </span>
-                {currentView === "buscar" && (
+                {currentView === "buscar" && searchCategory === "centros" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
@@ -961,7 +974,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Premium
+                  {t('premium')}
                 </span>
                 {currentView === "premium" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>

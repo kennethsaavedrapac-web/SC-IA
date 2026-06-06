@@ -3,7 +3,7 @@ export const translations = {
     // Navigation
     home: "Inicio",
     consulta: "Consulta IA",
-    centros: "Centros Médicos",
+    centros: "Centros",
     buscar: "Buscador",
     premium: "Premium",
     perfil: "Mi perfil",
@@ -377,7 +377,7 @@ export const translations = {
     // Navigation
     home: "Home",
     consulta: "AI Consultation",
-    centros: "Medical Centers",
+    centros: "Centers",
     buscar: "Search",
     premium: "Premium",
     perfil: "My Profile",

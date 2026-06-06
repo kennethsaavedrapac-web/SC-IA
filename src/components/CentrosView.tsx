@@ -10,6 +10,7 @@ import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategory
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
   onTriggerEmergency?: () => void;
+  initialCategory?: string;
 }
 
 interface UserLocation {
@@ -84,7 +85,7 @@ function getNearestHospital(
   return nearest ? { hospital: nearest, distanceKm: minDistance } : null;
 }
 
-export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
+export default function CentrosView({ onNavigate, onTriggerEmergency, initialCategory }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const [locationQuery, setLocationQuery] = useState("Granada");
@@ -100,7 +101,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
-  const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
+  const [selectedCarouselCategory, setSelectedCarouselCategory] = useState(initialCategory || "centros");
 
   // Medical categories for the floating carousel
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
@@ -194,6 +195,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setActiveFilter("todos");
     }
   }, [findNearestCenter, userLocation]);
+
+  useEffect(() => {
+    if (initialCategory) {
+      handleCategorySelected(initialCategory);
+    }
+  }, [initialCategory, handleCategorySelected]);
 
   // Cargar overrides y custom centers desde Supabase
   useEffect(() => {
