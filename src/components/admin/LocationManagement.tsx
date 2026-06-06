@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { HEALTH_CENTERS } from "../../data/healthUnits";
 import { MapPin, Search, Save, RotateCcw, Loader2 } from "lucide-react";
@@ -18,6 +18,7 @@ export default function LocationManagement() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Fetch overrides
   useEffect(() => {
     const fetchOverrides = async () => {
       const { data, error } = await supabase.from('health_center_overrides').select('*');
@@ -30,6 +31,7 @@ export default function LocationManagement() {
     fetchOverrides();
   }, []);
 
+  // Message listener del iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data) {
@@ -37,67 +39,118 @@ export default function LocationManagement() {
           setAdjustedLat(event.data.lat);
           setAdjustedLng(event.data.lng);
         } else if (event.data.type === "MAP_READY") {
-          updateMapCenter();
+          // El iframe está listo, enviar el centro actual si hay uno
+          sendCenterToMap();
         }
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [selectedCenter, overrides]);
+  }, [selectedCenter, adjustedLat, adjustedLng, overrides]);
 
-  const updateMapCenter = () => {
-    if (selectedCenter && iframeRef.current?.contentWindow) {
-      const defaultLat = 12.1364;
-      const defaultLng = -86.2514;
-      const lat = adjustedLat !== null ? adjustedLat : (overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || defaultLat);
-      const lng = adjustedLng !== null ? adjustedLng : (overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || defaultLng);
-      if (isNaN(lat) || isNaN(lng)) return;
-      iframeRef.current.contentWindow.postMessage({
-        type: "UPDATE_CENTER",
-        center: { id: selectedCenter.id, name: selectedCenter.name, lat, lng, hasCoords: !!(lat !== defaultLat && lng !== defaultLng) }
-      }, "*");
-    }
-  };
+  // Enviar centro al mapa
+  const sendCenterToMap = useCallback(() => {
+    if (!selectedCenter || !iframeRef.current?.contentWindow) return;
+    
+    const defaultLat = 12.1364;
+    const defaultLng = -86.2514;
+    
+    const lat = adjustedLat !== null ? adjustedLat : (overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || defaultLat);
+    const lng = adjustedLng !== null ? adjustedLng : (overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || defaultLng);
 
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    iframeRef.current.contentWindow.postMessage({
+      type: "UPDATE_CENTER",
+      center: {
+        id: selectedCenter.id,
+        name: selectedCenter.name,
+        lat,
+        lng,
+        hasCoords: !!(lat !== defaultLat && lng !== defaultLng)
+      }
+    }, "*");
+  }, [selectedCenter, adjustedLat, adjustedLng, overrides]);
+
+  // Cuando cambia selectedCenter, cargar datos
   useEffect(() => {
     if (selectedCenter) {
-      setAdjustedLat(overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || null);
-      setAdjustedLng(overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || null);
+      const newLat = overrides[selectedCenter.id]?.latitud_ajustada !== undefined 
+        ? overrides[selectedCenter.id].latitud_ajustada 
+        : selectedCenter.latitude || null;
+      const newLng = overrides[selectedCenter.id]?.longitud_ajustada !== undefined
+        ? overrides[selectedCenter.id].longitud_ajustada
+        : selectedCenter.longitude || null;
+      setAdjustedLat(newLat);
+      setAdjustedLng(newLng);
       setReason(overrides[selectedCenter.id]?.razon_ajuste || "");
     }
   }, [selectedCenter, overrides]);
 
+  // Cuando cambian coordenadas, enviar al mapa
   useEffect(() => {
-    if (selectedCenter && adjustedLat !== null && adjustedLng !== null) updateMapCenter();
-  }, [adjustedLat, adjustedLng]);
+    if (selectedCenter && adjustedLat !== null && adjustedLng !== null) {
+      sendCenterToMap();
+    }
+  }, [adjustedLat, adjustedLng, selectedCenter, sendCenterToMap]);
 
   const leafletHtml = useMemo(() => `
     <!DOCTYPE html>
     <html>
-    <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>html,body,#map{height:100%;margin:0;padding:0;background:#f1f5f9}
-    .leaflet-control-zoom{border:none!important;box-shadow:0 4px 12px rgba(0,0,0,.1)!important}
-    .leaflet-bar a{background-color:#fff!important;color:#1e293b!important}
-    </style></head>
-    <body><div id="map"></div><script>
-    const map=L.map('map',{zoomControl:true,attributionControl:false}).setView([12.1364,-86.2514],8);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
-    let currentMarker=null;
-    window.addEventListener('message',(event)=>{
-      const msg=event.data;
-      if(msg.type==='UPDATE_CENTER'&&msg.center){
-        const{lat,lng,name,hasCoords}=msg.center;
-        if(currentMarker)map.removeLayer(currentMarker);
-        const icon=L.divIcon({html:'<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>',className:'',iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-36]});
-        currentMarker=L.marker([lat,lng],{icon,draggable:true}).addTo(map);
-        currentMarker.bindPopup(hasCoords?"<b>"+name+"</b><br><span style='font-size:12px;color:#64748b'>Arrástrame para corregir</span>":"<b>"+name+"</b><br><span style='font-size:12px;color:#eab308'>📍 Sin coord. Arrástrame</span>").openPopup();
-        currentMarker.on('dragend',function(){const p=currentMarker.getLatLng();window.parent.postMessage({type:'MARKER_DRAGGED',lat:p.lat,lng:p.lng},'*');currentMarker.bindPopup("<b>"+name+"</b><br><span style='font-size:12px;color:#10b981'>✓ Nueva posición</span>").openPopup()});
-        map.setView([lat,lng],hasCoords?16:8)}
-    });
-    window.parent.postMessage({type:'MAP_READY'},'*');
-    </script></body>
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <style>
+        html,body,#map{height:100%;margin:0;padding:0;background:#f1f5f9}
+        .leaflet-control-zoom{border:none!important;box-shadow:0 4px 12px rgba(0,0,0,.1)!important}
+        .leaflet-bar a{background-color:#fff!important;color:#1e293b!important;border-bottom:1px solid #e2e8f0!important}
+        .leaflet-bar a:hover{background-color:#f8fafc!important}
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        const map = L.map('map', {zoomControl: true, attributionControl: false}).setView([12.1364, -86.2514], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {maxZoom: 19}).addTo(map);
+
+        let currentMarker = null;
+
+        function updateCenter(center) {
+          const { lat, lng, name, hasCoords } = center;
+          
+          if (currentMarker) map.removeLayer(currentMarker);
+
+          const iconHtml = '<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3);transition:transform .2s"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>';
+          const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
+
+          currentMarker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(map);
+          
+          const popupMsg = hasCoords
+            ? '<b>' + name + '</b><br><span style="font-size:12px;color:#64748b">Arrástrame para corregir la posición</span>'
+            : '<b>' + name + '</b><br><span style="font-size:12px;color:#eab308">📍 Sin coordenadas.<br/>Arrástrame a la ubicación real.</span>';
+          currentMarker.bindPopup(popupMsg).openPopup();
+
+          currentMarker.on('dragend', function() {
+            const pos = currentMarker.getLatLng();
+            window.parent.postMessage({ type: 'MARKER_DRAGGED', lat: pos.lat, lng: pos.lng }, '*');
+            currentMarker.bindPopup('<b>' + name + '</b><br><span style="font-size:12px;color:#10b981">✓ Nueva posición seleccionada</span>').openPopup();
+          });
+
+          map.setView([lat, lng], hasCoords ? 16 : 8);
+        }
+
+        window.addEventListener('message', function(event) {
+          const msg = event.data;
+          if (msg.type === 'UPDATE_CENTER' && msg.center) {
+            updateCenter(msg.center);
+          }
+        });
+
+        window.parent.postMessage({ type: 'MAP_READY' }, '*');
+      </script>
+    </body>
     </html>
   `, []);
 
@@ -111,8 +164,8 @@ export default function LocationManagement() {
   const adjustedCount = Object.keys(overrides).length;
 
   const hasChanges = selectedCenter && (
-    adjustedLat !== (overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude) || 
-    adjustedLng !== (overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude)
+    adjustedLat !== (overrides[selectedCenter.id]?.latitud_ajustada ?? selectedCenter.latitude) || 
+    adjustedLng !== (overrides[selectedCenter.id]?.longitud_ajustada ?? selectedCenter.longitude)
   );
 
   const handleRevert = () => {
@@ -120,7 +173,6 @@ export default function LocationManagement() {
       setAdjustedLat(overrides[selectedCenter.id]?.latitud_ajustada || selectedCenter.latitude || null);
       setAdjustedLng(overrides[selectedCenter.id]?.longitud_ajustada || selectedCenter.longitude || null);
       setReason(overrides[selectedCenter.id]?.razon_ajuste || "");
-      updateMapCenter();
     }
   };
 
@@ -146,10 +198,10 @@ export default function LocationManagement() {
   return (
     <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-100px)] gap-4 lg:gap-6">
 
-      {/* ═══ LADO IZQUIERDO: llena la altura disponible sin scroll externo ═══ */}
+      {/* ═══ PANEL IZQUIERDO ═══ */}
       <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-3 shrink-0 lg:h-full">
         
-        {/* Stats compactos - shrink-0 para no comprimirse */}
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-2 shrink-0">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
             <div>
@@ -190,7 +242,7 @@ export default function LocationManagement() {
           </div>
         </div>
 
-        {/* Área scrollable: Lista de centros + Panel de edición */}
+        {/* Área scrollable interna */}
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
           
           {/* Lista de centros */}
@@ -226,7 +278,7 @@ export default function LocationManagement() {
             </div>
           </div>
 
-          {/* Panel de edición - Solo cuando hay selección */}
+          {/* Panel de edición */}
           {selectedCenter && (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -241,7 +293,7 @@ export default function LocationManagement() {
 
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-100 dark:border-slate-700/50">
                 <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  {overrides[selectedCenter.id] ? "Modificadas" : "Actuales"}
+                  {overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}
                 </div>
                 <div className={`font-mono text-[11px] mt-0.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}`}>
                   <span className="inline-block min-w-[90px]">Lat: {adjustedLat?.toFixed(6) || "---"}</span>
@@ -287,10 +339,10 @@ export default function LocationManagement() {
         </div>
       </div>
 
-      {/* ═══ MAPA - ocupa el resto ═══ */}
+      {/* ═══ MAPA ═══ */}
       <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
         {selectedCenter ? (
-          <iframe ref={iframeRef} srcDoc={leafletHtml} onLoad={updateMapCenter} className="w-full h-full border-0" title="Mapa de Ajuste" />
+          <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
             <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
