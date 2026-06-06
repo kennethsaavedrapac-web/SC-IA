@@ -312,13 +312,19 @@ export default function App() {
    * 3. Enlazar ese evento al botón con el ID 'btn-instalar'.
    */
   useEffect(() => {
-    // 1. Registro del Service Worker (también en index.html, pero reforzado aquí)
+    // 1. Registro del Service Worker (también en index.html, pero de soporte aquí)
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      const registerSW = () => {
         navigator.serviceWorker.register('/sw.js')
           .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
           .catch(err => console.error('[PWA] Error al registrar SW:', err));
-      });
+      };
+
+      if (document.readyState === 'complete') {
+        registerSW();
+      } else {
+        window.addEventListener('load', registerSW);
+      }
     }
 
     // 2. Capturar el evento de instalación

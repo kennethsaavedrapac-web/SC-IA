@@ -8,7 +8,7 @@ import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
 
 interface CentrosViewProps {
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
   onTriggerEmergency?: () => void;
 }
 

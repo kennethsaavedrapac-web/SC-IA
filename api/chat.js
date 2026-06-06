@@ -167,9 +167,27 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     // Combinar el prompt de la BD con el contexto temporal y el perfil médico
     const systemPrompt = dynamicSystemPrompt + timeContext + profileContext;
 
+    // Obtener aiModel dinámico desde Supabase
+    let aiModel = "gemini-2.0-flash-lite";
+    if (supabase) {
+      try {
+        const { data: configData, error: configError } = await supabase
+          .from('app_settings')
+          .select('valor')
+          .eq('clave', 'global_config')
+          .single();
+          
+        if (!configError && configData?.valor?.aiModel) {
+          aiModel = configData.valor.aiModel;
+        }
+      } catch (dbErr) {
+        console.error("Error fetching dynamic model config from Supabase in serverless function:", dbErr);
+      }
+    }
+
     // Get the model with system instruction
     const model = ai.getGenerativeModel({
-      model: "gemini-2.0-flash-lite",
+      model: aiModel,
       systemInstruction: systemPrompt,
     });
 

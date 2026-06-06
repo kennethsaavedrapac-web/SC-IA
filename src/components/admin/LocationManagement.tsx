@@ -14,11 +14,12 @@ export default function LocationManagement() {
   const [adjustedLng, setAdjustedLng] = useState<number | null>(null);
   
   const [overrides, setOverrides] = useState<Record<string, any>>({});
+  const [mergedCenters, setMergedCenters] = useState<any[]>(HEALTH_CENTERS);
   const [isSaving, setIsSaving] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Fetch overrides
+  // Fetch overrides and custom centers
   useEffect(() => {
     const fetchOverrides = async () => {
       const { data, error } = await supabase.from('health_center_overrides').select('*');
@@ -26,6 +27,28 @@ export default function LocationManagement() {
         const map: Record<string, any> = {};
         data.forEach(d => { map[d.center_id] = d; });
         setOverrides(map);
+
+        // Filter and map custom centers
+        const customCenters = data
+          .filter(o => o.center_id.startsWith('custom-') && o.activo !== false)
+          .map(o => ({
+            id: o.center_id,
+            name: o.nombre_nuevo,
+            type: o.tipo,
+            department: o.departamento,
+            municipality: o.municipio,
+            locality: o.localidad,
+            zone: o.zona,
+            phone: o.telefono,
+            silais: o.silais || "",
+            latitude: o.latitud_ajustada,
+            longitude: o.longitud_ajustada,
+            sourceNumber: 0,
+            hasCoordinates: !!(o.latitud_ajustada && o.longitud_ajustada)
+          }));
+
+        // Merge standard centers with custom centers
+        setMergedCenters([...HEALTH_CENTERS, ...customCenters]);
       }
     };
     fetchOverrides();
@@ -154,13 +177,13 @@ export default function LocationManagement() {
     </html>
   `, []);
 
-  const filteredCenters = HEALTH_CENTERS.filter((c) => 
+  const filteredCenters = mergedCenters.filter((c) => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.municipality?.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 30);
 
-  const totalCenters = HEALTH_CENTERS.length;
-  const withCoords = HEALTH_CENTERS.filter(c => c.latitude && c.longitude || overrides[c.id]).length;
+  const totalCenters = mergedCenters.length;
+  const withCoords = mergedCenters.filter(c => c.latitude && c.longitude || overrides[c.id]).length;
   const adjustedCount = Object.keys(overrides).length;
 
   const hasChanges = selectedCenter && (
@@ -188,7 +211,29 @@ export default function LocationManagement() {
         actualizado_en: new Date().toISOString()
       }, { onConflict: 'center_id' });
       if (error) throw error;
-      setOverrides(prev => ({ ...prev, [selectedCenter.id]: { ...prev[selectedCenter.id], latitud_ajustada: adjustedLat, longitud_ajustada: adjustedLng, razon_ajuste: reason } }));
+      
+      setOverrides(prev => ({ 
+        ...prev, 
+        [selectedCenter.id]: { 
+          ...prev[selectedCenter.id], 
+          latitud_ajustada: adjustedLat, 
+          longitud_ajustada: adjustedLng, 
+          razon_ajuste: reason 
+        } 
+      }));
+
+      // Update mergedCenters coordinates
+      setMergedCenters(prev => prev.map(c => {
+        if (c.id === selectedCenter.id) {
+          return {
+            ...c,
+            latitude: adjustedLat,
+            longitude: adjustedLng,
+            hasCoordinates: true
+          };
+        }
+        return c;
+      }));
     } catch (err: any) {
       console.error("Error saving location:", err);
       alert("Error: " + (err.message || err.details || JSON.stringify(err)));

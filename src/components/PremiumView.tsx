@@ -9,7 +9,7 @@ interface PremiumViewProps {
   user: UserProfile;
   onUnlockPremium: () => void;
   isPremium: boolean;
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
 }
 
 export default function PremiumView({ user, onUnlockPremium, isPremium, onNavigate }: PremiumViewProps) {

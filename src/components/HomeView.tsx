@@ -6,7 +6,7 @@ import { Settings } from "lucide-react";
 
 interface HomeViewProps {
   user: UserProfile;
-  onNavigate: (tab: "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate: (tab: "consulta" | "buscar" | "premium" | "perfil") => void;
   onOpenSettings: () => void;
 }
 

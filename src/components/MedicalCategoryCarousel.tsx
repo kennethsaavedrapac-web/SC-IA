@@ -55,63 +55,29 @@ export default function MedicalCategoryCarousel({
               id={`btn-category-${cat.id}`}
               onClick={() => onCategorySelected(cat.id)}
               whileTap={{ scale: 0.95 }}
-              animate={{
-                backgroundColor: isSelected ? "rgba(235, 245, 255, 1)" : "rgba(255, 255, 255, 1)",
-                borderColor: isSelected ? "rgba(147, 197, 253, 0.7)" : "rgba(226, 232, 240, 0.6)",
-                boxShadow: isSelected
-                  ? "0 4px 16px rgba(59, 130, 246, 0.12), 0 1px 4px rgba(59, 130, 246, 0.08)"
-                  : "0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03)",
-              }}
-              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                height: "52px",
-                padding: "0 20px",
-                borderRadius: "24px",
-                border: "1.5px solid",
-                cursor: "pointer",
-                flexShrink: 0,
-                outline: "none",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-              }}
+              className={`flex items-center gap-2 h-[52px] px-5 rounded-[24px] border-[1.5px] cursor-pointer shrink-0 outline-none backdrop-blur-md transition-all duration-200 ${
+                isSelected
+                  ? "bg-blue-50 border-blue-300 dark:bg-blue-950/30 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-[0_4px_16px_rgba(59,130,246,0.12)]"
+                  : "bg-white border-slate-200/60 dark:bg-slate-900 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+              }`}
             >
               {/* Icon container */}
-              <motion.span
-                animate={{
-                  color: isSelected ? "#2563eb" : "#64748b",
-                }}
-                transition={{ duration: 0.25 }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "20px",
-                  height: "20px",
-                  flexShrink: 0,
-                }}
+              <span
+                className={`flex items-center justify-center w-5 h-5 shrink-0 transition-colors duration-200 ${
+                  isSelected ? "text-blue-600 dark:text-blue-450" : "text-slate-400 dark:text-slate-500"
+                }`}
               >
                 {cat.icon}
-              </motion.span>
+              </span>
 
               {/* Label */}
-              <motion.span
-                animate={{
-                  color: isSelected ? "#1d4ed8" : "#475569",
-                }}
-                transition={{ duration: 0.25 }}
-                style={{
-                  fontSize: "13.5px",
-                  fontWeight: 600,
-                  letterSpacing: "-0.01em",
-                  whiteSpace: "nowrap",
-                  fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-                }}
+              <span
+                className={`text-[13.5px] font-semibold tracking-tight whitespace-nowrap font-sans transition-colors duration-200 ${
+                  isSelected ? "text-blue-700 dark:text-blue-400" : "text-slate-700 dark:text-slate-350"
+                }`}
               >
                 {cat.label}
-              </motion.span>
+              </span>
             </motion.button>
           );
         })}
