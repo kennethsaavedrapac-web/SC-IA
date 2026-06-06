@@ -144,4 +144,4 @@ export const HEALTH_CENTERS: HealthCenter[] = HEALTH_UNIT_DATABASE.flatMap((depa
 
 export const HEALTH_CENTER_DEPARTMENTS = Array.from(
   new Set(HEALTH_CENTERS.map((center) => center.department)),
-).sort((a, b) => a.localeCompare(b, "es"));
+).sort((a, b) => (a || "").localeCompare(b || "", "es"));

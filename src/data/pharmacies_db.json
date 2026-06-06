@@ -1,0 +1,207 @@
+{
+  "farmacias": [
+    {
+      "nombre": "Cocibolca",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.935379306399923,
+      "lng": -85.96601128568521
+    },
+    {
+      "nombre": "Espíritu Santo",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.937772587710377,
+      "lng": -85.96223473527407
+    },
+    {
+      "nombre": "Praga Inmaculada",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.937604638834229,
+      "lng": -85.9609901902522
+    },
+    {
+      "nombre": "Ramírez",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.941383463369966,
+      "lng": -85.95245003648155
+    },
+    {
+      "nombre": "Divino Niño",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.93410824591183,
+      "lng": -85.95528853956552
+    },
+    {
+      "nombre": "La Conchita",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.934494319839052,
+      "lng": -85.95099723029494
+    },
+    {
+      "nombre": "Nuestra Señora de Guadalupe",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.931550492257099,
+      "lng": -85.94823500823574
+    },
+    {
+      "nombre": "Divina Misericordia",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.928896194086029,
+      "lng": -85.96490699137885
+    },
+    {
+      "nombre": "Arena",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.928172290076096,
+      "lng": -85.96219409471355
+    },
+    {
+      "nombre": "Valle del Comercio",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.928847933878808,
+      "lng": -85.95459798405072
+    },
+    {
+      "nombre": "Praga Central",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.930102696475387,
+      "lng": -85.95597909508032
+    },
+    {
+      "nombre": "Farma Vitality",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.930488776106325,
+      "lng": -85.95504191259595
+    },
+    {
+      "nombre": "Farma Vitality 2",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.929427055798616,
+      "lng": -85.96249004707704
+    },
+    {
+      "nombre": "Más Salud",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.94467682134387,
+      "lng": -85.96322992818644
+    },
+    {
+      "nombre": "Sumedic",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.946993166303125,
+      "lng": -85.9631312773986
+    },
+    {
+      "nombre": "La Fe",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.94569022470138,
+      "lng": -85.96500564236734
+    },
+    {
+      "nombre": "Guapinol",
+      "departamento": "Granada",
+      "municipio": "Granada",
+      "lat": 11.944821593484251,
+      "lng": -85.96155286479333
+    },
+    {
+      "nombre": "Edrox",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.836374410332853,
+      "lng": -86.19412150456398
+    },
+    {
+      "nombre": "Harmin",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.836039659156397,
+      "lng": -86.18009854907294
+    },
+    {
+      "nombre": "Garay",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.846082016107442,
+      "lng": -86.19938866345572
+    },
+    {
+      "nombre": "Salud y Vida",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.847354021651151,
+      "lng": -86.19767854693244
+    },
+    {
+      "nombre": "Lili",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.848626021271002,
+      "lng": -86.19815737955894
+    },
+    {
+      "nombre": "Los Gemelos",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.850366642729057,
+      "lng": -86.19583162108727
+    },
+    {
+      "nombre": "Farma Todo",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.850165802357834,
+      "lng": -86.1987046168464
+    },
+    {
+      "nombre": "Red Farma",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.85029969595507,
+      "lng": -86.20007271006503
+    },
+    {
+      "nombre": "Oasis",
+      "departamento": "Carazo",
+      "municipio": "Diriamba",
+      "lat": 11.853245338482639,
+      "lng": -86.19726811896683
+    },
+    {
+      "nombre": "Carazo",
+      "departamento": "Carazo",
+      "municipio": "Jinotepe",
+      "lat": 11.852308092034775,
+      "lng": -86.20301411048511
+    },
+    {
+      "nombre": "Scarlet",
+      "departamento": "Carazo",
+      "municipio": "Jinotepe",
+      "lat": 11.855722331629623,
+      "lng": -86.21669504250457
+    },
+    {
+      "nombre": "La Dolorosa",
+      "departamento": "Carazo",
+      "municipio": "Jinotepe",
+      "lat": 11.854584256565598,
+      "lng": -86.21601099589526
+    }
+  ]
+}
