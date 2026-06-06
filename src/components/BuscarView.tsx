@@ -11,7 +11,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 interface BuscarViewProps {
   onAddAppointment: (appointment: Appointment) => void;
   appointments: Appointment[];
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
 }
 
 export default function BuscarView({ onAddAppointment, appointments, onNavigate }: BuscarViewProps) {

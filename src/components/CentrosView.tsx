@@ -5,9 +5,10 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { AlertTriangle, Phone, Siren } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
+import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
 
 interface CentrosViewProps {
-  onNavigate?: (tab: "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil") => void;
+  onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
   onTriggerEmergency?: () => void;
 }
 
@@ -99,6 +100,77 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
+  const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
+
+  // Medical categories for the floating carousel
+  const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
+    {
+      id: "centros",
+      label: "Centros",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+          <path d="M9 22v-4h6v4" />
+          <path d="M8 6h.01" /><path d="M16 6h.01" />
+          <path d="M8 10h.01" /><path d="M16 10h.01" />
+          <path d="M8 14h.01" /><path d="M16 14h.01" />
+        </svg>
+      ),
+    },
+    {
+      id: "hospitales",
+      label: "Hospitales",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <path d="M12 6v4" /><path d="M14 14h-4" /><path d="M14 18h-4" />
+          <path d="M14 8h-4" />
+          <path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2" />
+          <path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18" />
+        </svg>
+      ),
+    },
+    {
+      id: "farmacias",
+      label: "Farmacias",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <line x1="12" y1="5" x2="12" y2="19" stroke="#10b981" />
+          <line x1="5" y1="12" x2="19" y2="12" stroke="#10b981" />
+        </svg>
+      ),
+    },
+    {
+      id: "medicos",
+      label: "Médicos",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      ),
+    },
+  ], []);
+
+  /** Handle category selection from carousel – syncs with map filters */
+  const handleCategorySelected = useCallback((category: string) => {
+    setSelectedCarouselCategory(category);
+    switch (category) {
+      case "centros":
+        setActiveFilter("centro");
+        break;
+      case "hospitales":
+        setActiveFilter("hospital");
+        break;
+      case "farmacias":
+        setActiveFilter("farmacia");
+        break;
+      case "medicos":
+        setActiveFilter("todos");
+        break;
+      default:
+        setActiveFilter("todos");
+    }
+  }, []);
 
   // Cargar overrides y custom centers desde Supabase
   useEffect(() => {
@@ -287,7 +359,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         ? typeText.includes("hospital")
         : activeFilter === "centro"
           ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
-          : true;
+          : activeFilter === "farmacia"
+            ? typeText.includes("farmacia") || typeText.includes("botica")
+            : true;
 
       return matchesType;
     });
@@ -916,11 +990,30 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           loading="lazy"
         />
 
+        {/* ═══════════════ FLOATING MEDICAL CATEGORY CAROUSEL ═══════════════ */}
+        <div
+          className="absolute top-0 left-0 right-0 z-20"
+          style={{
+            paddingTop: "14px",
+            paddingBottom: "6px",
+            background: "linear-gradient(to bottom, rgba(248,250,252,0.92) 0%, rgba(248,250,252,0.7) 60%, rgba(248,250,252,0) 100%)",
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{ pointerEvents: "auto" }}>
+            <MedicalCategoryCarousel
+              categories={MEDICAL_CATEGORIES}
+              selectedCategory={selectedCarouselCategory}
+              onCategorySelected={handleCategorySelected}
+            />
+          </div>
+        </div>
+
         {/* Floating Toggle Button on Mobile Map View */}
         {mobileView === "map" && (
           <button
             onClick={() => setMobileView("list")}
-            className="absolute top-4 right-4 z-30 md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all"
+            className="absolute top-[80px] right-4 z-30 md:hidden flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
               <line x1="8" y1="6" x2="21" y2="6" />
@@ -936,7 +1029,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         {/* Floating Recenter Button */}
         <button
           onClick={handleRecenter}
-          className={`absolute ${mobileView === "map" ? "top-20" : "top-4"} right-4 z-30 flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all`}
+          className={`absolute ${mobileView === "map" ? "top-[136px]" : "top-[80px]"} right-4 z-30 flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800/80 hover:scale-105 active:scale-95 transition-all`}
           title="Centrar en mi ubicación"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">

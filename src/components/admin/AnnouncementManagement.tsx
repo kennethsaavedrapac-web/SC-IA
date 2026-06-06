@@ -88,11 +88,13 @@ export default function AnnouncementManagement() {
     
     setIsSaving(true);
     try {
+      const { id, creado_en, created_at, ...payload } = formData as any;
+
       if (editingId) {
-        const { error } = await supabase.from('admin_announcements').update(formData).eq('id', editingId);
+        const { error } = await supabase.from('admin_announcements').update(payload).eq('id', editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('admin_announcements').insert([formData]);
+        const { error } = await supabase.from('admin_announcements').insert([payload]);
         if (error) throw error;
       }
       await fetchAnnouncements();

@@ -4,6 +4,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { Users, MapPin, Megaphone, Hospital, Bot, BarChart3, Settings, LogOut, Menu, X, ArrowLeft } from "lucide-react";
+import { HEALTH_CENTERS } from "../data/healthUnits";
+import { supabase } from "../lib/supabaseClient";
 
 // Subcomponents
 import UserManagement from "./admin/UserManagement";
@@ -24,25 +26,37 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const [activeSection, setActiveSection] = useState<"users" | "health" | "settings" | "analytics" | "location" | "announcements" | "ia">("location");
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [overridesCount, setOverridesCount] = useState(0);
 
   // Check if user is admin
   const isAdmin = (profile as any)?.role === "admin" || (profile as any)?.rol === "admin";
 
   useEffect(() => {
-    // Simulate loading delay
     setIsLoading(false);
   }, []);
 
-  // Close sidebar on section change (mobile)
+  // Fetch overrides count for stats in header
+  useEffect(() => {
+    const fetchOverrides = async () => {
+      const { data, error } = await supabase.from('health_center_overrides').select('center_id');
+      if (!error && data) {
+        setOverridesCount(data.length);
+      }
+    };
+    if (activeSection === "location") {
+      fetchOverrides();
+    }
+  }, [activeSection]);
+
   const handleSectionChange = (section: typeof activeSection) => {
     setActiveSection(section);
     setIsSidebarOpen(false);
   };
 
-  if (!isAdmin) {
-    // Redirect non-admins
-    return null;
-  }
+  if (!isAdmin) return null;
+
+  const totalCenters = HEALTH_CENTERS.length;
+  const withCoords = HEALTH_CENTERS.filter(c => c.latitude && c.longitude).length;
 
   const sections = [
     { id: "location", icon: MapPin, label: t('locationManagement') },
@@ -54,10 +68,12 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
     { id: "settings", icon: Settings, label: t('generalSettings') },
   ] as const;
 
+  const currentLabel = sections.find(s => s.id === activeSection)?.label;
+
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
       
-      {/* Mobile Drawer Backdrop */}
+      {/* Drawer Backdrop */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
@@ -65,15 +81,15 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30 md:hidden"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-30"
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar Administrativo (Responsive drawer on mobile, static on desktop) */}
+      {/* Sidebar */}
       <aside 
-        className={`fixed md:relative inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out transform md:transform-none ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        className={`fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out shadow-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
@@ -85,7 +101,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
           </div>
           <button 
             onClick={() => setIsSidebarOpen(false)}
-            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 md:hidden rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,32 +153,67 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
         
-        {/* Mobile Header Bar */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 md:hidden shrink-0 z-10 shadow-sm">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <span className="font-bold text-sm text-slate-800 dark:text-white truncate">
-              {sections.find(s => s.id === activeSection)?.label}
-            </span>
+        {/* Header Bar con stats integradas */}
+        <header className="flex flex-col shrink-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+          {/* Fila superior: hamburguesa + título + stats (centro) + volver */}
+          <div className="relative flex items-center justify-between px-4 md:px-6 py-3">
+            <div className="flex items-center gap-3 z-10">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Abrir menú de administración"
+              >
+                <Menu className="w-5 h-5 md:w-6 md:h-6" />
+              </button>
+              <span className="font-bold text-sm md:text-base text-slate-800 dark:text-white truncate">
+                {currentLabel}
+              </span>
+            </div>
+
+            {/* Stats compactas solo para Location Management, posicionadas al centro de manera absoluta */}
+            {activeSection === "location" && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl px-3.5 py-2 border border-blue-200 dark:border-blue-900/40 shadow-xs">
+                  <MapPin className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    {t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400 text-sm">{totalCenters}</span>
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-2 bg-emerald-50/90 dark:bg-emerald-950/40 rounded-xl px-3.5 py-2 border border-emerald-200 dark:border-emerald-900/40 shadow-xs">
+                  <MapPin className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    Con coord.: <span className="text-emerald-600 dark:text-emerald-450 text-sm">{withCoords}</span>
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-2 bg-blue-50/90 dark:bg-blue-950/40 rounded-xl px-3.5 py-2 border border-blue-200 dark:border-blue-900/40 shadow-xs">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-blue-500">
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                    Ajustados: <span className="text-blue-600 dark:text-blue-450 text-sm">{overridesCount}</span>
+                  </span>
+                </span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2 z-10">
+              {onGoBack && (
+                <button
+                  onClick={onGoBack}
+                  className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
+                  title="Volver a la App"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
-          {onGoBack && (
-            <button
-              onClick={onGoBack}
-              className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
-              title="Volver a la App"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          )}
         </header>
 
         {/* Inner Content Grid */}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#0b0f19] p-4 md:p-8">
+        <main className={`flex-1 flex flex-col min-h-0 bg-slate-50/50 dark:bg-[#0b0f19] ${activeSection === "location" ? "p-0 overflow-hidden" : "p-4 md:p-8 overflow-y-auto"}`}>
           {isLoading ? (
             <div className="flex flex-col items-center py-12">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -176,7 +227,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="max-w-5xl mx-auto pb-8"
+                className={activeSection === "location" ? "h-full w-full" : "pb-8"}
               >
                 {activeSection === "users" && profile && <UserManagement user={profile as unknown as UserProfile} />}
                 {activeSection === "health" && <HealthUnitManagement />}

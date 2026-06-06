@@ -3,8 +3,13 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const PORT = 3000;
 
@@ -107,8 +112,22 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
 
       const finalSystemInstruction = systemInstruction + timeContext;
 
+      let aiModel = "gemini-2.5-flash";
+      try {
+        const { data, error } = await supabase
+          .from("app_settings")
+          .select("valor")
+          .eq("clave", "global_config")
+          .single();
+        if (!error && data && data.valor && (data.valor as any).aiModel) {
+          aiModel = (data.valor as any).aiModel;
+        }
+      } catch (dbErr) {
+        console.error("Error fetching dynamic model config from Supabase:", dbErr);
+      }
+
       const model = client.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: aiModel,
         systemInstruction: finalSystemInstruction
       });
 
