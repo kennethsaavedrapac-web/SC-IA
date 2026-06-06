@@ -61,16 +61,43 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     }, 2500);
   };
 
-  // Notifications State (Local Storage)
-  const [alertVaccines, setAlertVaccines] = useState(() => localStorage.getItem("alertVaccines") !== "false");
-  const [alertAppointments, setAlertAppointments] = useState(() => localStorage.getItem("alertAppointments") !== "false");
-  const [alertEmails, setAlertEmails] = useState(() => localStorage.getItem("alertEmails") === "true");
+  // Notifications State (Local Storage & Supabase)
+  const [notifPreference, setNotifPreference] = useState<string[]>(() => {
+    const stored = localStorage.getItem("notifPreference");
+    if (stored) return stored.split(",");
+    return ["consejo", "recordatorio"];
+  });
 
-  const handleToggle = useCallback((key: string, current: boolean, setter: (v: boolean) => void) => {
-    const newVal = !current;
-    setter(newVal);
-    localStorage.setItem(key, newVal.toString());
-  }, []);
+  const handleNotifChange = async (val: string) => {
+    let newPrefs: string[];
+    if (val === "ninguna") {
+      newPrefs = ["ninguna"];
+    } else {
+      if (notifPreference.includes(val)) {
+        newPrefs = notifPreference.filter(p => p !== val && p !== "ninguna");
+        if (newPrefs.length === 0) newPrefs = ["ninguna"];
+      } else {
+        newPrefs = [...notifPreference.filter(p => p !== "ninguna"), val];
+      }
+    }
+
+    setNotifPreference(newPrefs);
+    const prefString = newPrefs.join(",");
+    localStorage.setItem("notifPreference", prefString);
+    
+    // Actualizar en la base de datos si el usuario está logueado
+    if (user.id && user.id !== "guest") {
+      try {
+        const { supabase } = await import('../lib/supabaseClient');
+        await supabase
+          .from('push_subscriptions')
+          .update({ preferences: prefString })
+          .eq('user_id', user.id);
+      } catch (err) {
+        console.error("Error saving preferences", err);
+      }
+    }
+  };
 
   // Condition management
   const handleAddCondition = useCallback(() => {
@@ -795,25 +822,37 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                           {/* Nested alert notifications checker options */}
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
+                              <p className="text-[11px] text-slate-500 mb-2">Selecciona qué tipo de notificaciones deseas recibir:</p>
                               {[
-                                { label: t('alertVaccines'), desc: "Recordatorios de esquema de vacunación", checked: alertVaccines, key: "alertVaccines", setter: setAlertVaccines },
-                                { label: t('alertAppointments'), desc: "Avisos de citas médicas programadas", checked: alertAppointments, key: "alertAppointments", setter: setAlertAppointments },
-                                { label: t('alertEmails'), desc: "Recibir resúmenes por correo electrónico", checked: alertEmails, key: "alertEmails", setter: setAlertEmails },
-                              ].map((opt) => (
-                                <div
-                                  key={opt.key}
-                                  className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                                  onClick={() => handleToggle(opt.key, opt.checked, opt.setter)}
-                                >
-                                  <div className="flex-1 min-w-0 mr-3">
-                                    <span className="font-semibold text-slate-700 dark:text-slate-200 text-xs block">{opt.label}</span>
-                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
+                                { value: "consejo", label: "Consejo del día", desc: "Tips diarios para mejorar tu salud" },
+                                { value: "recordatorio", label: "Recordatorios", desc: "Avisos sobre tu estado de salud y citas" },
+                                { value: "ninguna", label: "Silenciar ambas", desc: "No recibir notificaciones push" },
+                              ].map((opt) => {
+                                const isSelected = notifPreference.includes(opt.value);
+                                return (
+                                  <div
+                                    key={opt.value}
+                                    className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${
+                                      isSelected 
+                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800' 
+                                        : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                    }`}
+                                    onClick={() => handleNotifChange(opt.value)}
+                                  >
+                                    <div className="flex-1 min-w-0 mr-3">
+                                      <span className={`font-semibold text-xs block ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>
+                                        {opt.label}
+                                      </span>
+                                      <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">{opt.desc}</span>
+                                    </div>
+                                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                      isSelected ? 'border-blue-500 bg-blue-500' : 'border-slate-300 dark:border-slate-600'
+                                    }`}>
+                                      {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+                                    </div>
                                   </div>
-                                  <div className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${opt.checked ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}>
-                                    <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-200 ${opt.checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
-                                  </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
 

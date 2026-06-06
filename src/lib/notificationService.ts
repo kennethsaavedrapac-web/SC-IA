@@ -1,3 +1,5 @@
+import { supabase } from './supabaseClient';
+
 export const DAILY_MESSAGES = [
   "Realiza una evaluación rápida de tu estado de salud.",
   "¿Tienes algún síntoma o duda? Recibe orientación en minutos.",
@@ -14,6 +16,22 @@ export const DAILY_MESSAGES = [
   "Consejo del día: Si pasas mucho tiempo sentado, levántate 5 minutos cada hora.",
   "Consejo del día: Usa protector solar todos los días, incluso si está nublado."
 ];
+
+// Helper to convert VAPID public key
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
 
 export const requestNotificationPermission = async () => {
   if (!("Notification" in window)) {
@@ -33,18 +51,69 @@ export const requestNotificationPermission = async () => {
   return false;
 };
 
+export const subscribeToPushNotifications = async (userId: string) => {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    console.warn("Push no está soportado en este navegador.");
+    return false;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    
+    // Subscribe if not subscribed
+    if (!subscription) {
+      const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!publicVapidKey) {
+        console.error("VITE_VAPID_PUBLIC_KEY no está configurada");
+        return false;
+      }
+      
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+      });
+    }
+
+    // Retrieve preference from localStorage
+    const currentPref = localStorage.getItem("notifPreference") || "consejo";
+
+    // Save to Supabase
+    const { error } = await supabase
+      .from('push_subscriptions')
+      .upsert({ 
+        user_id: userId, 
+        subscription: subscription.toJSON(),
+        preferences: currentPref,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.error("Error guardando suscripción:", error);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error("Error en suscripción Push:", err);
+    return false;
+  }
+};
+
 export const showDailyNotification = async (userId: string) => {
   if (!("Notification" in window) || Notification.permission !== "granted") {
     return;
   }
+
+  // Registra la suscripción para que el servidor pueda mandar notificaciones push
+  await subscribeToPushNotifications(userId);
 
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   const storageKey = `lastNotificationDate_${userId}`;
   const lastDate = localStorage.getItem(storageKey);
 
   if (lastDate !== today) {
-    // Es un nuevo día para este usuario, mostrar notificación
-    // Seleccionar un mensaje aleatorio
+    // Es un nuevo día para este usuario, mostrar notificación (Local fallback si app está abierta)
     const randomIndex = Math.floor(Math.random() * DAILY_MESSAGES.length);
     const message = DAILY_MESSAGES[randomIndex];
 
@@ -58,14 +127,12 @@ export const showDailyNotification = async (userId: string) => {
           vibrate: [200, 100, 200]
         } as any);
       } else {
-        // Fallback a notificación estándar
         new Notification("Salud-Conecta IA", {
           body: message,
           icon: "/app-logo-v1.jpg"
         });
       }
 
-      // Guardar la fecha para no volver a mostrar hoy
       localStorage.setItem(storageKey, today);
     } catch (e) {
       console.error("Error mostrando notificación", e);
