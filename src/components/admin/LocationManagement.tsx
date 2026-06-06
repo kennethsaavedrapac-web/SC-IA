@@ -196,40 +196,37 @@ export default function LocationManagement() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-100px)] gap-4 lg:gap-6">
 
-      {/* ═══ STATS COMPACTOS - BARRA SUPERIOR ═══ */}
-      <div className="grid grid-cols-3 gap-3 shrink-0">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-3.5 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">{t('totalCenters')}</p>
-            <p className="text-2xl font-black text-slate-800 dark:text-white mt-0.5">{totalCenters}</p>
+      {/* ═══ PANEL IZQUIERDO ═══ */}
+      <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-3 shrink-0 lg:h-full">
+        
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2 shrink-0">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase">{t('totalCenters')}</p>
+              <p className="text-lg font-black text-slate-800 dark:text-white mt-0">{totalCenters}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><MapPin className="w-4 h-4" /></div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-3.5 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-emerald-500 uppercase">Con coordenadas</p>
-            <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{withCoords}</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-emerald-500 uppercase">Con coord.</p>
+              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0">{withCoords}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><MapPin className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600"><MapPin className="w-4 h-4" /></div>
-        </div>
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm px-5 py-3.5 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] font-bold text-blue-500 uppercase">Ajustados manualmente</p>
-            <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-0.5">{adjustedCount}</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm px-3 py-2.5 flex items-center justify-between">
+            <div>
+              <p className="text-[9px] font-bold text-blue-500 uppercase">Ajustados</p>
+              <p className="text-lg font-black text-blue-600 dark:text-blue-400 mt-0">{adjustedCount}</p>
+            </div>
+            <div className="w-7 h-7 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><RotateCcw className="w-3.5 h-3.5" /></div>
           </div>
-          <div className="w-9 h-9 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><RotateCcw className="w-4 h-4" /></div>
         </div>
-      </div>
 
-      {/* ═══ CUERPO: Buscador + Mapa ═══ */}
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 flex-1 min-h-0">
-
-        {/* LADO IZQUIERDO */}
-        <div className="w-full lg:w-[400px] xl:w-[460px] flex flex-col gap-3 shrink-0 lg:h-full">
-          
-          {/* Buscador */}
+        {/* Buscador */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
           <div className="p-3">
             <div className="relative">
@@ -342,20 +339,19 @@ export default function LocationManagement() {
         </div>
       </div>
 
-        {/* ═══ MAPA ═══ */}
-        <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
-          {selectedCenter ? (
-            <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
-              <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">{t('selectCenterToAdjust')}</h3>
-              <p className="text-sm mt-2 max-w-sm text-center">Selecciona un centro de salud de la lista para visualizar y corregir sus coordenadas.</p>
-            </div>
-          )}
-        </div>
-
+      {/* ═══ MAPA ═══ */}
+      <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
+        {selectedCenter ? (
+          <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
+            <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
+            <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">{t('selectCenterToAdjust')}</h3>
+            <p className="text-sm mt-2 max-w-sm text-center">Selecciona un centro de salud de la lista para visualizar y corregir sus coordenadas.</p>
+          </div>
+        )}
       </div>
+
     </div>
   );
 }
