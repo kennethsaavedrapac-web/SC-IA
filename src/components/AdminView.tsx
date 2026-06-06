@@ -4,6 +4,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { Users, MapPin, Megaphone, Hospital, Bot, BarChart3, Settings, LogOut, Menu, X, ArrowLeft } from "lucide-react";
+import { HEALTH_CENTERS } from "../data/healthUnits";
+import { supabase } from "../lib/supabaseClient";
 
 // Subcomponents
 import UserManagement from "./admin/UserManagement";
@@ -24,25 +26,37 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const [activeSection, setActiveSection] = useState<"users" | "health" | "settings" | "analytics" | "location" | "announcements" | "ia">("location");
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [overridesCount, setOverridesCount] = useState(0);
 
   // Check if user is admin
   const isAdmin = (profile as any)?.role === "admin" || (profile as any)?.rol === "admin";
 
   useEffect(() => {
-    // Simulate loading delay
     setIsLoading(false);
   }, []);
 
-  // Close sidebar on section change (mobile)
+  // Fetch overrides count for stats in header
+  useEffect(() => {
+    const fetchOverrides = async () => {
+      const { data, error } = await supabase.from('health_center_overrides').select('center_id');
+      if (!error && data) {
+        setOverridesCount(data.length);
+      }
+    };
+    if (activeSection === "location") {
+      fetchOverrides();
+    }
+  }, [activeSection]);
+
   const handleSectionChange = (section: typeof activeSection) => {
     setActiveSection(section);
     setIsSidebarOpen(false);
   };
 
-  if (!isAdmin) {
-    // Redirect non-admins
-    return null;
-  }
+  if (!isAdmin) return null;
+
+  const totalCenters = HEALTH_CENTERS.length;
+  const withCoords = HEALTH_CENTERS.filter(c => c.latitude && c.longitude).length;
 
   const sections = [
     { id: "location", icon: MapPin, label: t('locationManagement') },
@@ -54,10 +68,12 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
     { id: "settings", icon: Settings, label: t('generalSettings') },
   ] as const;
 
+  const currentLabel = sections.find(s => s.id === activeSection)?.label;
+
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
       
-      {/* Drawer Backdrop for ALL sizes */}
+      {/* Drawer Backdrop */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
@@ -70,7 +86,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
         )}
       </AnimatePresence>
 
-      {/* Sidebar Administrativo - Hamburguesa para TODOS los tamaños */}
+      {/* Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out shadow-2xl ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -137,31 +153,63 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
         
-        {/* Header Bar - visible en todos los tamaños con hamburguesa para el sidebar */}
-        <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0 z-10 shadow-sm">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title="Abrir menú de administración"
-            >
-              <Menu className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-            <span className="font-bold text-sm md:text-base text-slate-800 dark:text-white truncate">
-              {sections.find(s => s.id === activeSection)?.label}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {onGoBack && (
+        {/* Header Bar con stats integradas */}
+        <header className="flex flex-col shrink-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+          {/* Fila superior: hamburguesa + título + volver */}
+          <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-3">
+            <div className="flex items-center gap-3">
               <button
-                onClick={onGoBack}
-                className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
-                title="Volver a la App"
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Abrir menú de administración"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <Menu className="w-5 h-5 md:w-6 md:h-6" />
               </button>
-            )}
+              <span className="font-bold text-sm md:text-base text-slate-800 dark:text-white truncate">
+                {currentLabel}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {onGoBack && (
+                <button
+                  onClick={onGoBack}
+                  className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
+                  title="Volver a la App"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* Stats solo para Location Management */}
+          {activeSection === "location" && (
+            <div className="px-4 md:px-6 pb-3 md:pb-3">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/30 px-3.5 py-2 flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('totalCenters')}</p>
+                    <p className="text-lg font-black text-slate-800 dark:text-white mt-0">{totalCenters}</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 dark:border-blue-900/30"><MapPin className="w-3.5 h-3.5" /></div>
+                </div>
+                <div className="bg-emerald-50/80 dark:bg-emerald-950/30 rounded-lg border border-emerald-100 dark:border-emerald-900/30 px-3.5 py-2 flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Con coordenadas</p>
+                    <p className="text-lg font-black text-emerald-700 dark:text-emerald-300 mt-0">{withCoords}</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100 dark:border-emerald-900/30"><MapPin className="w-3.5 h-3.5" /></div>
+                </div>
+                <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/30 px-3.5 py-2 flex items-center justify-between">
+                  <div>
+                    <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Ajustados</p>
+                    <p className="text-lg font-black text-blue-700 dark:text-blue-300 mt-0">{overridesCount}</p>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 dark:border-blue-900/30"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg></div>
+                </div>
+              </div>
+            </div>
+          )}
         </header>
 
         {/* Inner Content Grid */}
