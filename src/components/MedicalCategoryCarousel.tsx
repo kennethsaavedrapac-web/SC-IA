@@ -59,16 +59,16 @@ export default function MedicalCategoryCarousel({
               className={`flex items-center gap-2 h-[52px] px-5 rounded-[24px] border-[1.5px] cursor-pointer shrink-0 outline-none backdrop-blur-md transition-all duration-200 ${
                 isSelected
                   ? isBlueTheme
-                    ? "bg-blue-50 border-blue-300 dark:bg-blue-900/40 dark:border-blue-800 text-blue-600 shadow-[0_4px_16px_rgba(59,130,246,0.15)]"
-                    : "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/40 dark:border-emerald-800 text-emerald-600 shadow-[0_4px_16px_rgba(16,185,129,0.15)]"
-                  : "bg-white border-slate-200/60 dark:bg-slate-900 dark:border-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                    ? "bg-blue-600 border-blue-600 dark:bg-blue-600 dark:border-blue-600 shadow-[0_4px_16px_rgba(37,99,235,0.4)]"
+                    : "bg-emerald-600 border-emerald-600 dark:bg-emerald-600 dark:border-emerald-600 shadow-[0_4px_16px_rgba(16,185,129,0.4)]"
+                  : "bg-white border-slate-200/60 dark:bg-slate-900 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
               }`}
             >
               {/* Icon container */}
               <span
                 className={`flex items-center justify-center w-5 h-5 shrink-0 transition-colors duration-200 ${
                   isSelected 
-                    ? isBlueTheme ? "text-blue-600 dark:text-white" : "text-emerald-600 dark:text-white"
+                    ? "text-white"
                     : "text-slate-400 dark:text-white"
                 }`}
               >
@@ -79,7 +79,7 @@ export default function MedicalCategoryCarousel({
               <span
                 className={`text-[13.5px] font-semibold tracking-tight whitespace-nowrap font-sans transition-colors duration-200 ${
                   isSelected 
-                    ? isBlueTheme ? "text-blue-700 dark:text-white" : "text-emerald-700 dark:text-white"
+                    ? "text-white"
                     : "text-slate-700 dark:text-white"
                 }`}
               >
