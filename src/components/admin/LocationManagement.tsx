@@ -264,7 +264,7 @@ export default function LocationManagement() {
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 p-4">
           
           {/* Lista de centros */}
-          <div className="bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-y-auto max-h-[135px]">
             <div className="p-2 space-y-1">
               {filteredCenters.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-6">No se encontraron centros.</p>
