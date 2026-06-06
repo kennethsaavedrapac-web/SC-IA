@@ -62,11 +62,28 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   // Notifications State (Local Storage & Supabase)
-  const [notifPreference, setNotifPreference] = useState(() => localStorage.getItem("notifPreference") || "consejo");
+  const [notifPreference, setNotifPreference] = useState<string[]>(() => {
+    const stored = localStorage.getItem("notifPreference");
+    if (stored) return stored.split(",");
+    return ["consejo", "recordatorio"];
+  });
 
   const handleNotifChange = async (val: string) => {
-    setNotifPreference(val);
-    localStorage.setItem("notifPreference", val);
+    let newPrefs: string[];
+    if (val === "ninguna") {
+      newPrefs = ["ninguna"];
+    } else {
+      if (notifPreference.includes(val)) {
+        newPrefs = notifPreference.filter(p => p !== val && p !== "ninguna");
+        if (newPrefs.length === 0) newPrefs = ["ninguna"];
+      } else {
+        newPrefs = [...notifPreference.filter(p => p !== "ninguna"), val];
+      }
+    }
+
+    setNotifPreference(newPrefs);
+    const prefString = newPrefs.join(",");
+    localStorage.setItem("notifPreference", prefString);
     
     // Actualizar en la base de datos si el usuario está logueado
     if (user.id && user.id !== "guest") {
@@ -74,7 +91,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const { supabase } = await import('../lib/supabaseClient');
         await supabase
           .from('push_subscriptions')
-          .update({ preferences: val })
+          .update({ preferences: prefString })
           .eq('user_id', user.id);
       } catch (err) {
         console.error("Error saving preferences", err);
@@ -811,7 +828,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 { value: "recordatorio", label: "Recordatorios", desc: "Avisos sobre tu estado de salud y citas" },
                                 { value: "ninguna", label: "Silenciar ambas", desc: "No recibir notificaciones push" },
                               ].map((opt) => {
-                                const isSelected = notifPreference === opt.value;
+                                const isSelected = notifPreference.includes(opt.value);
                                 return (
                                   <div
                                     key={opt.value}

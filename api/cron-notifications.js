@@ -56,18 +56,27 @@ export default async function handler(req, res) {
     // 2. Enviar notificaciones filtradas por preferencia
     const sendPromises = subscriptions.map((subRecord) => {
       const { subscription, preferences } = subRecord;
+      const prefsArray = (preferences || 'consejo').split(',');
 
       // Si el usuario silenció ambas
-      if (preferences === 'ninguna') {
+      if (prefsArray.includes('ninguna')) {
         return Promise.resolve();
       }
 
       let message = "";
-      if (preferences === 'recordatorio') {
-        message = RECORDATORIOS[Math.floor(Math.random() * RECORDATORIOS.length)];
+      
+      // Si tiene ambas, elegimos una de forma aleatoria (50% probabilidad)
+      if (prefsArray.includes('consejo') && prefsArray.includes('recordatorio')) {
+         if (Math.random() > 0.5) {
+            message = CONSEJOS[Math.floor(Math.random() * CONSEJOS.length)];
+         } else {
+            message = RECORDATORIOS[Math.floor(Math.random() * RECORDATORIOS.length)];
+         }
+      } else if (prefsArray.includes('recordatorio')) {
+         message = RECORDATORIOS[Math.floor(Math.random() * RECORDATORIOS.length)];
       } else {
-        // Por defecto, o si eligió 'consejo', enviamos un consejo
-        message = CONSEJOS[Math.floor(Math.random() * CONSEJOS.length)];
+         // Por defecto, o si solo eligió 'consejo', enviamos un consejo
+         message = CONSEJOS[Math.floor(Math.random() * CONSEJOS.length)];
       }
 
       const notificationPayload = JSON.stringify({
