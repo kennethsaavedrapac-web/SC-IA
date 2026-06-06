@@ -101,6 +101,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
+  const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   // Medical categories for the floating carousel
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
@@ -284,7 +293,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         // Only update if location has changed significantly (> 10 meters)
         let shouldUpdate = true;
         if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation) * 1000;
+          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
 
           // Skip update if movement is insignificant (< 10m)
           if (distanceMeters < 10) {
@@ -542,7 +551,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => window.removeEventListener("message", handleMapMessage);
   }, [mergedCenters]);
 
-  // Post updates to the Leaflet map iframe
+  // Post updates to the map iframe
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
@@ -565,6 +574,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       userLocation: userLocation,
       centerOnId: selectedCenter?.id || null,
       zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
+      isDark: isDarkMode,
     };
 
     const sendUpdate = () => {
@@ -579,9 +589,193 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => {
       iframe.removeEventListener("load", sendUpdate);
     };
-  }, [filteredCenters, selectedCenter, userLocation]);
+  }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
-  const leafletHtml = useMemo(() => {
+  const mapHtml = useMemo(() => {
+    if (googleMapsApiKey) {
+      const darkStyle = [
+        { "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
+        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
+        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
+        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
+        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#334155" }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#020617" }] },
+        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] }
+      ];
+
+      const lightStyle = [
+        { "elementType": "geometry", "stylers": [{ "color": "#f8fafc" }] },
+        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#ffffff" }, { "weight": 2 }] },
+        { "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
+        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
+        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
+        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
+        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
+        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#e2e8f0" }] },
+        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
+        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] },
+        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] }
+      ];
+
+      return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <style>
+            html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
+          </style>
+        </head>
+        <body>
+          <div id="map"></div>
+          <script>
+            const darkStyle = ${JSON.stringify(darkStyle)};
+            const lightStyle = ${JSON.stringify(lightStyle)};
+            
+            let map;
+            let markersMap = new Map();
+            let userLocationMarker = null;
+            let currentSelectedId = null;
+            let pendingMessage = null;
+
+            function initMap() {
+              map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.1364, lng: -86.2514 },
+                zoom: 9,
+                disableDefaultUI: true,
+                zoomControl: true
+              });
+
+              if (pendingMessage) {
+                handleUpdate(pendingMessage);
+                pendingMessage = null;
+              }
+            }
+
+            function handleUpdate(msg) {
+              if (!map) {
+                pendingMessage = msg;
+                return;
+              }
+
+              // Apply theme style dynamically
+              map.setOptions({
+                styles: msg.isDark ? darkStyle : lightStyle
+              });
+
+              // Update user location marker
+              if (userLocationMarker) {
+                userLocationMarker.setMap(null);
+                userLocationMarker = null;
+              }
+              if (msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                const userIcon = {
+                  url: 'data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>',
+                  size: new google.maps.Size(30, 30),
+                  origin: new google.maps.Point(0, 0),
+                  anchor: new google.maps.Point(15, 15)
+                };
+                userLocationMarker = new google.maps.Marker({
+                  position: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
+                  map: map,
+                  icon: userIcon,
+                  title: "Tu ubicación"
+                });
+              }
+
+              // Update markers
+              const newIds = new Set(msg.centers.map(c => c.id));
+              for (let [id, markerObj] of markersMap.entries()) {
+                if (!newIds.has(id)) {
+                  markerObj.marker.setMap(null);
+                  markersMap.delete(id);
+                }
+              }
+
+              msg.centers.forEach(c => {
+                if (!c.lat || !c.lng) return;
+                
+                const isSelected = c.id === msg.selectedId;
+                const size = isSelected ? 38 : 28;
+                const anchor = size / 2;
+                const strokeColor = isSelected ? '%233b82f6' : 'white';
+                const strokeWidth = isSelected ? 3 : 2;
+                
+                const iconUrl = c.isHospital
+                  ? \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
+                  : \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
+
+                const icon = {
+                  url: iconUrl,
+                  size: new google.maps.Size(size, size),
+                  origin: new google.maps.Point(0, 0),
+                  anchor: new google.maps.Point(anchor, anchor)
+                };
+
+                let markerObj = markersMap.get(c.id);
+                if (markerObj) {
+                  markerObj.marker.setIcon(icon);
+                  markerObj.marker.setPosition({ lat: c.lat, lng: c.lng });
+                } else {
+                  const marker = new google.maps.Marker({
+                    position: { lat: c.lat, lng: c.lng },
+                    map: map,
+                    icon: icon,
+                    title: c.name
+                  });
+
+                  marker.addListener('click', () => {
+                    window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
+                  });
+
+                  markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+                }
+              });
+
+              if (msg.forceCenterOnUser && msg.userLocation) {
+                map.setCenter({ lat: msg.userLocation.latitude, lng: msg.userLocation.longitude });
+                map.setZoom(15);
+              } else if (msg.centerOnId && msg.centerOnId !== currentSelectedId) {
+                currentSelectedId = msg.centerOnId;
+                const match = markersMap.get(msg.centerOnId);
+                if (match) {
+                  map.setCenter({ lat: match.lat, lng: match.lng });
+                  map.setZoom(msg.zoomLevel || 15);
+                }
+              } else if (!msg.centerOnId) {
+                currentSelectedId = null;
+              }
+            }
+
+            window.addEventListener('message', (event) => {
+              const msg = event.data;
+              if (msg.type === 'UPDATE_DATA') {
+                handleUpdate(msg);
+              }
+            });
+          </script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap" async defer></script>
+        </body>
+        </html>
+      `;
+    }
+
+    // Leaflet Fallback
     return `
       <!DOCTYPE html>
       <html>
@@ -696,7 +890,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </body>
       </html>
     `;
-  }, []);
+  }, [googleMapsApiKey]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
@@ -1042,7 +1236,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <iframe
           ref={iframeRef}
           title={`Mapa de Centros Médicos`}
-          srcDoc={leafletHtml}
+          srcDoc={mapHtml}
           className="w-full h-full border-0"
           loading="lazy"
         />
