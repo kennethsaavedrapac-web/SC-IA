@@ -14,6 +14,7 @@ import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
+import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VERSION } from "./lib/updateNotification";
 import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
@@ -34,9 +35,10 @@ export default function App() {
   // PWA states
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showIosGuideModal, setShowIosGuideModal] = useState(false);
+  const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [globalSettings, setGlobalSettings] = useState<any>(null);
-  
   const [showPwaBanner, setShowPwaBanner] = useState<boolean>(() => {
     try {
       const dismissed = localStorage.getItem("dismissedPwaBanner");
@@ -299,6 +301,40 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const triggerUpdateNotification = useCallback((reg: ServiceWorkerRegistration, force = false) => {
+    showUpdateNotification(() => {
+      if (reg.waiting) {
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    }, () => {
+      console.log("[PWA] Actualización pospuesta.");
+    }, force);
+  }, []);
+
+  const handleCheckForUpdates = async () => {
+    setCheckingUpdates(true);
+    // Simular un retraso de red de 1.5s para dar feedback visual premium
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    if (swRegistration) {
+      const result = await checkForUpdates(swRegistration, true);
+      if (result.updateFound) {
+        setCheckingUpdates(false);
+        setIsSettingsOpen(false);
+        triggerUpdateNotification(swRegistration, true);
+      } else {
+        setCheckingUpdates(false);
+        addToast(createToast(`Tu aplicación está al día (${APP_VERSION})`, "success"));
+      }
+    } else {
+      setCheckingUpdates(false);
+      addToast(createToast(`Tu aplicación está al día (${APP_VERSION})`, "success"));
+    }
+  };
+
   const dismissAnnouncement = (id: string) => {
     const updated = [...dismissedAnnouncements, id];
     setDismissedAnnouncements(updated);
@@ -316,7 +352,27 @@ export default function App() {
     if ('serviceWorker' in navigator) {
       const registerSW = () => {
         navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+          .then(reg => {
+            console.log('[PWA] Service Worker registrado:', reg.scope);
+            setSwRegistration(reg);
+
+            // Verificar si ya hay una actualización esperando al cargar
+            if (reg.waiting) {
+              triggerUpdateNotification(reg);
+            }
+
+            // Escuchar si se encuentra una nueva actualización en segundo plano
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    triggerUpdateNotification(reg);
+                  }
+                });
+              }
+            });
+          })
           .catch(err => console.error('[PWA] Error al registrar SW:', err));
       };
 
@@ -325,6 +381,11 @@ export default function App() {
       } else {
         window.addEventListener('load', registerSW);
       }
+
+      // Escuchar si hay cambios de controlador
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('[PWA] Nuevo Service Worker en control.');
+      });
     }
 
     // 2. Capturar el evento de instalación
@@ -1062,6 +1123,53 @@ export default function App() {
                         </div>
                       </div>
 
+                      {/* Updates Section */}
+                      <div className="space-y-3">
+                        <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Actualizaciones</h4>
+                        
+                        {/* Check updates button */}
+                        <button
+                          onClick={handleCheckForUpdates}
+                          disabled={checkingUpdates}
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                              {checkingUpdates ? (
+                                <Loader2 className="w-4.5 h-4.5 text-blue-600 animate-spin" />
+                              ) : (
+                                <RefreshCw className="w-4.5 h-4.5 text-blue-600" />
+                              )}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Buscar actualizaciones</span>
+                          </div>
+                          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 font-mono">{APP_VERSION}</span>
+                        </button>
+
+                        {/* Test update alert button (Simulate) */}
+                        <button
+                          onClick={() => {
+                            setIsSettingsOpen(false);
+                            // Simular la notificación ignorando el límite de 24h
+                            showUpdateNotification(() => {
+                              addToast(createToast("Simulando recarga de página...", "info"));
+                              setTimeout(() => window.location.reload(), 1500);
+                            }, () => {
+                              addToast(createToast("Actualización pospuesta (Simulado)", "info"));
+                            }, true);
+                          }}
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                              <Sparkles className="w-4.5 h-4.5 text-indigo-600" />
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Simular notificación</span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5" />
+                        </button>
+                      </div>
+
                       {/* Advanced / Debug Section */}
                       <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
                         <button
@@ -1152,7 +1260,7 @@ export default function App() {
 
               {/* Modal Footer */}
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 dark:text-slate-500 text-center">
-                Salud-Conecta IA • {t('version')}
+                Salud-Conecta IA • {APP_VERSION}
               </div>
             </motion.div>
           </motion.div>
