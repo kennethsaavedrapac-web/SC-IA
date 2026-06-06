@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
-import { AlertTriangle, Phone, Siren } from "lucide-react";
+import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
@@ -107,47 +107,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     {
       id: "centros",
       label: "Centros",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-          <path d="M9 22v-4h6v4" />
-          <path d="M8 6h.01" /><path d="M16 6h.01" />
-          <path d="M8 10h.01" /><path d="M16 10h.01" />
-          <path d="M8 14h.01" /><path d="M16 14h.01" />
-        </svg>
-      ),
+      icon: <Building2 className="w-5 h-5" />,
     },
     {
       id: "hospitales",
       label: "Hospitales",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <path d="M12 6v4" /><path d="M14 14h-4" /><path d="M14 18h-4" />
-          <path d="M14 8h-4" />
-          <path d="M18 12h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h2" />
-          <path d="M18 22V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v18" />
-        </svg>
-      ),
+      icon: <Hospital className="w-5 h-5" />,
     },
     {
       id: "farmacias",
       label: "Farmacias",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <line x1="12" y1="5" x2="12" y2="19" stroke="#10b981" />
-          <line x1="5" y1="12" x2="19" y2="12" stroke="#10b981" />
-        </svg>
-      ),
+      icon: <Pill className="w-5 h-5" />,
     },
     {
       id: "medicos",
       label: "Médicos",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      ),
+      icon: <Stethoscope className="w-5 h-5" />,
     },
   ], []);
 
@@ -882,19 +857,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Icon circle */}
                         <div
-                          className="w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0"
-                          style={{
-                            background: isHospital ? "#eff6ff" : "#f0fdf4",
-                            border: isHospital ? "1px solid #dbeafe" : "1px solid #dcfce7",
-                          }}
+                          className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
+                            isHospital 
+                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-blue-400" 
+                              : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400"
+                          }`}
                         >
                           {isHospital ? (
-                            <span className="text-xs font-bold text-[#2563eb]">H</span>
+                            <Hospital className="w-4 h-4" />
                           ) : (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[14px] h-[14px]">
-                              <line x1="12" y1="5" x2="12" y2="19" />
-                              <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
+                            <Building2 className="w-4 h-4" />
                           )}
                         </div>
 
