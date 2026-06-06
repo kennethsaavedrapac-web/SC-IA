@@ -351,7 +351,7 @@ export default function App() {
     // 1. Registro del Service Worker (también en index.html, pero de soporte aquí)
     if ('serviceWorker' in navigator) {
       const registerSW = () => {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('/service-worker.js')
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
             setSwRegistration(reg);
