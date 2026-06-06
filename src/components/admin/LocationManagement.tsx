@@ -309,16 +309,6 @@ export default function LocationManagement() {
                 </span>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5 border border-slate-100 dark:border-slate-700/50">
-                <div className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  {overrides[selectedCenter.id] ? "Coordenadas Modificadas" : "Coordenadas Actuales"}
-                </div>
-                <div className={`font-mono text-[11px] mt-0.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-800 dark:text-slate-300"}`}>
-                  <span className="inline-block min-w-[90px]">Lat: {adjustedLat?.toFixed(6) || "---"}</span>
-                  <span className="inline-block min-w-[90px] ml-2">Lng: {adjustedLng?.toFixed(6) || "---"}</span>
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Latitud</label>
@@ -360,7 +350,20 @@ export default function LocationManagement() {
       {/* ═══ MAPA ═══ */}
       <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 lg:rounded-none overflow-hidden relative min-h-[350px]">
         {selectedCenter ? (
-          <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
+          <>
+            <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
+            
+            {/* Flotante de Coordenadas */}
+            <div className="absolute top-2.5 left-14 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs shadow-md rounded-xl p-2 border border-slate-200 dark:border-slate-850 flex flex-col pointer-events-auto">
+              <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                {overrides[selectedCenter.id] ? "Coord. Modificadas" : "Coord. Originales"}
+              </span>
+              <div className={`font-mono text-[10px] mt-0.5 flex items-center gap-2.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-700 dark:text-slate-300"}`}>
+                <span>Lat: {adjustedLat?.toFixed(6) || "---"}</span>
+                <span>Lng: {adjustedLng?.toFixed(6) || "---"}</span>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8">
             <MapPin className="w-16 h-16 mb-4 text-slate-300 dark:text-slate-700" />
