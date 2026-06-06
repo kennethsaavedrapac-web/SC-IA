@@ -179,7 +179,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="max-w-5xl mx-auto pb-8"
+                className="pb-8"
               >
                 {activeSection === "users" && profile && <UserManagement user={profile as unknown as UserProfile} />}
                 {activeSection === "health" && <HealthUnitManagement />}
