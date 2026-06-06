@@ -155,9 +155,9 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
         
         {/* Header Bar con stats integradas */}
         <header className="flex flex-col shrink-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
-          {/* Fila superior: hamburguesa + título + volver */}
-          <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-3">
-            <div className="flex items-center gap-3">
+          {/* Fila superior: hamburguesa + título + stats (centro) + volver */}
+          <div className="relative flex items-center justify-between px-4 md:px-6 py-3">
+            <div className="flex items-center gap-3 z-10">
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 className="p-2 -ml-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -169,7 +169,36 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
                 {currentLabel}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Stats compactas solo para Location Management, posicionadas al centro de manera absoluta */}
+            {activeSection === "location" && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 bg-blue-50/80 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/20">
+                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                    {t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400">{totalCenters}</span>
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-emerald-50/80 dark:bg-emerald-950/30 rounded-lg px-2.5 py-1 border border-emerald-100 dark:border-emerald-900/20">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                    Con coord.: <span className="text-emerald-600 dark:text-emerald-400">{withCoords}</span>
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 bg-blue-50/80 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/20">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-blue-500">
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                    Ajustados: <span className="text-blue-600 dark:text-blue-400">{overridesCount}</span>
+                  </span>
+                </span>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2 z-10">
               {onGoBack && (
                 <button
                   onClick={onGoBack}
@@ -181,28 +210,10 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
               )}
             </div>
           </div>
-
-          {/* Stats compactas solo para Location Management */}
-          {activeSection === "location" && (
-            <div className="flex items-center gap-2 px-4 md:px-6 pb-2.5">
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/30">
-                <MapPin className="w-3 h-3 text-blue-500" />
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400">{totalCenters}</span></span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg px-2.5 py-1 border border-emerald-100 dark:border-emerald-900/30">
-                <MapPin className="w-3 h-3 text-emerald-500" />
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">Con coord.: <span className="text-emerald-600 dark:text-emerald-400">{withCoords}</span></span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/30">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-blue-500"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">Ajustados: <span className="text-blue-600 dark:text-blue-400">{overridesCount}</span></span>
-              </span>
-            </div>
-          )}
         </header>
 
         {/* Inner Content Grid */}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#0b0f19] p-4 md:p-8">
+        <main className={`flex-1 bg-slate-50/50 dark:bg-[#0b0f19] ${activeSection === "location" ? "p-0 overflow-hidden h-full" : "p-4 md:p-8 overflow-y-auto"}`}>
           {isLoading ? (
             <div className="flex flex-col items-center py-12">
               <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -216,7 +227,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="pb-8"
+                className={activeSection === "location" ? "h-full w-full" : "pb-8"}
               >
                 {activeSection === "users" && profile && <UserManagement user={profile as unknown as UserProfile} />}
                 {activeSection === "health" && <HealthUnitManagement />}

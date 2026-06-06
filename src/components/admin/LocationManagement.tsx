@@ -196,32 +196,30 @@ export default function LocationManagement() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-100px)] gap-4 lg:gap-6">
+    <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden">
 
       {/* ═══ PANEL IZQUIERDO ═══ */}
-      <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-3 shrink-0 lg:h-full">
+      <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col shrink-0 lg:h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         
         {/* Buscador */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm shrink-0">
-          <div className="p-3">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Buscar centro..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
-              />
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            </div>
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Buscar centro..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
         </div>
 
         {/* Área scrollable interna */}
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 p-4">
           
           {/* Lista de centros */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="p-2 space-y-1">
               {filteredCenters.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-6">No se encontraron centros.</p>
@@ -315,7 +313,7 @@ export default function LocationManagement() {
       </div>
 
       {/* ═══ MAPA ═══ */}
-      <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden relative min-h-[350px]">
+      <div className="flex-1 h-[50vh] lg:h-full bg-white dark:bg-slate-900 lg:rounded-none overflow-hidden relative min-h-[350px]">
         {selectedCenter ? (
           <iframe ref={iframeRef} srcDoc={leafletHtml} className="w-full h-full border-0" title="Mapa de Ajuste" />
         ) : (
