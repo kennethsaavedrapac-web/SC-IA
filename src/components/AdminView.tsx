@@ -182,32 +182,21 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
             </div>
           </div>
 
-          {/* Stats solo para Location Management */}
+          {/* Stats compactas solo para Location Management */}
           {activeSection === "location" && (
-            <div className="px-4 md:px-6 pb-3 md:pb-3">
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/30 px-3.5 py-2 flex items-center justify-between">
-                  <div>
-                    <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t('totalCenters')}</p>
-                    <p className="text-lg font-black text-slate-800 dark:text-white mt-0">{totalCenters}</p>
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 dark:border-blue-900/30"><MapPin className="w-3.5 h-3.5" /></div>
-                </div>
-                <div className="bg-emerald-50/80 dark:bg-emerald-950/30 rounded-lg border border-emerald-100 dark:border-emerald-900/30 px-3.5 py-2 flex items-center justify-between">
-                  <div>
-                    <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Con coordenadas</p>
-                    <p className="text-lg font-black text-emerald-700 dark:text-emerald-300 mt-0">{withCoords}</p>
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100 dark:border-emerald-900/30"><MapPin className="w-3.5 h-3.5" /></div>
-                </div>
-                <div className="bg-blue-50/80 dark:bg-blue-950/30 rounded-lg border border-blue-100 dark:border-blue-900/30 px-3.5 py-2 flex items-center justify-between">
-                  <div>
-                    <p className="text-[9px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Ajustados</p>
-                    <p className="text-lg font-black text-blue-700 dark:text-blue-300 mt-0">{overridesCount}</p>
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100 dark:border-blue-900/30"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg></div>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 px-4 md:px-6 pb-2.5">
+              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/30">
+                <MapPin className="w-3 h-3 text-blue-500" />
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{t('totalCenters')}: <span className="text-blue-600 dark:text-blue-400">{totalCenters}</span></span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg px-2.5 py-1 border border-emerald-100 dark:border-emerald-900/30">
+                <MapPin className="w-3 h-3 text-emerald-500" />
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">Con coord.: <span className="text-emerald-600 dark:text-emerald-400">{withCoords}</span></span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/30 rounded-lg px-2.5 py-1 border border-blue-100 dark:border-blue-900/30">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 text-blue-500"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">Ajustados: <span className="text-blue-600 dark:text-blue-400">{overridesCount}</span></span>
+              </span>
             </div>
           )}
         </header>
