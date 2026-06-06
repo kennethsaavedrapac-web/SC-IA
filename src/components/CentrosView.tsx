@@ -241,15 +241,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError("");
         setLocationMode("nearby");
 
-        // Find and select the nearest health center
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        // Only auto-select nearest center if we're already showing centers or no center is selected
+        // This prevents overriding manual category selections (hospitales, farmacias, etc.)
+        if (activeFilter === "centro" || !selectedCenter) {
+          // Find and select the nearest health center
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
-        if (nearestCenter) {
-          setSelectedCenter(nearestCenter);
-          setActiveFilter("centro");
+          if (nearestCenter) {
+            setSelectedCenter(nearestCenter);
+            setActiveFilter("centro");
+          }
         }
       },
       (error) => {
@@ -286,15 +290,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         setGeoError("");
         setLocationMode("nearby");
 
-        // Find and select the nearest health center
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        // Only auto-select nearest center if we're already showing centers or no center is selected
+        // This prevents overriding manual category selections (hospitales, farmacias, etc.)
+        if (activeFilter === "centro" || !selectedCenter) {
+          // Find and select the nearest health center
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
-        if (nearestCenter) {
-          setSelectedCenter(nearestCenter);
-          setActiveFilter("centro");
+          if (nearestCenter) {
+            setSelectedCenter(nearestCenter);
+            setActiveFilter("centro");
+          }
         }
       },
       (error) => {
