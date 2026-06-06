@@ -76,7 +76,7 @@ self.addEventListener('fetch', (event) => {
             return caches.match('/');
           }
 
-          // Respuesta de fallback genérica para llamadas API u otros recursos offline
+          // Respuesta de fallback genérica para llamadas offline
           return new Response('Contenido no disponible sin conexión a internet', {
             status: 503,
             statusText: 'Service Unavailable',
@@ -85,4 +85,12 @@ self.addEventListener('fetch', (event) => {
         });
       })
   );
+});
+
+// 4. EVENTO 'message': Recibe mensajes de la aplicación frontend.
+// Específicamente, maneja 'SKIP_WAITING' enviado cuando el usuario confirma una actualización.
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

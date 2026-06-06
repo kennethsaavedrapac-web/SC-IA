@@ -9,11 +9,15 @@
       "destination": "/manifest.json"
     },
     {
+      "source": "/service-worker.js",
+      "destination": "/service-worker.js"
+    },
+    {
       "source": "/sw.js",
       "destination": "/sw.js"
     },
     {
-      "source": "/((?!api/|manifest\\.json|sw\\.js).*)",
+      "source": "/((?!api/|manifest\\.json|service-worker\\.js|sw\\.js).*)",
       "destination": "/index.html"
     }
   ],
