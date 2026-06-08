@@ -140,8 +140,14 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
       });
 
       // Send message and get response
-      const result = await chat.sendMessage(message);
-      const responseText = result.response.text();
+      let responseText = "";
+      try {
+        const result = await chat.sendMessage(message);
+        responseText = result.response.text();
+      } catch (aiErr) {
+        console.error("AI Generation Error:", aiErr);
+        responseText = "Hubo un problema generando la evaluación médica. Por favor reintente.";
+      }
 
       return res.json({
         text: responseText || "No obtuve una respuesta clara del asistente.",

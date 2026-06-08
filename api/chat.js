@@ -200,11 +200,25 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     });
 
     // Generate response
-    const response = await chat.sendMessage(message);
-    const responseText = response.response.text();
+    let response;
+    try {
+      response = await chat.sendMessage(message);
+    } catch (sendErr) {
+      console.error("Gemini Send Message Error:", sendErr);
+      // Si el error es por seguridad o filtros
+      if (sendErr.message?.includes("SAFETY")) {
+        return res.status(200).json({
+          text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
+          simulated: false
+        });
+      }
+      throw sendErr;
+    }
+
+    const responseText = response && response.response ? response.response.text() : null;
 
     return res.status(200).json({
-      text: responseText || "No obtuve una respuesta clara del asistente.",
+      text: responseText || "El asistente recibió la consulta pero no pudo generar una respuesta clara.",
       simulated: false,
     });
   } catch (error) {

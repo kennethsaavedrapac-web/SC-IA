@@ -260,7 +260,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, history: messages })
+        body: JSON.stringify({ message: userText, history: messages, userProfile: user })
       });
       
       let data: any;
