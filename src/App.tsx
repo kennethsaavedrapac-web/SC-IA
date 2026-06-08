@@ -64,6 +64,7 @@ export default function App() {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
+        if (!supabase) return;
         const { data, error } = await supabase.from('admin_announcements').select('*').eq('activo', true);
         if (!error && data) {
           const now = new Date();
@@ -75,6 +76,8 @@ export default function App() {
           });
           setAnnouncements(active);
         }
+        // Si hay un error 404, no rompemos la app, solo logueamos
+        if (error) console.warn("Nota: Tabla de anuncios no disponible aún.");
       } catch (err) {
         console.error("Error fetching announcements", err);
       }

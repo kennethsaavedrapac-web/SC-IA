@@ -33,9 +33,9 @@ async function startServer() {
   // API router setup - Triage / Chat IA endpoint
   app.post("/api/chat", async (req: Request, res: Response) => {
     try {
-      const { message, history } = req.body;
+      const { message, history, userProfile } = req.body;
       if (!message) {
-        return res.status(400).json({ error: "Message is required" });
+        return res.status(400).json({ error: "El mensaje es obligatorio" });
       }
 
       // Check if API key is mock/missing, if so return a helpful simulated medic response to preserve experience
@@ -110,10 +110,22 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
-      const finalSystemInstruction = systemInstruction + timeContext;
+      let profileContext = "";
+      if (userProfile && typeof userProfile === 'object') {
+        profileContext = `\n\n[CONTEXTO DEL PACIENTE]
+Nombre: ${userProfile.name || 'No especificado'}
+Ciudad: ${userProfile.city || 'No especificada'}
+Condiciones: ${userProfile.healthConditions?.join(', ') || 'Ninguna'}`;
+      }
+
+      const finalSystemInstruction = systemInstruction + timeContext + profileContext;
 
       let aiModel = "gemini-2.0-flash-lite";
       try {
+        if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.includes("placeholder")) {
+           throw new Error("Supabase no configurado");
+        }
+        
         const { data, error } = await supabase
           .from("app_settings")
           .select("valor")
@@ -143,19 +155,22 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
       let responseText = "";
       try {
         const result = await chat.sendMessage(message);
-        responseText = result.response.text();
+        responseText = result.response ? result.response.text() : "";
       } catch (aiErr) {
         console.error("AI Generation Error:", aiErr);
-        responseText = "Hubo un problema generando la evaluación médica. Por favor reintente.";
+        if (aiErr.message?.includes("SAFETY")) {
+            return res.status(200).json({ text: "Consulta bloqueada por seguridad. Reformule sus síntomas.", simulated: false });
+        }
+        throw aiErr;
       }
 
       return res.json({
-        text: responseText || "No obtuve una respuesta clara del asistente.",
+        text: responseText || "El asistente no pudo generar una respuesta clara.",
         simulated: false,
       });
 
     } catch (error: any) {
-      console.error("Gemini Error:", error);
+      console.error("Detalle del Error en API Chat:", error);
       return res.status(500).json({
         error: "Ocurrió un error procesando el triaje virtual con IA.",
         details: error?.message || ""
