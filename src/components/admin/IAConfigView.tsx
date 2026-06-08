@@ -482,14 +482,5 @@ const IAConfigView: React.FC = () => {
     </div>
   );
 };
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 export default IAConfigView;
