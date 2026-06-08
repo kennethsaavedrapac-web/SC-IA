@@ -153,8 +153,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       // When "centros" is selected and user location is available, show the nearest center
       const nearestCenter = findNearestCenter();
       if (nearestCenter) {
-        setSelectedCenter(nearestCenter);
         setActiveFilter("centro");
+        setSelectedCenter(nearestCenter);
         return;
       }
     }
@@ -255,8 +255,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
         if (nearestCenter) {
-          setSelectedCenter(nearestCenter);
           setActiveFilter("centro");
+          setSelectedCenter(nearestCenter);
         }
       },
       (error) => {
@@ -315,8 +315,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
           if (nearestCenter) {
-            setSelectedCenter(nearestCenter);
             setActiveFilter("centro");
+            setSelectedCenter(nearestCenter);
           }
         }
       },
