@@ -112,7 +112,7 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
 
       const finalSystemInstruction = systemInstruction + timeContext;
 
-      let aiModel = "gemini-2.5-flash";
+      let aiModel = "gemini-2.0-flash-lite";
       try {
         const { data, error } = await supabase
           .from("app_settings")
