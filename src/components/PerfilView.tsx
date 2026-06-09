@@ -369,7 +369,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFont("helvetica", "normal");
       doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
       doc.text("Escanea este código para ver el perfil completo.", 85, yPos + 22);
-      doc.text("Acceso restringido para personal médico autorizado.", 85, yPos + 28);
       
       doc.setFontSize(8);
       doc.setTextColor(225, 29, 72); // rose
@@ -588,9 +587,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             {/* Lado Izquierdo: Info */}
             <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2 sm:gap-5">
-                <div className="w-10 h-10 sm:w-24 sm:h-24 rounded-xl sm:rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md shrink-0">
-                  <QrCode className="w-5 h-5 sm:w-12 sm:h-12" />
-                </div>
                 <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
                   {t('shareProfile')}
                 </h4>
@@ -598,13 +594,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               <p className="hidden sm:block text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
                 {t('emergencyDesc')}
               </p>
-
-              <div className="flex">
-                <span className="inline-flex items-center gap-1.5 bg-blue-100/80 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] sm:text-sm px-2.5 py-1.5 rounded-xl font-bold">
-                  <Lock className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                  <span>{t('authorizedOnly')}</span>
-                </span>
-              </div>
             </div>
 
             {/* Lado Derecho: QR más pequeño y lateral */}

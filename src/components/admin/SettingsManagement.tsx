@@ -177,7 +177,7 @@ const SettingsManagement: React.FC = () => {
       </div>
 
       {/* Settings Form */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm md:max-h-[70vh] md:overflow-y-auto overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
           <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Smartphone className="w-4.5 h-4.5 text-blue-500" /> {t('generalSettings')}</h3>
         </div>
