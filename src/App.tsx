@@ -672,6 +672,21 @@ export default function App() {
       {/* Dynamic Content Views based on Router State (Con padding lateral en Laptop para centrado perfecto) */}
       <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
+        {/* Offline Banner */}
+        <AnimatePresence>
+          {isOffline && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="w-full bg-slate-800 dark:bg-slate-900 text-white shadow-sm border-b border-slate-700/50 dark:border-slate-800 z-50 relative px-4 py-2 flex items-center justify-center gap-2 overflow-hidden"
+            >
+              <WifiOff className="w-4 h-4 text-slate-300" />
+              <span className="text-xs font-medium text-slate-200">Estás navegando sin conexión a internet.</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* PWA Download/Install Banner */}
         <AnimatePresence>
           {showPwaBanner && (
