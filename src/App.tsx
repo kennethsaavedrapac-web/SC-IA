@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
+const HomeView = React.lazy(() => import("./components/HomeView"));
+const ConsultaView = React.lazy(() => import("./components/ConsultaView"));
+const CentrosView = React.lazy(() => import("./components/CentrosView"));
+const PremiumView = React.lazy(() => import("./components/PremiumView"));
+const PerfilView = React.lazy(() => import("./components/PerfilView"));
+const LoginView = React.lazy(() => import("./components/LoginView"));
+const RegisterView = React.lazy(() => import("./components/RegisterView"));
+const AdminView = React.lazy(() => import("./components/AdminView"));
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
@@ -18,6 +18,13 @@ import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VE
 import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+
+const LoadingFallback = () => (
+  <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
+    <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-4" />
+    <span className="text-sm font-semibold text-slate-500">Cargando módulo...</span>
+  </div>
+);
 
 export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
@@ -755,13 +762,15 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col"
             >
-              <LoginView
-                onLogin={handleLoginSuccess}
-                onNavigateToRegister={() => setCurrentView("register")}
-                darkMode={darkMode}
-                onToggleDarkMode={() => setDarkMode(!darkMode)}
-                onToast={addToast}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <LoginView
+                  onLogin={handleLoginSuccess}
+                  onNavigateToRegister={() => setCurrentView("register")}
+                  darkMode={darkMode}
+                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToast={addToast}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -774,13 +783,15 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col"
             >
-              <RegisterView
-                onRegister={handleRegisterSuccess}
-                onNavigateToLogin={() => setCurrentView("login")}
-                darkMode={darkMode}
-                onToggleDarkMode={() => setDarkMode(!darkMode)}
-                onToast={addToast}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <RegisterView
+                  onRegister={handleRegisterSuccess}
+                  onNavigateToLogin={() => setCurrentView("login")}
+                  darkMode={darkMode}
+                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToast={addToast}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -793,11 +804,13 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <HomeView
-                user={localUser}
-                onNavigate={(tab) => setCurrentView(tab)}
-                onOpenSettings={() => setIsSettingsOpen(true)}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <HomeView
+                  user={localUser}
+                  onNavigate={(tab) => setCurrentView(tab)}
+                  onOpenSettings={() => setIsSettingsOpen(true)}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -1450,6 +1463,16 @@ export default function App() {
                   className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
                 >
                   Entendido
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+do
                 </button>
               </div>
             </motion.div>
