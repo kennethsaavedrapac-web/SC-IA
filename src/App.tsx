@@ -15,7 +15,7 @@ import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VERSION } from "./lib/updateNotification";
-import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone, WifiOff } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 
@@ -38,6 +38,22 @@ export default function App() {
   const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  // Network status state
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // PWA states
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
