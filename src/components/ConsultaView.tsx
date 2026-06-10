@@ -424,7 +424,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               </h1>
               <h2 className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]" style={{ fontSize: "clamp(24px, 6.5vw, 30px)", lineHeight: 1.3, fontWeight: 400, fontFamily: "'Inter', sans-serif" }}>
                 {t('assistant')}<br />
-                {t('in')} <span className="text-blue-600 dark:text-blue-400 font-medium">Granada.</span>
+                <span className="text-blue-600 dark:text-blue-400 font-medium">virtual.</span>
               </h2>
               <div className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800" style={{ width: "36px", height: "2.5px" }} />
               <div className="space-y-[6px]" style={{ fontFamily: "'Inter', sans-serif" }}>
