@@ -188,15 +188,15 @@ body {
     width: 100%;
     height: 100%;
     z-index: -2;
-    background: linear-gradient(-45deg, #0f172a, #0d9488, #2563eb, #4f46e5);
+    background: linear-gradient(-45deg, #0b1329, #0d9488, #2563eb, #4338ca, #06b6d4);
     background-size: 400% 400%;
-    animation: wave-gradient 16s ease-in-out infinite;
+    animation: wave-gradient 12s ease-in-out infinite;
     will-change: background-position;
 }
 
 /*
  * @keyframes wave-gradient
- * Fondo animado que crea una sensación de ola bidireccional (wave):
+ * Fondo animado que crea una sensación de ola bidireccional (wave) más viva y fluida:
  * - Ciclo 1 (0% a 25%): Movimiento vertical descendente (50% 0% a 50% 100%).
  * - Transición (25% a 50%): Desplazamiento oblicuo hacia la esquina izquierda (0% 50%).
  * - Ciclo 2 (50% a 75%): Movimiento horizontal de izquierda a derecha (0% 50% a 100% 50%).
@@ -220,7 +220,78 @@ body {
     }
 }
 
-/* Tarjeta de Registro con Glassmorphism */
+/* Blobs Decorativos del Fondo */
+.decorative-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(95px);
+    opacity: 0.32;
+    z-index: -1;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.blob-1 {
+    width: clamp(200px, 30vw, 400px);
+    height: clamp(200px, 30vw, 400px);
+    background: radial-gradient(circle, var(--primary-cyan) 0%, rgba(6, 182, 212, 0) 70%);
+    top: 5%;
+    right: 5%;
+    animation: float-blob 22s infinite ease-in-out;
+}
+
+.blob-2 {
+    width: clamp(250px, 40vw, 500px);
+    height: clamp(250px, 40vw, 500px);
+    background: radial-gradient(circle, var(--primary-indigo) 0%, rgba(79, 70, 229, 0) 70%);
+    bottom: 5%;
+    left: 5%;
+    animation: float-blob-reverse 26s infinite ease-in-out;
+}
+
+.blob-3 {
+    width: clamp(180px, 25vw, 300px);
+    height: clamp(180px, 25vw, 300px);
+    background: radial-gradient(circle, var(--primary-teal) 0%, rgba(13, 148, 136, 0) 70%);
+    top: 50%;
+    right: 40%;
+    animation: float-blob 18s infinite ease-in-out 3s;
+}
+
+@keyframes float-blob {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(45px, -65px) scale(1.12);
+    }
+    66% {
+        transform: translate(-35px, 35px) scale(0.92);
+    }
+}
+
+@keyframes float-blob-reverse {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(-55px, 45px) scale(0.9);
+    }
+    66% {
+        transform: translate(35px, -55px) scale(1.15);
+    }
+}
+
+@keyframes float-card {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* Tarjeta de Registro con Glassmorphism y Animación de Flotación en Móvil */
 .register-card {
     width: 90%;
     max-width: 440px;
@@ -232,6 +303,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.25);
     z-index: 10;
+    animation: float-card 8s ease-in-out infinite;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -672,9 +744,9 @@ button:disabled {
         width: 100%;
         height: 100%;
         z-index: -1;
-        background: linear-gradient(-45deg, #0f172a, #0d9488, #2563eb, #4f46e5);
+        background: linear-gradient(-45deg, #0b1329, #0d9488, #2563eb, #4338ca, #06b6d4);
         background-size: 400% 400%;
-        animation: wave-gradient 16s ease-in-out infinite;
+        animation: wave-gradient 12s ease-in-out infinite;
         will-change: background-position;
     }
     
@@ -688,6 +760,7 @@ button:disabled {
         padding: 0;
         width: 100%;
         max-width: 420px;
+        animation: none; /* Desactiva flotación en escritorio */
     }
     
     /* Ocultar logo móvil en escritorio ya que tenemos el panel */
@@ -724,14 +797,26 @@ button:disabled {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         padding: 0.5rem 1rem;
         border-radius: 50px;
         font-size: 0.8rem;
         font-weight: 700;
         letter-spacing: 0.02em;
         margin-bottom: 1.5rem;
+        animation: badge-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+            border-color: var(--primary-cyan);
+        }
     }
     
     .badge-icon {
@@ -767,6 +852,12 @@ button:disabled {
         display: flex;
         gap: 1.15rem;
         align-items: flex-start;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: default;
+    }
+
+    .feature-item:hover {
+        transform: translateX(8px);
     }
     
     .feature-icon {
@@ -780,11 +871,25 @@ button:disabled {
         justify-content: center;
         color: #ffffff;
         flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover .feature-icon {
+        background: rgba(6, 182, 212, 0.2);
+        border-color: var(--primary-cyan);
+        color: var(--primary-cyan);
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        transform: scale(1.1) rotate(6deg);
     }
     
     .feature-icon svg {
         width: 20px;
         height: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover .feature-icon svg {
+        transform: scale(1.05);
     }
     
     .feature-item h4 {
