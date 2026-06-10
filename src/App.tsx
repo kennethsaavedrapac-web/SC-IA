@@ -823,7 +823,9 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col h-[calc(100vh-80px)]"
             >
-              <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+              <Suspense fallback={<LoadingFallback />}>
+                <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+              </Suspense>
             </motion.div>
           )}
 
@@ -836,7 +838,9 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+              <Suspense fallback={<LoadingFallback />}>
+                <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+              </Suspense>
             </motion.div>
           )}
 
@@ -849,12 +853,14 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <PremiumView
-                user={localUser}
-                isPremium={isPremium}
-                onUnlockPremium={handleUnlockPremium}
-                onNavigate={(tab) => setCurrentView(tab)}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <PremiumView
+                  user={localUser}
+                  isPremium={isPremium}
+                  onUnlockPremium={handleUnlockPremium}
+                  onNavigate={(tab) => setCurrentView(tab)}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -867,14 +873,16 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1"
             >
-              <PerfilView
-                user={localUser}
-                isPremium={isPremium}
-                onGoBack={() => setCurrentView("home")}
-                onUpdateUser={handleUpdateUser}
-                onLogout={handleLogout}
-                onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
-              />
+              <Suspense fallback={<LoadingFallback />}>
+                <PerfilView
+                  user={localUser}
+                  isPremium={isPremium}
+                  onGoBack={() => setCurrentView("home")}
+                  onUpdateUser={handleUpdateUser}
+                  onLogout={handleLogout}
+                  onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -887,7 +895,9 @@ export default function App() {
               transition={{ duration: 0.15 }}
               className="flex-1 flex flex-col h-screen"
             >
-              <AdminView onGoBack={() => setCurrentView("home")} />
+              <Suspense fallback={<LoadingFallback />}>
+                <AdminView onGoBack={() => setCurrentView("home")} />
+              </Suspense>
             </motion.div>
           )}
         </AnimatePresence>
