@@ -3,7 +3,7 @@ import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Siren, Mic, MicOff } from "lucide-react";
-
+import { getOfflineTriageResponse } from "../lib/offlineTriage";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -256,6 +256,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     setInputValue("");
     setIsLoading(true);
 
+    if (!navigator.onLine) {
+      setTimeout(() => {
+        const offlineResponse = getOfflineTriageResponse(userText, user);
+        const botMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: `(Modo Sin Conexión) 📴\n\n${offlineResponse}`,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, botMsg]);
+        setIsLoading(false);
+      }, 800);
+      return;
+    }
+
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
@@ -273,13 +288,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       }
       
       if (!response.ok) {
-        // API returned an error status - show the actual error details
-        const errorDetail = data.details || data.error || `Error del servidor (${response.status})`;
         console.error("API Error Response:", data);
         console.error("Response status:", response.status);
+        const offlineResponse = getOfflineTriageResponse(userText, user);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `⚠️ Error del servidor: ${errorDetail}`,
+          text: `⚠️ Fallo de conexión con el servidor. Usando base de datos local:\n\n${offlineResponse}`,
           sender: "bot",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
@@ -309,9 +323,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       setMessages(prev => [...prev, botMsg]);
     } catch (error) {
       console.error("Fetch error:", error);
+      const offlineResponse = getOfflineTriageResponse(userText, user);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: "Error de red. Verifica tu conexión a internet o intenta de nuevo más tarde.",
+        text: `⚠️ Error de red. Usando base de datos local:\n\n${offlineResponse}`,
         sender: "bot",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
