@@ -1024,7 +1024,7 @@ export default function App() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 max-h-[70vh] overflow-y-auto no-scrollbar">
+              <div className="p-6 max-h-[70vh] overflow-y-auto max-md:no-scrollbar">
                 <AnimatePresence mode="wait">
                   {settingsView === "menu" && (
                     <motion.div
