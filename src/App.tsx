@@ -1147,11 +1147,12 @@ export default function App() {
                           </div>
                           <select
                             value={language}
-                            onChange={(e) => setLanguage(e.target.value as "es" | "en")}
+                            onChange={(e) => setLanguage(e.target.value as "es" | "en" | "mi")}
                             className="bg-transparent text-sm font-bold text-blue-600 outline-none cursor-pointer"
                           >
                             <option value="es">Español</option>
                             <option value="en">English</option>
+                            <option value="mi">Miskito</option>
                           </select>
                         </div>
                       </div>

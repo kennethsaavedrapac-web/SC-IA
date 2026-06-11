@@ -100,7 +100,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history, userProfile } = req.body;
+    const { message, history, userProfile, language } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -167,7 +167,8 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     }
 
     // Combinar el prompt de la BD con el contexto temporal y el perfil médico
-    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext;
+    const languageContext = language === "mi" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA MISKITO. DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN IDIOMA MISKITO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN MISKITO." : "";
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext;
 
     // Obtener aiModel dinámico desde Supabase
     let aiModel = "gemini-2.0-flash-lite";
@@ -245,6 +246,19 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     if (shouldUseFallback) {
       return res.status(200).json({
         text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        simulated: true,
+        warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
+      });
+    }
+    
+    return res.status(500).json({
+      error: userMessage,
+      details: errorMessage,
+      timestamp: new Date().toISOString(),
+    });
+  }
+};
+bios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
         warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
       });
