@@ -852,6 +852,17 @@ export const translations = {
     resetSearch: "Kli plikaya",
     pharmaciesDisclaimer: "ℹ️ Midisin taim kli kaikisa.",
     bookTitle: "Cita makabaya",
+
+    // Symptoms
+    sympFiebre: "Fiebre (Miskito)",
+    sympDolorCabeza: "Lel prukanka",
+    sympTos: "Kuhpanka",
+    sympNauseas: "Kupia kriwan",
+    sympDolorGarganta: "Karmak prukanka",
+    sympCongestionNasal: "Kakma prukanka",
+    sympCansancio: "Siknis prukanka",
+    sympDolorMuscular: "Wina prukanka",
+    sympDificultadRespirar: "Kupia siknis",
     bookSubtitle: "Taim pain pliks.",
     distanceAway: "{distance} lamara",
     chooseDate: "Yu pliks",

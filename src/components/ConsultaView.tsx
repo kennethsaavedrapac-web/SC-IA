@@ -14,7 +14,7 @@ interface ConsultaViewProps {
 const SYMPTOM_CHIPS = [
   {
     id: "fiebre",
-    label: "Fiebre",
+    labelKey: "sympFiebre",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]" stroke="currentColor">
         <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" />
@@ -23,7 +23,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "dolor-cabeza",
-    label: "Dolor de cabeza",
+    labelKey: "sympDolorCabeza",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <circle cx="12" cy="12" r="10" />
@@ -37,7 +37,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "tos",
-    label: "Tos",
+    labelKey: "sympTos",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M18 8c0-3.3-2.7-6-6-6S6 4.7 6 8c0 3 2 5.1 4 6v2h4v-2c2-.9 4-3 4-6Z" />
@@ -49,7 +49,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "nauseas",
-    label: "Náuseas",
+    labelKey: "sympNauseas",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9" />
@@ -63,7 +63,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "dolor-garganta",
-    label: "Dolor de garganta",
+    labelKey: "sympDolorGarganta",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M12 2a5 5 0 0 0-5 5v4a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5Z" />
@@ -73,7 +73,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "congestion-nasal",
-    label: "Congestión nasal",
+    labelKey: "sympCongestionNasal",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M12 3c-1.2 0-2.4.5-3.2 1.3L4 9v4c0 3 2.5 5.5 5.5 5.5h5c3 0 5.5-2.5 5.5-5.5V9l-4.8-4.7C14.4 3.5 13.2 3 12 3Z" />
@@ -83,7 +83,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "cansancio",
-    label: "Cansancio",
+    labelKey: "sympCansancio",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <rect x="2" y="7" width="16" height="10" rx="2" ry="2" />
@@ -95,7 +95,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "dolor-muscular",
-    label: "Dolor muscular",
+    labelKey: "sympDolorMuscular",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M6.5 6.5h11M6.5 12h11M6.5 17.5h11" />
@@ -105,7 +105,7 @@ const SYMPTOM_CHIPS = [
   },
   {
     id: "dificultad-respirar",
-    label: "Falta de aire",
+    labelKey: "sympDificultadRespirar",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-[19px] h-[19px]" stroke="currentColor">
         <path d="M12 2v6M12 16v6M4.9 4.9l4.3 4.3M14.8 14.8l4.3 4.3M2 12h6M16 12h6M4.9 19.1l4.3-4.3M14.8 9.2l4.3-4.3" />
@@ -486,10 +486,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 <style>{`.chips-scroll::-webkit-scrollbar { display: none; }`}</style>
                 {SYMPTOM_CHIPS.map((chip) => {
                   const isActive = activeChip === chip.id;
+                  const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(`Tengo ${chip.label.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(`Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
                       <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
-                      <span className="mt-[-0.5px]">{chip.label}</span>
+                      <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
                   );
                 })}

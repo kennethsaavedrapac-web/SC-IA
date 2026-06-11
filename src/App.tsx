@@ -952,7 +952,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Inicio
+                  {t('home')}
                 </span>
                 {currentView === "home" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -974,7 +974,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Consulta IA
+                  {t('consulta')}
                 </span>
                 {currentView === "consulta" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -996,7 +996,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
-                  Buscador
+                  {t('buscar')}
                 </span>
                 {currentView === "buscar" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>

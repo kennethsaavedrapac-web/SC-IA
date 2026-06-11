@@ -115,25 +115,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
     {
       id: "centros",
-      label: "Centros",
+      label: t('centers'),
       icon: <Building2 className="w-5 h-5" />,
     },
     {
       id: "hospitales",
-      label: "Hospitales",
+      label: t('hospitals'),
       icon: <Hospital className="w-5 h-5" />,
     },
     {
       id: "farmacias",
-      label: "Farmacias",
+      label: t('pharmacies'),
       icon: <Pill className="w-5 h-5" />,
     },
     {
       id: "medicos",
-      label: "Médicos",
+      label: t('doctors'),
       icon: <Stethoscope className="w-5 h-5" />,
     },
-  ], []);
+  ], [t]);
 
   /** Find the nearest health center to the user's location */
   const findNearestCenter = useCallback(() => {
@@ -973,7 +973,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   setLocationMode("manual");
                   setLocationQuery(event.target.value);
                 }}
-                placeholder="Buscar ciudad o centro..."
+                placeholder={t('locationPlaceholder') || "Buscar ciudad o centro..."}
                 className="w-full bg-transparent text-[12.5px] font-medium text-slate-700 dark:text-slate-300 outline-none placeholder:text-slate-400"
               />
             </div>
@@ -994,7 +994,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
                 }`}
               >
-                {geoStatus === "loading" ? "Ubicando..." : "Mi ubicación"}
+                {geoStatus === "loading" ? "Ubicando..." : t('nearYou')}
               </button>
               
               {/* Type Filter Chips */}
@@ -1006,7 +1006,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Hosp.
+                {t('hospitals')}
               </button>
               <button
                 onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
@@ -1016,7 +1016,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Centros
+                {t('centers')}
               </button>
               <button
                 onClick={() => setActiveFilter(activeFilter === "farmacia" ? "todos" : "farmacia")}
@@ -1026,7 +1026,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Farmacias
+                {t('pharmacies')}
               </button>
               <button
                 onClick={() => setActiveFilter(activeFilter === "medico" ? "todos" : "medico")}
@@ -1036,7 +1036,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
-                Médicos
+                {t('doctors')}
               </button>
             </div>
 
@@ -1441,7 +1441,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     className="py-3.5 px-4 rounded-2xl bg-rose-400 hover:bg-rose-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-rose-100/50 transition-all active:scale-95"
                   >
                     <Phone className="w-4 h-4" />
-                    Llamar al 128
+                    {t('call128')}
                   </a>
                 </div>
               </div>
