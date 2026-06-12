@@ -287,7 +287,7 @@ export const translations = {
     healthUnitSearch: "Búsqueda de Unidades de Salud",
     voiceInput: "Entrada por Voz",
     videoConsultation: "Consulta por Video",
-    
+
     // Announcement Management
     addAnnouncement: "Agregar Anuncio",
     editAnnouncement: "Editar Anuncio",
@@ -310,7 +310,7 @@ export const translations = {
     delete: "Eliminar",
     activate: "Activar",
     deactivate: "Desactivar",
-    
+
     // Location Management
     selectCenterToAdjust: "Seleccione un centro para ajustar",
     centerType: "Tipo",
@@ -331,7 +331,7 @@ export const translations = {
     adjustedCenters: "Centros Ajustados",
     centersWithCoords: "Centros con Coordenadas",
     centersWithoutCoords: "Centros sin Coordenadas",
-    
+
     // Existing admin translations continued
     lastUpdated: "Última Actualización",
     settingsSaved: "Configuración guardada correctamente",
@@ -661,7 +661,7 @@ export const translations = {
     healthUnitSearch: "Health Unit Search",
     voiceInput: "Voice Input",
     videoConsultation: "Video Consultation",
-    
+
     // Announcement Management
     addAnnouncement: "Add Announcement",
     editAnnouncement: "Edit Announcement",
@@ -684,7 +684,7 @@ export const translations = {
     delete: "Delete",
     activate: "Activate",
     deactivate: "Deactivate",
-    
+
     // Location Management
     selectCenterToAdjust: "Select a center to adjust",
     centerType: "Type",
@@ -705,7 +705,7 @@ export const translations = {
     adjustedCenters: "Adjusted Centers",
     centersWithCoords: "Centers with Coordinates",
     centersWithoutCoords: "Centers without Coordinates",
-    
+
     // Existing admin translations continued
     lastUpdated: "Last Updated",
     settingsSaved: "Settings saved successfully",
@@ -854,13 +854,13 @@ export const translations = {
     bookTitle: "Cita makabaya",
 
     // Symptoms
-    sympFiebre: "Fiebre (Miskito)",
+    sympFiebre: "Wina urwanka",
     sympDolorCabeza: "Lel prukanka",
     sympTos: "Kuhpanka",
     sympNauseas: "Kupia kriwan",
     sympDolorGarganta: "Karmak prukanka",
     sympCongestionNasal: "Kakma prukanka",
-    sympCansancio: "Siknis prukanka",
+    sympCansancio: "Swahwanka",
     sympDolorMuscular: "Wina prukanka",
     sympDificultadRespirar: "Kupia siknis",
     bookSubtitle: "Taim pain pliks.",
@@ -1046,7 +1046,7 @@ export const translations = {
     healthUnitSearch: "Siknis Watla plikaya",
     voiceInput: "Bila wal",
     videoConsultation: "Video",
-    
+
     // Announcement Management
     addAnnouncement: "Alart mangkaya",
     editAnnouncement: "Alart kli mangkaya",
@@ -1069,7 +1069,7 @@ export const translations = {
     delete: "Sakaia",
     activate: "Bara",
     deactivate: "Apia",
-    
+
     // Location Management
     selectCenterToAdjust: "Siknis watla pliks",
     centerType: "Type",
@@ -1090,7 +1090,7 @@ export const translations = {
     adjustedCenters: "Siknis Watla kli",
     centersWithCoords: "Tawil bara",
     centersWithoutCoords: "Tawil apia",
-    
+
     // Existing admin translations continued
     lastUpdated: "Las mangkan",
     settingsSaved: "Luki pain mangkan",
