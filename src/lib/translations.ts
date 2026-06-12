@@ -108,6 +108,8 @@ export const translations = {
     manageAppointments: "Encuentra especialistas y aparta tus citas.",
     infoProtected: "Tu información está protegida.",
     privacyFirst: "Privacidad y seguridad primero.",
+    homeSearchPlaceholder: "Buscar síntomas, clínicas o especialistas...",
+    homeQuickSearch: "Búsqueda rápida",
 
     // Buscar View
     searchTitle: "Buscador",
@@ -470,7 +472,13 @@ export const translations = {
     pdfAllergies: "Alergias",
     pdfTreatments: "Tratamientos",
     pdfPills: "Pastillas",
-    pdfVaccines: "Vacunas"
+    pdfVaccines: "Vacunas",
+    pdfFooterText: "Documento oficial clínico emitido por Salud-Conecta IA",
+    pdfPersonalInfo: "Información Personal",
+    pdfNoneRegistered: "Ninguno registrado",
+    pdfNotRegistered: "No registrada",
+    pdfNotSpecified: "No espec.",
+    pdfFileName: "Info-Emergencia"
   },
   en: {
     // Navigation
@@ -581,6 +589,8 @@ export const translations = {
     manageAppointments: "Find specialists and book appointments.",
     infoProtected: "Your information is protected.",
     privacyFirst: "Privacy and security first.",
+    homeSearchPlaceholder: "Search symptoms, clinics or specialists...",
+    homeQuickSearch: "Quick search",
 
     // Buscar View
     searchTitle: "Search",
@@ -943,7 +953,13 @@ export const translations = {
     pdfAllergies: "Allergies",
     pdfTreatments: "Treatments",
     pdfPills: "Pills",
-    pdfVaccines: "Vaccines"
+    pdfVaccines: "Vaccines",
+    pdfFooterText: "Official clinical document issued by Salud-Conecta IA",
+    pdfPersonalInfo: "Personal Information",
+    pdfNoneRegistered: "None registered",
+    pdfNotRegistered: "Not registered",
+    pdfNotSpecified: "Not spec.",
+    pdfFileName: "Emergency-Info"
   },
   mi: {
     // Navigation
@@ -1054,6 +1070,8 @@ export const translations = {
     manageAppointments: "Duktur plikaya bara cita makabaya.",
     infoProtected: "Dukiam nani pain ba.",
     privacyFirst: "Man dukiam pas.",
+    homeSearchPlaceholder: "Siknis, klinik, duktur plikaya...",
+    homeQuickSearch: "Implik plikaya",
 
     // Buscar View
     searchTitle: "Plikaya",
@@ -1416,7 +1434,13 @@ export const translations = {
     pdfAllergies: "Alergias",
     pdfTreatments: "Tratamiento",
     pdfPills: "Pastillas",
-    pdfVaccines: "Vacunas"
+    pdfVaccines: "Vacunas",
+    pdfFooterText: "Salud-Conecta IA dukiara paskan",
+    pdfPersonalInfo: "Nini Dukia baha",
+    pdfNoneRegistered: "Dukia mangka apia",
+    pdfNotRegistered: "Mangka apia",
+    pdfNotSpecified: "Nu apia",
+    pdfFileName: "Imaijinsi-Dukia"
   }
 };
 

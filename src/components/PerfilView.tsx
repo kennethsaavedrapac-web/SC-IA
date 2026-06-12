@@ -238,7 +238,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         pageDoc.setFontSize(8);
         pageDoc.setFont("helvetica", "italic");
         pageDoc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-        pageDoc.text("Documento oficial clínico emitido por Salud-Conecta IA", 105, 292, { align: "center" });
+        pageDoc.text(t('pdfFooterText'), 105, 292, { align: "center" });
       };
 
       drawBackground(doc);
@@ -266,7 +266,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text("Información Personal", 20, yPos);
+      doc.text(t('pdfPersonalInfo'), 20, yPos);
       yPos += 8;
 
       doc.setFontSize(10);
@@ -279,14 +279,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFont("helvetica", "bold");
       doc.text(t('idCard').replace(" de Identidad", "") + ":", 110, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.cedula || "No registrada"}`, 130, yPos);
+      doc.text(`${localMedicalData.cedula || t('pdfNotRegistered')}`, 130, yPos);
       yPos += 7;
 
       doc.setFont("helvetica", "bold");
       doc.text(t('pdfBlood'), 20, yPos);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(225, 29, 72); // rose-600 para sangre
-      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || "No espec."}`, 40, yPos);
+      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified')}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
       doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
@@ -298,12 +298,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFont("helvetica", "bold");
       doc.text(t('pdfWeight'), 20, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : 'No reg.'}`, 40, yPos);
+      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : t('pdfNotRegistered')}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
       doc.text(t('pdfHeight'), 110, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : 'No reg.'}`, 130, yPos);
+      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : t('pdfNotRegistered')}`, 130, yPos);
       yPos += 18;
 
       // --- Datos Médicos Especializados ---
@@ -330,7 +330,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
 
         // Manejar texto largo
-        const splitText = doc.splitTextToSize(value || "Ninguno registrado", 120);
+        const splitText = doc.splitTextToSize(value || t('pdfNoneRegistered'), 120);
         doc.text(splitText, 60, yPos + 2);
         yPos += (splitText.length * 5) + 8;
       };
@@ -393,11 +393,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           // QR dentro de su caja
           doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
 
-          doc.save(`Info-Emergencia-${user.name}.pdf`);
+          doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
         };
         img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
       } else {
-        doc.save(`Info-Emergencia-${user.name}.pdf`);
+        doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
       }
     }).catch(err => {
       console.error("Error cargando jsPDF", err);
@@ -822,8 +822,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <div
                                     key={opt.value}
                                     className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-colors ${isSelected
-                                        ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
-                                        : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                      ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
+                                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50'
                                       }`}
                                     onClick={() => handleNotifChange(opt.value)}
                                   >
