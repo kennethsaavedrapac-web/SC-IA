@@ -28,21 +28,21 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
   const downloadPDF = () => {
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
-      
+
       // Título
       doc.setFontSize(22);
       doc.setTextColor(30, 58, 138); // Azul
-      doc.text("Tarjeta de Emergencia Médica", 20, 20);
+      doc.text(t('pdfMedicalCard'), 20, 20);
 
       // Info del usuario
       doc.setFontSize(14);
       doc.setTextColor(51, 65, 85); // Slate
-      doc.text(`Nombre: ${user.name}`, 20, 40);
-      doc.text(`Tipo de Sangre: ${user.bloodType || "No especificado"}`, 20, 50);
-      doc.text(`Contacto de Emergencia: ${user.emergencyPhone || "No especificado"}`, 20, 60);
+      doc.text(`${t('pdfPatient')} ${user.name}`, 20, 40);
+      doc.text(`${t('pdfBlood')} ${user.bloodType || t('pdfNotSpecified')}`, 20, 50);
+      doc.text(`${t('pdfEmergContact')} ${user.emergencyPhone || t('pdfNotSpecified')}`, 20, 60);
 
       // Condiciones médicas
-      doc.text("Condiciones Médicas:", 20, 75);
+      doc.text(`${t('pdfOtherCond')}:`, 20, 75);
       doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
       if (healthConditions && healthConditions.length > 0) {
@@ -50,7 +50,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
           doc.text(`• ${cond}`, 25, 85 + (idx * 8));
         });
       } else {
-        doc.text("Ninguna registrada.", 25, 85);
+        doc.text(t('pdfNoneRegistered'), 25, 85);
       }
 
       // Añadir QR Code al PDF
@@ -60,7 +60,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const img = new Image();
-        
+
         img.onload = () => {
           canvas.width = 512;
           canvas.height = 512;
@@ -72,12 +72,12 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
           const pngData = canvas.toDataURL("image/png");
           // Añadir la imagen al PDF (x, y, width, height)
           doc.addImage(pngData, 'PNG', 130, 30, 60, 60);
-          
-          doc.save(`Emergencia-${user.name}.pdf`);
+
+          doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
         };
         img.src = "data:image/svg+xml;base64," + btoa(svgData);
       } else {
-        doc.save(`Emergencia-${user.name}.pdf`);
+        doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
       }
     }).catch(err => {
       console.error("Error cargando jsPDF", err);
@@ -87,12 +87,12 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
   const downloadQR = () => {
     const svg = document.getElementById("emergency-qr-code");
     if (!svg) return;
-    
+
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const img = new Image();
-    
+
     img.onload = () => {
       canvas.width = 512;
       canvas.height = 512;
@@ -103,7 +103,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
       downloadLink.href = pngFile;
       downloadLink.click();
     };
-    
+
     img.src = "data:image/svg+xml;base64," + btoa(svgData);
   };
 
@@ -131,16 +131,16 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
         <p className="text-[10px] text-slate-400 max-w-[200px] leading-tight">
           {t("qrDisclaimer")}
         </p>
-        
+
         <div className="flex flex-col gap-2 mt-4 w-full px-2">
-          <button 
+          <button
             onClick={downloadPDF}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all text-xs font-bold shadow-sm"
           >
             <Download className="w-4 h-4" />
-            Descargar PDF Médico
+            {t('download')} PDF
           </button>
-          <button 
+          <button
             onClick={downloadQR}
             className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-xl transition-all text-xs font-bold"
           >

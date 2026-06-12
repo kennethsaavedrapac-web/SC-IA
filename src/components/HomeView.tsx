@@ -169,8 +169,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
                 </svg>
               </div>
               <div className="flex-1 lg:w-full">
-                <h3 className="font-bold text-slate-900 dark:text-white text-[16px] lg:text-[18px] tracking-tight">Buscador</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[13px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">Encuentra hospitales, centros de salud, farmacias y médicos cerca de ti.</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-[16px] lg:text-[18px] tracking-tight">{t('buscar')}</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-[13px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">{t('homeSearchDesc')}</p>
               </div>
             </div>
             {/* Arrow key box */}
@@ -197,7 +197,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
               </div>
               <div className="flex-1 lg:w-full">
                 <h3 className="font-bold text-slate-900 dark:text-white text-[16px] lg:text-[18px] tracking-tight">{t('emergencyCard')}</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-[13px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">Llama rápidamente a los servicios de emergencia (128).</p>
+                <p className="text-slate-500 dark:text-slate-400 text-[13px] lg:text-[14px] font-normal mt-1 lg:mt-2 lg:min-h-[44px] leading-relaxed">{t('homeEmergDesc')}</p>
               </div>
             </div>
             {/* Arrow key box */}

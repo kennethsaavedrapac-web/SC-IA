@@ -110,6 +110,9 @@ export const translations = {
     privacyFirst: "Privacidad y seguridad primero.",
     homeSearchPlaceholder: "Buscar síntomas, clínicas o especialistas...",
     homeQuickSearch: "Búsqueda rápida",
+    homeSearchDesc: "Encuentra hospitales, centros de salud, farmacias y médicos cerca de ti.",
+    homeEmergDesc: "Llama rápidamente a los servicios de emergencia (128).",
+    backToApp: "Volver a la App",
 
     // Buscar View
     searchTitle: "Buscador",
@@ -591,6 +594,9 @@ export const translations = {
     privacyFirst: "Privacy and security first.",
     homeSearchPlaceholder: "Search symptoms, clinics or specialists...",
     homeQuickSearch: "Quick search",
+    homeSearchDesc: "Find hospitals, health centers, pharmacies and doctors near you.",
+    homeEmergDesc: "Quickly call emergency services (128).",
+    backToApp: "Back to App",
 
     // Buscar View
     searchTitle: "Search",
@@ -1072,6 +1078,9 @@ export const translations = {
     privacyFirst: "Man dukiam pas.",
     homeSearchPlaceholder: "Siknis, klinik, duktur plikaya...",
     homeQuickSearch: "Implik plikaya",
+    homeSearchDesc: "Siknis watla, midisin watla bara duktur nani lamara pliks.",
+    homeEmergDesc: "Imaijinsi taim ra 128 aisas.",
+    backToApp: "App kli dimaia",
 
     // Buscar View
     searchTitle: "Plikaya",

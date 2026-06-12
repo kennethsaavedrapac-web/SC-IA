@@ -78,7 +78,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
         <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-blue-100/45 dark:bg-blue-950/30 blur-3xl"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
-      
+
       {/* Drawer Backdrop */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -93,10 +93,9 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside 
-        className={`fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out shadow-2xl ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+      <aside
+        className={`fixed inset-y-0 left-0 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col z-40 transition-transform duration-300 ease-in-out shadow-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -105,14 +104,14 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
               {t('adminPanel')}
             </h1>
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
           <div className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md text-[10px] font-bold w-fit border border-blue-100 dark:border-blue-800 uppercase tracking-wider">
             {t('admin')}
@@ -124,11 +123,10 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
             <button
               key={sec.id}
               onClick={() => handleSectionChange(sec.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-semibold outline-none ${
-                activeSection === sec.id
+              className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-semibold outline-none ${activeSection === sec.id
                   ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
                   : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
+                }`}
             >
               <sec.icon className="w-5 h-5" />
               {sec.label}
@@ -143,7 +141,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-xl transition-colors text-sm font-bold"
             >
               <ArrowLeft className="w-4.5 h-4.5" />
-              Volver a la App
+              {t('backToApp')}
             </button>
           )}
           <button
@@ -158,7 +156,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden h-screen">
-        
+
         {/* Header Bar con stats integradas */}
         <header className="flex flex-col shrink-0 z-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
           {/* Fila superior: hamburguesa + título + stats (centro) + volver */}
@@ -203,13 +201,13 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
                 </span>
               </div>
             )}
-            
+
             <div className="flex items-center gap-2 z-10">
               {onGoBack && (
                 <button
                   onClick={onGoBack}
                   className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/35 rounded-lg transition-colors"
-                  title="Volver a la App"
+                  title={t('backToApp')}
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
