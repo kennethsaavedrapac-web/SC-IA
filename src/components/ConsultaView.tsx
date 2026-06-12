@@ -4,6 +4,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Siren, Mic, MicOff } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
+import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -256,6 +257,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     setInputValue("");
     setIsLoading(true);
 
+    if (language === 'mi') {
+      setTimeout(() => {
+        const miskitoResponse = getMiskitoTriageResponse(userText, user);
+        const botMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: miskitoResponse,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, botMsg]);
+        setIsLoading(false);
+      }, 800);
+      return;
+    }
+
     if (!navigator.onLine) {
       setTimeout(() => {
         const offlineResponse = getOfflineTriageResponse(userText, user);
@@ -488,7 +504,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(`Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
                       <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
                       <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
