@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { Plus, Edit2, Trash2, AlertTriangle, Save, X, Megaphone, Star, CheckCircle, Info, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, AlertTriangle, Save, X, Megaphone, Star, Info, Loader2 } from "lucide-react";
 import { supabase } from "../../lib/supabaseClient";
 
 interface Announcement {
@@ -13,26 +13,140 @@ interface Announcement {
   activo: boolean;
 }
 
+const getIconForType = (type: string) => {
+  switch (type) {
+    case "alert": return <AlertTriangle className="w-5 h-5 text-rose-500" />;
+    case "banner": return <Megaphone className="w-5 h-5 text-blue-500" />;
+    case "promotion": return <Star className="w-5 h-5 text-amber-500" />;
+    default: return <Info className="w-5 h-5 text-slate-500" />;
+  }
+};
+
+interface AnnouncementFormProps {
+  initialData: Announcement | null;
+  onSave: (data: Announcement) => Promise<void>;
+  onCancel: () => void;
+  t: any;
+}
+
+const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ initialData, onSave, onCancel, t }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const [formData, setFormData] = useState<Announcement>(
+    initialData || {
+      tipo: "alert",
+      titulo: "",
+      mensaje: "",
+      fecha_inicio: new Date().toISOString().split('T')[0],
+      fecha_fin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      activo: true
+    }
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.titulo || !formData.mensaje) return alert("El título y mensaje son obligatorios");
+    setIsSaving(true);
+    try {
+      await onSave(formData);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="space-y-1.5">
+          <label className="text-[11px] uppercase font-bold text-slate-500">{t('title')}</label>
+          <input 
+            type="text" 
+            name="titulo"
+            value={formData.titulo}
+            onChange={handleInputChange}
+            placeholder="Ej. Alerta Epidemiológica" 
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+          />
+        </div>
+        
+        <div className="space-y-1.5">
+          <label className="text-[11px] uppercase font-bold text-slate-500">{t('announcementType')}</label>
+          <select name="tipo" value={formData.tipo} onChange={handleInputChange} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors">
+            <option value="alert">{t('announcementType_alert' as any) || 'Alerta'}</option>
+            <option value="banner">{t('announcementType_banner' as any) || 'Banner'}</option>
+            <option value="promotion">{t('announcementType_promotion' as any) || 'Promoción'}</option>
+          </select>
+        </div>
+
+        <div className="space-y-1.5 md:col-span-2">
+          <label className="text-[11px] uppercase font-bold text-slate-500">{t('message')}</label>
+          <textarea 
+            rows={3} 
+            name="mensaje"
+            value={formData.mensaje}
+            onChange={handleInputChange}
+            placeholder="Escribe el contenido del anuncio..." 
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 resize-none transition-colors"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] uppercase font-bold text-slate-500">{t('startDate')}</label>
+          <input 
+            type="date" 
+            name="fecha_inicio"
+            value={formData.fecha_inicio}
+            onChange={handleInputChange}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] uppercase font-bold text-slate-500">{t('endDate')}</label>
+          <input 
+            type="date" 
+            name="fecha_fin"
+            value={formData.fecha_fin}
+            onChange={handleInputChange}
+            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+          />
+        </div>
+
+        <div className="space-y-1.5 flex items-center md:col-span-2 pt-2">
+          <label className="flex items-center gap-2 cursor-pointer w-fit">
+            <input type="checkbox" name="activo" checked={formData.activo} onChange={handleInputChange} className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Anuncio Activo (Público)</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-2 gap-3">
+        <button onClick={onCancel} disabled={isSaving} className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          {t('cancel')}
+        </button>
+        <button onClick={handleSubmit} disabled={isSaving} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50">
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
+          {initialData ? "Actualizar Anuncio" : t('saveChanges')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function AnnouncementManagement() {
   const { t } = useLanguage();
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  
-  const [formData, setFormData] = useState<Announcement>({
-    tipo: "alert",
-    titulo: "",
-    mensaje: "",
-    fecha_inicio: new Date().toISOString().split('T')[0],
-    fecha_fin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    activo: true
-  });
+  const [editingItem, setEditingItem] = useState<Announcement | null>(null);
 
-  // Obtener anuncios desde Supabase
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -47,69 +161,34 @@ export default function AnnouncementManagement() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAnnouncements();
-  }, []);
+  }, [fetchAnnouncements]);
 
-  const getIconForType = (type: string) => {
-    switch (type) {
-      case "alert": return <AlertTriangle className="w-5 h-5 text-rose-500" />;
-      case "banner": return <Megaphone className="w-5 h-5 text-blue-500" />;
-      case "promotion": return <Star className="w-5 h-5 text-amber-500" />;
-      default: return <Info className="w-5 h-5 text-slate-500" />;
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
-  };
-
-  const resetForm = () => {
-    setFormData({
-      tipo: "alert",
-      titulo: "",
-      mensaje: "",
-      fecha_inicio: new Date().toISOString().split('T')[0],
-      fecha_fin: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      activo: true
-    });
-    setEditingId(null);
-    setShowForm(false);
-  };
-
-  const handleSave = async () => {
-    if (!formData.titulo || !formData.mensaje) return alert("El título y mensaje son obligatorios");
-    
-    setIsSaving(true);
+  const handleSave = async (formData: Announcement) => {
     try {
       const { id, creado_en, created_at, ...payload } = formData as any;
 
-      if (editingId) {
-        const { error } = await supabase.from('admin_announcements').update(payload).eq('id', editingId);
+      if (editingItem?.id) {
+        const { error } = await supabase.from('admin_announcements').update(payload).eq('id', editingItem.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from('admin_announcements').insert([payload]);
         if (error) throw error;
       }
       await fetchAnnouncements();
-      resetForm();
+      setShowForm(false);
+      setEditingItem(null);
     } catch (err) {
       console.error("Error saving announcement:", err);
       alert("Error al guardar el anuncio.");
-    } finally {
-      setIsSaving(false);
     }
   };
 
   const handleEdit = (item: Announcement) => {
-    setFormData(item);
-    setEditingId(item.id!);
+    setEditingItem(item);
     setShowForm(true);
   };
 
@@ -118,110 +197,52 @@ export default function AnnouncementManagement() {
     try {
       const { error } = await supabase.from('admin_announcements').delete().eq('id', id);
       if (error) throw error;
-      await fetchAnnouncements();
+      setAnnouncements(prev => prev.filter(a => a.id !== id));
     } catch (err) {
       console.error("Error deleting announcement:", err);
+    }
+  };
+
+  const toggleForm = () => {
+    if (showForm) {
+      setShowForm(false);
+      setEditingItem(null);
+    } else {
+      setEditingItem(null);
+      setShowForm(true);
     }
   };
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
       
-      {}
+      {/* Header */}
       <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
         <div>
           <h2 className="text-xl font-bold text-slate-800 dark:text-white">{t('announcementManagement')}</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Crea banners y notificaciones que verán los usuarios.</p>
         </div>
         <button 
-          onClick={() => {
-            if (showForm) resetForm();
-            else setShowForm(true);
-          }} 
+          onClick={toggleForm} 
           className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-md shadow-blue-500/20"
         >
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          <span>{showForm ? t('cancel') : t('createAnnouncement')}</span>
+          {showForm && !editingItem ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+          <span>{showForm && !editingItem ? t('cancel') : t('createAnnouncement')}</span>
         </button>
       </div>
 
-      {}
+      {/* Formulario extraído para evitar re-renders */}
       {showForm && (
-        <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="space-y-1.5">
-              <label className="text-[11px] uppercase font-bold text-slate-500">{t('title')}</label>
-              <input 
-                type="text" 
-                name="titulo"
-                value={formData.titulo}
-                onChange={handleInputChange}
-                placeholder="Ej. Alerta Epidemiológica" 
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500" 
-              />
-            </div>
-            
-            <div className="space-y-1.5">
-              <label className="text-[11px] uppercase font-bold text-slate-500">{t('announcementType')}</label>
-              <select name="tipo" value={formData.tipo} onChange={handleInputChange} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500">
-                <option value="alert">{t('announcementType_alert' as any)}</option>
-                <option value="banner">{t('announcementType_banner' as any)}</option>
-                <option value="promotion">{t('announcementType_promotion' as any)}</option>
-              </select>
-            </div>
-
-            <div className="space-y-1.5 md:col-span-2">
-              <label className="text-[11px] uppercase font-bold text-slate-500">{t('message')}</label>
-              <textarea 
-                rows={3} 
-                name="mensaje"
-                value={formData.mensaje}
-                onChange={handleInputChange}
-                placeholder="Escribe el contenido del anuncio..." 
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 resize-none"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] uppercase font-bold text-slate-500">{t('startDate')}</label>
-              <input 
-                type="date" 
-                name="fecha_inicio"
-                value={formData.fecha_inicio}
-                onChange={handleInputChange}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500" 
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[11px] uppercase font-bold text-slate-500">{t('endDate')}</label>
-              <input 
-                type="date" 
-                name="fecha_fin"
-                value={formData.fecha_fin}
-                onChange={handleInputChange}
-                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500" 
-              />
-            </div>
-
-            <div className="space-y-1.5 flex items-center md:col-span-2 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="activo" checked={formData.activo} onChange={handleInputChange} className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Anuncio Activo (Público)</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <button onClick={handleSave} disabled={isSaving} className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50">
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
-              {editingId ? "Actualizar Anuncio" : t('saveChanges')}
-            </button>
-          </div>
-        </div>
+        <AnnouncementForm 
+          key={editingItem ? editingItem.id : 'new'} 
+          initialData={editingItem} 
+          onSave={handleSave} 
+          onCancel={() => { setShowForm(false); setEditingItem(null); }}
+          t={t} 
+        />
       )}
 
-      {}
+      {/* Lista */}
       <div className="p-6">
         <div className="space-y-3">
           {isLoading ? (
