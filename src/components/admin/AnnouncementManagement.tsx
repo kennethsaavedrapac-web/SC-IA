@@ -71,13 +71,13 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ initialData, onSave
             value={formData.titulo}
             onChange={handleInputChange}
             placeholder="Ej. Alerta Epidemiológica" 
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+            className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
           />
         </div>
         
         <div className="space-y-1.5">
           <label className="text-[11px] uppercase font-bold text-slate-500">{t('announcementType')}</label>
-          <select name="tipo" value={formData.tipo} onChange={handleInputChange} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors">
+          <select name="tipo" value={formData.tipo} onChange={handleInputChange} className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors">
             <option value="alert">{t('announcementType_alert' as any) || 'Alerta'}</option>
             <option value="banner">{t('announcementType_banner' as any) || 'Banner'}</option>
             <option value="promotion">{t('announcementType_promotion' as any) || 'Promoción'}</option>
@@ -92,7 +92,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ initialData, onSave
             value={formData.mensaje}
             onChange={handleInputChange}
             placeholder="Escribe el contenido del anuncio..." 
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 resize-none transition-colors"
+            className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 resize-none transition-colors"
           />
         </div>
 
@@ -103,7 +103,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ initialData, onSave
             name="fecha_inicio"
             value={formData.fecha_inicio}
             onChange={handleInputChange}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+            className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
           />
         </div>
 
@@ -114,7 +114,7 @@ const AnnouncementForm: React.FC<AnnouncementFormProps> = ({ initialData, onSave
             name="fecha_fin"
             value={formData.fecha_fin}
             onChange={handleInputChange}
-            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
+            className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors" 
           />
         </div>
 
