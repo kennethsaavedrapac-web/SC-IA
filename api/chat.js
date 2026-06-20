@@ -186,7 +186,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext;
 
     // Obtener aiModel dinámico desde Supabase
-    let aiModel = "gemini-2.0-flash-lite";
+    let aiModel = "gemini-2.5-flash";
     if (supabase) {
       try {
         const { data: configData, error: configError } = await supabase

@@ -1,11 +1,12 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
+import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -34,31 +35,87 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [showNotificationBadge, setShowNotificationBadge] = useState(true);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  // Local Medical Data State
-  const [localMedicalData, setLocalMedicalData] = useState(() => {
-    const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
-    return saved ? JSON.parse(saved) : {
-      enfermedades: "",
-      alergias: "",
-      tipoSangre: "",
-      tratamientos: "",
-      pastillas: "",
-      vacunas: "",
-      peso: "",
-      altura: "",
-      cedula: "",
-      contactoEmergencia: "",
-    };
+  // Medical Data State (FHIR-backed)
+  const [localMedicalData, setLocalMedicalData] = useState<MedicalFormData>(() => {
+    // Initial load from localStorage as immediate cache
+    try {
+      const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
+      return saved ? JSON.parse(saved) : getEmptyMedicalForm();
+    } catch {
+      return getEmptyMedicalForm();
+    }
   });
+  const [isSavingMedical, setIsSavingMedical] = useState(false);
+  const [medicalSyncSource, setMedicalSyncSource] = useState<"fhir" | "localStorage" | "none">("none");
+  const [medicalSaveError, setMedicalSaveError] = useState<string | null>(null);
 
-  const handleUpdateMedicalData = (e: React.FormEvent) => {
+  // Load medical data from FHIR on mount (if cédula available)
+  useEffect(() => {
+    const loadFromFhir = async () => {
+      const cedula = localMedicalData.cedula;
+      if (!cedula || cedula.trim().length < 3) return;
+
+      try {
+        const result = await loadMedicalData(cedula, user.id || 'guest');
+        if (result.found && result.data) {
+          setLocalMedicalData(result.data);
+          setMedicalSyncSource(result.source);
+        }
+      } catch (err) {
+        console.warn("Failed to load FHIR data on mount:", err);
+      }
+    };
+
+    loadFromFhir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleUpdateMedicalData = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem(`medicalData_${user.id || 'guest'}`, JSON.stringify(localMedicalData));
-    setIsSavedAlertOpen(true);
-    setTimeout(() => {
-      setIsSavedAlertOpen(false);
-      setActiveMenuSection(null);
-    }, 2500);
+    setIsSavingMedical(true);
+    setMedicalSaveError(null);
+
+    try {
+      const result = await saveMedicalData(
+        localMedicalData,
+        user.id || 'guest',
+        {
+          nombre: user.name,
+          email: user.email,
+          ciudad: user.city,
+          pais: user.country,
+        }
+      );
+
+      setMedicalSyncSource(result.source);
+
+      if (result.source === "fhir") {
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setActiveMenuSection(null);
+        }, 2500);
+      } else {
+        // Saved to localStorage (fallback)
+        setMedicalSaveError(result.message);
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setMedicalSaveError(null);
+        }, 4000);
+      }
+    } catch (err: any) {
+      console.error("Medical data save error:", err);
+      setMedicalSaveError("Error inesperado al guardar datos médicos.");
+      // Still show alert since localStorage fallback in the service saved the data
+      setIsSavedAlertOpen(true);
+      setTimeout(() => {
+        setIsSavedAlertOpen(false);
+        setMedicalSaveError(null);
+      }, 4000);
+    } finally {
+      setIsSavingMedical(false);
+    }
   };
 
   // Notifications State (Local Storage & Supabase)
@@ -977,12 +1034,39 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                               </div>
 
+                              {/* Sync status indicator */}
+                              {medicalSyncSource !== "none" && (
+                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${
+                                  medicalSyncSource === "fhir"
+                                    ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
+                                    : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40"
+                                }`}>
+                                  {medicalSyncSource === "fhir" ? (
+                                    <><Cloud className="w-3 h-3" /> Sincronizado con Google Cloud FHIR</>
+                                  ) : (
+                                    <><CloudOff className="w-3 h-3" /> Datos guardados localmente</>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Error message */}
+                              {medicalSaveError && (
+                                <div className="flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 mb-1">
+                                  <AlertTriangle className="w-3 h-3 shrink-0" />
+                                  <span>{medicalSaveError}</span>
+                                </div>
+                              )}
+
                               <button
                                 type="submit"
-                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                                disabled={isSavingMedical}
+                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
-                                <Save className="w-3.5 h-3.5" />
-                                {t('saveMedicalData')}
+                                {isSavingMedical ? (
+                                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</>
+                                ) : (
+                                  <><Save className="w-3.5 h-3.5" /> {t('saveMedicalData')}</>
+                                )}
                               </button>
                             </form>
                           )}

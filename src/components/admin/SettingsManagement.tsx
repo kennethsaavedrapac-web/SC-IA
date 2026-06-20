@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS = {
   maintenanceMode: false,
   showPwaBanner: true,
   enableAnalytics: true,
-  aiModel: "gemini-2.0-flash-lite",
+  aiModel: "gemini-2.5-flash",
   maxConsultationLength: 500,
   availableLanguages: ["es", "en"],
   defaultLanguage: "es",
@@ -313,6 +313,7 @@ const SettingsManagement: React.FC = () => {
                 onFocus={() => { setEditedField("aiModel"); setEditValue(settings.aiModel); }}
                 className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "aiModel" ? "border-emerald-500 ring-2 ring-emerald-500/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm font-bold outline-none transition-all cursor-pointer`}
               >
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
                 <option value="gemini-2.0-flash-lite">{t('geminiFlashLite')}</option>
                 <option value="gemini-2.0-flash">{t('geminiFlash')}</option>
                 <option value="gemini-2.0-pro">{t('geminiPro')}</option>

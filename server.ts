@@ -8,6 +8,10 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
+// Import Vercel API handlers to make them work locally
+import fhirHandler from "./api/fhir.js";
+import fhirGetHandler from "./api/fhir-get.js";
+
 dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
@@ -184,7 +188,7 @@ Condiciones: ${safeConditions || 'Ninguna'}`;
 
       const finalSystemInstruction = systemInstruction + timeContext + profileContext;
 
-      let aiModel = "gemini-2.0-flash-lite";
+      let aiModel = "gemini-2.5-flash";
       try {
         if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.includes("placeholder")) {
            throw new Error("Supabase no configurado");
@@ -239,6 +243,17 @@ Condiciones: ${safeConditions || 'Ninguna'}`;
         error: "Ocurrió un error procesando el triaje virtual con IA. Intente nuevamente."
       });
     }
+  });
+
+  // Mount FHIR API endpoints
+  app.post("/api/fhir", (req: Request, res: Response) => {
+    // Wrap Express req/res to simulate Vercel serverless environment if necessary,
+    // but the handlers are simple enough to work with Express directly.
+    return fhirHandler(req, res);
+  });
+
+  app.get("/api/fhir-get", (req: Request, res: Response) => {
+    return fhirGetHandler(req, res);
   });
 
   // Hot module reloading and client asset serving
