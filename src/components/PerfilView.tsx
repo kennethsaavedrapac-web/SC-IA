@@ -1,12 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
+import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -32,7 +33,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
-  const [showNotificationBadge, setShowNotificationBadge] = useState(true);
+  const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
   const [showQRModal, setShowQRModal] = useState(false);
 
   // Medical Data State (FHIR-backed)
@@ -153,6 +154,36 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       } catch (err) {
         console.error("Error saving preferences", err);
       }
+    }
+  };
+
+  const refreshNotificationHistory = useCallback(() => {
+    setNotificationHistory(getTodaysNotificationHistory(user.id));
+  }, [user.id]);
+
+  useEffect(() => {
+    refreshNotificationHistory();
+    window.addEventListener("salud-notifications-updated", refreshNotificationHistory);
+    return () => {
+      window.removeEventListener("salud-notifications-updated", refreshNotificationHistory);
+    };
+  }, [refreshNotificationHistory]);
+
+  const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
+
+  const handleOpenNotifications = () => {
+    setActiveMenuSection("notificaciones");
+    const updatedHistory = markTodaysNotificationsRead(user.id);
+    setNotificationHistory(
+      updatedHistory.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    );
+  };
+
+  const formatNotificationTime = (value: string) => {
+    try {
+      return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "--:--";
     }
   };
 
@@ -498,16 +529,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
           <button
             id="btn-profile-bell"
-            onClick={() => {
-              alert(t('noAlerts'));
-              setShowNotificationBadge(false);
-            }}
+            onClick={handleOpenNotifications}
             className="w-12 h-12 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center relative hover:scale-105 active:scale-95 transition-all"
             title={t('notifications')}
           >
             <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
-            {showNotificationBadge && (
-              <span className="absolute top-2 right-2 sm:top-4 sm:right-4 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-blue-500 border-[3px] sm:border-4 border-white dark:border-slate-900 rounded-full"></span>
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 min-w-5 h-5 px-1 bg-blue-600 text-white border-[3px] border-white dark:border-slate-900 rounded-full text-[9px] font-black flex items-center justify-center leading-none">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </span>
             )}
           </button>
         </div>
@@ -867,7 +897,60 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {}
                           {item.id === "notificaciones" && (
-                            <div className="space-y-2.5 text-left">
+                            <div className="space-y-4 text-left">
+                              <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 overflow-hidden">
+                                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3">
+                                  <div>
+                                    <h4 className="text-xs font-black text-slate-800 dark:text-white">{t('todayNotifications')}</h4>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{t('todayNotificationsDesc')}</p>
+                                  </div>
+                                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-full px-2.5 py-1 shrink-0">
+                                    {notificationHistory.length}
+                                  </span>
+                                </div>
+
+                                {notificationHistory.length > 0 ? (
+                                  <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                                    {notificationHistory.map((notification) => (
+                                      <div key={notification.id} className="p-4 flex items-start gap-3">
+                                        <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                                          notification.read
+                                            ? "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300"
+                                            : "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-300"
+                                        }`}>
+                                          <BellRing className="w-4.5 h-4.5" />
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
+                                            <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
+                                              notification.read
+                                                ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                                                : "bg-blue-600 text-white"
+                                            }`}>
+                                              {notification.read ? t('read') : t('unread')}
+                                            </span>
+                                          </div>
+                                          <p className="mt-1 text-[11px] leading-normal text-slate-500 dark:text-slate-400">{notification.body}</p>
+                                          <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                                            <Clock className="w-3 h-3" />
+                                            <span>{formatNotificationTime(notification.createdAt)}</span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="px-4 py-6 text-center">
+                                    <div className="mx-auto w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 mb-3">
+                                      <Bell className="w-5 h-5" />
+                                    </div>
+                                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200">{t('noNotificationsToday')}</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">{t('noNotificationsTodayDesc')}</p>
+                                  </div>
+                                )}
+                              </div>
+
                               <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
                               {[
                                 { value: "consejo", label: t('notifTip'), desc: t('notifTipDesc') },
