@@ -188,7 +188,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
 
     // Obtener aiModel dinámico desde Supabase
-    let aiModel = "gemini-2.0-flash";
+    let aiModel = "gemini-2.5-flash-lite";
     if (supabase) {
       try {
         const { data: configData, error: configError } = await supabase
