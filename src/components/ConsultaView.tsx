@@ -190,6 +190,14 @@ const buildHistoryForApi = (messages: ChatMessage[]) => {
   });
 };
 
+const mergeMessagesById = (messages: ChatMessage[]) => {
+  const map = new Map<string, ChatMessage>();
+  messages.forEach((message) => map.set(message.id, message));
+  return normalizeStoredMessages(Array.from(map.values())).sort(
+    (a, b) => getMessageDate(a).getTime() - getMessageDate(b).getTime()
+  );
+};
+
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
@@ -197,7 +205,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [isFocused, setIsFocused] = useState(false);
 
   // --- CHAT STATE ---
-  const [messages, setMessages] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [storedHistory, setStoredHistory] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -207,14 +216,18 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    setMessages(loadTriageHistory(user.id));
+    setMessages([]);
+    setStoredHistory(loadTriageHistory(user.id));
   }, [user.id]);
 
+  const persistTriageMessages = (nextMessages: ChatMessage[]) => {
+    const nextHistory = saveTriageHistory(user.id, mergeMessagesById([...storedHistory, ...nextMessages]));
+    setStoredHistory(nextHistory);
+  };
+
   useEffect(() => {
-    const normalized = saveTriageHistory(user.id, messages);
-    if (normalized.length !== messages.length) {
-      setMessages(normalized);
-    }
+    if (messages.length === 0) return;
+    persistTriageMessages(messages);
   }, [messages]);
 
   useEffect(() => {
@@ -397,7 +410,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, history: buildHistoryForApi(messages), userProfile: user, language })
+        body: JSON.stringify({ message: userText, history: buildHistoryForApi(mergeMessagesById([...storedHistory, ...messages])), userProfile: user, language })
       });
       
       let data: any;
@@ -470,6 +483,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
   const handleResetChat = () => {
     setMessages([]);
+  };
+
+  const handleClearHistory = () => {
+    setMessages([]);
+    setStoredHistory([]);
     setIsHistoryOpen(false);
     try {
       localStorage.removeItem(getTriageHistoryKey(user.id));
@@ -480,7 +498,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
   const firstName = user.name.split(" ")[0];
   const isChatMode = messages.length > 0;
-  const historyMessages = normalizeStoredMessages(messages);
+  const historyMessages = normalizeStoredMessages(storedHistory);
 
   const formatHistoryDate = (value?: string) => {
     const date = value ? new Date(value) : new Date();
@@ -826,7 +844,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 </div>
                 {historyMessages.length > 0 && (
                   <button
-                    onClick={handleResetChat}
+                    onClick={handleClearHistory}
                     className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
                   >
                     Limpiar historial

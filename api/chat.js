@@ -183,7 +183,9 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
 
     // Combinar el prompt de la BD con el contexto temporal y el perfil médico
     const languageContext = language === "mi" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA MISKITO. DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN IDIOMA MISKITO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN MISKITO." : language === "kr" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA INGLÉS CRIOLLO (KRIOL NICARAGÜENSE). DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN INGLÉS CRIOLLO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN INGLÉS CRIOLLO (KRIOL)." : "";
-    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext;
+    const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
+El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
 
     // Obtener aiModel dinámico desde Supabase
     let aiModel = "gemini-2.5-flash";

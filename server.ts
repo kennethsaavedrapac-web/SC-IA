@@ -186,7 +186,10 @@ Ciudad: ${safeCity || 'No especificada'}
 Condiciones: ${safeConditions || 'Ninguna'}`;
       }
 
-      const finalSystemInstruction = systemInstruction + timeContext + profileContext;
+      const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
+El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
+
+      const finalSystemInstruction = systemInstruction + timeContext + profileContext + historyContext;
 
       let aiModel = "gemini-2.5-flash";
       try {
