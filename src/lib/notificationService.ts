@@ -2,12 +2,21 @@ import { supabase } from './supabaseClient';
 
 export interface AppNotificationRecord {
   id: string;
+  externalId?: string;
   title: string;
   body: string;
   createdAt: string;
   dateKey: string;
   read: boolean;
-  source: "daily" | "push";
+  source: "daily" | "push" | "announcement";
+  category?: "alert" | "banner" | "promotion";
+}
+
+interface AdminAnnouncementInput {
+  id: string;
+  tipo: "alert" | "banner" | "promotion";
+  titulo: string;
+  mensaje: string;
 }
 
 export const DAILY_MESSAGES = [
@@ -67,6 +76,10 @@ export const saveNotificationRecord = (
   try {
     const now = new Date();
     const history = getNotificationHistory(userId);
+    if (notification.externalId && history.some((item) => item.externalId === notification.externalId)) {
+      return null;
+    }
+
     const record: AppNotificationRecord = {
       ...notification,
       id: `${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -82,6 +95,36 @@ export const saveNotificationRecord = (
   } catch (err) {
     console.warn("No se pudo guardar el historial de notificaciones:", err);
     return null;
+  }
+};
+
+export const saveAdminAnnouncementRecords = (userId: string, announcements: AdminAnnouncementInput[]) => {
+  try {
+    const history = getNotificationHistory(userId);
+    const existingIds = new Set(history.map((item) => item.externalId).filter(Boolean));
+    const now = new Date();
+    const newRecords: AppNotificationRecord[] = announcements
+      .filter((announcement) => announcement.id && !existingIds.has(`admin-announcement-${announcement.id}`))
+      .map((announcement, index) => ({
+        id: `${now.getTime()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+        externalId: `admin-announcement-${announcement.id}`,
+        title: announcement.titulo,
+        body: announcement.mensaje,
+        createdAt: new Date(now.getTime() + index).toISOString(),
+        dateKey: getLocalDateKey(now),
+        read: false,
+        source: "announcement",
+        category: announcement.tipo,
+      }));
+
+    if (newRecords.length === 0) return [];
+
+    localStorage.setItem(getHistoryKey(userId), JSON.stringify([...newRecords, ...history].slice(0, 80)));
+    window.dispatchEvent(new CustomEvent("salud-notifications-updated"));
+    return newRecords;
+  } catch (err) {
+    console.warn("No se pudieron guardar los anuncios en el historial:", err);
+    return [];
   }
 };
 

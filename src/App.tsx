@@ -14,7 +14,7 @@ import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
+import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VERSION } from "./lib/updateNotification";
 import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -100,6 +100,14 @@ export default function App() {
             const end = new Date(a.fecha_fin + "T23:59:59");
             return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
           });
+          if (user?.id) {
+            saveAdminAnnouncementRecords(user.id, active.map((announcement: any) => ({
+              id: announcement.id,
+              tipo: announcement.tipo,
+              titulo: announcement.titulo,
+              mensaje: announcement.mensaje,
+            })));
+          }
           setAnnouncements(active);
         }
         
@@ -123,7 +131,7 @@ export default function App() {
       .subscribe();
 
     return () => { supabase.removeChannel(announcementsSub); };
-  }, [dismissedAnnouncements]);
+  }, [dismissedAnnouncements, user?.id]);
 
   
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Star } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -34,6 +34,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
   const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
+  const [isNotificationInboxOpen, setIsNotificationInboxOpen] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
 
   // Medical Data State (FHIR-backed)
@@ -172,7 +173,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
 
   const handleOpenNotifications = () => {
-    setActiveMenuSection("notificaciones");
+    refreshNotificationHistory();
+    setIsNotificationInboxOpen(true);
+  };
+
+  const handleMarkNotificationsRead = () => {
     const updatedHistory = markTodaysNotificationsRead(user.id);
     setNotificationHistory(
       updatedHistory.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -185,6 +190,26 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     } catch {
       return "--:--";
     }
+  };
+
+  const getNotificationTypeLabel = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") return t('notifications');
+    if (notification.category === "alert") return t('announcementType_alert' as any);
+    if (notification.category === "promotion") return t('announcementType_promotion' as any);
+    return t('announcementType_banner' as any);
+  };
+
+  const getNotificationTone = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") {
+      return "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-300";
+    }
+    if (notification.category === "alert") {
+      return "bg-rose-50 dark:bg-rose-900/25 border-rose-100 dark:border-rose-800 text-rose-600 dark:text-rose-300";
+    }
+    if (notification.category === "promotion") {
+      return "bg-amber-50 dark:bg-amber-900/25 border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-300";
+    }
+    return "bg-indigo-50 dark:bg-indigo-900/25 border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300";
   };
 
   
@@ -897,60 +922,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           {}
                           {item.id === "notificaciones" && (
-                            <div className="space-y-4 text-left">
-                              <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 overflow-hidden">
-                                <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3">
-                                  <div>
-                                    <h4 className="text-xs font-black text-slate-800 dark:text-white">{t('todayNotifications')}</h4>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{t('todayNotificationsDesc')}</p>
-                                  </div>
-                                  <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-full px-2.5 py-1 shrink-0">
-                                    {notificationHistory.length}
-                                  </span>
-                                </div>
-
-                                {notificationHistory.length > 0 ? (
-                                  <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                                    {notificationHistory.map((notification) => (
-                                      <div key={notification.id} className="p-4 flex items-start gap-3">
-                                        <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                                          notification.read
-                                            ? "bg-slate-100 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300"
-                                            : "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-300"
-                                        }`}>
-                                          <BellRing className="w-4.5 h-4.5" />
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                          <div className="flex items-start justify-between gap-2">
-                                            <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
-                                            <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
-                                              notification.read
-                                                ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
-                                                : "bg-blue-600 text-white"
-                                            }`}>
-                                              {notification.read ? t('read') : t('unread')}
-                                            </span>
-                                          </div>
-                                          <p className="mt-1 text-[11px] leading-normal text-slate-500 dark:text-slate-400">{notification.body}</p>
-                                          <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
-                                            <Clock className="w-3 h-3" />
-                                            <span>{formatNotificationTime(notification.createdAt)}</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="px-4 py-6 text-center">
-                                    <div className="mx-auto w-12 h-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 mb-3">
-                                      <Bell className="w-5 h-5" />
-                                    </div>
-                                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200">{t('noNotificationsToday')}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">{t('noNotificationsTodayDesc')}</p>
-                                  </div>
-                                )}
-                              </div>
-
+                            <div className="space-y-2.5 text-left">
                               <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
                               {[
                                 { value: "consejo", label: t('notifTip'), desc: t('notifTipDesc') },
@@ -1218,6 +1190,118 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           >
             <CheckCircle className="w-4.5 h-4.5 shrink-0" />
             <span>{t('saveSuccess')}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {}
+      <AnimatePresence>
+        {isNotificationInboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-slate-950/55 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 sm:p-6"
+            onClick={() => setIsNotificationInboxOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 360, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md mt-16 sm:mt-0 bg-white dark:bg-slate-900 rounded-[28px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 flex items-center justify-center border border-blue-100 dark:border-blue-800 shrink-0">
+                    <Bell className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">{t('todayNotifications')}</h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">{t('todayNotificationsDesc')}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsNotificationInboxOpen(false)}
+                  className="p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-full px-2.5 py-1">
+                  {notificationHistory.length} {t('notifications')}
+                </span>
+                {unreadNotifications > 0 && (
+                  <button
+                    onClick={handleMarkNotificationsRead}
+                    className="text-[10px] font-black text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full px-3 py-1.5 transition-colors"
+                  >
+                    {t('markAllRead')}
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto">
+                {notificationHistory.length > 0 ? (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {notificationHistory.map((notification) => {
+                      const TypeIcon = notification.source === "announcement"
+                        ? notification.category === "alert"
+                          ? AlertTriangle
+                          : notification.category === "promotion"
+                            ? Star
+                            : Megaphone
+                        : BellRing;
+
+                      return (
+                        <div key={notification.id} className="p-4 flex items-start gap-3">
+                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                            notification.read
+                              ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300"
+                              : getNotificationTone(notification)
+                          }`}>
+                            <TypeIcon className="w-4.5 h-4.5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <span className="inline-flex mb-1 text-[9px] font-black uppercase tracking-wide rounded-full px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                                  {getNotificationTypeLabel(notification)}
+                                </span>
+                                <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
+                              </div>
+                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
+                                notification.read
+                                  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-blue-600 text-white"
+                              }`}>
+                                {notification.read ? t('read') : t('unread')}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] leading-normal text-slate-500 dark:text-slate-400">{notification.body}</p>
+                            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                              <Clock className="w-3 h-3" />
+                              <span>{formatNotificationTime(notification.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="px-6 py-10 text-center">
+                    <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 mb-3">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-black text-slate-800 dark:text-white">{t('noNotificationsToday')}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">{t('noNotificationsTodayDesc')}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
