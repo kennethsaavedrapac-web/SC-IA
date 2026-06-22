@@ -191,7 +191,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
 
       const finalSystemInstruction = systemInstruction + timeContext + profileContext + historyContext;
 
-      let aiModel = "gemini-2.5-flash";
+      let aiModel = "gemini-2.0-flash";
       try {
         if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.includes("placeholder")) {
            throw new Error("Supabase no configurado");
