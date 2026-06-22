@@ -87,6 +87,7 @@ function getNearestHospital(
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const googleMapsMapId = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "DEMO_MAP_ID";
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
@@ -658,7 +659,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 center: { lat: 12.1364, lng: -86.2514 },
                 zoom: 9,
                 disableDefaultUI: true,
-                zoomControl: true
+                zoomControl: true,
+                mapId: "${googleMapsMapId}"
               });
 
               if (pendingMessage) {
@@ -680,20 +682,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
               // Update user location marker
               if (userLocationMarker) {
-                userLocationMarker.setMap(null);
+                userLocationMarker.map = null;
                 userLocationMarker = null;
               }
               if (msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
-                const userIcon = {
-                  url: 'data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>',
-                  size: new google.maps.Size(30, 30),
-                  origin: new google.maps.Point(0, 0),
-                  anchor: new google.maps.Point(15, 15)
-                };
-                userLocationMarker = new google.maps.Marker({
+                const userPinContainer = document.createElement('div');
+                userPinContainer.style.width = '0px';
+                userPinContainer.style.height = '0px';
+                userPinContainer.style.position = 'relative';
+
+                const userPin = document.createElement('div');
+                userPin.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>\`;
+                userPin.style.position = 'absolute';
+                userPin.style.transform = 'translate(-50%, -50%)';
+                userPinContainer.appendChild(userPin);
+
+                userLocationMarker = new google.maps.marker.AdvancedMarkerElement({
                   position: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
                   map: map,
-                  icon: userIcon,
+                  content: userPinContainer,
                   title: "Tu ubicación"
                 });
               }
@@ -702,7 +709,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               const newIds = new Set(msg.centers.map(c => c.id));
               for (let [id, markerObj] of markersMap.entries()) {
                 if (!newIds.has(id)) {
-                  markerObj.marker.setMap(null);
+                  markerObj.marker.map = null;
                   markersMap.delete(id);
                 }
               }
@@ -712,30 +719,33 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 
                 const isSelected = c.id === msg.selectedId;
                 const size = isSelected ? 38 : 28;
-                const anchor = size / 2;
-                const strokeColor = isSelected ? '%233b82f6' : 'white';
+                const strokeColor = isSelected ? '#3b82f6' : 'white';
                 const strokeWidth = isSelected ? 3 : 2;
                 
-                const iconUrl = c.isHospital
-                  ? \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
-                  : \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
+                const svgContent = c.isHospital
+                  ? \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
+                  : \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
 
-                const icon = {
-                  url: iconUrl,
-                  size: new google.maps.Size(size, size),
-                  origin: new google.maps.Point(0, 0),
-                  anchor: new google.maps.Point(anchor, anchor)
-                };
+                const container = document.createElement('div');
+                container.style.width = '0px';
+                container.style.height = '0px';
+                container.style.position = 'relative';
+
+                const markerContent = document.createElement('div');
+                markerContent.innerHTML = svgContent;
+                markerContent.style.position = 'absolute';
+                markerContent.style.transform = 'translate(-50%, -50%)';
+                container.appendChild(markerContent);
 
                 let markerObj = markersMap.get(c.id);
                 if (markerObj) {
-                  markerObj.marker.setIcon(icon);
-                  markerObj.marker.setPosition({ lat: c.lat, lng: c.lng });
+                  markerObj.marker.content = container;
+                  markerObj.marker.position = { lat: c.lat, lng: c.lng };
                 } else {
-                  const marker = new google.maps.Marker({
+                  const marker = new google.maps.marker.AdvancedMarkerElement({
                     position: { lat: c.lat, lng: c.lng },
                     map: map,
-                    icon: icon,
+                    content: container,
                     title: c.name
                   });
 
@@ -769,7 +779,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }
             });
           </script>
-          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap" async defer></script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap&loading=async&libraries=marker" async defer></script>
         </body>
         </html>
       `;
@@ -890,7 +900,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </body>
       </html>
     `;
-  }, [googleMapsApiKey]);
+  }, [googleMapsApiKey, googleMapsMapId]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
