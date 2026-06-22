@@ -100,7 +100,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history, userProfile, language } = req.body;
+    const { message, userProfile, language } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -205,19 +205,16 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       }
     }
 
-    
     const model = ai.getGenerativeModel({
       model: aiModel,
       systemInstruction: systemPrompt,
     });
 
-    
+    // Iniciar chat sin historial (ahorro máximo de tokens - no se envía historial a la API)
     const chat = model.startChat({
-      history: history && Array.isArray(history) ? history.map(turn => ({
-        role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-        parts: [{ text: turn.text || turn.content || "" }],
-      })) : [],
+      history: [],
     });
+    
 
     // Generate response
     let response;
