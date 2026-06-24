@@ -12,17 +12,14 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
-    "clsx": "^2.1.1",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "express-rate-limit": "^8.5.2",
-    "fuse.js": "^7.4.2",
     "helmet": "^8.2.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
@@ -30,9 +27,6 @@
     "qrcode.react": "^3.1.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "react-router-dom": "^7.16.0",
-    "tailwind-merge": "^3.6.0",
-    "vite": "^6.2.3",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
@@ -42,7 +36,6 @@
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@types/web-push": "^3.6.4",
-    "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",

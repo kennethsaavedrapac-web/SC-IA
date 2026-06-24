@@ -1,25 +1,3 @@
-export interface Doctor {
-  id: string;
-  name: string;
-  specialty: string;
-  rating: number;
-  experience: number;
-  status: "Disponible" | "No disponible";
-  distance: string;
-  photoUrl: string;
-}
-
-export interface Pharmacy {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  distance: string;
-  status: "Disponible" | "Poco stock" | "Agotado";
-  openNow: boolean;
-  closingTime?: string;
-  medsAvailable: string[];
-}
 
 export interface HealthCenter {
   id: string;
