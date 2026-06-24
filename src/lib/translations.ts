@@ -433,8 +433,8 @@ export const translations = {
     noDescription: "Sin descripción",
     updatedAt: "Actualizado en",
     saveChanges: "Guardar Cambios",
-
-    
+    description: "Descripción",
+    refresh: "Refrescar",
     medicalData: "Datos Médicos",
     medicalDataSubtitle: "Información clínica especializada",
     diseases: "Enfermedades que padece",
@@ -928,6 +928,8 @@ export const translations = {
     noDescription: "No description",
     updatedAt: "Updated at",
     saveChanges: "Save Changes",
+    description: "Description",
+    refresh: "Refresh",
 
     
     medicalData: "Medical Data",
@@ -1979,7 +1981,6 @@ export const translations = {
     pdfNotSpecified: "Not spec.",
     pdfFileName: "Emergency-Info"
   },
-
 };
 
 export type Language = keyof typeof translations;

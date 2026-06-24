@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
@@ -147,7 +148,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     
     if (user.id && user.id !== "guest") {
       try {
-        const { supabase } = await import('../lib/supabaseClient');
         await supabase
           .from('push_subscriptions')
           .update({ preferences: prefString })

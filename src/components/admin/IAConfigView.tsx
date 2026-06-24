@@ -285,7 +285,7 @@ const IAConfigView: React.FC = () => {
             onClick={loadAIConfigs}
             className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 flex items-center gap-2"
           >
-            <Clock className="w-4 h-4" /> {t('loading')}
+            <Clock className="w-4 h-4" /> {t('refresh')}
           </button>
         </div>
       </div>
@@ -303,10 +303,10 @@ const IAConfigView: React.FC = () => {
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {aiConfigs.map((config) => (
-                <div key={config.id} className="px-6 py-4 flex justify-between items-center">
+                <div key={config.id} className="px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                   <div className="flex-1 min-w-0 flex items-center gap-3">
                     <div>
-                      <h4 className="font-medium text-slate-900 dark:text-white">{config.config_key}</h4>
+                      <h4 className="font-medium text-slate-900 dark:text-white break-all">{config.config_key}</h4>
                       <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                         {config.description || 'No description'}
                       </p>
@@ -315,7 +315,7 @@ const IAConfigView: React.FC = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-end sm:w-auto w-full">
                     <button
                       type="button"
                       onClick={() => {
@@ -382,7 +382,7 @@ const IAConfigView: React.FC = () => {
               </div>
 
               <div className="mt-4">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('description' as any)}</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">{t('description')}</label>
                 <textarea
                   name="description"
                   value={formData.description || ''}

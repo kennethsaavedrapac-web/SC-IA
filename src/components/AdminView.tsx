@@ -63,7 +63,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
     { id: "announcements", icon: Megaphone, label: t('announcementManagement') },
     { id: "health", icon: Hospital, label: t('healthUnitManagement') },
     { id: "users", icon: Users, label: t('userManagement') },
-    { id: "ia", icon: Bot, label: t('settings') },
+    { id: "ia", icon: Bot, label: t('iaConfiguration') },
     { id: "analytics", icon: BarChart3, label: t('analytics') },
     { id: "settings", icon: Settings, label: t('generalSettings') },
   ] as const;

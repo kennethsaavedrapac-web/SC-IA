@@ -241,7 +241,7 @@ export default function LocationManagement() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full w-full overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-full w-full lg:overflow-hidden overflow-y-auto">
 
       {/* ═══ PANEL IZQUIERDO ═══ */}
       <div className="w-full lg:w-[420px] xl:w-[480px] flex flex-col shrink-0 lg:h-full border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
