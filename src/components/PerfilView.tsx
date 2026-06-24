@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabaseClient";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -88,7 +89,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     // Actualizar en la base de datos si el usuario está logueado
     if (user.id && user.id !== "guest") {
       try {
-        const { supabase } = await import('../lib/supabaseClient');
         await supabase
           .from('push_subscriptions')
           .update({ preferences: prefString })

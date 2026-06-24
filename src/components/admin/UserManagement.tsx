@@ -149,12 +149,12 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
         <table className="min-w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Avatar</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('name')}</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Suscripción</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Rol</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Acciones</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Avatar</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">{t('name')}</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Suscripción</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Rol</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -166,7 +166,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
 
               return (
                 <tr key={userItem.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {userItem.avatarUrl ? (
                       <img
                         src={userItem.avatarUrl}
@@ -179,11 +179,11 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900 dark:text-white">
                     {userItem.name}
                   </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-white">{userItem.email || '-'}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap text-slate-900 dark:text-white">{userItem.email || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => userItem.id && handlePremiumToggle(userItem.id, (userItem as any).is_premium)}
                       className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1.5 w-fit ${(userItem as any).is_premium ? 'bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50' : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
@@ -191,7 +191,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                       {(userItem as any).is_premium ? <><Star className="w-3 h-3 fill-current" /> Premium</> : 'Básico'}
                     </button>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       currentRole === 'admin'
                         ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200'
@@ -201,7 +201,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                       {currentRole === 'admin' ? t('admin') : t('user')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 space-x-3">
+                  <td className="px-6 py-4 whitespace-nowrap space-x-3">
                     {/* Role selector (only show if not editing yourself or if admin) */}
                     {(userItem.id !== user.id || (user as any).role === 'admin') && (
                       <select

@@ -371,7 +371,9 @@ export const translations = {
     configValue: "Valor de Configuración",
     noDescription: "Sin descripción",
     updatedAt: "Actualizado en",
-    saveChanges: "Guardar Cambios"
+    saveChanges: "Guardar Cambios",
+    description: "Descripción",
+    refresh: "Refrescar"
   },
   en: {
     // Navigation
@@ -745,7 +747,9 @@ export const translations = {
     configValue: "Configuration Value",
     noDescription: "No description",
     updatedAt: "Updated at",
-    saveChanges: "Save Changes"
+    saveChanges: "Save Changes",
+    description: "Description",
+    refresh: "Refresh"
   }
 };
 

@@ -454,15 +454,15 @@ const HealthUnitManagement: React.FC = () => {
           ) : (
             <div className="divide-y divide-slate-200 dark:divide-slate-800">
               {healthUnits.map((unit) => (
-                <div key={unit.id} className={`px-6 py-4 flex justify-between items-center ${unit._activo === false ? 'opacity-60 bg-slate-50 dark:bg-slate-800/30' : ''}`}>
+                <div key={unit.id} className={`px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 ${unit._activo === false ? 'opacity-60 bg-slate-50 dark:bg-slate-800/30' : ''}`}>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${unit.isCustom ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' : 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'}`}>
                         {unit.name.charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className={`font-medium text-slate-900 dark:text-white truncate ${unit._activo === false ? 'line-through text-slate-500 dark:text-slate-400' : ''}`}>{unit.name}</h4>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className={`font-medium text-slate-900 dark:text-white truncate max-w-[180px] sm:max-w-xs ${unit._activo === false ? 'line-through text-slate-500 dark:text-slate-400' : ''}`}>{unit.name}</h4>
                           {unit._activo === false && <span className="text-[10px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full font-bold">{t('inactive')}</span>}
                           {unit.isCustom && <span className="text-[10px] bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full font-bold shrink-0">Custom</span>}
                           {unit._hasOverride && !unit.isCustom && <span className="text-[10px] bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold shrink-0">Modificado</span>}
@@ -473,7 +473,7 @@ const HealthUnitManagement: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-right">
+                  <div className="flex flex-row items-center gap-3 sm:text-right text-left justify-between sm:justify-end w-full sm:w-auto border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-3 sm:pt-0">
                     <div className="text-sm text-slate-500 dark:text-slate-400">
                       {unit.schedule}
                     </div>
@@ -481,14 +481,14 @@ const HealthUnitManagement: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleEditUnit(unit)}
-                        className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 shrink-0"
                       >
                         {t('edit')}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteUnit(unit)}
-                        className={`px-3 py-1.5 text-xs font-medium ${unit._activo === false ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white rounded-md focus:outline-none focus:ring-2`}
+                        className={`px-3 py-1.5 text-xs font-medium ${unit._activo === false ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'} text-white rounded-md focus:outline-none focus:ring-2 shrink-0`}
                       >
                         {unit.isCustom ? t('delete') : (unit._activo === false ? t('activate') : t('deactivate'))}
                       </button>
