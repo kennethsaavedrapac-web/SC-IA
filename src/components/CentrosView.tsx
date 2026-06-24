@@ -229,6 +229,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
   const requestCurrentLocation = useCallback(() => {
     if (!("geolocation" in navigator)) {
+    if (!navigator.geolocation) {
       setGeoStatus("error");
       setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
       setLocationMode("manual");
@@ -273,6 +274,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
   }, [mergedCenters]);
 
+  // Solicitar la ubicación una sola vez al cargar el componente
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       setGeoStatus("error");
@@ -280,6 +282,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       setLocationMode("manual");
       return;
     }
+    requestCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
     setGeoStatus("loading");
     const watchId = navigator.geolocation.watchPosition(
