@@ -20,7 +20,9 @@ const AnalyticsView: React.FC = () => {
     recentUsers: [] as any[]
   });
 
-  
+  const [chatActivity, setChatActivity] = useState<{ dayLabel: string; count: number }[]>([]);
+  const [chatSource, setChatSource] = useState<"db" | "local" | "simulated">("simulated");
+
   const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
@@ -56,6 +58,94 @@ const AnalyticsView: React.FC = () => {
           activeAnnouncements: activeAnnouncements || 0,
           recentUsers: recentUsers || []
         });
+
+        // Load chat activity logs
+        let chatLogs: any[] = [];
+        let source: "db" | "local" | "simulated" = "simulated";
+
+        try {
+          const { data, error: chatLogsError } = await supabase
+            .from('chat_logs')
+            .select('created_at')
+            .gte('created_at', oneWeekAgo.toISOString());
+            
+          if (!chatLogsError && data) {
+            chatLogs = data;
+            source = "db";
+          } else {
+            throw chatLogsError || new Error("Failed to fetch chat logs");
+          }
+        } catch (err) {
+          // Fallback to localStorage triageHistory
+          const localLogs: any[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("triageHistory_")) {
+              try {
+                const stored = localStorage.getItem(key);
+                if (stored) {
+                  const messages = JSON.parse(stored);
+                  if (Array.isArray(messages)) {
+                    messages.forEach((msg: any) => {
+                      if (msg.sender === "user" && msg.createdAt) {
+                        localLogs.push({ created_at: msg.createdAt });
+                      }
+                    });
+                  }
+                }
+              } catch (e) {
+                // ignore parsing error
+              }
+            }
+          }
+          if (localLogs.length > 0) {
+            chatLogs = localLogs;
+            source = "local";
+          }
+        }
+
+        const getSpanishDayLabel = (date: Date) => {
+          const days = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+          return days[date.getDay()];
+        };
+
+        const last7Days = Array.from({ length: 7 }).map((_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return {
+            dateStr: d.toISOString().split('T')[0],
+            dayLabel: getSpanishDayLabel(d),
+            count: 0
+          };
+        });
+
+        let finalActivity = [];
+        if (source === "simulated") {
+          const simulatedValues = [12, 28, 15, 42, 22, 35, 18];
+          finalActivity = last7Days.map((day, idx) => ({
+            dayLabel: day.dayLabel,
+            count: simulatedValues[idx]
+          }));
+        } else {
+          finalActivity = last7Days.map(day => {
+            const matching = chatLogs.filter(log => {
+              try {
+                const logDate = new Date(log.created_at).toISOString().split('T')[0];
+                return logDate === day.dateStr;
+              } catch (e) {
+                return false;
+              }
+            });
+            return {
+              dayLabel: day.dayLabel,
+              count: matching.length
+            };
+          });
+        }
+
+        setChatActivity(finalActivity);
+        setChatSource(source);
+
       } catch (err) {
         console.error("Error fetching analytics:", err);
       } finally {
@@ -216,9 +306,11 @@ const AnalyticsView: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-emerald-500" /> Actividad del Chat (Simulado)
+              <MessageSquare className="w-4 h-4 text-emerald-500" /> Actividad del Chat ({chatSource === "db" ? "Base de Datos" : chatSource === "local" ? "Historial Local" : "Simulado"})
             </h3>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fase 4</span>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              {chatSource === "db" ? "Real" : chatSource === "local" ? "Local" : "Simulación"}
+            </span>
           </div>
           
           <div className="flex-1 flex items-end justify-between gap-2 h-40 border-b border-slate-100 dark:border-slate-800 pb-2 relative">
@@ -227,18 +319,23 @@ const AnalyticsView: React.FC = () => {
               <div className="border-t border-slate-400 w-full"></div>
               <div className="border-t border-slate-400 w-full"></div>
             </div>
-            {}
-            {[35, 60, 45, 80, 50, 90, 75].map((val, idx) => (
-              <div key={idx} className="w-full bg-emerald-500/20 hover:bg-emerald-500/40 rounded-t-lg relative group transition-colors" style={{ height: `${val}%` }}>
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                  {val * 12}
+            {chatActivity.map((day, idx) => {
+              const maxCount = Math.max(...chatActivity.map(d => d.count), 1);
+              const heightPct = Math.max((day.count / maxCount) * 100, 5);
+              return (
+                <div key={idx} className="w-full bg-emerald-500/20 hover:bg-emerald-500/40 rounded-t-lg relative group transition-colors" style={{ height: `${heightPct}%` }}>
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-md">
+                    {day.count === 1 ? "1 mensaje" : `${day.count} mensajes`}
+                  </div>
+                  <div className="absolute top-0 inset-x-0 bg-emerald-500 rounded-t-lg shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ height: '4px' }}></div>
                 </div>
-                <div className="absolute top-0 inset-x-0 bg-emerald-500 rounded-t-lg shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ height: '4px' }}></div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase">
-            <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
+            {chatActivity.map((day, idx) => (
+              <span key={idx} className="w-full text-center">{day.dayLabel}</span>
+            ))}
           </div>
         </div>
 

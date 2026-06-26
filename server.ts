@@ -235,6 +235,18 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
         throw aiErr;
       }
 
+      // Try to log the chat interaction to the database (fail silently if table doesn't exist)
+      try {
+        const userId = userProfile?.id;
+        await supabase.from('chat_logs').insert({
+          user_id: userId || null,
+          message_length: message.length,
+          created_at: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn("Could not log chat interaction to Supabase:", logErr);
+      }
+
       return res.json({
         text: responseText || "El asistente no pudo generar una respuesta clara.",
         simulated: false,
