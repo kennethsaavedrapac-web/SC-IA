@@ -1,0 +1,24 @@
+/* 
+  src/theme.css
+  Paleta de colores global para Salud-Conecta IA.
+  Importa este archivo en tu layout principal (ej. +layout.svelte) 
+  para que las variables estén disponibles en toda la app.
+*/
+
+:root {
+  /* Colores Principales */
+  --color-principal-bg: #ffffff; /* Blanco para fondos */
+  --color-principal-texto: #0f172a; /* Texto oscuro sobre blanco */
+
+  /* Colores Secundarios */
+  --color-secundario-verde: #10b981; /* Verde médico (Esmeralda 500) */
+  --color-secundario-verde-oscuro: #059669; /* Verde médico más oscuro (Esmeralda 600) */
+  --color-secundario-celeste: #3b82f6; /* Celeste (Azul 500) */
+  --color-secundario-celeste-oscuro: #2563eb; /* Celeste más oscuro (Azul 600) */
+
+  /* Colores de Acento y Neutros */
+  --color-acento-sombra-verde: rgba(16, 185, 129, 0.25);
+  --color-acento-sombra-verde-hover: rgba(16, 185, 129, 0.35);
+  --color-texto-secundario: #64748b; /* Gris para descripciones */
+  --color-borde: rgba(203, 213, 225, 0.8); /* Gris claro para bordes */
+}

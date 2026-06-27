@@ -200,7 +200,7 @@ const CSS_STYLES = `
 
   /* Icono de Campana / Sparkle */
   .un-icon {
-    color: #3b82f6;
+    color: #2563eb; /* Celeste para el icono */
     animation: un-bounce 2s infinite;
     display: inline-flex;
     align-items: center;
@@ -213,7 +213,7 @@ const CSS_STYLES = `
 
   /* Botón Principal (Actualizar) */
   .un-btn-primary {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Gradiente de verde médico */
     color: #ffffff;
     font-weight: 600;
     font-size: 14px;
@@ -224,29 +224,29 @@ const CSS_STYLES = `
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 12px var(--color-acento-sombra-verde, rgba(16, 185, 129, 0.25));
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .un-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 6px 16px var(--color-acento-sombra-verde-hover, rgba(16, 185, 129, 0.35));
     filter: brightness(1.05);
   }
 
   .un-btn-primary:active {
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 2px 6px var(--color-acento-sombra-verde, rgba(16, 185, 129, 0.25));
     filter: brightness(0.95);
   }
 
   /* Botón Secundario (Más tarde) */
   .un-btn-secondary {
     background: transparent;
-    color: #64748b;
+    color: var(--color-texto-secundario, #64748b);
     font-weight: 500;
     font-size: 13.5px;
-    border: 1px solid rgba(203, 213, 225, 0.8);
+    border: 1px solid var(--color-borde, rgba(203, 213, 225, 0.8));
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
