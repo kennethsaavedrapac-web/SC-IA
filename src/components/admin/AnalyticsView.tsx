@@ -9,8 +9,8 @@ const AnalyticsView: React.FC = () => {
   const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  
+
+
   const [stats, setStats] = useState({
     totalUsers: 0,
     premiumUsers: 0,
@@ -28,26 +28,26 @@ const AnalyticsView: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       if (!isAdmin) return;
-      
+
       try {
-        
+
         const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-        
-        
+
+
         const { count: premiumUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_premium', true);
-        
-        
+
+
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const { count: newUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', oneWeekAgo.toISOString());
-        
-        
+
+
         const { count: overriddenCenters } = await supabase.from('health_center_overrides').select('*', { count: 'exact', head: true });
-        
-        
+
+
         const { count: activeAnnouncements } = await supabase.from('admin_announcements').select('*', { count: 'exact', head: true }).eq('activo', true);
-        
-        
+
+
         const { data: recentUsers } = await supabase.from('profiles').select('id, nombre, created_at, avatar_url, role').order('created_at', { ascending: false }).limit(5);
 
         setStats({
@@ -68,7 +68,7 @@ const AnalyticsView: React.FC = () => {
             .from('chat_logs')
             .select('created_at')
             .gte('created_at', oneWeekAgo.toISOString());
-            
+
           if (!chatLogsError && data) {
             chatLogs = data;
             source = "db";
@@ -77,30 +77,32 @@ const AnalyticsView: React.FC = () => {
           }
         } catch (err) {
           // Fallback to localStorage triageHistory
-          const localLogs: any[] = [];
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith("triageHistory_")) {
-              try {
-                const stored = localStorage.getItem(key);
-                if (stored) {
-                  const messages = JSON.parse(stored);
-                  if (Array.isArray(messages)) {
-                    messages.forEach((msg: any) => {
-                      if (msg.sender === "user" && msg.createdAt) {
-                        localLogs.push({ created_at: msg.createdAt });
-                      }
-                    });
+          if (typeof window !== 'undefined' && window.localStorage) {
+            const localLogs: any[] = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith("triageHistory_")) {
+                try {
+                  const stored = localStorage.getItem(key);
+                  if (stored) {
+                    const messages = JSON.parse(stored);
+                    if (Array.isArray(messages)) {
+                      messages.forEach((msg: any) => {
+                        if (msg.sender === "user" && msg.createdAt) {
+                          localLogs.push({ created_at: msg.createdAt });
+                        }
+                      });
+                    }
                   }
+                } catch (e) {
+                  // ignore parsing error
                 }
-              } catch (e) {
-                // ignore parsing error
               }
             }
-          }
-          if (localLogs.length > 0) {
-            chatLogs = localLogs;
-            source = "local";
+            if (localLogs.length > 0) {
+              chatLogs = localLogs;
+              source = "local";
+            }
           }
         }
 
@@ -152,14 +154,14 @@ const AnalyticsView: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchStats();
   }, []);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-brand-400 animate-spin" />
         <p className="mt-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Cargando métricas...</p>
       </div>
     );
@@ -183,7 +185,7 @@ const AnalyticsView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {}
+      { }
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{t('analytics')}</h2>
@@ -194,17 +196,17 @@ const AnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {}
+      { }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {}
+        { }
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-600/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('totalUsers')}</p>
               <p className="text-3xl font-black text-slate-900 dark:text-white mt-1 leading-none">{stats.totalUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 shrink-0">
+            <div className="w-12 h-12 bg-brand-50 dark:bg-brand-900/20 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-900 shrink-0">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -214,7 +216,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -231,7 +233,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -248,7 +250,7 @@ const AnalyticsView: React.FC = () => {
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
@@ -267,13 +269,13 @@ const AnalyticsView: React.FC = () => {
         </div>
       </div>
 
-      {}
+      { }
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        
-        {}
+
+        { }
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
           <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-            <Users className="w-4 h-4 text-blue-500" /> Nuevos Usuarios Registrados
+            <Users className="w-4 h-4 text-brand-400" /> Nuevos Usuarios Registrados
           </h3>
           <div className="space-y-3">
             {stats.recentUsers.map((u) => (
@@ -281,67 +283,4 @@ const AnalyticsView: React.FC = () => {
                 {u.avatar_url ? (
                   <img src={u.avatar_url} alt={u.nombre} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                    {u.nombre.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white truncate">{u.nombre}</h4>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
-                    <Clock className="w-3 h-3" /> {new Date(u.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-                {u.role === 'admin' && (
-                  <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold rounded-md">Admin</span>
-                )}
-              </div>
-            ))}
-            {stats.recentUsers.length === 0 && (
-              <p className="text-center text-slate-400 text-sm py-6">Aún no hay registros de usuarios.</p>
-            )}
-          </div>
-        </div>
-
-        {}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-emerald-500" /> Actividad del Chat ({chatSource === "db" ? "Base de Datos" : chatSource === "local" ? "Historial Local" : "Simulado"})
-            </h3>
-            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400 px-2 py-0.5 rounded-full uppercase tracking-wider">
-              {chatSource === "db" ? "Real" : chatSource === "local" ? "Local" : "Simulación"}
-            </span>
-          </div>
-          
-          <div className="flex-1 flex items-end justify-between gap-2 h-40 border-b border-slate-100 dark:border-slate-800 pb-2 relative">
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
-              <div className="border-t border-slate-400 w-full"></div>
-              <div className="border-t border-slate-400 w-full"></div>
-              <div className="border-t border-slate-400 w-full"></div>
-            </div>
-            {chatActivity.map((day, idx) => {
-              const maxCount = Math.max(...chatActivity.map(d => d.count), 1);
-              const heightPct = Math.max((day.count / maxCount) * 100, 5);
-              return (
-                <div key={idx} className="w-full bg-emerald-500/20 hover:bg-emerald-500/40 rounded-t-lg relative group transition-colors" style={{ height: `${heightPct}%` }}>
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-md">
-                    {day.count === 1 ? "1 mensaje" : `${day.count} mensajes`}
-                  </div>
-                  <div className="absolute top-0 inset-x-0 bg-emerald-500 rounded-t-lg shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ height: '4px' }}></div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-between text-[10px] font-bold text-slate-400 mt-2 uppercase">
-            {chatActivity.map((day, idx) => (
-              <span key={idx} className="w-full text-center">{day.dayLabel}</span>
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-};
-
-export default AnalyticsView;
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-bra

@@ -1001,10 +1001,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <img
               src="/app-logo-v1.jpg"
               alt="Logo"
-              className="w-7 h-7 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+              className="w-7 h-7 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
             />
             <span className="font-bold text-[17px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-              Salud-Conecta <span className="text-blue-500">IA</span>
+              Salud-Conecta <span className="text-brand-400">IA</span>
             </span>
           </div>
 
@@ -1084,8 +1084,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 }}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition-all ${
                   locationMode === "nearby"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
+                    ? "bg-brand-600 text-white"
+                    : "bg-white text-brand-900 border border-brand-100 dark:bg-slate-950 dark:text-brand-200 dark:border-brand-900/40"
                 }`}
               >
                 {geoStatus === "loading" ? "Ubicando..." : t('nearYou')}
@@ -1096,7 +1096,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
                   activeFilter === "hospital"
-                    ? "bg-blue-600 text-white"
+                    ? "bg-brand-600 text-white"
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
@@ -1126,7 +1126,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 onClick={() => setActiveFilter(activeFilter === "medico" ? "todos" : "medico")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
                   activeFilter === "medico"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-brand-600 text-white"
                     : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                 }`}
               >
@@ -1153,7 +1153,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   <button
                     key={department}
                     onClick={() => setLocationQuery(department ?? "")}
-                    className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 text-[9.5px] font-semibold text-blue-700 dark:text-blue-300"
+                    className="rounded-full bg-brand-50 dark:bg-brand-900/40 px-2 py-0.5 text-[9.5px] font-semibold text-brand-900 dark:text-brand-200"
                   >
                     {department}
                   </button>
@@ -1169,7 +1169,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             <h3 className="text-[12.5px] font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               {locationMode === "nearby" ? "Cerca de mí" : t('nearYou')}
             </h3>
-            <span className="text-[11.5px] font-semibold text-blue-600 dark:text-blue-400">{filteredCenters.length} encontrados</span>
+            <span className="text-[11.5px] font-semibold text-brand-600 dark:text-brand-400">{filteredCenters.length} encontrados</span>
           </div>
 
           <div className="space-y-2.5">
@@ -1178,7 +1178,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200">No hay centros en este radio.</p>
                 <button
                   onClick={() => setLocationMode("manual")}
-                  className="mt-2.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-[10px] font-bold text-white"
+                  className="mt-2.5 rounded-full bg-brand-600 px-3.5 py-1.5 text-[10px] font-bold text-white"
                 >
                   Buscar manualmente
                 </button>
@@ -1195,7 +1195,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     layout
                     className={`rounded-2xl p-3.5 transition-all bg-white dark:bg-slate-950 border ${
                       isSelected 
-                        ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]" 
+                        ? "border-brand-600 dark:border-brand-600 shadow-[0_4px_16px_rgba(37,99,235,0.08)]" 
                         : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
                     }`}
                   >
@@ -1213,7 +1213,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         <div
                           className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
                             isHospital 
-                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white" 
+                              ? "bg-brand-50 dark:bg-brand-900/30 border-brand-100 dark:border-brand-900/50 text-brand-600 dark:text-white" 
                               : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
                           }`}
                         >
@@ -1261,10 +1261,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${
                                 operatingStatus.isOpen
-                                  ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                                  ? (operatingStatus.is24h ? "bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
                                   : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                               }`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
+                                <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-brand-600" : "bg-emerald-500") : "bg-red-500"}`} />
                                 {operatingStatus.text}
                               </span>
                               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {hc.sourceNumber}</span>
@@ -1299,7 +1299,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                                 href={getGoogleMapsSearchUrl(hc)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                               >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -1413,7 +1413,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 <div
                   className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${
                     selectedCenter.type.toLowerCase().includes("hospital")
-                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
+                      ? "bg-brand-50 dark:bg-brand-900/30 border-brand-100 dark:border-brand-900/50 text-brand-600 dark:text-white"
                       : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
                   }`}
                 >
@@ -1449,10 +1449,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 <div className="flex items-center justify-between">
                   <span className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-1.5 py-0.5 rounded ${
                     getCenterOperatingStatus(selectedCenter.type).isOpen
-                      ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                      ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
                       : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                   }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${getCenterOperatingStatus(selectedCenter.type).isOpen ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${getCenterOperatingStatus(selectedCenter.type).isOpen ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-brand-600" : "bg-emerald-500") : "bg-red-500"}`} />
                     {getCenterOperatingStatus(selectedCenter.type).text}
                   </span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">ID: {selectedCenter.sourceNumber}</span>
@@ -1463,7 +1463,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     href={getGoogleMapsSearchUrl(selectedCenter)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />

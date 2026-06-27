@@ -4,6 +4,14 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* Brand palette — Salud-Conecta IA */
+  --color-brand-900: #395886;
+  --color-brand-600: #638ECB;
+  --color-brand-400: #8AAEE0;
+  --color-brand-200: #B1C9EF;
+  --color-brand-100: #D5DEEF;
+  --color-brand-50: #F0F3FA;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

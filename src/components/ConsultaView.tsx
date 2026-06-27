@@ -526,9 +526,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   return (
     <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-blue-100/45 dark:bg-blue-950/30 blur-3xl"></div>
+        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
+        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
+        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
@@ -555,10 +555,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           <img
             src="/app-logo-v1.jpg"
             alt="Logo"
-            className="w-9 h-9 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+            className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
           />
           <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Salud-Conecta <span className="text-blue-500">IA</span>
+            Salud-Conecta <span className="text-brand-400">IA</span>
           </span>
         </div>
 
@@ -618,7 +618,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               </h1>
               <h2 className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]" style={{ fontSize: "clamp(24px, 6.5vw, 30px)", lineHeight: 1.3, fontWeight: 400, fontFamily: "'Inter', sans-serif" }}>
                 {t('assistant')}<br />
-                <span className="text-blue-600 dark:text-blue-400 font-medium">virtual.</span>
+                <span className="text-brand-600 dark:text-brand-400 font-medium">virtual.</span>
               </h2>
               <div className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800" style={{ width: "36px", height: "2.5px" }} />
               <div className="space-y-[6px]" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -667,7 +667,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-blue-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-blue-800 dark:text-blue-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-brand-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-brand-900 dark:text-brand-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
                       <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
                       <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
@@ -692,12 +692,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 <div
                   className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-[1.6] whitespace-pre-wrap ${
                     msg.sender === "user"
-                      ? "bg-blue-600 text-white rounded-tr-sm"
+                      ? "bg-brand-600 text-white rounded-tr-sm"
                       : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
                   }`}
                 >
                   {formatMessageText(msg.text)}
-                  <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-blue-100" : "text-slate-400"}`}>
+                  <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-brand-100" : "text-slate-400"}`}>
                     {msg.timestamp}
                   </div>
                 </div>
@@ -710,9 +710,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 className="flex w-full justify-start"
               >
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl rounded-tl-sm px-5 py-4 flex gap-1.5 shadow-sm">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               </motion.div>
             )}
@@ -733,7 +733,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       >
         <div
           className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${
-            isFocused ? "border-blue-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
+            isFocused ? "border-brand-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
           }`}
         >
           {}
