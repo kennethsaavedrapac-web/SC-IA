@@ -722,7 +722,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 const strokeColor = isSelected ? '%233b82f6' : 'white';
                 const strokeWidth = isSelected ? 3 : 2;
                 
-                let fillColor = '%23f59e0b'; // Amber (centro_salud)
+                let fillColor = '%23ef4444'; // Red (centro_salud)
                 let label = '+';
                 let yOffset = 27;
                 let fontSize = 22;
@@ -851,7 +851,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               const borderColor = isSelected ? '#3b82f6' : '#ffffff';
               const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
               
-              let bgColor = '#f59e0b'; // Amber (centro_salud)
+              let bgColor = '#ef4444'; // Red (centro_salud)
               let label = '+';
               let fontSize = isSelected ? 19 : 15;
               
