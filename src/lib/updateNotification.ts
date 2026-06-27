@@ -169,7 +169,7 @@ const CSS_STYLES = `
     font-size: 16px;
     line-height: 1.3;
     margin: 0;
-    color: #0f172a;
+    color: var(--color-principal-texto, #0f172a);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -183,14 +183,14 @@ const CSS_STYLES = `
   }
 
   html.dark .un-title {
-    color: #ffffff;
+    color: var(--color-principal-bg, #ffffff);
   }
 
   .un-desc {
     font-size: 13px;
     line-height: 1.45;
     margin: 0;
-    color: #64748b;
+    color: var(--color-texto-secundario, #64748b);
     font-weight: 400;
   }
 
@@ -262,13 +262,13 @@ const CSS_STYLES = `
 
   .un-btn-secondary:hover {
     background: rgba(0, 0, 0, 0.03);
-    color: #0f172a;
-    border-color: rgba(148, 163, 184, 0.8);
+    color: var(--color-principal-texto, #0f172a);
+    border-color: var(--color-borde, rgba(148, 163, 184, 0.8));
   }
 
   html.dark .un-btn-secondary:hover {
     background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
+    color: var(--color-principal-bg, #ffffff);
     border-color: rgba(100, 116, 139, 0.8);
   }
 
