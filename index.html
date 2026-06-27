@@ -17,17 +17,6 @@
   <body class="bg-slate-50 antialiased text-slate-900">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-
-    
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(reg => console.log('PWA SW registered scope:', reg.scope))
-            .catch(err => console.error('PWA SW registration failed:', err));
-        });
-      }
-    </script>
   </body>
 </html>
 

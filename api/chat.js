@@ -100,7 +100,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history, userProfile, language } = req.body;
+    const { message, userProfile, language } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -121,8 +121,7 @@ export default async function handler(req, res) {
     if (!ai) {
       console.error("Failed to initialize Gemini client - API key may be invalid");
       return res.status(500).json({
-        error: "No se pudo inicializar el servicio de IA. Verifica la configuración de la API key.",
-        details: "GEMINI_API_KEY no está configurada o es inválida",
+        error: "No se pudo inicializar el servicio de IA. Intente nuevamente más tarde.",
         timestamp: new Date().toISOString(),
       });
     }
@@ -135,14 +134,30 @@ export default async function handler(req, res) {
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
 
+    // Sanitize user input to prevent prompt injection
+    function sanitizeForPrompt(value) {
+      if (!value) return 'No especificado';
+      return String(value)
+        .replace(/[\n\r]/g, ' ')
+        .replace(/[<>"']/g, '')
+        .substring(0, 200);
+    }
+
     let profileContext = "";
     const safeUserProfile = userProfile && typeof userProfile === 'object' ? userProfile : {};
     if (Object.keys(safeUserProfile).length > 0) {
+      const safeName = sanitizeForPrompt(safeUserProfile.name);
+      const safeCity = sanitizeForPrompt(safeUserProfile.city);
+      const safeBloodType = sanitizeForPrompt(safeUserProfile.bloodType);
+      const safeConditions = safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 
+        ? safeUserProfile.healthConditions.map(c => sanitizeForPrompt(c)).join(', ') 
+        : 'Ninguna reportada';
+      
       profileContext = `\n\n[CONTEXTO DEL PACIENTE]
-Nombre: ${safeUserProfile.name || 'No especificado'}
-Ciudad: ${safeUserProfile.city || 'No especificada'}
-Tipo de Sangre: ${safeUserProfile.bloodType || 'No especificado'}
-Condiciones Médicas Preexistentes: ${safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 ? safeUserProfile.healthConditions.join(', ') : 'Ninguna reportada'}
+Nombre: ${safeName || 'No especificado'}
+Ciudad: ${safeCity || 'No especificada'}
+Tipo de Sangre: ${safeBloodType || 'No especificado'}
+Condiciones Médicas Preexistentes: ${safeConditions}
 
 INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas preexistentes al evaluar los síntomas y proporcionar recomendaciones. Nunca indiques medicamentos contraindicados.`;
     }
@@ -168,10 +183,12 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
 
     // Combinar el prompt de la BD con el contexto temporal y el perfil médico
     const languageContext = language === "mi" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA MISKITO. DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN IDIOMA MISKITO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN MISKITO." : language === "kr" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA INGLÉS CRIOLLO (KRIOL NICARAGÜENSE). DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN INGLÉS CRIOLLO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN INGLÉS CRIOLLO (KRIOL)." : "";
-    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext;
+    const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
+El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
 
     // Obtener aiModel dinámico desde Supabase
-    let aiModel = "gemini-2.0-flash-lite";
+    let aiModel = "gemini-2.5-flash-lite";
     if (supabase) {
       try {
         const { data: configData, error: configError } = await supabase
@@ -188,19 +205,16 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
       }
     }
 
-    
     const model = ai.getGenerativeModel({
       model: aiModel,
       systemInstruction: systemPrompt,
     });
 
-    
+    // Iniciar chat sin historial (ahorro máximo de tokens - no se envía historial a la API)
     const chat = model.startChat({
-      history: history && Array.isArray(history) ? history.map(turn => ({
-        role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
-        parts: [{ text: turn.text || turn.content || "" }],
-      })) : [],
+      history: [],
     });
+    
 
     // Generate response
     let response;
@@ -219,6 +233,20 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     }
 
     const responseText = response && response.response ? response.response.text() : null;
+
+    // Try to log the chat interaction to the database (fail silently if table doesn't exist)
+    if (supabase) {
+      try {
+        const userId = userProfile?.id;
+        await supabase.from('chat_logs').insert({
+          user_id: userId || null,
+          message_length: message.length,
+          created_at: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn("Could not log chat interaction to Supabase in serverless function:", logErr);
+      }
+    }
 
     return res.status(200).json({
       text: responseText || "El asistente recibió la consulta pero no pudo generar una respuesta clara.",
@@ -253,7 +281,6 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     
     return res.status(500).json({
       error: userMessage,
-      details: errorMessage,
       timestamp: new Date().toISOString(),
     });
   }

@@ -1,23 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
       "source": "/manifest.json",
       "destination": "/manifest.json"
-    },
-    {
-      "source": "/service-worker.js",
-      "destination": "/service-worker.js"
     },
     {
       "source": "/sw.js",
       "destination": "/sw.js"
     },
     {
-      "source": "/((?!api/|manifest\\.json|service-worker\\.js|sw\\.js).*)",
+      "source": "/((?!api/|manifest\\.json|sw\\.js).*)",
       "destination": "/index.html"
     }
   ],

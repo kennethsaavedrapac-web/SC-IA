@@ -14,9 +14,9 @@ import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { requestNotificationPermission, showDailyNotification } from "./lib/notificationService";
-import { showUpdateNotification, checkForUpdates, shouldShowNotification, APP_VERSION } from "./lib/updateNotification";
-import { MessageSquare, MapPin, Search, Sparkles, Siren, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, AlertTriangle, Megaphone, WifiOff } from "lucide-react";
+import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
+import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
+import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 
@@ -38,6 +38,8 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   
@@ -98,6 +100,14 @@ export default function App() {
             const end = new Date(a.fecha_fin + "T23:59:59");
             return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
           });
+          if (user?.id) {
+            saveAdminAnnouncementRecords(user.id, active.map((announcement: any) => ({
+              id: announcement.id,
+              tipo: announcement.tipo,
+              titulo: announcement.titulo,
+              mensaje: announcement.mensaje,
+            })));
+          }
           setAnnouncements(active);
         }
         
@@ -121,7 +131,7 @@ export default function App() {
       .subscribe();
 
     return () => { supabase.removeChannel(announcementsSub); };
-  }, [dismissedAnnouncements]);
+  }, [dismissedAnnouncements, user?.id]);
 
   
   useEffect(() => {
@@ -266,6 +276,17 @@ export default function App() {
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
+        // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
+        function decryptMedicalData(encoded: string): string | null {
+          try {
+            return encoded ? atob(encoded) : null;
+          } catch {
+            return null;
+          }
+        }
+
+        const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
+
         if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
@@ -277,7 +298,7 @@ export default function App() {
             avatarUrl: cachedAvatar || prev.avatarUrl,
             emergencyPhone: cachedPhone || prev.emergencyPhone,
             bloodType: cachedBloodType || prev.bloodType,
-            healthConditions: cachedConditions ? JSON.parse(cachedConditions) : prev.healthConditions,
+            healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
           }));
         }
       } catch (err) {
@@ -373,7 +394,7 @@ export default function App() {
     
     if ('serviceWorker' in navigator) {
       const registerSW = () => {
-        navigator.serviceWorker.register('/service-worker.js')
+        navigator.serviceWorker.register('/sw.js')
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
             setSwRegistration(reg);
@@ -520,10 +541,16 @@ export default function App() {
         localStorage.setItem(`country_${userId}`, updatedUser.country);
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
-        localStorage.setItem(`conditions_${userId}`, JSON.stringify(updatedUser.healthConditions));
+        // Store health conditions with basic encoding to avoid plaintext PII in localStorage
+        if (updatedUser.healthConditions) {
+          localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
+        }
       }
     } catch (e) {
       console.warn("Could not save to localStorage", e);
+    } finally {
+      // Show local save success message immediately, regardless of remote sync
+      addToast(createToast(t('saveSuccess'), "success"));
     }
 
     
@@ -536,7 +563,6 @@ export default function App() {
         } as any);
 
         if (success) {
-          addToast(createToast(t('profileSaved'), "success"));
         } else {
           addToast(createToast(error || t('profileSaveError'), "error"));
         }
@@ -552,7 +578,10 @@ export default function App() {
   };
 
   const handleLogout = async () => {
+    setIsLoggingOut(true);
     const result = await logout();
+    setIsLoggingOut(false);
+    setIsLogoutModalOpen(false);
     if (result.success) {
       setLocalUser(DEFAULT_USER);
       setAppointments(INITIAL_APPOINTMENTS);
@@ -878,7 +907,7 @@ export default function App() {
                   isPremium={isPremium}
                   onGoBack={() => setCurrentView("home")}
                   onUpdateUser={handleUpdateUser}
-                  onLogout={handleLogout}
+                  onLogout={() => setIsLogoutModalOpen(true)}
                   onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
                 />
               </Suspense>
@@ -1288,6 +1317,86 @@ export default function App() {
               {}
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 dark:text-slate-500 text-center">
                 Salud-Conecta IA • {APP_VERSION}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {}
+      <AnimatePresence>
+        {isLogoutModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/65 backdrop-blur-md z-[100] flex items-center justify-center p-5 select-none"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 26 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 18 }}
+              transition={{ type: "spring", stiffness: 360, damping: 26 }}
+              className="relative w-full max-w-[390px] overflow-hidden rounded-[30px] bg-white dark:bg-slate-900 border border-white/80 dark:border-slate-800 shadow-[0_28px_80px_rgba(15,23,42,0.28)]"
+            >
+              <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-br from-blue-500/14 via-cyan-400/10 to-rose-400/12 dark:from-blue-500/18 dark:via-cyan-400/8 dark:to-rose-500/10" />
+              <div className="relative p-6 sm:p-7">
+                <button
+                  onClick={() => setIsLogoutModalOpen(false)}
+                  disabled={isLoggingOut}
+                  className="absolute right-4 top-4 p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50"
+                  aria-label={t('cancel')}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="flex flex-col items-center text-center pt-2">
+                  <motion.div
+                    initial={{ rotate: -8, scale: 0.84 }}
+                    animate={{ rotate: 0, scale: 1 }}
+                    transition={{ delay: 0.08, type: "spring", stiffness: 420, damping: 18 }}
+                    className="relative mb-5"
+                  >
+                    <span className="absolute inset-0 rounded-full bg-red-400/20 animate-ping" />
+                    <span className="relative w-[72px] h-[72px] rounded-full bg-gradient-to-br from-red-50 to-blue-50 dark:from-red-500/10 dark:to-blue-500/10 border border-red-100 dark:border-red-500/15 shadow-[0_16px_36px_rgba(239,68,68,0.16)] flex items-center justify-center">
+                      <LogOut className="w-8 h-8 text-red-500" />
+                    </span>
+                  </motion.div>
+
+                  <h3 className="font-display text-[22px] font-black text-slate-950 dark:text-white tracking-tight leading-tight">
+                    {t('logoutModalTitle')}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400 max-w-[300px]">
+                    {t('logoutModalDesc')}
+                  </p>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-slate-50 dark:bg-slate-800/55 border border-slate-100 dark:border-slate-800 p-3.5 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <p className="text-left text-xs font-semibold leading-snug text-slate-600 dark:text-slate-300">
+                    {t('logoutModalSecureNote')}
+                  </p>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setIsLogoutModalOpen(false)}
+                    disabled={isLoggingOut}
+                    className="order-2 sm:order-1 w-full py-3.5 px-4 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-60"
+                  >
+                    {t('logoutModalStay')}
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="order-1 sm:order-2 w-full py-3.5 px-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-[0_14px_30px_rgba(220,38,38,0.24)] transition-all active:scale-[0.98] disabled:opacity-80 flex items-center justify-center gap-2"
+                  >
+                    {isLoggingOut ? <Loader2 className="w-4.5 h-4.5 animate-spin" /> : <LogOut className="w-4.5 h-4.5" />}
+                    <span>{t('logout')}</span>
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

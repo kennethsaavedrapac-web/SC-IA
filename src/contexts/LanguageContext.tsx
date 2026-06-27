@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { translations, Language, TranslationKey } from '../lib/translations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: TranslationKey) => any;
+  t: (key: TranslationKey | string) => any;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -27,8 +27,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const t = (key: TranslationKey): any => {
-    return (translations[language] as any)[key] || (translations['es'] as any)[key] || key;
+  const t = (key: TranslationKey | string): any => {
+    const getNested = (obj: any, path: string) => {
+      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    };
+    return getNested(translations[language], key) || getNested(translations['es'], key) || key;
   };
 
   return (

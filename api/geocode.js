@@ -16,12 +16,20 @@ export default async function handler(req, res) {
 
   const { lat, lng } = req.query;
 
-  if (!lat || !lng) {
-    return res.status(400).json({ error: "Missing lat or lng parameter" });
+  // Validate coordinates are valid numbers within acceptable ranges
+  const latNum = parseFloat(lat);
+  const lngNum = parseFloat(lng);
+
+  if (!lat || !lng || isNaN(latNum) || isNaN(lngNum)) {
+    return res.status(400).json({ error: "lat and lng must be valid numeric coordinates" });
+  }
+
+  if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
+    return res.status(400).json({ error: "lat must be between -90 and 90, lng between -180 and 180" });
   }
 
   try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}`;
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latNum)}&lon=${encodeURIComponent(lngNum)}`;
     
     const response = await fetch(url, {
       headers: {
@@ -39,6 +47,6 @@ export default async function handler(req, res) {
     return res.status(200).json(data);
   } catch (error) {
     console.error("Geocoding proxy error:", error);
-    return res.status(500).json({ error: error.message || "Internal Server Error" });
+    return res.status(500).json({ error: "Error al obtener datos de geolocalización. Intente nuevamente." });
   }
 };

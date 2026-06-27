@@ -6,6 +6,7 @@ import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } f
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
+import { useGeolocation } from "../hooks/useGeolocation";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -87,21 +88,69 @@ function getNearestHospital(
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const googleMapsMapId = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "DEMO_MAP_ID";
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
   );
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [detectedCity, setDetectedCity] = useState("");
   const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
-  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-  const [geoError, setGeoError] = useState("");
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia" | "medico">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+
+  const forceCenterNextRef = React.useRef(false);
+
+  // Hook de geolocalización de alta precisión
+  const {
+    location: userLocation,
+    status: geoStatus,
+    error: geoError,
+    startTracking: requestCurrentLocation,
+  } = useGeolocation({
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0,
+    distanceFilterMeters: 3,
+    accuracyThresholdMeters: 80,
+  });
+
+  const handleRequestLocation = useCallback(() => {
+    forceCenterNextRef.current = true;
+    requestCurrentLocation();
+  }, [requestCurrentLocation]);
+
+  // Actualizar el modo de localización según la disponibilidad del GPS
+  useEffect(() => {
+    if (userLocation) {
+      setLocationMode("nearby");
+    }
+  }, [userLocation]);
+
+  useEffect(() => {
+    if (geoStatus === "error") {
+      setLocationMode("manual");
+    }
+  }, [geoStatus]);
+
+  // Centrar en el centro más cercano cuando se obtienen las coordenadas
+  useEffect(() => {
+    if (userLocation && forceCenterNextRef.current) {
+      const nearestCenter = mergedCenters
+        .filter((center) => center.latitude && center.longitude)
+        .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
+        .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+      if (nearestCenter) {
+        setActiveFilter("centro");
+        setSelectedCenter(nearestCenter);
+      }
+      forceCenterNextRef.current = false;
+    }
+  }, [userLocation, mergedCenters]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -226,114 +275,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  const requestCurrentLocation = useCallback(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoStatus("error");
-      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
-      setLocationMode("manual");
-      return;
-    }
-
-    setGeoStatus("loading");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-        setUserLocation(userLoc);
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
-
-        
-        
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-        if (nearestCenter) {
-          setActiveFilter("centro");
-          setSelectedCenter(nearestCenter);
-        }
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
-    );
-  }, [mergedCenters]);
-
-  useEffect(() => {
-    if (!("geolocation" in navigator)) {
-      setGeoStatus("error");
-      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
-      setLocationMode("manual");
-      return;
-    }
-
-    setGeoStatus("loading");
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-
-        
-        
-        let shouldUpdate = true;
-        if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
-
-          
-          if (distanceMeters < 10) {
-            shouldUpdate = false;
-          }
-        }
-
-        if (shouldUpdate) {
-          setUserLocation(userLoc);
-          setGeoStatus("ready");
-          setGeoError("");
-          setLocationMode("nearby");
-
-          
-          
-          const nearestCenter = mergedCenters
-            .filter((center) => center.latitude && center.longitude)
-            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-          if (nearestCenter) {
-            setActiveFilter("centro");
-            setSelectedCenter(nearestCenter);
-          }
-        }
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
-    );
-
-    return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
+  // La lógica de geolocalización ha sido movida al hook useGeolocation
 
   useEffect(() => {
     if (!userLocation) return;
@@ -397,6 +339,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
     return () => controller.abort();
   }, [googleMapsApiKey, userLocation, mergedCenters]);
+
+  // Solicitar la ubicación una sola vez al cargar el componente
+  useEffect(() => {
+    requestCurrentLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
@@ -507,16 +455,29 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const googleMapsEmbedUrl = googleMapsApiKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
     : "";
-  const googleMapsSearchUrl =
-    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
+  const getGoogleMapsSearchUrl = (center: HealthCenter | null) => {
+    if (!center) return "";
+    
+    // Usar exclusivamente coordenadas numéricas para evitar resolución por texto
+    const lat = center.latitude ?? center.lat;
+    const lng = center.longitude ?? center.lng;
+    
+    if (!lat || !lng) return "";
+
+    const destination = `${lat},${lng}`;
+
+    if (userLocation && userLocation.latitude && userLocation.longitude) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${destination}&travelmode=driving`;
+    }
+    return `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
+  };
 
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const handleRecenter = () => {
-    if (userLocation) {
-      iframeRef.current?.contentWindow?.postMessage({
+    handleRequestLocation();
+    if (userLocation && iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
         type: "UPDATE_DATA",
         centers: filteredCenters
           .filter((c) => c.latitude && c.longitude)
@@ -532,8 +493,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         userLocation: userLocation,
         forceCenterOnUser: true,
       }, "*");
-    } else {
-      requestCurrentLocation();
     }
   };
 
@@ -575,6 +534,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       centerOnId: selectedCenter?.id || null,
       zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
       isDark: isDarkMode,
+      forceCenterOnUser: forceCenterNextRef.current,
     };
 
     const sendUpdate = () => {
@@ -584,6 +544,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
 
     sendUpdate();
+    forceCenterNextRef.current = false;
 
     iframe.addEventListener("load", sendUpdate);
     return () => {
@@ -650,15 +611,30 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             let map;
             let markersMap = new Map();
             let userLocationMarker = null;
+            let userAccuracyCircle = null;
             let currentSelectedId = null;
             let pendingMessage = null;
+            let directionsService = null;
+            let directionsRenderer = null;
 
             function initMap() {
               map = new google.maps.Map(document.getElementById("map"), {
                 center: { lat: 12.1364, lng: -86.2514 },
                 zoom: 9,
                 disableDefaultUI: true,
-                zoomControl: true
+                zoomControl: true,
+                mapId: "${googleMapsMapId}"
+              });
+
+              directionsService = new google.maps.DirectionsService();
+              directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                polylineOptions: {
+                  strokeColor: '#3b82f6',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 5
+                }
               });
 
               if (pendingMessage) {
@@ -680,29 +656,51 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
               // Update user location marker
               if (userLocationMarker) {
-                userLocationMarker.setMap(null);
+                userLocationMarker.map = null;
                 userLocationMarker = null;
               }
+              if (userAccuracyCircle) {
+                userAccuracyCircle.setMap(null);
+                userAccuracyCircle = null;
+              }
               if (msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
-                const userIcon = {
-                  url: 'data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>',
-                  size: new google.maps.Size(30, 30),
-                  origin: new google.maps.Point(0, 0),
-                  anchor: new google.maps.Point(15, 15)
-                };
-                userLocationMarker = new google.maps.Marker({
+                const userPinContainer = document.createElement('div');
+                userPinContainer.style.width = '0px';
+                userPinContainer.style.height = '0px';
+                userPinContainer.style.position = 'relative';
+
+                const userPin = document.createElement('div');
+                userPin.innerHTML = \`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="6" fill="%233b82f6" stroke="white" stroke-width="2"/><circle cx="15" cy="15" r="12" fill="none" stroke="%233b82f6" stroke-width="1.5" opacity="0.4"/></svg>\`;
+                userPin.style.position = 'absolute';
+                userPin.style.transform = 'translate(-50%, -50%)';
+                userPinContainer.appendChild(userPin);
+
+                userLocationMarker = new google.maps.marker.AdvancedMarkerElement({
                   position: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
                   map: map,
-                  icon: userIcon,
+                  content: userPinContainer,
                   title: "Tu ubicación"
                 });
+
+                if (msg.userLocation.accuracy && msg.userLocation.accuracy > 0) {
+                  userAccuracyCircle = new google.maps.Circle({
+                    strokeColor: '#3b82f6',
+                    strokeOpacity: 0.4,
+                    strokeWeight: 1,
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.15,
+                    map: map,
+                    center: { lat: msg.userLocation.latitude, lng: msg.userLocation.longitude },
+                    radius: msg.userLocation.accuracy
+                  });
+                }
               }
 
               // Update markers
               const newIds = new Set(msg.centers.map(c => c.id));
               for (let [id, markerObj] of markersMap.entries()) {
                 if (!newIds.has(id)) {
-                  markerObj.marker.setMap(null);
+                  markerObj.marker.map = null;
                   markersMap.delete(id);
                 }
               }
@@ -712,30 +710,33 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 
                 const isSelected = c.id === msg.selectedId;
                 const size = isSelected ? 38 : 28;
-                const anchor = size / 2;
-                const strokeColor = isSelected ? '%233b82f6' : 'white';
+                const strokeColor = isSelected ? '#3b82f6' : 'white';
                 const strokeWidth = isSelected ? 3 : 2;
                 
-                const iconUrl = c.isHospital
-                  ? \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
-                  : \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
+                const svgContent = c.isHospital
+                  ? \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
+                  : \`<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
 
-                const icon = {
-                  url: iconUrl,
-                  size: new google.maps.Size(size, size),
-                  origin: new google.maps.Point(0, 0),
-                  anchor: new google.maps.Point(anchor, anchor)
-                };
+                const container = document.createElement('div');
+                container.style.width = '0px';
+                container.style.height = '0px';
+                container.style.position = 'relative';
+
+                const markerContent = document.createElement('div');
+                markerContent.innerHTML = svgContent;
+                markerContent.style.position = 'absolute';
+                markerContent.style.transform = 'translate(-50%, -50%)';
+                container.appendChild(markerContent);
 
                 let markerObj = markersMap.get(c.id);
                 if (markerObj) {
-                  markerObj.marker.setIcon(icon);
-                  markerObj.marker.setPosition({ lat: c.lat, lng: c.lng });
+                  markerObj.marker.content = container;
+                  markerObj.marker.position = { lat: c.lat, lng: c.lng };
                 } else {
-                  const marker = new google.maps.Marker({
+                  const marker = new google.maps.marker.AdvancedMarkerElement({
                     position: { lat: c.lat, lng: c.lng },
                     map: map,
-                    icon: icon,
+                    content: container,
                     title: c.name
                   });
 
@@ -760,6 +761,30 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               } else if (!msg.centerOnId) {
                 currentSelectedId = null;
               }
+
+              // Dibujar trayectoria directa punto a punto entre usuario y destino seleccionado
+              if (directionsRenderer && directionsService) {
+                if (msg.selectedId && msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                  const selectedCenter = msg.centers.find(c => c.id === msg.selectedId);
+                  if (selectedCenter && selectedCenter.lat && selectedCenter.lng) {
+                    directionsService.route({
+                      origin: new google.maps.LatLng(msg.userLocation.latitude, msg.userLocation.longitude),
+                      destination: new google.maps.LatLng(selectedCenter.lat, selectedCenter.lng),
+                      travelMode: google.maps.TravelMode.DRIVING
+                    }, (response, status) => {
+                      if (status === 'OK') {
+                        directionsRenderer.setDirections(response);
+                      } else {
+                        directionsRenderer.setDirections({ routes: [] });
+                      }
+                    });
+                  } else {
+                    directionsRenderer.setDirections({ routes: [] });
+                  }
+                } else {
+                  directionsRenderer.setDirections({ routes: [] });
+                }
+              }
             }
 
             window.addEventListener('message', (event) => {
@@ -769,7 +794,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }
             });
           </script>
-          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap" async defer></script>
+          <script src="https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googleMapsApiKey)}&callback=initMap&loading=async&libraries=marker" async defer></script>
         </body>
         </html>
       `;
@@ -783,12 +808,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
         <style>
           html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
           .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
           .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
           .leaflet-bar a:hover { background-color: #f8fafc !important; }
+          .leaflet-routing-container { display: none !important; } /* Ocultar panel de texto de instrucciones */
           @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: scale(2.5); opacity: 0; }
@@ -809,7 +837,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
           let markersGroup = L.layerGroup().addTo(map);
           let userLocationMarker = null;
+          let userAccuracyCircle = null;
           let markersMap = new Map();
+          let routingControl = null;
 
           function updateMarkers(centers, selectedId) {
             markersGroup.clearLayers();
@@ -850,6 +880,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               map.removeLayer(userLocationMarker);
               userLocationMarker = null;
             }
+            if (userAccuracyCircle) {
+              map.removeLayer(userAccuracyCircle);
+              userAccuracyCircle = null;
+            }
             if (loc && loc.latitude && loc.longitude) {
               const userIcon = L.divIcon({
                 html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
@@ -858,6 +892,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 iconAnchor: [7, 7]
               });
               userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
+
+              if (loc.accuracy && loc.accuracy > 0) {
+                userAccuracyCircle = L.circle([loc.latitude, loc.longitude], {
+                  radius: loc.accuracy,
+                  color: '#3b82f6',
+                  fillColor: '#3b82f6',
+                  fillOpacity: 0.15,
+                  weight: 1
+                }).addTo(map);
+              }
             }
           }
 
@@ -884,13 +928,42 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               } else if (!msg.centerOnId) {
                 currentSelectedId = null;
               }
+
+              // Dibujar trayectoria directa punto a punto entre usuario y destino seleccionado (Leaflet)
+              if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+              }
+
+              if (msg.selectedId && msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                const selectedCenter = msg.centers.find(c => c.id === msg.selectedId);
+                if (selectedCenter && selectedCenter.lat && selectedCenter.lng) {
+                  routingControl = L.Routing.control({
+                    waypoints: [
+                      L.latLng(msg.userLocation.latitude, msg.userLocation.longitude),
+                      L.latLng(selectedCenter.lat, selectedCenter.lng)
+                    ],
+                    router: L.Routing.osrmv1({
+                      serviceUrl: 'https://router.project-osrm.org/route/v1'
+                    }),
+                    lineOptions: {
+                      styles: [{ color: '#10b981', opacity: 0.8, weight: 5 }]
+                    },
+                    createMarker: function() { return null; },
+                    show: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    fitSelectedRoutes: false
+                  }).addTo(map);
+                }
+              }
             }
           });
         </script>
       </body>
       </html>
     `;
-  }, [googleMapsApiKey]);
+  }, [googleMapsApiKey, googleMapsMapId]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden relative">
@@ -986,7 +1059,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     setLocationQuery(detectedCity || "Mi ubicación");
                     return;
                   }
-                  requestCurrentLocation();
+                  handleRequestLocation();
                 }}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition-all ${
                   locationMode === "nearby"
@@ -1039,6 +1112,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 {t('doctors')}
               </button>
             </div>
+
+            {geoStatus === "weak-signal" && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span>Señal GPS débil. La precisión de tu ubicación podría variar.</span>
+              </div>
+            )}
+            {geoStatus === "error" && geoError && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl text-[10.5px] text-red-800 dark:text-red-300 leading-normal">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span>{geoError}</span>
+              </div>
+            )}
 
             {locationMode === "manual" && filteredDepartments.length > 0 && (
               <div className="flex flex-wrap gap-1 max-h-[50px] overflow-y-auto no-scrollbar pt-1">
@@ -1189,7 +1275,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             {}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
-                                href={googleMapsSearchUrl}
+                                href={getGoogleMapsSearchUrl(hc)}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
@@ -1353,7 +1439,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={googleMapsSearchUrl}
+                    href={getGoogleMapsSearchUrl(selectedCenter)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"

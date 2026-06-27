@@ -1,11 +1,14 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Star } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabaseClient";
+import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
+import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -31,34 +34,91 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
-  const [showNotificationBadge, setShowNotificationBadge] = useState(true);
+  const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
+  const [isNotificationInboxOpen, setIsNotificationInboxOpen] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
 
-  // Local Medical Data State
-  const [localMedicalData, setLocalMedicalData] = useState(() => {
-    const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
-    return saved ? JSON.parse(saved) : {
-      enfermedades: "",
-      alergias: "",
-      tipoSangre: "",
-      tratamientos: "",
-      pastillas: "",
-      vacunas: "",
-      peso: "",
-      altura: "",
-      cedula: "",
-      contactoEmergencia: "",
-    };
+  // Medical Data State (FHIR-backed)
+  const [localMedicalData, setLocalMedicalData] = useState<MedicalFormData>(() => {
+    // Initial load from localStorage as immediate cache
+    try {
+      const saved = localStorage.getItem(`medicalData_${user.id || 'guest'}`);
+      return saved ? JSON.parse(saved) : getEmptyMedicalForm();
+    } catch {
+      return getEmptyMedicalForm();
+    }
   });
+  const [isSavingMedical, setIsSavingMedical] = useState(false);
+  const [medicalSyncSource, setMedicalSyncSource] = useState<"fhir" | "localStorage" | "none">("none");
+  const [medicalSaveError, setMedicalSaveError] = useState<string | null>(null);
 
-  const handleUpdateMedicalData = (e: React.FormEvent) => {
+  // Load medical data from FHIR on mount (if cédula available)
+  useEffect(() => {
+    const loadFromFhir = async () => {
+      const cedula = localMedicalData.cedula;
+      if (!cedula || cedula.trim().length < 3) return;
+
+      try {
+        const result = await loadMedicalData(cedula, user.id || 'guest');
+        if (result.found && result.data) {
+          setLocalMedicalData(result.data);
+          setMedicalSyncSource(result.source);
+        }
+      } catch (err) {
+        console.warn("Failed to load FHIR data on mount:", err);
+      }
+    };
+
+    loadFromFhir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleUpdateMedicalData = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem(`medicalData_${user.id || 'guest'}`, JSON.stringify(localMedicalData));
-    setIsSavedAlertOpen(true);
-    setTimeout(() => {
-      setIsSavedAlertOpen(false);
-      setActiveMenuSection(null);
-    }, 2500);
+    setIsSavingMedical(true);
+    setMedicalSaveError(null);
+
+    try {
+      const result = await saveMedicalData(
+        localMedicalData,
+        user.id || 'guest',
+        {
+          nombre: user.name,
+          email: user.email,
+          ciudad: user.city,
+          pais: user.country,
+        }
+      );
+
+      setMedicalSyncSource(result.source);
+
+      if (result.source === "fhir") {
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setActiveMenuSection(null);
+        }, 2500);
+      } else {
+        // Saved to localStorage (fallback)
+        setMedicalSaveError(result.message);
+        setIsSavedAlertOpen(true);
+        setTimeout(() => {
+          setIsSavedAlertOpen(false);
+          setMedicalSaveError(null);
+        }, 4000);
+      }
+    } catch (err: any) {
+      console.error("Medical data save error:", err);
+      setMedicalSaveError("Error inesperado al guardar datos médicos.");
+      // Still show alert since localStorage fallback in the service saved the data
+      setIsSavedAlertOpen(true);
+      setTimeout(() => {
+        setIsSavedAlertOpen(false);
+        setMedicalSaveError(null);
+      }, 4000);
+    } finally {
+      setIsSavingMedical(false);
+    }
   };
 
   // Notifications State (Local Storage & Supabase)
@@ -88,7 +148,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     
     if (user.id && user.id !== "guest") {
       try {
-        const { supabase } = await import('../lib/supabaseClient');
         await supabase
           .from('push_subscriptions')
           .update({ preferences: prefString })
@@ -97,6 +156,60 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         console.error("Error saving preferences", err);
       }
     }
+  };
+
+  const refreshNotificationHistory = useCallback(() => {
+    setNotificationHistory(getTodaysNotificationHistory(user.id));
+  }, [user.id]);
+
+  useEffect(() => {
+    refreshNotificationHistory();
+    window.addEventListener("salud-notifications-updated", refreshNotificationHistory);
+    return () => {
+      window.removeEventListener("salud-notifications-updated", refreshNotificationHistory);
+    };
+  }, [refreshNotificationHistory]);
+
+  const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
+
+  const handleOpenNotifications = () => {
+    refreshNotificationHistory();
+    setIsNotificationInboxOpen(true);
+  };
+
+  const handleMarkNotificationsRead = () => {
+    const updatedHistory = markTodaysNotificationsRead(user.id);
+    setNotificationHistory(
+      updatedHistory.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    );
+  };
+
+  const formatNotificationTime = (value: string) => {
+    try {
+      return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return "--:--";
+    }
+  };
+
+  const getNotificationTypeLabel = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") return t('notifications');
+    if (notification.category === "alert") return t('announcementType_alert' as any);
+    if (notification.category === "promotion") return t('announcementType_promotion' as any);
+    return t('announcementType_banner' as any);
+  };
+
+  const getNotificationTone = (notification: AppNotificationRecord) => {
+    if (notification.source !== "announcement") {
+      return "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800 text-blue-600 dark:text-blue-300";
+    }
+    if (notification.category === "alert") {
+      return "bg-rose-50 dark:bg-rose-900/25 border-rose-100 dark:border-rose-800 text-rose-600 dark:text-rose-300";
+    }
+    if (notification.category === "promotion") {
+      return "bg-amber-50 dark:bg-amber-900/25 border-amber-100 dark:border-amber-800 text-amber-600 dark:text-amber-300";
+    }
+    return "bg-indigo-50 dark:bg-indigo-900/25 border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300";
   };
 
   
@@ -441,16 +554,20 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
           <button
             id="btn-profile-bell"
-            onClick={() => {
-              alert(t('noAlerts'));
-              setShowNotificationBadge(false);
-            }}
+            onClick={handleOpenNotifications}
             className="w-12 h-12 sm:w-20 sm:h-20 bg-white/95 dark:bg-slate-900/90 text-slate-950 dark:text-white rounded-full shadow-[0_18px_40px_rgba(37,99,235,0.12)] flex items-center justify-center relative hover:scale-105 active:scale-95 transition-all"
             title={t('notifications')}
           >
             <Bell className="w-6 h-6 sm:w-8 sm:h-8" />
+<<<<<<< HEAD
             {showNotificationBadge && (
               <span className="absolute top-2 right-2 sm:top-4 sm:right-4 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-brand-600 border-[3px] sm:border-4 border-white dark:border-slate-900 rounded-full"></span>
+=======
+            {unreadNotifications > 0 && (
+              <span className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3 min-w-5 h-5 px-1 bg-blue-600 text-white border-[3px] border-white dark:border-slate-900 rounded-full text-[9px] font-black flex items-center justify-center leading-none">
+                {unreadNotifications > 9 ? "9+" : unreadNotifications}
+              </span>
+>>>>>>> 0984c8002e816d6e1391c1596590790e48656fa6
             )}
           </button>
         </div>
@@ -977,12 +1094,39 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                               </div>
 
+                              {/* Sync status indicator */}
+                              {medicalSyncSource !== "none" && (
+                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${
+                                  medicalSyncSource === "fhir"
+                                    ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
+                                    : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40"
+                                }`}>
+                                  {medicalSyncSource === "fhir" ? (
+                                    <><Cloud className="w-3 h-3" /> Sincronizado con Google Cloud FHIR</>
+                                  ) : (
+                                    <><CloudOff className="w-3 h-3" /> Datos guardados localmente</>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Error message */}
+                              {medicalSaveError && (
+                                <div className="flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 mb-1">
+                                  <AlertTriangle className="w-3 h-3 shrink-0" />
+                                  <span>{medicalSaveError}</span>
+                                </div>
+                              )}
+
                               <button
                                 type="submit"
-                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm"
+                                disabled={isSavingMedical}
+                                className="w-full bg-teal-600 hover:bg-teal-700 active:scale-[0.98] text-white font-bold py-2.5 px-5 rounded-xl border-none outline-none text-xs transition-all tracking-wide flex items-center justify-center gap-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
-                                <Save className="w-3.5 h-3.5" />
-                                {t('saveMedicalData')}
+                                {isSavingMedical ? (
+                                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</>
+                                ) : (
+                                  <><Save className="w-3.5 h-3.5" /> {t('saveMedicalData')}</>
+                                )}
                               </button>
                             </form>
                           )}
@@ -1029,11 +1173,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         {onLogout && (
           <button
             id="btn-profile-logout"
-            onClick={() => {
-              if (window.confirm(t('logoutConfirm'))) {
-                onLogout();
-              }
-            }}
+            onClick={onLogout}
             className="w-full mt-5 bg-red-50 dark:bg-red-900/10 hover:bg-red-100/80 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200/85 dark:border-red-900/30 rounded-2xl py-3.5 px-5 font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98] cursor-pointer"
           >
             <LogOut className="w-4.5 h-4.5 text-red-500 shrink-0" />
@@ -1055,6 +1195,118 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           >
             <CheckCircle className="w-4.5 h-4.5 shrink-0" />
             <span>{t('saveSuccess')}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {}
+      <AnimatePresence>
+        {isNotificationInboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] bg-slate-950/55 backdrop-blur-sm flex items-start sm:items-center justify-center p-4 sm:p-6"
+            onClick={() => setIsNotificationInboxOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -18, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 360, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md mt-16 sm:mt-0 bg-white dark:bg-slate-900 rounded-[28px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 flex items-center justify-center border border-blue-100 dark:border-blue-800 shrink-0">
+                    <Bell className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white">{t('todayNotifications')}</h3>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">{t('todayNotificationsDesc')}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsNotificationInboxOpen(false)}
+                  className="p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-full px-2.5 py-1">
+                  {notificationHistory.length} {t('notifications')}
+                </span>
+                {unreadNotifications > 0 && (
+                  <button
+                    onClick={handleMarkNotificationsRead}
+                    className="text-[10px] font-black text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full px-3 py-1.5 transition-colors"
+                  >
+                    {t('markAllRead')}
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto">
+                {notificationHistory.length > 0 ? (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {notificationHistory.map((notification) => {
+                      const TypeIcon = notification.source === "announcement"
+                        ? notification.category === "alert"
+                          ? AlertTriangle
+                          : notification.category === "promotion"
+                            ? Star
+                            : Megaphone
+                        : BellRing;
+
+                      return (
+                        <div key={notification.id} className="p-4 flex items-start gap-3">
+                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
+                            notification.read
+                              ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300"
+                              : getNotificationTone(notification)
+                          }`}>
+                            <TypeIcon className="w-4.5 h-4.5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <span className="inline-flex mb-1 text-[9px] font-black uppercase tracking-wide rounded-full px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                                  {getNotificationTypeLabel(notification)}
+                                </span>
+                                <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
+                              </div>
+                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
+                                notification.read
+                                  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-blue-600 text-white"
+                              }`}>
+                                {notification.read ? t('read') : t('unread')}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-[11px] leading-normal text-slate-500 dark:text-slate-400">{notification.body}</p>
+                            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500">
+                              <Clock className="w-3 h-3" />
+                              <span>{formatNotificationTime(notification.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="px-6 py-10 text-center">
+                    <div className="mx-auto w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 mb-3">
+                      <Bell className="w-6 h-6" />
+                    </div>
+                    <p className="text-sm font-black text-slate-800 dark:text-white">{t('noNotificationsToday')}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal">{t('noNotificationsTodayDesc')}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
