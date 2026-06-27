@@ -40,9 +40,9 @@ DIRECTRICES DE COMUNICACIÓN (Estilo Messenger/Asistente Profesional):
 COMPONENTES OBLIGATORIOS DE LA RESPUESTA:
 
 1. **ESTADO DE PRIORIDAD**: Define el nivel de urgencia de forma inmediata.
-   - 🔴 Alta urgencia
-   - 🟡 Moderado (Requiere atención en las próximas horas)
-   - 🟢 Leve (Manejo sintomático o consulta externa)
+   - 🔴 Emergencia (Atención inmediata)
+   - 🟡 Urgencia (Atención en las próximas horas)
+   - 🟢 Rutina (Manejo en casa o consulta externa)
 
 2. **🔍 EVALUACIÓN CLÍNICA**: Un resumen ejecutivo del análisis de los síntomas. Explica la fisiopatología simple de por qué es urgente o no.
 
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     if (!apiKey || apiKey.length < 10) {
       console.log("API key not configured, returning simulated response");
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${message}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
       });
     }
@@ -273,7 +273,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
 
     if (shouldUseFallback) {
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${userMessageBody}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${userMessageBody}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
         warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
       });

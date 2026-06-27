@@ -5,13 +5,33 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* Brand palette — Salud-Conecta IA */
-  --color-brand-900: #395886;
-  --color-brand-600: #638ECB;
-  --color-brand-400: #8AAEE0;
-  --color-brand-200: #B1C9EF;
-  --color-brand-100: #D5DEEF;
-  --color-brand-50: #F0F3FA;
+  /* === Nueva Paleta de Colores - Salud-Conecta IA === */
+
+  /* Primarios (Marca) */
+  --color-primary: #334EAC;
+  --color-primary-dark: #081F5C;
+  --color-secondary: #7096D1;
+  --color-accent-blue: #BAD6EB;
+
+  /* Superficies y Fondos */
+  --color-background: #F8FAFC;
+  --color-surface-soft: #D0E3FF;
+  --color-card: #FFFFFF;
+
+  /* Salud (Verde) */
+  --color-health: #22C55E;
+  --color-health-light: #DCFCE7;
+
+  /* Estados */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #334EAC;
+
+  /* Textos y Bordes */
+  --color-text-main: #081F5C;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
