@@ -6,8 +6,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#F8FAFC", /* Coincide con tu nuevo Fondo Principal */
-  "theme_color": "#334EAC", /* Coincide con tu nuevo color Primario */
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
   "orientation": "portrait",
   "icons": [
     {
