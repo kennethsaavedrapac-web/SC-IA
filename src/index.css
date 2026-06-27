@@ -5,33 +5,43 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* === Nueva Paleta de Colores - Salud-Conecta IA === */
+  /* === Paleta de Colores Renovada (Blanco y Celeste) === */
 
-  /* Primarios (Marca) */
-  --color-primary: #334EAC;
-  --color-primary-dark: #081F5C;
-  --color-secondary: #7096D1;
-  --color-accent-blue: #BAD6EB;
+  /* Primarios (Celeste) */
+  --color-primary: #4A90E2;
+  /* Celeste principal para botones y elementos activos */
+  --color-primary-dark: #357ABD;
+  /* Celeste oscuro para interacciones (hover) */
+  --color-primary-light: #EBF5FF;
+  /* Celeste muy claro para fondos suaves */
 
   /* Superficies y Fondos */
-  --color-background: #F8FAFC;
-  --color-surface-soft: #D0E3FF;
+  --color-background: #FFFFFF;
+  /* Fondo principal blanco */
+  --color-surface-soft: #F8FAFC;
+  /* Gris muy claro para contraste sutil */
   --color-card: #FFFFFF;
+  /* Tarjetas blancas */
 
-  /* Salud (Verde) */
+  /* Verde (Salud y Éxito) */
   --color-health: #22C55E;
+  /* Verde médico */
   --color-health-light: #DCFCE7;
+  /* Verde claro para fondos de éxito */
 
   /* Estados */
   --color-success: #22C55E;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --color-info: #334EAC;
+  --color-info: #4A90E2;
+  /* Celeste para información */
 
   /* Textos y Bordes */
-  --color-text-main: #081F5C;
+  --color-text-main: #1A202C;
+  /* Texto principal (gris oscuro, casi negro) */
   --color-text-secondary: #64748B;
   --color-border: #E2E8F0;
+  /* Bordes y divisores */
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
