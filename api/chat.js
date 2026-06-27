@@ -10,11 +10,11 @@ let aiClient = null;
 
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
-  
+
   if (!apiKey || apiKey.length < 10) {
     return null;
   }
-  
+
   if (!aiClient) {
     try {
       aiClient = new GoogleGenerativeAI(apiKey);
@@ -23,7 +23,7 @@ function getGeminiClient() {
       throw e;
     }
   }
-  
+
   return aiClient;
 }
 
@@ -40,9 +40,9 @@ DIRECTRICES DE COMUNICACIÓN (Estilo Messenger/Asistente Profesional):
 COMPONENTES OBLIGATORIOS DE LA RESPUESTA:
 
 1. **ESTADO DE PRIORIDAD**: Define el nivel de urgencia de forma inmediata.
-   - 🔴 Alta urgencia
-   - 🟡 Moderado (Requiere atención en las próximas horas)
-   - 🟢 Leve (Manejo sintomático o consulta externa)
+   - 🔴 Emergencia (Atención inmediata)
+   - 🟡 Urgencia (Atención en las próximas horas)
+   - 🟢 Rutina (Manejo en casa o consulta externa)
 
 2. **🔍 EVALUACIÓN CLÍNICA**: Un resumen ejecutivo del análisis de los síntomas. Explica la fisiopatología simple de por qué es urgente o no.
 
@@ -81,8 +81,8 @@ CENTROS DE REFERENCIA EN GRANADA:
 RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
 export default async function handler(req, res) {
-  
-  const allowedOrigin = process.env.FRONTEND_URL || "*"; 
+
+  const allowedOrigin = process.env.FRONTEND_URL || "*";
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
@@ -107,17 +107,17 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    
+
     if (!apiKey || apiKey.length < 10) {
       console.log("API key not configured, returning simulated response");
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${message}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
       });
     }
 
     const ai = getGeminiClient();
-    
+
     if (!ai) {
       console.error("Failed to initialize Gemini client - API key may be invalid");
       return res.status(500).json({
@@ -126,10 +126,10 @@ export default async function handler(req, res) {
       });
     }
 
-    
+
     const now = new Date();
     const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
-    
+
     const timeContext = `\n\n[CONTEXTO TEMPORAL ACTUAL IMPORTANTE PARA TRIAGE]
 Hora y día actual en Nicaragua: ${localTimeStr}
 REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de Lunes a Viernes de 08:00 AM a 4:00 PM. Si la hora actual de arriba está fuera de ese horario (noches o fines de semana), ESTÁN CERRADOS. En caso de síntomas preocupantes fuera de horario laboral, debes REFERIR AL PACIENTE EXCLUSIVAMENTE A HOSPITALES, ya que estos sí atienden 24/7. Es vital para la seguridad no derivarlos a clínicas cerradas.`;
@@ -149,10 +149,10 @@ REGLA ESTRICTA: Los Centros y Puestos de Salud del MINSA atienden únicamente de
       const safeName = sanitizeForPrompt(safeUserProfile.name);
       const safeCity = sanitizeForPrompt(safeUserProfile.city);
       const safeBloodType = sanitizeForPrompt(safeUserProfile.bloodType);
-      const safeConditions = safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0 
-        ? safeUserProfile.healthConditions.map(c => sanitizeForPrompt(c)).join(', ') 
+      const safeConditions = safeUserProfile.healthConditions && safeUserProfile.healthConditions.length > 0
+        ? safeUserProfile.healthConditions.map(c => sanitizeForPrompt(c)).join(', ')
         : 'Ninguna reportada';
-      
+
       profileContext = `\n\n[CONTEXTO DEL PACIENTE]
 Nombre: ${safeName || 'No especificado'}
 Ciudad: ${safeCity || 'No especificada'}
@@ -164,7 +164,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
 
     // 1. Obtener SYSTEM_PROMPT dinámico desde Supabase
     let dynamicSystemPrompt = FALLBACK_SYSTEM_INSTRUCTION;
-    
+
     if (supabase) {
       try {
         const { data: promptData, error: promptError } = await supabase
@@ -172,7 +172,7 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
           .select('config_value')
           .eq('config_key', 'SYSTEM_PROMPT')
           .single();
-          
+
         if (!promptError && promptData?.config_value) {
           dynamicSystemPrompt = promptData.config_value;
         }
@@ -196,7 +196,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
           .select('valor')
           .eq('clave', 'global_config')
           .single();
-          
+
         if (!configError && configData?.valor?.aiModel) {
           aiModel = configData.valor.aiModel;
         }
@@ -214,7 +214,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     const chat = model.startChat({
       history: [],
     });
-    
+
 
     // Generate response
     let response;
@@ -234,19 +234,33 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
 
     const responseText = response && response.response ? response.response.text() : null;
 
+    // Try to log the chat interaction to the database (fail silently if table doesn't exist)
+    if (supabase) {
+      try {
+        const userId = userProfile?.id;
+        await supabase.from('chat_logs').insert({
+          user_id: userId || null,
+          message_length: message.length,
+          created_at: new Date().toISOString()
+        });
+      } catch (logErr) {
+        console.warn("Could not log chat interaction to Supabase in serverless function:", logErr);
+      }
+    }
+
     return res.status(200).json({
       text: responseText || "El asistente recibió la consulta pero no pudo generar una respuesta clara.",
       simulated: false,
     });
   } catch (error) {
     console.error("Chat API Error:", error);
-    
+
     const errorMessage = error?.message || String(error) || "Error desconocido";
     const userMessageBody = req.body?.message || "los síntomas descritos";
-    
+
     let userMessage = "Ocurrió un error procesando el triaje virtual con IA.";
     let shouldUseFallback = false;
-    
+
     if (errorMessage.includes("API_KEY") || errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("PERMISSION")) {
       userMessage = "Error de autenticación con la API de Gemini. Verifica que la API key sea válida.";
     } else if (errorMessage.includes("SAFETY")) {
@@ -256,15 +270,15 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       shouldUseFallback = true;
       console.log("API quota exceeded, switching to simulated mode");
     }
-    
+
     if (shouldUseFallback) {
       return res.status(200).json({
-        text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${userMessageBody}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${userMessageBody}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
         warning: "Respuesta generada en modo simulado debido a limitaciones temporales de la API."
       });
     }
-    
+
     return res.status(500).json({
       error: userMessage,
       timestamp: new Date().toISOString(),

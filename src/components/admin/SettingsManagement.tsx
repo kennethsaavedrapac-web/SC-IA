@@ -138,7 +138,7 @@ const SettingsManagement: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-slate-500">{t('loading')}</p>
       </div>
     );
@@ -167,7 +167,7 @@ const SettingsManagement: React.FC = () => {
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('settings')}</h2>
         <div className="flex items-center gap-3">
           {isSaving ? (
-            <span className="text-xs font-bold text-blue-500 flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-full"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</span>
+            <span className="text-xs font-bold text-brand-400 flex items-center gap-1.5 bg-brand-50 dark:bg-brand-900/30 px-3 py-1.5 rounded-full"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Guardando...</span>
           ) : lastSaved ? (
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
               {t('lastUpdated')}: {lastSaved.toLocaleTimeString()}
@@ -179,7 +179,7 @@ const SettingsManagement: React.FC = () => {
       {}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm md:max-h-[70vh] md:overflow-y-auto overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Smartphone className="w-4.5 h-4.5 text-blue-500" /> {t('generalSettings')}</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Smartphone className="w-4.5 h-4.5 text-brand-400" /> {t('generalSettings')}</h3>
         </div>
         <div className="px-6 py-4 space-y-4">
           {}
@@ -195,7 +195,7 @@ const SettingsManagement: React.FC = () => {
                 setEditedField("appName");
                 setEditValue(settings.appName);
               }}
-              className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "appName" ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all`}
+              className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "appName" ? "border-brand-600 ring-2 ring-brand-600/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all`}
             />
           </div>
 
@@ -212,7 +212,7 @@ const SettingsManagement: React.FC = () => {
                 setEditedField("welcomeMessage");
                 setEditValue(settings.welcomeMessage);
               }}
-              className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "welcomeMessage" ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all`}
+              className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "welcomeMessage" ? "border-brand-600 ring-2 ring-brand-600/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all`}
             />
           </div>
 
@@ -227,7 +227,7 @@ const SettingsManagement: React.FC = () => {
                 onChange={handleChange}
                 onBlur={() => { if (editedField === "contactEmail" && editValue !== settings.contactEmail) handleSaveSetting("contactEmail", editValue); else setEditedField(null); }}
                 onFocus={() => { setEditedField("contactEmail"); setEditValue(settings.contactEmail); }}
-                className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "contactEmail" ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all font-mono`}
+                className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "contactEmail" ? "border-brand-600 ring-2 ring-brand-600/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all font-mono`}
               />
             </div>
 
@@ -241,7 +241,7 @@ const SettingsManagement: React.FC = () => {
                 onChange={handleChange}
                 onBlur={() => { if (editedField === "emergencyNumber" && editValue !== settings.emergencyNumber) handleSaveSetting("emergencyNumber", editValue); else setEditedField(null); }}
                 onFocus={() => { setEditedField("emergencyNumber"); setEditValue(settings.emergencyNumber); }}
-                className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "emergencyNumber" ? "border-blue-500 ring-2 ring-blue-500/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all font-mono`}
+                className={`w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border ${editedField === "emergencyNumber" ? "border-brand-600 ring-2 ring-brand-600/20" : "border-slate-200 dark:border-slate-700"} rounded-xl text-sm outline-none transition-all font-mono`}
               />
             </div>
           </div>
@@ -265,7 +265,7 @@ const SettingsManagement: React.FC = () => {
           {}
           <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${settings.showPwaBanner ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500"}`}>
+              <div className={`p-2 rounded-xl ${settings.showPwaBanner ? "bg-brand-100 dark:bg-brand-900/30 text-brand-600" : "bg-slate-200 dark:bg-slate-700 text-slate-500"}`}>
                 <Smartphone className="w-4 h-4" />
               </div>
               <div>
@@ -273,7 +273,7 @@ const SettingsManagement: React.FC = () => {
                 <span className="text-[11px] text-slate-500">Muestra el banner superior sugiriendo instalar la App.</span>
               </div>
             </div>
-            <button onClick={() => handleSaveSetting("showPwaBanner", !settings.showPwaBanner)} className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${settings.showPwaBanner ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"}`}>
+            <button onClick={() => handleSaveSetting("showPwaBanner", !settings.showPwaBanner)} className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${settings.showPwaBanner ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-600"}`}>
               <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${settings.showPwaBanner ? "translate-x-[22px]" : "translate-x-1"}`} />
             </button>
           </div>
@@ -282,13 +282,13 @@ const SettingsManagement: React.FC = () => {
         {}
         <div className="border-t border-slate-100 dark:border-slate-800">
           <div className="px-6 py-5 bg-slate-50/50 dark:bg-slate-800/30">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Sparkles className="w-4.5 h-4.5 text-indigo-500" /> {t('featureFlags')}</h3>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"><Sparkles className="w-4.5 h-4.5 text-brand-600" /> {t('featureFlags')}</h3>
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(settings.featureFlags).map(([flag, enabled]: [string, any]) => (
               <div key={flag} className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{(t as any)(`featureFlag.${flag}`) || flag.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
-                <button onClick={() => handleToggleFeatureFlag(flag)} className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${enabled ? "bg-indigo-600" : "bg-slate-300 dark:bg-slate-600"}`}>
+                <button onClick={() => handleToggleFeatureFlag(flag)} className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${enabled ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-600"}`}>
                   <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${enabled ? "translate-x-[22px]" : "translate-x-1"}`} />
                 </button>
               </div>

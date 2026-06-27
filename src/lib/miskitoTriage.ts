@@ -9,7 +9,7 @@
 import { MISKITO_TRIAGE_DATABASE, MiskitoTriageRecord } from "../data/miskitoTriageDatabase";
 import { UserProfile } from "../types";
 
-function normalize(str: string): string {
+function normalize(str: string = ""): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
@@ -24,10 +24,10 @@ const MISKITO_STOP_WORDS = new Set([
   "lukisna", "lukisa", "takisa", "sna", "sma",
   "pali", "tara", "sampi", "pain", "saura", "ailal",
   "bara", "kaka", "dukiara", "baku", "sin", "kli",
-  
+
   "tengo", "me", "duele", "siento", "estoy", "muy", "mucho",
   "que", "con", "por", "para", "una", "los", "las", "el", "la",
-  
+
   "have", "feel", "lot", "very", "the", "and", "with"
 ]);
 
@@ -46,7 +46,7 @@ function getOptimizedDatabase(): PreProcessedRecord[] {
       ...record,
       normSymptoms: record.symptoms.map(normalize),
       normKeywords: record.keywords.map(normalize),
-      symptomWordsList: record.symptoms.flatMap(s => 
+      symptomWordsList: record.symptoms.flatMap(s =>
         normalize(s).split(/\W+/).filter(w => w.length > 2)
       )
     }));
@@ -60,7 +60,7 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
     .split(/\W+/)
     .filter(w => w.length > 2 && !MISKITO_STOP_WORDS.has(w));
 
-  
+
   if (words.length === 0) {
     words = normalizedQuery.split(/\W+/).filter(w => w.length > 3);
   }
@@ -69,37 +69,37 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
   let bestMatch: PreProcessedRecord | null = null;
   let maxScore = 0;
 
-  
+
   for (let i = 0; i < database.length; i++) {
     const record = database[i];
     let score = 0;
 
-    
+
     for (let j = 0; j < record.normSymptoms.length; j++) {
       if (normalizedQuery.includes(record.normSymptoms[j])) {
         score += 15;
       }
     }
 
-    
+
     for (let w = 0; w < words.length; w++) {
       const word = words[w];
-      
-      
+
+
       for (let k = 0; k < record.normKeywords.length; k++) {
         const normKey = record.normKeywords[k];
         if (normKey === word) {
-          score += 8; 
+          score += 8;
         } else if (normKey.includes(word) || word.includes(normKey)) {
-          score += 3; 
+          score += 3;
         }
       }
 
-      
+
       for (let sw = 0; sw < record.symptomWordsList.length; sw++) {
         const symptomWord = record.symptomWordsList[sw];
         if (symptomWord === word) {
-          score += 5; 
+          score += 5;
         } else if (symptomWord.includes(word) || word.includes(symptomWord)) {
           score += 2;
         }
@@ -112,7 +112,7 @@ export function getMiskitoTriageResponse(query: string, userProfile: UserProfile
     }
   }
 
-  
+
   if (!bestMatch || maxScore < 4) {
     return formatNoMatchResponse(query);
   }

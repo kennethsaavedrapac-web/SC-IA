@@ -89,7 +89,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-slate-500">{t('loading')}</p>
       </div>
     );
@@ -121,7 +121,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
             <p className="text-xs font-bold text-slate-500 uppercase">{t('totalUsers')}</p>
             <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{users.length}</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><Users className="w-5 h-5" /></div>
+          <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center text-brand-600"><Users className="w-5 h-5" /></div>
         </div>
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
           <div>
@@ -149,12 +149,12 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
         <table className="min-w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
           <thead className="bg-slate-50 dark:bg-slate-800/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Avatar</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{t('name')}</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Suscripción</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Rol</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Acciones</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Avatar</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">{t('name')}</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Email</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Suscripción</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Rol</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -166,7 +166,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
 
               return (
                 <tr key={userItem.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     {userItem.avatarUrl ? (
                       <img
                         src={userItem.avatarUrl}
@@ -174,16 +174,16 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                         className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-sm font-bold">
                         {userItem.name ? userItem.name.charAt(0).toUpperCase() : "U"}
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                  <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900 dark:text-white">
                     {userItem.name}
                   </td>
-                  <td className="px-6 py-4 text-slate-900 dark:text-white">{userItem.email || '-'}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap text-slate-900 dark:text-white">{userItem.email || '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => userItem.id && handlePremiumToggle(userItem.id, (userItem as any).is_premium)}
                       className={`px-3 py-1 rounded-full text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1.5 w-fit ${(userItem as any).is_premium ? 'bg-amber-50 text-amber-600 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50' : 'bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700'}`}
@@ -191,23 +191,23 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                       {(userItem as any).is_premium ? <><Star className="w-3 h-3 fill-current" /> Premium</> : 'Básico'}
                     </button>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       currentRole === 'admin'
-                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200'
+                        ? 'bg-brand-100 dark:bg-brand-900/20 text-brand-900 dark:text-brand-200'
                         : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200'
                     }`}
                     >
                       {currentRole === 'admin' ? t('admin') : t('user')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 space-x-3">
-                    {}
+                  <td className="px-6 py-4 whitespace-nowrap space-x-3">
+                    {/* Role selector (only show if not editing yourself or if admin) */}
                     {(userItem.id !== user.id || (user as any).role === 'admin') && (
                       <select
                         value={selectedRole}
                         onChange={(e) => userItem.id && setPendingRoles(prev => ({ ...prev, [userItem.id!]: e.target.value as "user" | "admin" }))}
-                        className="w-28 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-28 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
                       >
                         <option value="user">{t('user')}</option>
                         <option value="admin">{t('admin')}</option>
@@ -224,7 +224,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                           ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700'
                           : editingUserId === userItem.id
                             ? 'bg-slate-200 dark:bg-slate-700/50 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700'
+                            : 'bg-brand-600 hover:bg-brand-600 text-white dark:bg-brand-600 dark:hover:bg-brand-900'
                       }`}
                     >
                       {editingUserId === userItem.id ? t('updating') : t('save')}

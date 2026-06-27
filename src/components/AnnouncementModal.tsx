@@ -53,7 +53,7 @@ export default function AnnouncementModal({ announcements, onDismiss }: Props) {
         <div className={`p-8 flex flex-col items-center text-center relative overflow-hidden ${
           isAlert ? 'bg-gradient-to-br from-rose-500 to-rose-700' :
           isPromo ? 'bg-gradient-to-br from-amber-500 to-orange-600' :
-          'bg-gradient-to-br from-blue-600 to-indigo-700'
+          'bg-gradient-to-br from-brand-900 to-brand-900'
         }`}>
           {/* Elementos decorativos */}
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -97,7 +97,7 @@ export default function AnnouncementModal({ announcements, onDismiss }: Props) {
                 </button>
                 <div className="flex gap-2">
                   {announcements.map((_, idx) => (
-                    <div key={idx} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-6 bg-blue-500' : 'w-2 bg-slate-200 dark:bg-slate-700'}`} />
+                    <div key={idx} className={`h-2 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-6 bg-brand-600' : 'w-2 bg-slate-200 dark:bg-slate-700'}`} />
                   ))}
                 </div>
                 <button 

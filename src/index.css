@@ -4,6 +4,44 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* === Paleta de Colores Renovada (Blanco y Celeste) === */
+
+  /* Primarios (Celeste) */
+  --color-primary: #4A90E2;
+  /* Celeste principal para botones y elementos activos */
+  --color-primary-dark: #357ABD;
+  /* Celeste oscuro para interacciones (hover) */
+  --color-primary-light: #EBF5FF;
+  /* Celeste muy claro para fondos suaves */
+
+  /* Superficies y Fondos */
+  --color-background: #FFFFFF;
+  /* Fondo principal blanco */
+  --color-surface-soft: #F8FAFC;
+  /* Gris muy claro para contraste sutil */
+  --color-card: #FFFFFF;
+  /* Tarjetas blancas */
+
+  /* Verde (Salud y Éxito) */
+  --color-health: #22C55E;
+  /* Verde médico */
+  --color-health-light: #DCFCE7;
+  /* Verde claro para fondos de éxito */
+
+  /* Estados */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #4A90E2;
+  /* Celeste para información */
+
+  /* Textos y Bordes */
+  --color-text-main: #1A202C;
+  /* Texto principal (gris oscuro, casi negro) */
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  /* Bordes y divisores */
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -12,30 +50,39 @@
   .pb-safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 20px);
   }
+
   .pt-safe-top {
     padding-top: env(safe-area-inset-top, 44px);
   }
+
   .min-h-dvh {
     min-height: 100dvh;
   }
+
   .h-dvh {
     height: 100dvh;
   }
 }
 
 @keyframes float-slow {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   50% {
     transform: translateY(-15px) rotate(5deg);
   }
 }
 
 @keyframes float-reverse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   50% {
     transform: translateY(12px) rotate(-5deg);
   }
@@ -53,6 +100,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -67,13 +115,16 @@
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.3);
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.5);
 }
@@ -84,6 +135,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
 .glassmorphism-dark {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(12px);
@@ -94,8 +146,8 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

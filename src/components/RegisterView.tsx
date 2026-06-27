@@ -140,9 +140,9 @@ export default function RegisterView({
   return (
     <div className="min-h-dvh w-full flex flex-col justify-between bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-[#0b0f19] dark:to-[#0f172a] text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-blue-200/55 dark:border-blue-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-blue-200/45 dark:border-blue-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-blue-100/45 dark:bg-blue-950/30 blur-3xl"></div>
+        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
+        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
+        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
       </div>
 
@@ -189,24 +189,24 @@ export default function RegisterView({
       </header>
 
       {}
-      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-blue-500/10 md:dark:shadow-blue-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
+      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-brand-500/10 md:dark:shadow-brand-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
         {}
         <div className="flex flex-col items-center mb-5">
           <img
             src="/app-logo-v1.jpg"
             alt="Logo"
-            className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-blue-100 dark:border-blue-900/30"
+            className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
           />
           <h1 className="mt-3 text-lg font-bold tracking-tight text-slate-800 dark:text-slate-200">
-            Salud-Conecta <span className="text-blue-600 dark:text-blue-500">IA</span>
+            Salud-Conecta <span className="text-brand-600 dark:text-brand-400">IA</span>
           </h1>
         </div>
 
         {}
         <div className="mb-6 text-left">
           <h2 className="text-[34px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            {t('createAccount')}<span className="text-blue-600 dark:text-blue-500">.</span>
+            {t('createAccount')}<span className="text-brand-600 dark:text-brand-400">.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-[13.5px] mt-2 font-medium leading-relaxed">
             {t('registerSubtitle')}
@@ -222,7 +222,7 @@ export default function RegisterView({
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <User className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <User className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-name"
@@ -237,7 +237,7 @@ export default function RegisterView({
                 autoComplete="name"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-4.5 py-3.5 rounded-[20px] border ${nameError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
@@ -253,7 +253,7 @@ export default function RegisterView({
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Mail className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Mail className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-email"
@@ -268,7 +268,7 @@ export default function RegisterView({
                 autoComplete="email"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-4.5 py-3.5 rounded-[20px] border ${emailError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
@@ -284,7 +284,7 @@ export default function RegisterView({
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Lock className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Lock className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-password"
@@ -299,7 +299,7 @@ export default function RegisterView({
                 autoComplete="new-password"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-12 py-3.5 rounded-[20px] border ${passwordError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
               <button
@@ -323,7 +323,7 @@ export default function RegisterView({
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Lock className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Lock className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-confirm-password"
@@ -338,7 +338,7 @@ export default function RegisterView({
                 autoComplete="new-password"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-12 py-3.5 rounded-[20px] border ${confirmPasswordError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
               <button
@@ -367,7 +367,7 @@ export default function RegisterView({
                   if (e.target.checked) setTermsError("");
                 }}
                 disabled={isLoading}
-                className="mt-0.5 w-[18px] h-[18px] rounded-[6px] text-blue-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-0 cursor-pointer transition-all shrink-0"
+                className="mt-0.5 w-[18px] h-[18px] rounded-[6px] text-brand-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-0 cursor-pointer transition-all shrink-0"
               />
               <span className="text-[12.5px] text-slate-500 dark:text-slate-400 leading-snug font-medium select-none">
                 {t('agreeToTerms')}
@@ -383,7 +383,7 @@ export default function RegisterView({
             id="btn-register-submit"
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-650 active:scale-[0.98] text-white py-3.5 px-5 rounded-[20px] font-bold text-sm tracking-wide shadow-lg shadow-blue-500/20 dark:shadow-blue-900/10 flex items-center justify-center space-x-1.5 transition-all duration-200 cursor-pointer pt-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+            className="w-full bg-gradient-to-r from-brand-900 to-brand-600 hover:from-brand-900 hover:to-brand-600 active:scale-[0.98] text-white py-3.5 px-5 rounded-[20px] font-bold text-sm tracking-wide shadow-lg shadow-brand-500/20 dark:shadow-brand-900/10 flex items-center justify-center space-x-1.5 transition-all duration-200 cursor-pointer pt-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             {isLoading ? (
               <>
@@ -438,9 +438,9 @@ export default function RegisterView({
           type="button"
           onClick={onNavigateToLogin}
           disabled={isLoading}
-          className="w-full bg-transparent hover:bg-blue-50/20 text-blue-600 dark:text-blue-400 py-3.5 px-5 rounded-[20px] border border-blue-600/35 dark:border-blue-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 mt-3.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-transparent hover:bg-brand-50/20 text-brand-600 dark:text-brand-400 py-3.5 px-5 rounded-[20px] border border-brand-600/35 dark:border-brand-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 mt-3.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <LogIn className="w-5 h-5 text-blue-650 dark:text-blue-450 shrink-0" />
+          <LogIn className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" />
             <span>{t('alreadyHaveAccount')}</span>
         </button>
 
@@ -449,7 +449,7 @@ export default function RegisterView({
       {}
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center relative">
         <div className="absolute bottom-0 inset-x-0 w-full overflow-hidden leading-none pointer-events-none opacity-40 dark:opacity-20 -z-10">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-blue-500 fill-current">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-brand-400 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>
           </svg>
         </div>
