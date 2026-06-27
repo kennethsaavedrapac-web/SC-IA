@@ -1,8 +1,11 @@
+import { TriageSeverity } from "../types";
+
 export interface TriageRecord {
   id: string;
   symptoms: string[];
   keywords: string[];
-  severity: "rutina" | "urgencia" | "emergencia";
+  // Se actualiza el tipo para usar la nueva definición de severidad
+  severity: TriageSeverity;
   possibleCauses: string[];
   recommendations: string[];
   warningSigns: string[];
@@ -13,7 +16,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "fiebre_alta",
     symptoms: ["Fiebre alta", "Temperatura elevada", "Escalofríos", "Sudoración"],
     keywords: ["fiebre", "calentura", "temperatura", "escalofrios", "sudor", "frio", "hirviendo", "arder", "quema"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Infección viral", "Gripe", "Infección bacteriana", "Covid-19", "Dengue"],
     recommendations: [
       "Toma paracetamol (acetaminofén) para bajar la temperatura.",
@@ -31,7 +34,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dengue_zika_chikungunya",
     symptoms: ["Dolor de huesos", "Dolor detrás de los ojos", "Sarpullido", "Fiebre rompehuesos"],
     keywords: ["dengue", "zika", "chikungunya", "huesos", "ojos", "sarpullido", "zancudo", "mosquito", "articulaciones", "cuerpo", "manchas"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Dengue", "Chikungunya", "Zika"],
     recommendations: [
       "Toma únicamente paracetamol. ¡NO tomes aspirina, ibuprofeno ni naproxeno (pueden causar hemorragias)!",
@@ -48,7 +51,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "malaria",
     symptoms: ["Escalofríos severos", "Sudoración extrema", "Fiebre intermitente", "Temblores"],
     keywords: ["malaria", "paludismo", "temblor", "terciana", "escalofrio", "sudar", "zancudo", "selva"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Malaria (Paludismo)"],
     recommendations: [
       "La malaria requiere diagnóstico con prueba de gota gruesa en un centro de salud.",
@@ -65,7 +68,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dolor_cabeza_severo",
     symptoms: ["Dolor de cabeza", "Migraña", "Presión en la cabeza", "Punzadas en la cabeza"],
     keywords: ["dolor", "cabeza", "migraña", "cefalea", "presion", "punzadas", "nuca", "cerebro"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Tensión", "Migraña", "Deshidratación", "Falta de sueño", "Problemas de visión", "Estrés"],
     recommendations: [
       "Descansa en una habitación oscura y silenciosa sin pantallas.",
@@ -83,7 +86,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dificultad_respiratoria",
     symptoms: ["Dificultad para respirar", "Falta de aire", "Asfixia", "Pecho apretado", "Silbido al respirar"],
     keywords: ["aire", "respirar", "ahogo", "asfixia", "pecho", "pulmones", "asma", "ahogando", "sofoco", "silbido"],
-    severity: "emergencia",
+    severity: "emergencia", // Corresponde al color --color-error (#EF4444)
     possibleCauses: ["Ataque de asma", "Reacción alérgica severa", "Neumonía", "Problema cardíaco", "EPOC"],
     recommendations: [
       "Mantén la calma y siéntate erguido ligeramente inclinado hacia adelante.",
@@ -101,7 +104,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dolor_pecho",
     symptoms: ["Dolor de pecho", "Opresión torácica", "Punzadas en el pecho", "Ardor en el pecho"],
     keywords: ["pecho", "corazon", "infarto", "opresion", "punzada", "ardor", "brazo", "izquierdo", "torax", "taquicardia"],
-    severity: "emergencia",
+    severity: "emergencia", // Corresponde al color --color-error (#EF4444)
     possibleCauses: ["Infarto agudo de miocardio", "Angina de pecho", "Reflujo gastroesofágico fuerte", "Ataque de ansiedad o pánico"],
     recommendations: [
       "Detén cualquier actividad física inmediatamente y siéntate en reposo absoluto.",
@@ -119,7 +122,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dolor_abdominal",
     symptoms: ["Dolor de estómago", "Dolor abdominal", "Retorcijones", "Cólicos fuertes"],
     keywords: ["estomago", "barriga", "abdomen", "panza", "colico", "retorcijon", "apendice", "gastritis", "ulceras"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Gastroenteritis", "Apendicitis", "Intoxicación alimentaria", "Cálculos biliares", "Infección intestinal"],
     recommendations: [
       "Evita ingerir alimentos sólidos o pesados por unas horas.",
@@ -137,7 +140,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "nauseas_vomitos",
     symptoms: ["Náuseas", "Vómitos", "Estómago revuelto", "Ganas de vomitar", "Devolver la comida"],
     keywords: ["nauseas", "vomito", "asco", "mareo", "estomago", "comida", "devolver", "vómito", "bomitar"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Intoxicación alimentaria", "Infección viral (gripe estomacal)", "Embarazo", "Mareo por movimiento"],
     recommendations: [
       "Espera de 30 a 60 minutos después del último vómito antes de intentar beber algo.",
@@ -155,7 +158,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "reaccion_alergica",
     symptoms: ["Alergia", "Ronchas en la piel", "Picazón en el cuerpo", "Hinchazón repentina"],
     keywords: ["alergia", "ronchas", "pico", "picazon", "hinchazon", "rojo", "sarpullido", "alergico", "intoxicacion"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Picadura de insecto (abeja, avispa)", "Alergia alimentaria (mariscos, maní)", "Reacción a medicamentos", "Contacto con químicos"],
     recommendations: [
       "Toma un antihistamínico de venta libre (como loratadina, cetirizina o clorfeniramina).",
@@ -173,7 +176,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "trauma_cortes",
     symptoms: ["Corte profundo", "Herida", "Sangrado", "Raspón", "Hemorragia"],
     keywords: ["corte", "sangre", "herida", "raspon", "caida", "cuchillo", "machete", "sangrando", "hemorragia", "abierta"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Accidente doméstico", "Caída traumática", "Uso de herramientas", "Accidente de tránsito"],
     recommendations: [
       "Lava tus manos si es posible antes de atender la herida.",
@@ -191,7 +194,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "quemaduras",
     symptoms: ["Quemadura", "Ardor fuerte en la piel", "Ampollas por quemadura"],
     keywords: ["quemadura", "fuego", "calor", "agua", "hirviendo", "aceite", "sol", "ampolla", "queme", "quemo", "plancha"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Líquidos hirviendo", "Fuego directo", "Superficies calientes (plancha, escape de moto)", "Quemadura química o eléctrica"],
     recommendations: [
       "Enfría la quemadura inmediatamente bajo un chorro de agua corriente (a temperatura ambiente o fresca, nunca helada) durante 15 minutos.",
@@ -209,7 +212,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "garganta",
     symptoms: ["Dolor de garganta", "Ardor al tragar", "Garganta seca", "Irritación en la garganta", "Anginas"],
     keywords: ["garganta", "tragar", "anginas", "amigdalas", "ardor", "ronquera", "tos", "carraspera", "saliva"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Faringitis viral", "Amigdalitis bacteriana", "Alergias", "Reflujo nocturno", "Aire acondicionado seco"],
     recommendations: [
       "Haz gárgaras con agua tibia y sal (media cucharadita de sal en un vaso de agua) varias veces al día.",
@@ -227,7 +230,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "resfriado_gripe",
     symptoms: ["Congestión nasal", "Mocos", "Estornudos", "Cuerpo cortado", "Malestar general"],
     keywords: ["gripe", "resfriado", "moco", "nariz", "estornudo", "catarro", "congestion", "mocos", "tupida", "virus"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Rinovirus (resfriado común)", "Influenza", "Covid-19", "Alergia estacional"],
     recommendations: [
       "Descansa lo más posible para ayudar a tu sistema inmunitario.",
@@ -245,7 +248,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "diarrea",
     symptoms: ["Diarrea", "Evacuaciones líquidas", "Ir al baño a cada rato", "Heces aguadas"],
     keywords: ["diarrea", "liquido", "baño", "infeccion", "deposiciones", "chorro", "aguado", "curso"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Gastroenteritis viral", "Amebas o parásitos", "Intoxicación por comida dañada", "Uso de antibióticos"],
     recommendations: [
       "La rehidratación es lo más importante: bebe litros de Suero de Rehidratación Oral a sorbos pequeños.",
@@ -263,7 +266,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "ansiedad_estres",
     symptoms: ["Ansiedad", "Ataque de pánico", "Estrés", "Palpitaciones", "Miedo intenso"],
     keywords: ["ansiedad", "estres", "panico", "palpitaciones", "nervios", "miedo", "angustia", "desespero", "loco"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Ataque de pánico", "Trastorno de ansiedad aguda", "Consumo alto de cafeína/bebidas energéticas", "Estrés emocional"],
     recommendations: [
       "Busca un lugar tranquilo y siéntate. Recuerda que esta sensación es temporal y pasará.",
@@ -281,7 +284,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "mordedura_serpiente",
     symptoms: ["Mordedura de serpiente", "Picadura de culebra", "Dolor intenso punzante en extremidad", "Dos marcas de colmillos"],
     keywords: ["serpiente", "culebra", "mordedura", "veneno", "vibora", "cascabel", "barba", "amarilla", "corales", "colmillos", "pico"],
-    severity: "emergencia",
+    severity: "emergencia", // Corresponde al color --color-error (#EF4444)
     possibleCauses: ["Envenenamiento ofídico (Serpiente venenosa)", "Mordedura de serpiente no venenosa"],
     recommendations: [
       "Mantén a la víctima COMPLETAMENTE INMÓVIL y en calma para ralentizar la propagación del veneno.",
@@ -300,7 +303,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "picadura_alacran",
     symptoms: ["Picadura de alacrán", "Picadura de escorpión", "Adormecimiento", "Dolor quemante localizado"],
     keywords: ["alacran", "escorpion", "picadura", "pico", "adormecimiento", "lengua", "hormigueo", "veneno"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Picadura por escorpión / alacrán"],
     recommendations: [
       "Lava la zona con agua y jabón.",
@@ -318,7 +321,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "insolacion",
     symptoms: ["Insolación", "Golpe de calor", "Mareo por calor", "Piel roja y seca", "Desmayo por sol"],
     keywords: ["sol", "calor", "insolacion", "desmayo", "sofocado", "bochorno", "piel", "roja", "seca", "temperatura"],
-    severity: "emergencia",
+    severity: "emergencia", // Corresponde al color --color-error (#EF4444)
     possibleCauses: ["Golpe de calor", "Deshidratación extrema por exposición solar", "Agotamiento por calor"],
     recommendations: [
       "Traslada a la persona a un lugar fresco, con sombra y bien ventilado inmediatamente.",
@@ -336,7 +339,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "dolor_muela",
     symptoms: ["Dolor de muela", "Dolor de diente", "Hinchazón en la cara", "Sensibilidad dental"],
     keywords: ["muela", "diente", "caries", "encias", "odontologo", "dentista", "hinchazon", "cara", "mandibula"],
-    severity: "rutina",
+    severity: "rutina", // Corresponde al color --color-health (#22C55E)
     possibleCauses: ["Caries profunda", "Absceso dental", "Gingivitis severa", "Muela del juicio impactada"],
     recommendations: [
       "Realiza enjuagues suaves con agua tibia y sal para limpiar la zona.",
@@ -354,7 +357,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "infeccion_urinaria",
     symptoms: ["Ardor al orinar", "Orinar a cada rato", "Dolor en el vientre bajo", "Orina oscura o con mal olor"],
     keywords: ["orina", "orinar", "ardor", "pipi", "orin", "vejiga", "riñones", "mal", "olor", "chistata"],
-    severity: "urgencia",
+    severity: "urgencia", // Corresponde al color --color-warning (#F59E0B)
     possibleCauses: ["Infección del tracto urinario (Cistitis)", "Cálculos renales (piedras)", "Infección renal (Pielonefritis)"],
     recommendations: [
       "Bebe mucha cantidad de agua pura para 'limpiar' y vaciar la vejiga constantemente.",
@@ -372,7 +375,7 @@ export const TRIAGE_DATABASE: TriageRecord[] = [
     id: "intoxicacion_quimica",
     symptoms: ["Intoxicación", "Ingesta de veneno", "Inhalación de químicos", "Olor a pesticida"],
     keywords: ["veneno", "intoxicado", "pesticida", "cloro", "quimico", "tomó", "bebió", "veneno", "agroquimico"],
-    severity: "emergencia",
+    severity: "emergencia", // Corresponde al color --color-error (#EF4444)
     possibleCauses: ["Ingesta accidental o voluntaria de sustancias tóxicas", "Inhalación de vapores tóxicos (agroquímicos)"],
     recommendations: [
       "Busca el envase o etiqueta del producto que se ingirió para mostrarlo al médico.",
