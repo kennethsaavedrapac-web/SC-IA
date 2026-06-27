@@ -65,28 +65,29 @@ export default function App() {
   const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [globalSettings, setGlobalSettings] = useState<any>(null);
-  const [showPwaBanner, setShowPwaBanner] = useState<boolean>(() => {
-    try {
+  const [showPwaBanner, setShowPwaBanner] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkPwaBanner = () => {
       const dismissed = localStorage.getItem("dismissedPwaBanner");
-      if (dismissed === "true") return false;
+      if (dismissed === "true") return;
       const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
-      if (isStandalone) return false;
-      return true;
-    } catch (e) {
-      return true;
-    }
-  });
+      if (isStandalone) return;
+      setShowPwaBanner(true);
+    };
+    checkPwaBanner();
+  }, []);
 
   
   const [dismissedAnnouncements, setDismissedAnnouncements] = useState<string[]>(() => {
     try {
+      if (typeof window === 'undefined') return [];
       return JSON.parse(localStorage.getItem("dismissedAnnouncements") || "[]");
     } catch {
       return [];
     }
   });
 
-  
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -179,26 +180,25 @@ export default function App() {
 
   
   const [fontSize, setFontSize] = useState<"sm" | "base" | "lg">(() => {
-    try {
-      return (localStorage.getItem("fontSize") as "sm" | "base" | "lg") || "base";
-    } catch (e) {
-      return "base";
-    }
+    return (localStorage.getItem("fontSize") as "sm" | "base" | "lg") || "base";
   });
 
   
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    try {
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    const initializeDarkMode = () => {
       const savedTheme = localStorage.getItem("theme");
       if (savedTheme) {
-        return savedTheme === "dark";
+        setDarkMode(savedTheme === "dark");
+        return;
       }
-      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    } catch (e) {
-      console.warn("localStorage is blocked or window.matchMedia is unavailable:", e);
-      return false;
-    }
-  });
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        setDarkMode(true);
+      }
+    };
+    initializeDarkMode();
+  }, []);
 
   
   useEffect(() => {
