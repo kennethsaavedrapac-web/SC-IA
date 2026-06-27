@@ -6,6 +6,7 @@ import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } f
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
+import { useGeolocation } from "../hooks/useGeolocation";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -92,11 +93,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
   );
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [detectedCity, setDetectedCity] = useState("");
   const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
-  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
-  const [geoError, setGeoError] = useState("");
   const [activeFilter, setActiveFilter] = useState<"todos" | "hospital" | "centro" | "farmacia" | "medico">("todos");
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
@@ -104,16 +102,55 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
 
-  const watchIdRef = React.useRef<number | null>(null);
   const forceCenterNextRef = React.useRef(false);
 
+  // Hook de geolocalización de alta precisión
+  const {
+    location: userLocation,
+    status: geoStatus,
+    error: geoError,
+    startTracking: requestCurrentLocation,
+  } = useGeolocation({
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0,
+    distanceFilterMeters: 3,
+    accuracyThresholdMeters: 80,
+  });
+
+  const handleRequestLocation = useCallback(() => {
+    forceCenterNextRef.current = true;
+    requestCurrentLocation();
+  }, [requestCurrentLocation]);
+
+  // Actualizar el modo de localización según la disponibilidad del GPS
   useEffect(() => {
-    return () => {
-      if (watchIdRef.current !== null) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
+    if (userLocation) {
+      setLocationMode("nearby");
+    }
+  }, [userLocation]);
+
+  useEffect(() => {
+    if (geoStatus === "error") {
+      setLocationMode("manual");
+    }
+  }, [geoStatus]);
+
+  // Centrar en el centro más cercano cuando se obtienen las coordenadas
+  useEffect(() => {
+    if (userLocation && forceCenterNextRef.current) {
+      const nearestCenter = mergedCenters
+        .filter((center) => center.latitude && center.longitude)
+        .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
+        .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+
+      if (nearestCenter) {
+        setActiveFilter("centro");
+        setSelectedCenter(nearestCenter);
       }
-    };
-  }, []);
+      forceCenterNextRef.current = false;
+    }
+  }, [userLocation, mergedCenters]);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -238,72 +275,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  const requestCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      setGeoStatus("error");
-      setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
-      setLocationMode("manual");
-      return;
-    }
-
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-
-    setGeoStatus("loading");
-    forceCenterNextRef.current = true;
-
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-
-        setUserLocation((prevLoc) => {
-          if (!prevLoc || userLoc.accuracy <= prevLoc.accuracy || Math.abs(userLoc.latitude - prevLoc.latitude) > 0.0001 || Math.abs(userLoc.longitude - prevLoc.longitude) > 0.0001) {
-            return userLoc;
-          }
-          return prevLoc;
-        });
-
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
-
-        if (forceCenterNextRef.current) {
-          const nearestCenter = mergedCenters
-            .filter((center) => center.latitude && center.longitude)
-            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-          if (nearestCenter) {
-            setActiveFilter("centro");
-            setSelectedCenter(nearestCenter);
-          }
-        }
-      },
-      (error) => {
-        let errorMsg = "No se pudo obtener tu ubicación.";
-        if (error.code === error.PERMISSION_DENIED) {
-          errorMsg = "Permiso denegado. Por favor, activa el acceso a la ubicación para encontrar centros cercanos.";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errorMsg = "La información de ubicación no está disponible en este dispositivo.";
-        } else if (error.code === error.TIMEOUT) {
-          errorMsg = "Se agotó el tiempo de espera para obtener la ubicación.";
-        } else if (error.message) {
-          errorMsg = error.message;
-        }
-
-        setGeoStatus("error");
-        setGeoError(errorMsg);
-        setLocationMode("manual");
-      },
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
-    );
-  }, [mergedCenters]);
+  // La lógica de geolocalización ha sido movida al hook useGeolocation
 
   useEffect(() => {
     if (!userLocation) return;
@@ -508,7 +480,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const handleRecenter = () => {
-    requestCurrentLocation();
+    handleRequestLocation();
     if (userLocation && iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
         type: "UPDATE_DATA",
@@ -1022,7 +994,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     setLocationQuery(detectedCity || "Mi ubicación");
                     return;
                   }
-                  requestCurrentLocation();
+                  handleRequestLocation();
                 }}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition-all ${
                   locationMode === "nearby"
@@ -1075,6 +1047,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 {t('doctors')}
               </button>
             </div>
+
+            {geoStatus === "weak-signal" && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl text-[10.5px] text-amber-800 dark:text-amber-300 leading-normal">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                <span>Señal GPS débil. La precisión de tu ubicación podría variar.</span>
+              </div>
+            )}
+            {geoStatus === "error" && geoError && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-xl text-[10.5px] text-red-800 dark:text-red-300 leading-normal">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span>{geoError}</span>
+              </div>
+            )}
 
             {locationMode === "manual" && filteredDepartments.length > 0 && (
               <div className="flex flex-wrap gap-1 max-h-[50px] overflow-y-auto no-scrollbar pt-1">
