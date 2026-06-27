@@ -1,13 +1,9 @@
-
 import React, { useState } from "react";
-
-import type { ReactNode } from "react";
 import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X, MessageCircle } from "lucide-react";
 import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
-
 interface BuscarViewProps {
   onAddAppointment: (appointment: Appointment) => void;
   appointments: Appointment[];
@@ -18,22 +14,22 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"farmacias" | "medicos">("medicos");
 
-  
+
   const [specQuery, setSpecQuery] = useState("");
   const [docCityQuery, setDocCityQuery] = useState("Granada");
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Cardiología");
 
-  
+
   const [drugQuery, setDrugQuery] = useState("Paracetamol 500 mg");
   const [pharmCityQuery, setPharmCityQuery] = useState("Granada");
 
-  
+
   const [bookingDoctor, setBookingDoctor] = useState<Doctor | null>(null);
   const [bookingDate, setBookingDate] = useState("2026-06-05");
   const [bookingTime, setBookingTime] = useState("09:00 AM");
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  
+
   const POPULAR_SPECIALTIES = [
     { id: "Cardiología", label: "Cardiología", icon: "💙" },
     { id: "Dermatología", label: "Dermatología", icon: "🧴" },
@@ -42,7 +38,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     { id: "Traumatología", label: "Traumatología", icon: "🦴" },
   ];
 
-  
+
   const filteredDoctors = DOCTORS.filter((doc) => {
     const matchesSpec = specQuery
       ? doc.specialty.toLowerCase().includes(specQuery.toLowerCase())
@@ -50,7 +46,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     return matchesSpec;
   });
 
-  
+
   const filteredPharmacies = PHARMACIES.filter((pharm) => {
     const matchesDrug = drugQuery
       ? pharm.medsAvailable.some((med) => med.toLowerCase().includes(drugQuery.toLowerCase()))
@@ -78,7 +74,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
   return (
     <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      {}
+      { }
       <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-brand-50/50 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
           <div
@@ -97,7 +93,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <span className="text-xs bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-bold px-3 py-1 rounded-full border border-brand-100 dark:border-brand-900/50">{t('searchTitle')}</span>
         </div>
 
-        {}
+        { }
         <div className="mt-4 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center relative gap-1 md:max-w-md md:mx-auto md:w-full">
           <button
             id="tab-search-pharmacies"
@@ -120,9 +116,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
         </div>
       </header>
 
-      {}
+      { }
       <main className="flex-1 px-6 pt-5 max-w-6xl mx-auto w-full">
-        {}
+        { }
         <AnimatePresence mode="wait">
           {activeTab === "medicos" && (
             <motion.div
@@ -132,11 +128,11 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
-              {}
+              { }
               <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
                 <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">{t('searchDoctors')}</h3>
 
-                {}
+                { }
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('specialty')}</label>
                   <div className="relative">
@@ -152,7 +148,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                {}
+                { }
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('location')}</label>
                   <div className="relative">
@@ -168,7 +164,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                {}
+                { }
                 <button
                   id="btn-doctor-run-search"
                   className="w-full bg-brand-600 hover:bg-brand-900 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-brand-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
@@ -178,7 +174,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 </button>
               </div>
 
-              {}
+              { }
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('popularSpecialties')}</h4>
                 <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 no-scrollbar">
@@ -378,7 +374,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           </p>
 
                           <div className="mt-3 flex items-center gap-2">
-                             <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
+                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold ${pharm.status === "Disponible"
                               ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                               : pharm.status === "Poco stock"
                                 ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400"

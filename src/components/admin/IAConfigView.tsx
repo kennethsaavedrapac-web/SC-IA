@@ -29,10 +29,10 @@ const IAConfigView: React.FC = () => {
 
   // Playground State
   const [testInput, setTestInput] = useState("");
-  const [testMessages, setTestMessages] = useState<{sender: 'user'|'bot', text: string}[]>([]);
+  const [testMessages, setTestMessages] = useState<{ sender: 'user' | 'bot', text: string }[]>([]);
   const [isTesting, setIsTesting] = useState(false);
 
-  
+
   const isAdmin = (profile as any)?.role === "admin";
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const IAConfigView: React.FC = () => {
     loadAIConfigs();
   }, []);
 
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -71,10 +71,10 @@ const IAConfigView: React.FC = () => {
     }));
   };
 
-  
+
   const handleAddAIConfig = async () => {
     try {
-      
+
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -93,7 +93,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      
+
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -113,12 +113,12 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  
+
   const handleUpdateAIConfig = async () => {
     if (!editingConfig) return;
 
     try {
-      
+
       if (!formData.config_key || !formData.config_value) {
         alert('Por favor complete todos los campos obligatorios');
         return;
@@ -138,7 +138,7 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      
+
       setFormMode(null);
       setEditingConfig(null);
       setFormData({
@@ -158,7 +158,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  
+
   const handleDeleteAIConfig = async (id: string) => {
     if (!window.confirm('¿Está seguro de que desea eliminar esta configuración de IA? Esta acción no se puede deshacer.')) {
       return;
@@ -172,10 +172,10 @@ const IAConfigView: React.FC = () => {
 
       if (error) throw error;
 
-      
+
       await loadAIConfigs();
 
-      
+
       alert('Configuración de IA eliminada exitosamente');
     } catch (err: any) {
       setError(err.message || 'Error deleting AI configuration');
@@ -183,7 +183,7 @@ const IAConfigView: React.FC = () => {
     }
   };
 
-  
+
   const loadAIConfigs = useCallback(async () => {
     try {
       setLoading(true);
@@ -202,10 +202,10 @@ const IAConfigView: React.FC = () => {
     }
   }, []);
 
-  
+
   const handleTestChat = async () => {
     if (!testInput.trim() || isTesting) return;
-    
+
     const newMsg = { sender: 'user' as const, text: testInput };
     setTestMessages(prev => [...prev, newMsg]);
     setTestInput("");
@@ -215,9 +215,9 @@ const IAConfigView: React.FC = () => {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        
-        body: JSON.stringify({ 
-          message: newMsg.text, 
+
+        body: JSON.stringify({
+          message: newMsg.text,
           history: testMessages,
           userProfile: {
             name: "Usuario de Prueba",
@@ -268,7 +268,7 @@ const IAConfigView: React.FC = () => {
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('iaConfiguration')}</h2>
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
-            onClick={() => { 
+            onClick={() => {
               setFormMode('add');
               setEditingConfig(null);
               setFormData({
@@ -277,7 +277,7 @@ const IAConfigView: React.FC = () => {
                 description: ''
               });
             }}
-            className="flex-1 sm:flex-none justify-center px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-2 text-sm font-semibold transition-colors"
+            className="flex-1 sm:flex-none justify-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2 text-sm font-semibold transition-colors"
           >
             <Plus className="w-4 h-4 shrink-0" /> <span className="truncate">{t('addAIConfig')}</span>
           </button>
@@ -333,7 +333,7 @@ const IAConfigView: React.FC = () => {
                     type="button"
                     onClick={() => handleDeleteAIConfig(config.id)}
                     className="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                  > 
+                  >
                     {t('delete')}
                   </button>
                 </div>
@@ -356,12 +356,12 @@ const IAConfigView: React.FC = () => {
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">{t('configKey' as any)}</label>
-                  <input 
+                  <input
                     type="text"
                     name="config_key"
                     value={formData.config_key || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-655 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600 text-sm transition-shadow"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-650 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-shadow"
                     required
                   />
                 </div>
@@ -377,11 +377,11 @@ const IAConfigView: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">{t('configValue' as any)}</label>
-                  <textarea 
+                  <textarea
                     name="config_value"
                     value={formData.config_value || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-655 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600 font-mono text-sm transition-shadow"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-650 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm transition-shadow"
                     rows={6}
                     required
                   />
@@ -407,7 +407,7 @@ const IAConfigView: React.FC = () => {
                 <button
                   type="button"
                   onClick={formMode === 'add' ? handleAddAIConfig : handleUpdateAIConfig}
-                  className="w-full sm:w-auto px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center justify-center gap-1 text-sm font-semibold transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center gap-1 text-sm font-semibold transition-colors"
                   disabled={!(formData.config_key && formData.config_value)}
                 >
                   {formMode === 'add' ? t('createAIConfig' as any) : t('saveChanges')}
@@ -468,12 +468,12 @@ const IAConfigView: React.FC = () => {
               onChange={(e) => setTestInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleTestChat(); }}
               placeholder="Escribe tu consulta de prueba aquí..."
-              className="flex-1 min-w-0 px-3 py-2 border border-slate-300 dark:border-slate-655 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600 text-sm transition-shadow"
+              className="flex-1 min-w-0 px-3 py-2 border border-slate-300 dark:border-slate-650 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-shadow"
               disabled={isTesting}
             />
             <button
               onClick={handleTestChat}
-              className="px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-1 text-sm font-semibold shrink-0 transition-colors"
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1 text-sm font-semibold shrink-0 transition-colors"
               disabled={isTesting || !testInput.trim()}
             >
               <Send className="w-4 h-4" /> Enviar
