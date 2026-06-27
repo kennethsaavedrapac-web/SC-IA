@@ -511,23 +511,40 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     userLocation && selectedCenter?.latitude && selectedCenter?.longitude
       ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
       : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
-
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  const getMapCategory = (type: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
+    const t = type.toLowerCase();
+    if (t.includes("hospital")) return "hospital";
+    if (t.includes("centro de salud") || t.includes("puesto de salud") || t.includes("salud")) return "centro_salud";
+    if (t.includes("farmacia")) return "farmacia";
+    if (t.includes("medico") || t.includes("médico") || t.includes("doctor") || t.includes("consultorio") || t.includes("clinica") || t.includes("clínica")) return "medico";
+    return null;
+  };
+
+  const mapCentersData = (centers: typeof filteredCenters) => {
+    return centers
+      .filter((c) => c.latitude && c.longitude)
+      .map((c) => {
+        const category = getMapCategory(c.type);
+        if (!category) return null;
+        return {
+          id: c.id,
+          name: c.name,
+          type: c.type,
+          lat: c.latitude,
+          lng: c.longitude,
+          category,
+        };
+      })
+      .filter((c): c is NonNullable<typeof c> => c !== null);
+  };
 
   const handleRecenter = () => {
     if (userLocation) {
       iframeRef.current?.contentWindow?.postMessage({
         type: "UPDATE_DATA",
-        centers: filteredCenters
-          .filter((c) => c.latitude && c.longitude)
-          .map((c) => ({
-            id: c.id,
-            name: c.name,
-            type: c.type,
-            lat: c.latitude,
-            lng: c.longitude,
-            isHospital: c.type.toLowerCase().includes("hospital"),
-          })),
+        centers: mapCentersData(filteredCenters),
         selectedId: selectedCenter?.id || null,
         userLocation: userLocation,
         forceCenterOnUser: true,
@@ -556,20 +573,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     const iframe = iframeRef.current;
     if (!iframe) return;
 
-    const centersData = filteredCenters
-      .filter((c) => c.latitude && c.longitude)
-      .map((c) => ({
-        id: c.id,
-        name: c.name,
-        type: c.type,
-        lat: c.latitude,
-        lng: c.longitude,
-        isHospital: c.type.toLowerCase().includes("hospital"),
-      }));
-
     const message = {
       type: "UPDATE_DATA",
-      centers: centersData,
+      centers: mapCentersData(filteredCenters),
       selectedId: selectedCenter?.id || null,
       userLocation: userLocation,
       centerOnId: selectedCenter?.id || null,
@@ -716,9 +722,29 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 const strokeColor = isSelected ? '%233b82f6' : 'white';
                 const strokeWidth = isSelected ? 3 : 2;
                 
-                const iconUrl = c.isHospital
-                  ? \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%232563eb" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="25" font-family="sans-serif" font-weight="bold" font-size="16" fill="white" text-anchor="middle">H</text></svg>\`
-                  : \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="%2310b981" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="27" font-family="sans-serif" font-weight="bold" font-size="22" fill="white" text-anchor="middle">+</text></svg>\`;
+                let fillColor = '%23f59e0b'; // Amber (centro_salud)
+                let label = '+';
+                let yOffset = 27;
+                let fontSize = 22;
+                
+                if (c.category === 'hospital') {
+                  fillColor = '%2310b981'; // Green for hospitals
+                  label = 'H';
+                  yOffset = 25;
+                  fontSize = 16;
+                } else if (c.category === 'farmacia') {
+                  fillColor = '%232563eb'; // Blue for pharmacies
+                  label = 'F';
+                  yOffset = 25;
+                  fontSize = 16;
+                } else if (c.category === 'medico') {
+                  fillColor = '%238b5cf6'; // Purple for doctors
+                  label = 'M';
+                  yOffset = 25;
+                  fontSize = 16;
+                }
+                
+                const iconUrl = \`data:image/svg+xml;utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="\${size}" height="\${size}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="\${fillColor}" stroke="\${strokeColor}" stroke-width="\${strokeWidth}"/><text x="20" y="\${yOffset}" font-family="sans-serif" font-weight="bold" font-size="\${fontSize}" fill="white" text-anchor="middle">\${label}</text></svg>\`;
 
                 const icon = {
                   url: iconUrl,
@@ -825,9 +851,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               const borderColor = isSelected ? '#3b82f6' : '#ffffff';
               const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
               
-              const htmlIcon = c.isHospital
-                ? \`<div style="background-color: #2563eb; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 15 : 12}px; box-shadow: \${shadow}; transition: all 0.2s;">H</div>\`
-                : \`<div style="background-color: #10b981; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${isSelected ? 19 : 15}px; box-shadow: \${shadow}; transition: all 0.2s;">+</div>\`;
+              let bgColor = '#f59e0b'; // Amber (centro_salud)
+              let label = '+';
+              let fontSize = isSelected ? 19 : 15;
+              
+              if (c.category === 'hospital') {
+                bgColor = '#10b981'; // Green for hospitals
+                label = 'H';
+                fontSize = isSelected ? 15 : 12;
+              } else if (c.category === 'farmacia') {
+                bgColor = '#2563eb'; // Blue for pharmacies
+                label = 'F';
+                fontSize = isSelected ? 15 : 12;
+              } else if (c.category === 'medico') {
+                bgColor = '#8b5cf6'; // Purple for doctors
+                label = 'M';
+                fontSize = isSelected ? 15 : 12;
+              }
+              
+              const htmlIcon = \`<div style="background-color: \${bgColor}; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${fontSize}px; box-shadow: \${shadow}; transition: all 0.2s;">\${label}</div>\`;
 
               const icon = L.divIcon({
                 html: htmlIcon,

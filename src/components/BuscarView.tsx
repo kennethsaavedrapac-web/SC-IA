@@ -411,7 +411,11 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                               const message = drugQuery && drugQuery.trim() !== ""
                                 ? `Hola ${pharm.name}, ¿tienen disponible ${drugQuery}?`
                                 : `Hola ${pharm.name}, quisiera hacer una consulta sobre disponibilidad de medicamentos.`;
-                              window.open(`https:
+                              if (pharm.phone) {
+                                window.open(`https://wa.me/${pharm.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, "_blank");
+                              } else {
+                                alert("Esta farmacia no tiene un número de contacto registrado.");
+                              }
                             }}
                             className="w-full h-11 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                           >
