@@ -457,24 +457,19 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     : "";
   const getGoogleMapsSearchUrl = (center: HealthCenter | null) => {
     if (!center) return "";
-    const centerSearch = [
-      center.name,
-      center.locality,
-      center.municipality,
-      center.department,
-      "Nicaragua",
-    ]
-      .filter(Boolean)
-      .join(", ");
+    
+    // Usar exclusivamente coordenadas numéricas para evitar resolución por texto
+    const lat = center.latitude ?? center.lat;
+    const lng = center.longitude ?? center.lng;
+    
+    if (!lat || !lng) return "";
 
-    const destination = center.latitude && center.longitude
-      ? `${center.latitude},${center.longitude}`
-      : centerSearch;
+    const destination = `${lat},${lng}`;
 
     if (userLocation && userLocation.latitude && userLocation.longitude) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${encodeURIComponent(destination)}`;
+      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${destination}&travelmode=driving`;
     }
-    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+    return `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
   };
 
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
@@ -619,6 +614,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             let userAccuracyCircle = null;
             let currentSelectedId = null;
             let pendingMessage = null;
+            let directionsService = null;
+            let directionsRenderer = null;
 
             function initMap() {
               map = new google.maps.Map(document.getElementById("map"), {
@@ -627,6 +624,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 disableDefaultUI: true,
                 zoomControl: true,
                 mapId: "${googleMapsMapId}"
+              });
+
+              directionsService = new google.maps.DirectionsService();
+              directionsRenderer = new google.maps.DirectionsRenderer({
+                map: map,
+                suppressMarkers: true,
+                polylineOptions: {
+                  strokeColor: '#3b82f6',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 5
+                }
               });
 
               if (pendingMessage) {
@@ -753,6 +761,30 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               } else if (!msg.centerOnId) {
                 currentSelectedId = null;
               }
+
+              // Dibujar trayectoria directa punto a punto entre usuario y destino seleccionado
+              if (directionsRenderer && directionsService) {
+                if (msg.selectedId && msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                  const selectedCenter = msg.centers.find(c => c.id === msg.selectedId);
+                  if (selectedCenter && selectedCenter.lat && selectedCenter.lng) {
+                    directionsService.route({
+                      origin: new google.maps.LatLng(msg.userLocation.latitude, msg.userLocation.longitude),
+                      destination: new google.maps.LatLng(selectedCenter.lat, selectedCenter.lng),
+                      travelMode: google.maps.TravelMode.DRIVING
+                    }, (response, status) => {
+                      if (status === 'OK') {
+                        directionsRenderer.setDirections(response);
+                      } else {
+                        directionsRenderer.setDirections({ routes: [] });
+                      }
+                    });
+                  } else {
+                    directionsRenderer.setDirections({ routes: [] });
+                  }
+                } else {
+                  directionsRenderer.setDirections({ routes: [] });
+                }
+              }
             }
 
             window.addEventListener('message', (event) => {
@@ -776,12 +808,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
         <style>
           html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
           .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
           .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
           .leaflet-bar a:hover { background-color: #f8fafc !important; }
+          .leaflet-routing-container { display: none !important; } /* Ocultar panel de texto de instrucciones */
           @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
             100% { transform: scale(2.5); opacity: 0; }
@@ -804,6 +839,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           let userLocationMarker = null;
           let userAccuracyCircle = null;
           let markersMap = new Map();
+          let routingControl = null;
 
           function updateMarkers(centers, selectedId) {
             markersGroup.clearLayers();
@@ -891,6 +927,35 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 centerOnSelected(msg.centerOnId, msg.zoomLevel);
               } else if (!msg.centerOnId) {
                 currentSelectedId = null;
+              }
+
+              // Dibujar trayectoria directa punto a punto entre usuario y destino seleccionado (Leaflet)
+              if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+              }
+
+              if (msg.selectedId && msg.userLocation && msg.userLocation.latitude && msg.userLocation.longitude) {
+                const selectedCenter = msg.centers.find(c => c.id === msg.selectedId);
+                if (selectedCenter && selectedCenter.lat && selectedCenter.lng) {
+                  routingControl = L.Routing.control({
+                    waypoints: [
+                      L.latLng(msg.userLocation.latitude, msg.userLocation.longitude),
+                      L.latLng(selectedCenter.lat, selectedCenter.lng)
+                    ],
+                    router: L.Routing.osrmv1({
+                      serviceUrl: 'https://router.project-osrm.org/route/v1'
+                    }),
+                    lineOptions: {
+                      styles: [{ color: '#10b981', opacity: 0.8, weight: 5 }]
+                    },
+                    createMarker: function() { return null; },
+                    show: false,
+                    addWaypoints: false,
+                    draggableWaypoints: false,
+                    fitSelectedRoutes: false
+                  }).addTo(map);
+                }
               }
             }
           });
