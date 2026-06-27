@@ -89,7 +89,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-slate-500">{t('loading')}</p>
       </div>
     );
@@ -121,7 +121,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
             <p className="text-xs font-bold text-slate-500 uppercase">{t('totalUsers')}</p>
             <p className="text-2xl font-black text-slate-800 dark:text-white mt-1">{users.length}</p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600"><Users className="w-5 h-5" /></div>
+          <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center text-brand-600"><Users className="w-5 h-5" /></div>
         </div>
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
           <div>
@@ -174,7 +174,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                         className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-sm font-bold">
                         {userItem.name ? userItem.name.charAt(0).toUpperCase() : "U"}
                       </div>
                     )}
@@ -194,7 +194,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       currentRole === 'admin'
-                        ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200'
+                        ? 'bg-brand-100 dark:bg-brand-900/20 text-brand-900 dark:text-brand-200'
                         : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200'
                     }`}
                     >
@@ -207,7 +207,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                       <select
                         value={selectedRole}
                         onChange={(e) => userItem.id && setPendingRoles(prev => ({ ...prev, [userItem.id!]: e.target.value as "user" | "admin" }))}
-                        className="w-28 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-28 px-2 py-1 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
                       >
                         <option value="user">{t('user')}</option>
                         <option value="admin">{t('admin')}</option>
@@ -224,7 +224,7 @@ const UserManagement: React.FC<{ user: UserProfile }> = ({ user }) => {
                           ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700'
                           : editingUserId === userItem.id
                             ? 'bg-slate-200 dark:bg-slate-700/50 cursor-not-allowed'
-                            : 'bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700'
+                            : 'bg-brand-600 hover:bg-brand-600 text-white dark:bg-brand-600 dark:hover:bg-brand-900'
                       }`}
                     >
                       {editingUserId === userItem.id ? t('updating') : t('save')}

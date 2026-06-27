@@ -47,10 +47,10 @@ const TOAST_CONFIG: Record<ToastType, { icon: typeof CheckCircle; bg: string; bo
   },
   info: {
     icon: Info,
-    bg: 'bg-blue-50 dark:bg-blue-950/80',
-    border: 'border-blue-200/60 dark:border-blue-800/60',
-    text: 'text-blue-800 dark:text-blue-200',
-    iconColor: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-brand-50 dark:bg-brand-900/80',
+    border: 'border-brand-200/60 dark:border-brand-900/60',
+    text: 'text-brand-900 dark:text-brand-200',
+    iconColor: 'text-brand-600 dark:text-brand-400',
   },
 };
 

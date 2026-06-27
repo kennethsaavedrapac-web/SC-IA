@@ -239,7 +239,7 @@ const IAConfigView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
         <p className="mt-4 text-slate-500">{t('loading')}</p>
       </div>
     );
@@ -277,7 +277,7 @@ const IAConfigView: React.FC = () => {
                 description: ''
               });
             }}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2"
+            className="px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> {t('addAIConfig')}
           </button>
@@ -327,7 +327,7 @@ const IAConfigView: React.FC = () => {
                           description: config.description || ''
                         });
                       }}
-                      className="px-3 py-1.5 text-xs font-medium bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
+                      className="px-3 py-1.5 text-xs font-medium bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-1"
                     >
                       {t('edit')}
                     </button>
@@ -364,7 +364,7 @@ const IAConfigView: React.FC = () => {
                     name="config_key"
                     value={formData.config_key || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
                     required
                   />
                 </div>
@@ -374,7 +374,7 @@ const IAConfigView: React.FC = () => {
                     name="config_value"
                     value={formData.config_value || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
                     rows={4}
                     required
                   />
@@ -387,7 +387,7 @@ const IAConfigView: React.FC = () => {
                   name="description"
                   value={formData.description || ''}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
                   rows={3}
                 />
               </div>
@@ -411,7 +411,7 @@ const IAConfigView: React.FC = () => {
                 <button
                   type="button"
                   onClick={formMode === 'add' ? handleAddAIConfig : handleUpdateAIConfig}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
+                  className="px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-1"
                   disabled={!(formData.config_key && formData.config_value)}
                 >
                   {formMode === 'add' ? t('createAIConfig' as any) : t('saveChanges')}
@@ -439,7 +439,7 @@ const IAConfigView: React.FC = () => {
             ) : (
               testMessages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-2`}>
-                  <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'}`}>
+                  <div className={`max-w-[80%] p-2 rounded-lg ${msg.sender === 'user' ? 'bg-brand-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'}`}>
                     {msg.text}
                   </div>
                 </div>
@@ -460,12 +460,12 @@ const IAConfigView: React.FC = () => {
               onChange={(e) => setTestInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleTestChat(); }}
               placeholder="Escribe tu consulta de prueba aquí..."
-              className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-600"
               disabled={isTesting}
             />
             <button
               onClick={handleTestChat}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-1"
+              className="px-4 py-2 bg-brand-600 hover:bg-brand-600 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-brand-600 flex items-center gap-1"
               disabled={isTesting || !testInput.trim()}
             >
               <Send className="w-4 h-4" /> Enviar

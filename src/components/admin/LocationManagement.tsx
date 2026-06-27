@@ -254,7 +254,7 @@ export default function LocationManagement() {
               placeholder="Buscar centro..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all"
+              className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-brand-600 focus:ring-1 focus:ring-brand-600/20 transition-all"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           </div>
@@ -275,7 +275,7 @@ export default function LocationManagement() {
                     onClick={() => setSelectedCenter(center)}
                     className={`w-full text-left p-2.5 rounded-xl transition-all border ${
                       selectedCenter?.id === center.id 
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 shadow-sm' 
+                        ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-900 shadow-sm' 
                         : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
@@ -285,7 +285,7 @@ export default function LocationManagement() {
                         <p className="text-[10px] text-slate-500 truncate mt-0.5">{center.municipality}{center.department ? `, ${center.department}` : ''}</p>
                       </div>
                       {(center.latitude || overrides[center.id]) ? (
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${overrides[center.id] ? "bg-blue-500" : "bg-emerald-500"}`} />
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${overrides[center.id] ? "bg-brand-600" : "bg-emerald-500"}`} />
                       ) : (
                         <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
                       )}
@@ -301,7 +301,7 @@ export default function LocationManagement() {
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                  <MapPin className="w-3.5 h-3.5 text-brand-400" />
                   Ajustar coordenadas
                 </h3>
                 <span className="text-[9px] font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 truncate max-w-[140px]">
@@ -313,13 +313,13 @@ export default function LocationManagement() {
                 <div>
                   <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Latitud</label>
                   <input type="number" step="any" value={adjustedLat ?? ""} onChange={(e) => setAdjustedLat(parseFloat(e.target.value) || 0)}
-                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-brand-600 transition-all"
                     placeholder="12.1364" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Longitud</label>
                   <input type="number" step="any" value={adjustedLng ?? ""} onChange={(e) => setAdjustedLng(parseFloat(e.target.value) || 0)}
-                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-blue-500 transition-all"
+                    className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 outline-none focus:border-brand-600 transition-all"
                     placeholder="-86.2514" />
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function LocationManagement() {
                 <label className="block text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">Razón de ajuste</label>
                 <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2}
                   placeholder="Ej: Coordenadas corregidas según ubicación real."
-                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500 transition-all resize-none" />
+                  className="w-full px-2.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-brand-600 transition-all resize-none" />
               </div>
 
               <div className="flex items-center gap-2">
@@ -338,7 +338,7 @@ export default function LocationManagement() {
                   Revertir
                 </button>
                 <button onClick={handleSave} disabled={!hasChanges || isSaving || !adjustedLat || !adjustedLng}
-                  className={`flex items-center gap-1 px-4 py-2 rounded-lg text-[10px] font-bold transition-all flex-1 justify-center ${hasChanges && !isSaving ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm active:scale-[0.98]" : "bg-blue-100 dark:bg-blue-900/30 text-blue-300 dark:text-blue-600 cursor-not-allowed"}`}>
+                  className={`flex items-center gap-1 px-4 py-2 rounded-lg text-[10px] font-bold transition-all flex-1 justify-center ${hasChanges && !isSaving ? "bg-brand-600 hover:bg-brand-900 text-white shadow-sm active:scale-[0.98]" : "bg-brand-100 dark:bg-brand-900/30 text-brand-200 dark:text-brand-600 cursor-not-allowed"}`}>
                   {isSaving ? (<><Loader2 className="w-3 h-3 animate-spin" />Guardando...</>) : (<><Save className="w-3 h-3" />{hasChanges ? "Guardar cambios" : "Sin cambios"}</>)}
                 </button>
               </div>
@@ -358,7 +358,7 @@ export default function LocationManagement() {
               <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 {overrides[selectedCenter.id] ? "Coord. Modificadas" : "Coord. Originales"}
               </span>
-              <div className={`font-mono text-[10px] mt-0.5 flex items-center gap-2.5 ${hasChanges ? "text-blue-600 dark:text-blue-400 font-bold" : "text-slate-700 dark:text-slate-300"}`}>
+              <div className={`font-mono text-[10px] mt-0.5 flex items-center gap-2.5 ${hasChanges ? "text-brand-600 dark:text-brand-400 font-bold" : "text-slate-700 dark:text-slate-300"}`}>
                 <span>Lat: {adjustedLat?.toFixed(6) || "---"}</span>
                 <span>Lng: {adjustedLng?.toFixed(6) || "---"}</span>
               </div>

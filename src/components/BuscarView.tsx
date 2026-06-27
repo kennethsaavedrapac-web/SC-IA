@@ -79,7 +79,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   return (
     <div className="flex flex-col min-h-dvh bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {}
-      <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-blue-50/50 dark:border-slate-800">
+      <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-brand-50/50 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
           <div
             onClick={() => onNavigate && onNavigate("home")}
@@ -88,13 +88,13 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
             <img
               src="/app-logo-v1.jpg"
               alt="Logo"
-              className="w-8 h-8 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+              className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
             />
             <span className="font-display font-bold text-lg text-slate-800 dark:text-white">
-              Salud-Conecta <span className="text-blue-600 dark:text-blue-400">IA</span>
+              Salud-Conecta <span className="text-brand-600 dark:text-brand-400">IA</span>
             </span>
           </div>
-          <span className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold px-3 py-1 rounded-full border border-blue-100 dark:border-blue-900/50">{t('searchTitle')}</span>
+          <span className="text-xs bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 font-bold px-3 py-1 rounded-full border border-brand-100 dark:border-brand-900/50">{t('searchTitle')}</span>
         </div>
 
         {}
@@ -102,7 +102,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <button
             id="tab-search-pharmacies"
             onClick={() => setActiveTab("farmacias")}
-            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "farmacias" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "farmacias" ? "bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
           >
             <Pill className="w-4 h-4 shrink-0" />
@@ -111,7 +111,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <button
             id="tab-search-doctors"
             onClick={() => setActiveTab("medicos")}
-            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "medicos" ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 active:scale-95 z-10 select-none ${activeTab === "medicos" ? "bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-400 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
           >
             <Stethoscope className="w-4 h-4 shrink-0" />
@@ -146,7 +146,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       placeholder={t('specialtyPlaceholder')}
                       value={specQuery}
                       onChange={(e) => setSpecQuery(e.target.value)}
-                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
+                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-600/30 text-xs"
                     />
                     <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
@@ -162,7 +162,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       placeholder={t('locationPlaceholder')}
                       value={docCityQuery}
                       onChange={(e) => setDocCityQuery(e.target.value)}
-                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
+                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-600/30 text-xs"
                     />
                     <MapPin className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
@@ -171,7 +171,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 {}
                 <button
                   id="btn-doctor-run-search"
-                  className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-blue-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
+                  className="w-full bg-brand-600 hover:bg-brand-900 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-brand-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
                 >
                   <Search className="w-4 h-4" />
                   <span>{t('searchDoctors')}</span>
@@ -193,7 +193,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           setSelectedSpecialty(spec.id);
                         }}
                         className={`px-4.5 py-3 rounded-2xl text-xs font-bold whitespace-nowrap active:scale-95 transition-all text-center flex flex-col items-center justify-center border shrink-0 ${isSelected
-                          ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/15"
+                          ? "bg-brand-600 border-brand-600 text-white shadow-md shadow-brand-500/15"
                           : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
                           }`}
                       >
@@ -209,7 +209,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('featuredDoctors')}</h4>
-                  <span className="text-[11px] font-bold text-blue-600 tracking-tight cursor-pointer hover:underline">{t('viewAll')}</span>
+                  <span className="text-[11px] font-bold text-brand-600 tracking-tight cursor-pointer hover:underline">{t('viewAll')}</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
@@ -218,7 +218,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       <div
                         id={`row-doctor-profile-${doc.id}`}
                         key={doc.id}
-                        className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all"
+                        className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-brand-100 dark:hover:border-brand-900/50 transition-all"
                       >
                         <div className="flex items-center space-x-3.5">
                           <img
@@ -253,7 +253,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           <button
                             id={`btn-book-appointment-for-${doc.id}`}
                             onClick={() => setBookingDoctor(doc)}
-                            className="mt-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-850 flex items-center space-x-0.5 group hover:underline"
+                            className="mt-2 text-xs font-bold text-brand-600 dark:text-brand-400 hover:text-brand-600 flex items-center space-x-0.5 group hover:underline"
                           >
                             <span>{t('bookAppointment')}</span>
                             <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
@@ -270,7 +270,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           setSpecQuery("");
                           setSelectedSpecialty("Cardiología");
                         }}
-                        className="mt-2 text-xs text-blue-600 font-bold hover:underline"
+                        className="mt-2 text-xs text-brand-600 font-bold hover:underline"
                       >
                         {t('resetFilters')}
                       </button>
@@ -309,7 +309,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       placeholder={t('medicinePlaceholder')}
                       value={drugQuery}
                       onChange={(e) => setDrugQuery(e.target.value)}
-                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
+                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-600/30 text-xs"
                     />
                     <Pill className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
@@ -325,7 +325,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       placeholder={t('locationPlaceholder')}
                       value={pharmCityQuery}
                       onChange={(e) => setPharmCityQuery(e.target.value)}
-                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 text-xs"
+                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-2xl py-3 pl-4 pr-10 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-600/30 text-xs"
                     />
                     <MapPin className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
@@ -334,7 +334,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 {/* Submit trigger button */}
                 <button
                   id="btn-pharmacy-run-search"
-                  className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-blue-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
+                  className="w-full bg-brand-600 hover:bg-brand-900 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-brand-500/10 flex items-center justify-center space-x-2 transition-all mt-2"
                 >
                   <Search className="w-4 h-4" />
                   <span>{t('searchTitle')}</span>
@@ -364,14 +364,14 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     <div
                       id={`row-pharmacy-profile-${pharm.id}`}
                       key={pharm.id}
-                      className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-blue-100 dark:hover:border-blue-900/50 transition-all group min-h-[280px] relative overflow-hidden"
+                      className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-brand-100 dark:hover:border-brand-900/50 transition-all group min-h-[280px] relative overflow-hidden"
                     >
                       <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30 font-bold text-lg">
+                        <div className="w-12 h-12 bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-900/30 font-bold text-lg">
                           🏪
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h5 className="text-[15px] font-bold text-slate-800 dark:text-white transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">{pharm.name}</h5>
+                          <h5 className="text-[15px] font-bold text-slate-800 dark:text-white transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-400 truncate">{pharm.name}</h5>
                           <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center space-x-1 mt-1">
                             <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-300 dark:text-slate-600" />
                             <span className="truncate">{pharm.address}</span>
@@ -403,7 +403,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                           <button
                             id={`btn-run-route-for-${pharm.id}`}
                             onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
-                            className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                            className="w-full h-11 bg-brand-600 hover:bg-brand-900 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                           >
                             <Navigation className="w-4 h-4 shrink-0" />
                             <span>{t('viewRoute')}</span>
@@ -432,7 +432,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       <p className="text-sm font-medium">{t('noMedicineFound').replace('{drug}', drugQuery).replace('{city}', pharmCityQuery)}</p>
                     <button
                       onClick={() => setDrugQuery("Paracetamol 500 mg")}
-                      className="mt-2 text-xs text-blue-600 font-bold hover:underline"
+                      className="mt-2 text-xs text-brand-600 font-bold hover:underline"
                     >
                         {t('resetSearch')}
                     </button>
@@ -465,7 +465,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden"
             >
               {}
-              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-600 to-cyan-500"></div>
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-brand-900 to-cyan-500"></div>
 
               {bookingSuccess ? (
                 <div className="text-center py-6 space-y-4">
@@ -494,7 +494,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
 
                   {}
-                  <div className="p-3 bg-blue-50/40 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50 dark:border-blue-900/30 flex items-center space-x-3 mt-1">
+                  <div className="p-3 bg-brand-50/40 dark:bg-brand-900/10 rounded-2xl border border-brand-100/50 dark:border-brand-900/30 flex items-center space-x-3 mt-1">
                     <img
                       src={bookingDoctor.photoUrl}
                       alt={bookingDoctor.name}
@@ -503,7 +503,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     />
                     <div>
                       <h4 className="text-xs font-bold text-slate-950 dark:text-white">{bookingDoctor.name}</h4>
-                      <p className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">{bookingDoctor.specialty} • {t('distanceAway').replace('{distance}', bookingDoctor.distance)}</p>
+                      <p className="text-[10px] text-brand-600 dark:text-brand-400 font-medium">{bookingDoctor.specialty} • {t('distanceAway').replace('{distance}', bookingDoctor.distance)}</p>
                     </div>
                   </div>
 
@@ -528,7 +528,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       id="select-booking-schedule"
                       value={bookingTime}
                       onChange={(e) => setBookingTime(e.target.value)}
-                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-xl py-2.5 px-3.5 border border-slate-200 dark:border-slate-700 outline-none text-xs cursor-pointer focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30"
+                      className="w-full text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800/50 rounded-xl py-2.5 px-3.5 border border-slate-200 dark:border-slate-700 outline-none text-xs cursor-pointer focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-600/30"
                     >
                       <option value="09:00 AM">09:00 AM (Mañana)</option>
                       <option value="10:30 AM">10:30 AM (Mañana)</option>
@@ -542,7 +542,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   <button
                     id="btn-confirm-doctor-booking"
                     onClick={handleBookAppointment}
-                    className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 py-3.5 rounded-2xl text-white font-bold text-xs tracking-wider shadow-md shadow-blue-500/10 mt-3 transition-all"
+                    className="w-full bg-brand-600 hover:bg-brand-900 active:scale-95 py-3.5 rounded-2xl text-white font-bold text-xs tracking-wider shadow-md shadow-brand-500/10 mt-3 transition-all"
                   >
                     {t('confirmBooking')}
                   </button>

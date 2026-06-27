@@ -69,7 +69,7 @@ const AnalyticsView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center py-12">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+        <Loader2 className="w-10 h-10 text-brand-400 animate-spin" />
         <p className="mt-4 text-sm font-bold text-slate-500 uppercase tracking-wider">Cargando métricas...</p>
       </div>
     );
@@ -108,13 +108,13 @@ const AnalyticsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-brand-600/5 rounded-full blur-2xl pointer-events-none" />
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{t('totalUsers')}</p>
               <p className="text-3xl font-black text-slate-900 dark:text-white mt-1 leading-none">{stats.totalUsers}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 shrink-0">
+            <div className="w-12 h-12 bg-brand-50 dark:bg-brand-900/20 rounded-full flex items-center justify-center text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-900 shrink-0">
               <Users className="w-6 h-6" />
             </div>
           </div>
@@ -183,7 +183,7 @@ const AnalyticsView: React.FC = () => {
         {}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
           <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-            <Users className="w-4 h-4 text-blue-500" /> Nuevos Usuarios Registrados
+            <Users className="w-4 h-4 text-brand-400" /> Nuevos Usuarios Registrados
           </h3>
           <div className="space-y-3">
             {stats.recentUsers.map((u) => (
@@ -191,7 +191,7 @@ const AnalyticsView: React.FC = () => {
                 {u.avatar_url ? (
                   <img src={u.avatar_url} alt={u.nombre} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-sm font-bold">
                     {u.nombre.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -202,7 +202,7 @@ const AnalyticsView: React.FC = () => {
                   </p>
                 </div>
                 {u.role === 'admin' && (
-                  <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold rounded-md">Admin</span>
+                  <span className="px-2.5 py-1 bg-brand-100 dark:bg-brand-900/30 text-brand-900 dark:text-brand-400 text-[10px] font-bold rounded-md">Admin</span>
                 )}
               </div>
             ))}

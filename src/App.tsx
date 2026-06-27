@@ -22,7 +22,7 @@ import { supabase } from "./lib/supabaseClient";
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
-    <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-4" />
+    <Loader2 className="w-8 h-8 text-brand-600 animate-spin mb-4" />
     <span className="text-sm font-semibold text-slate-500">{text}</span>
   </div>
 );
@@ -588,7 +588,7 @@ export default function App() {
             alt="Logo"
             className="w-20 h-20 rounded-[28px] shadow-2xl object-cover border-2 border-white dark:border-slate-800"
           />
-          <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+          <Loader2 className="w-6 h-6 text-brand-600 animate-spin" />
           <p className="text-sm text-slate-500 font-semibold">{t('verifyingSession')}</p>
         </motion.div>
       </div>
@@ -627,10 +627,10 @@ export default function App() {
             <img
               src="/app-logo-v1.jpg"
               alt="Logo"
-              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
+              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
             />
             <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-              Salud-Conecta <span className="text-blue-600">IA</span>
+              Salud-Conecta <span className="text-brand-600">IA</span>
             </span>
           </div>
 
@@ -648,7 +648,7 @@ export default function App() {
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id as any)}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 font-bold shadow-sm border border-blue-100/50 dark:border-blue-900/50"
+                  ? "bg-brand-50 dark:bg-brand-900/20 text-brand-900 dark:text-brand-400 font-bold shadow-sm border border-brand-100/50 dark:border-brand-900/50"
                   : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
                   }`}
               >
@@ -664,7 +664,7 @@ export default function App() {
               {localUser.avatarUrl ? (
                 <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
                   {localUser.name ? localUser.name.charAt(0).toUpperCase() : "U"}
                 </div>
               )}
@@ -704,15 +704,15 @@ export default function App() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm border-b border-blue-500/20 z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden"
+              className="w-full bg-gradient-to-r from-brand-900 to-brand-600 text-white shadow-sm border-b border-brand-600/20 z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden"
             >
               <div className="flex items-center gap-3 flex-1">
                 <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4.5 h-4.5 text-blue-200 animate-pulse" />
+                  <Sparkles className="w-4.5 h-4.5 text-brand-200 animate-pulse" />
                 </div>
                 <div className="text-left">
                   <h4 className="font-display font-bold text-xs sm:text-sm tracking-tight">{t("pwaBannerTitle")}</h4>
-                  <p className="text-[10px] sm:text-xs text-blue-100 font-normal max-w-2xl leading-normal">{t("pwaBannerDesc")}</p>
+                  <p className="text-[10px] sm:text-xs text-brand-100 font-normal max-w-2xl leading-normal">{t("pwaBannerDesc")}</p>
                 </div>
               </div>
 
@@ -720,7 +720,7 @@ export default function App() {
                 <button
                   id="btn-instalar"
                   onClick={handleInstallPwa}
-                  className="bg-white text-blue-600 hover:bg-blue-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
+                  className="bg-white text-brand-600 hover:bg-brand-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>{t("pwaInstallButton")}</span>
@@ -732,7 +732,7 @@ export default function App() {
                       localStorage.setItem("dismissedPwaBanner", "true");
                     } catch (e) { }
                   }}
-                  className="p-1.5 hover:bg-white/10 active:scale-95 rounded-lg text-blue-100 hover:text-white transition-all shrink-0 cursor-pointer"
+                  className="p-1.5 hover:bg-white/10 active:scale-95 rounded-lg text-brand-100 hover:text-white transition-all shrink-0 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -910,7 +910,7 @@ export default function App() {
               <button
                 id="btn-nav-home"
                 onClick={() => setCurrentView("home")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -919,11 +919,11 @@ export default function App() {
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('home')}
                 </span>
                 {currentView === "home" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
@@ -931,7 +931,7 @@ export default function App() {
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
               >
                 <div className="p-1 mb-0.5">
@@ -941,11 +941,11 @@ export default function App() {
                     <path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('consulta')}
                 </span>
                 {currentView === "consulta" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
               </button>
 
@@ -954,7 +954,7 @@ export default function App() {
                 <button
                   id="btn-nav-buscar"
                   onClick={() => setCurrentView("buscar")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
                 >
                   <div className="p-1 mb-0.5">
@@ -963,11 +963,11 @@ export default function App() {
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('buscar')}
                   </span>
                   {currentView === "buscar" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                   )}
                 </button>
               )}
@@ -977,7 +977,7 @@ export default function App() {
                 <button
                   id="btn-nav-premium"
                   onClick={() => setCurrentView("premium")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
                 >
                   <div className="p-1 mb-0.5">
@@ -985,11 +985,11 @@ export default function App() {
                       <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8] dark:text-blue-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('premium')}
                   </span>
                   {currentView === "premium" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] dark:text-blue-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                   )}
                 </button>
               )}
@@ -1025,7 +1025,7 @@ export default function App() {
                     </button>
                   )}
                   <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                    <Settings className={`w-5 h-5 text-blue-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
+                    <Settings className={`w-5 h-5 text-brand-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
                     <span>
                       {settingsView === "menu" && t('settings')}
                       {settingsView === "terms" && t('terms')}
@@ -1063,14 +1063,14 @@ export default function App() {
                         {}
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl ${darkMode ? "bg-indigo-500/10 text-indigo-400" : "bg-amber-500/10 text-amber-500"}`}>
+                            <div className={`p-2 rounded-xl ${darkMode ? "bg-brand-600/10 text-brand-400" : "bg-amber-500/10 text-amber-500"}`}>
                               {darkMode ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5" />}
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('darkMode')}</span>
                           </div>
                           <button
                             onClick={() => setDarkMode(!darkMode)}
-                            className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-700"}`}
+                            className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-700"}`}
                           >
                             <motion.div
                               animate={{ x: darkMode ? 22 : 2 }}
@@ -1082,7 +1082,7 @@ export default function App() {
                         {}
                         <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500">
+                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-400">
                               <Type className="w-4.5 h-4.5" />
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('fontSize')}</span>
@@ -1092,7 +1092,7 @@ export default function App() {
                               <button
                                 key={size}
                                 onClick={() => setFontSize(size)}
-                                className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-blue-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                                className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-brand-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
                               >
                                 {size === "sm" && t('small')}
                                 {size === "base" && t('normal')}
@@ -1116,7 +1116,7 @@ export default function App() {
                           <select
                             value={language}
                             onChange={(e) => setLanguage(e.target.value as "es" | "en" | "mi" | "kr")}
-                            className="bg-transparent text-sm font-bold text-blue-600 outline-none cursor-pointer"
+                            className="bg-transparent text-sm font-bold text-brand-600 outline-none cursor-pointer"
                           >
                             <option value="es">Español</option>
                             <option value="en">English</option>
@@ -1138,13 +1138,13 @@ export default function App() {
                             <button
                               key={item.id}
                               onClick={() => setSettingsView(item.id as any)}
-                              className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all group"
+                              className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group"
                             >
                               <div className="flex items-center gap-3">
-                                <item.icon className={`w-4.5 h-4.5 ${item.color} group-hover:text-blue-500 transition-colors`} />
+                                <item.icon className={`w-4.5 h-4.5 ${item.color} group-hover:text-brand-400 transition-colors`} />
                                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{item.label}</span>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-400 transition-all group-hover:translate-x-0.5" />
+                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
                             </button>
                           ))}
                         </div>
@@ -1158,14 +1158,14 @@ export default function App() {
                         <button
                           onClick={handleCheckForUpdates}
                           disabled={checkingUpdates}
-                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900/50 transition-all group cursor-pointer"
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-400 flex items-center justify-center">
                               {checkingUpdates ? (
-                                <Loader2 className="w-4.5 h-4.5 text-blue-600 animate-spin" />
+                                <Loader2 className="w-4.5 h-4.5 text-brand-600 animate-spin" />
                               ) : (
-                                <RefreshCw className="w-4.5 h-4.5 text-blue-600" />
+                                <RefreshCw className="w-4.5 h-4.5 text-brand-600" />
                               )}
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('checkUpdates')}</span>
@@ -1185,15 +1185,15 @@ export default function App() {
                               addToast(createToast(t('updatePostponed'), "info"));
                             }, true);
                           }}
-                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all group cursor-pointer"
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-                              <Sparkles className="w-4.5 h-4.5 text-indigo-600" />
+                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-600 flex items-center justify-center">
+                              <Sparkles className="w-4.5 h-4.5 text-brand-600" />
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('simulateUpdate')}</span>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition-all group-hover:translate-x-0.5" />
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
                         </button>
                       </div>
 
@@ -1270,7 +1270,7 @@ export default function App() {
                           { step: "4", title: t('emergencyCard'), desc: t('qrDisclaimer') },
                         ].map((item) => (
                           <div key={item.step} className="flex gap-3">
-                            <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[10px] font-bold shrink-0">
+                            <div className="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-[10px] font-bold shrink-0">
                               {item.step}
                             </div>
                             <div>
@@ -1396,7 +1396,7 @@ export default function App() {
             >
               <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
                 <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+                  <Sparkles className="w-5 h-5 text-brand-600 animate-pulse" />
                   <span>{t('installIosTitle')}</span>
                 </h3>
                 <button
@@ -1414,7 +1414,7 @@ export default function App() {
 
                 <div className="space-y-4">
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       1
                     </div>
                     <div>
@@ -1426,14 +1426,14 @@ export default function App() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       2
                     </div>
                     <div>
                       <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                         {t('iosStep2Title')}
                         <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                          <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <svg className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                             <polyline points="16 6 12 2 8 6" />
                             <line x1="12" y1="2" x2="12" y2="15" />
@@ -1447,14 +1447,14 @@ export default function App() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       3
                     </div>
                     <div>
                       <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                         {t('iosStep3Title')}
                         <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                          <svg className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <svg className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
@@ -1471,7 +1471,7 @@ export default function App() {
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <button
                   onClick={() => setShowIosGuideModal(false)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="bg-brand-600 hover:bg-brand-900 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
                 >
                   {t('gotIt')}
                 </button>

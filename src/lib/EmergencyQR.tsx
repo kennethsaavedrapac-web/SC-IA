@@ -132,7 +132,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
         <div className="flex flex-col gap-2 mt-4 w-full px-2">
           <button
             onClick={downloadPDF}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all text-xs font-bold shadow-sm"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-900 text-white rounded-xl transition-all text-xs font-bold shadow-sm"
           >
             <Download className="w-4 h-4" />
             {t('download')} PDF
