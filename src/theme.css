@@ -1,7 +1,7 @@
 /*
   Paleta global de Salud-Conecta IA.
-  Inspirada en el diseno anterior: fondo claro azulado, tarjetas blancas,
-  azul vivo para acciones principales y verde menta para salud/busqueda.
+  Inspirada en una app de salud: fondos claros, tarjetas blancas,
+  verde clinico para acciones principales y menta suave como apoyo.
 */
 
 :root {
@@ -12,10 +12,10 @@
   --color-principal-texto: #101828;
   --color-texto-secundario: #667085;
 
-  --color-secundario-celeste: #1769f6;
-  --color-secundario-celeste-oscuro: #1457d9;
-  --color-secundario-celeste-claro: #eaf3ff;
-  --color-secundario-celeste-border: #c9ddff;
+  --color-secundario-celeste: #0f9f8f;
+  --color-secundario-celeste-oscuro: #08776c;
+  --color-secundario-celeste-claro: #e8fff7;
+  --color-secundario-celeste-border: #b8f5dc;
 
   --color-secundario-verde: #0fb59f;
   --color-secundario-verde-oscuro: #0a8f7f;
@@ -24,7 +24,7 @@
 
   --color-borde: #e1ebf7;
   --color-borde-fuerte: #c9d7e8;
-  --color-sombra-celeste: rgba(23, 105, 246, 0.2);
+  --color-sombra-celeste: rgba(15, 159, 143, 0.2);
   --color-sombra-verde: rgba(15, 181, 159, 0.18);
 
   --color-success: var(--color-secundario-verde);
@@ -41,10 +41,10 @@ html.dark {
   --color-principal-texto: #f4f8ff;
   --color-texto-secundario: #a8b6ca;
 
-  --color-secundario-celeste: #5aa2ff;
-  --color-secundario-celeste-oscuro: #2b7cff;
-  --color-secundario-celeste-claro: #102b52;
-  --color-secundario-celeste-border: #224b82;
+  --color-secundario-celeste: #37d6bd;
+  --color-secundario-celeste-oscuro: #15b49d;
+  --color-secundario-celeste-claro: #083d38;
+  --color-secundario-celeste-border: #0d6b60;
 
   --color-secundario-verde: #37d6bd;
   --color-secundario-verde-oscuro: #15b49d;
@@ -53,6 +53,6 @@ html.dark {
 
   --color-borde: rgba(77, 101, 132, 0.65);
   --color-borde-fuerte: rgba(112, 132, 158, 0.75);
-  --color-sombra-celeste: rgba(90, 162, 255, 0.26);
+  --color-sombra-celeste: rgba(55, 214, 189, 0.26);
   --color-sombra-verde: rgba(55, 214, 189, 0.22);
 }
