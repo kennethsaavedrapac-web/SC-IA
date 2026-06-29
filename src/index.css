@@ -112,7 +112,7 @@
     box-shadow: 0 0 0 0px var(--color-health-light);
   }
   50% {
-    box-shadow: 0 0 10px 8px var(--color-sombra-verde);
+    box-shadow: 0 0 10px 8px var(--color-health-border);
   }
   100% {
     box-shadow: 0 0 0 0px var(--color-health-light);
