@@ -139,8 +139,8 @@ const CSS_STYLES = `
     }
 
     .un-close-btn:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: #475569;
+      background: rgb(6, 174, 246)51);
+      color: var(--color-secundario-celeste-oscuro, #2563eb);
     }
   }
 
@@ -200,7 +200,7 @@ const CSS_STYLES = `
 
   /* Icono de Campana / Sparkle */
   .un-icon {
-    color: #2563eb; /* Celeste para el icono */
+    color: var(--color-secundario-celeste-oscuro, #2563eb); /* Celeste para el icono */
     animation: un-bounce 2s infinite;
     display: inline-flex;
     align-items: center;
@@ -213,7 +213,7 @@ const CSS_STYLES = `
 
   /* Botón Principal (Actualizar) */
   .un-btn-primary {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%); /* Gradiente de verde médico */
+    background: linear-gradient(135deg, var(--color-secundario-verde, #10b981) 0%, var(--color-secundario-verde-oscuro, #059669) 100%); /* Gradiente de verde médico */
     color: #ffffff;
     font-weight: 600;
     font-size: 14px;
@@ -223,19 +223,19 @@ const CSS_STYLES = `
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 8px;    
     box-shadow: 0 4px 12px var(--color-acento-sombra-verde, rgba(16, 185, 129, 0.25));
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .un-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px var(--color-acento-sombra-verde-hover, rgba(16, 185, 129, 0.35));
+    box-shadow: 0 6px 16px var(--color-acento-sombra-verde-hover, rgba(16, 185, 129, 0.35));    
     filter: brightness(1.05);
   }
 
   .un-btn-primary:active {
-    transform: translateY(0);
+    transform: translateY(0);    
     box-shadow: 0 2px 6px var(--color-acento-sombra-verde, rgba(16, 185, 129, 0.25));
     filter: brightness(0.95);
   }
@@ -256,13 +256,13 @@ const CSS_STYLES = `
   }
 
   html.dark .un-btn-secondary {
-    color: #94a3b8;
+    color: var(--color-texto-secundario, #94a3b8);
     border-color: rgba(71, 85, 105, 0.8);
   }
 
   .un-btn-secondary:hover {
     background: rgba(0, 0, 0, 0.03);
-    color: var(--color-principal-texto, #0f172a);
+    color: var(--color-principal-texto, #0f172a);    
     border-color: var(--color-borde, rgba(148, 163, 184, 0.8));
   }
 

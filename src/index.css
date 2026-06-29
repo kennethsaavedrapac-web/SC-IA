@@ -5,43 +5,33 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* === Paleta de Colores Renovada (Blanco y Celeste) === */
+  /* === Paleta de Colores: Blanco, Celeste y Verde Médico === */
 
   /* Primarios (Celeste) */
-  --color-primary: #4A90E2;
-  /* Celeste principal para botones y elementos activos */
-  --color-primary-dark: #357ABD;
-  /* Celeste oscuro para interacciones (hover) */
-  --color-primary-light: #EBF5FF;
-  /* Celeste muy claro para fondos suaves */
+  --color-primary: var(--color-secundario-celeste); /* #3b82f6 */
+  --color-primary-dark: var(--color-secundario-celeste-oscuro); /* #2563eb */
+  --color-primary-light: #EBF5FF; /* Celeste muy claro para fondos suaves */
+
+  /* Verde Médico (Salud y Éxito) */
+  --color-health: var(--color-secundario-verde); /* #10b981 */
+  --color-health-dark: var(--color-secundario-verde-oscuro); /* #059669 */
+  --color-health-light: #DCFCE7; /* Verde claro para fondos de éxito */
 
   /* Superficies y Fondos */
-  --color-background: #FFFFFF;
-  /* Fondo principal blanco */
-  --color-surface-soft: #F8FAFC;
-  /* Gris muy claro para contraste sutil */
-  --color-card: #FFFFFF;
-  /* Tarjetas blancas */
-
-  /* Verde (Salud y Éxito) */
-  --color-health: #22C55E;
-  /* Verde médico */
-  --color-health-light: #DCFCE7;
-  /* Verde claro para fondos de éxito */
+  --color-background: var(--color-principal-bg); /* #FFFFFF */
+  --color-surface-soft: #F8FAFC; /* Gris muy claro para contraste sutil */
+  --color-card: var(--color-principal-bg); /* #FFFFFF */
 
   /* Estados */
-  --color-success: #22C55E;
+  --color-success: var(--color-secundario-verde);
   --color-warning: #F59E0B;
   --color-error: #EF4444;
-  --color-info: #4A90E2;
-  /* Celeste para información */
+  --color-info: var(--color-secundario-celeste);
 
   /* Textos y Bordes */
-  --color-text-main: #1A202C;
-  /* Texto principal (gris oscuro, casi negro) */
-  --color-text-secondary: #64748B;
-  --color-border: #E2E8F0;
-  /* Bordes y divisores */
+  --color-text-main: var(--color-principal-texto);
+  --color-text-secondary: var(--color-texto-secundario);
+  --color-border: var(--color-borde);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -143,11 +133,4 @@
 }
 
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scro
