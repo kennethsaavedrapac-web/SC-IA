@@ -983,7 +983,7 @@ export default function App() {
                 <button
                   id="btn-nav-buscar"
                   onClick={() => setCurrentView("buscar")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-emerald-600 dark:text-emerald-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400"
                     }`}
                 >
                   <div className="p-1 mb-0.5">
@@ -992,11 +992,11 @@ export default function App() {
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-emerald-600 dark:text-emerald-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('buscar')}
                   </span>
                   {currentView === "buscar" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-emerald-600 dark:text-emerald-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
                   )}
                 </button>
               )}

@@ -129,6 +129,72 @@
   animation: spin-slow 8s linear infinite;
 }
 
+@keyframes health-avatar-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.96);
+  }
+
+  70% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
+.health-avatar-ring {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9) 0 58%, transparent 59%),
+    conic-gradient(from 140deg, #0fb59f, #dcfff0, #37d6bd, #08776c, #0fb59f);
+  box-shadow: 0 12px 34px rgba(15, 181, 159, 0.28), 0 0 0 1px rgba(184, 245, 220, 0.9);
+  transition: transform 260ms ease, box-shadow 260ms ease, filter 260ms ease;
+}
+
+.health-avatar-ring::before,
+.health-avatar-ring::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.health-avatar-ring::before {
+  border: 1.5px solid rgba(15, 181, 159, 0.28);
+  opacity: 0.75;
+  transform: scale(0.94);
+  transition: opacity 260ms ease, transform 260ms ease, border-color 260ms ease;
+}
+
+.health-avatar-ring::after {
+  inset: -14px;
+  border: 1px solid rgba(55, 214, 189, 0.34);
+  opacity: 0;
+}
+
+.health-avatar-ring:hover,
+.health-avatar-ring:focus-within {
+  filter: saturate(1.08);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 18px 42px rgba(15, 181, 159, 0.36), 0 0 0 6px rgba(220, 255, 240, 0.78);
+}
+
+.health-avatar-ring:hover::before,
+.health-avatar-ring:focus-within::before {
+  border-color: rgba(15, 181, 159, 0.5);
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.health-avatar-ring:hover::after,
+.health-avatar-ring:focus-within::after {
+  animation: health-avatar-pulse 1.45s ease-out infinite;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
