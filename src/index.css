@@ -1,3 +1,4 @@
+@import "./theme.css";
 @import "tailwindcss";
 
 @theme {
@@ -5,40 +6,63 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* ═══════════════════════════════════════
-     Paleta: Blanco + Celeste + Verde Médico
-     Las variables se definen en theme.css
-     ═══════════════════════════════════════ */
+  --color-brand-50: var(--color-secundario-celeste-claro, #eaf3ff);
+  --color-brand-100: #dceaff;
+  --color-brand-200: var(--color-secundario-celeste-border, #c9ddff);
+  --color-brand-300: #9fc2ff;
+  --color-brand-400: #5b99ff;
+  --color-brand-500: #2f7dff;
+  --color-brand-600: var(--color-secundario-celeste, #1769f6);
+  --color-brand-700: #155ee6;
+  --color-brand-800: var(--color-secundario-celeste-oscuro, #1457d9);
+  --color-brand-900: #1450c4;
 
-  /* ─── Primario: Celeste (#3b82f6) ─── */
-  --color-primary: var(--color-secundario-celeste, #3b82f6);
-  --color-primary-dark: var(--color-secundario-celeste-oscuro, #2563eb);
-  --color-primary-light: var(--color-secundario-celeste-claro, #eff6ff);
-  --color-primary-border: var(--color-secundario-celeste-border, #bfdbfe);
+  --color-primary: var(--color-secundario-celeste, #1769f6);
+  --color-primary-dark: var(--color-secundario-celeste-oscuro, #1457d9);
+  --color-primary-light: var(--color-secundario-celeste-claro, #eaf3ff);
+  --color-primary-border: var(--color-secundario-celeste-border, #c9ddff);
 
-  /* ─── Salud: Verde (#10b981) ─── */
-  --color-health: var(--color-secundario-verde, #10b981);
-  --color-health-dark: var(--color-secundario-verde-oscuro, #059669);
-  --color-health-light: var(--color-secundario-verde-claro, #ecfdf5);
-  --color-health-border: var(--color-secundario-verde-border, #a7f3d0);
+  --color-health: var(--color-secundario-verde, #0fb59f);
+  --color-health-dark: var(--color-secundario-verde-oscuro, #0a8f7f);
+  --color-health-light: var(--color-secundario-verde-claro, #dcfff0);
+  --color-health-border: var(--color-secundario-verde-border, #b8f5dc);
 
-  /* ─── Superficies y Fondos ─── */
-  --color-background: var(--color-principal-bg, #ffffff);
-  --color-surface: var(--color-surface, #f8fafc);
-  --color-surface-soft: var(--color-surface-soft, #f1f5f9);
+  --color-blue-50: var(--color-secundario-celeste-claro, #eaf3ff);
+  --color-blue-100: #dceaff;
+  --color-blue-200: var(--color-secundario-celeste-border, #c9ddff);
+  --color-blue-300: #9fc2ff;
+  --color-blue-400: #5b99ff;
+  --color-blue-500: #2f7dff;
+  --color-blue-600: var(--color-secundario-celeste, #1769f6);
+  --color-blue-700: #155ee6;
+  --color-blue-800: var(--color-secundario-celeste-oscuro, #1457d9);
+  --color-blue-900: #1450c4;
+
+  --color-emerald-50: var(--color-secundario-verde-claro, #dcfff0);
+  --color-emerald-100: #c8f8e6;
+  --color-emerald-200: var(--color-secundario-verde-border, #b8f5dc);
+  --color-emerald-300: #78e8cf;
+  --color-emerald-400: #37d6bd;
+  --color-emerald-500: var(--color-secundario-verde, #0fb59f);
+  --color-emerald-600: var(--color-secundario-verde-oscuro, #0a8f7f);
+  --color-emerald-700: #08776c;
+  --color-emerald-800: #075f58;
+  --color-emerald-900: #064c47;
+
+  --color-background: var(--color-principal-bg, #f7fbff);
+  --color-surface: var(--color-surface, #eef6ff);
+  --color-surface-soft: var(--color-surface-soft, #e8f2ff);
   --color-card: var(--color-card, #ffffff);
 
-  /* ─── Estados ─── */
-  --color-success: var(--color-secundario-verde, #10b981);
+  --color-success: var(--color-secundario-verde, #0fb59f);
   --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: var(--color-secundario-celeste, #3b82f6);
+  --color-error: #d32f2f;
+  --color-info: var(--color-secundario-celeste, #1769f6);
 
-  /* ─── Textos y Bordes ─── */
-  --color-text-main: var(--color-principal-texto, #0f172a);
-  --color-text-secondary: var(--color-texto-secundario, #64748b);
-  --color-border: var(--color-borde, #e2e8f0);
-  --color-border-strong: var(--color-borde-fuerte, #cbd5e1);
+  --color-text-main: var(--color-principal-texto, #101828);
+  --color-text-secondary: var(--color-texto-secundario, #667085);
+  --color-border: var(--color-borde, #e1ebf7);
+  --color-border-strong: var(--color-borde-fuerte, #c9d7e8);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -62,7 +86,6 @@
 }
 
 @keyframes float-slow {
-
   0%,
   100% {
     transform: translateY(0px) rotate(0deg);
@@ -74,7 +97,6 @@
 }
 
 @keyframes float-reverse {
-
   0%,
   100% {
     transform: translateY(0px) rotate(0deg);
@@ -107,7 +129,6 @@
   animation: spin-slow 8s linear infinite;
 }
 
-
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -126,19 +147,17 @@
   background: rgba(148, 163, 184, 0.5);
 }
 
-
 .glassmorphism {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 .glassmorphism-dark {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(7, 17, 31, 0.68);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
-
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;

@@ -1,80 +1,58 @@
 /*
-  src/theme.css
-  Paleta de colores global para Salud-Conecta IA.
-  Modo Claro: Blanco + Celeste + Verde Médico
-  Modo Oscuro: Slate oscuro + Celeste + Verde Médico
-
-  Las variables se referencian desde index.css (@theme de Tailwind).
+  Paleta global de Salud-Conecta IA.
+  Inspirada en el diseno anterior: fondo claro azulado, tarjetas blancas,
+  azul vivo para acciones principales y verde menta para salud/busqueda.
 */
 
 :root {
-  /* ═══════════════════════════════════════
-     Modo Claro — Blanco como color principal
-     Celeste (#3b82f6) como primario
-     Verde (#10b981) para salud/éxito
-     ═══════════════════════════════════════ */
+  --color-principal-bg: #f7fbff;
+  --color-surface: #eef6ff;
+  --color-surface-soft: #e8f2ff;
+  --color-card: #ffffff;
+  --color-principal-texto: #101828;
+  --color-texto-secundario: #667085;
 
-  /* ─── Fondos y Superficies ─── */
-  --color-principal-bg: #ffffff;            /* Blanco puro — fondo principal */
-  --color-surface: #f8fafc;                /* Blanco hueso sutil — fondos secundarios */
-  --color-surface-soft: #f1f5f9;           /* Gris muy claro — hover y áreas */
-  --color-card: #ffffff;                   /* Blanco — tarjetas y contenedores */
-  --color-principal-texto: #0f172a;        /* Texto principal oscuro */
-  --color-texto-secundario: #64748b;       /* Texto secundario gris */
+  --color-secundario-celeste: #1769f6;
+  --color-secundario-celeste-oscuro: #1457d9;
+  --color-secundario-celeste-claro: #eaf3ff;
+  --color-secundario-celeste-border: #c9ddff;
 
-  /* ─── Celeste (Primario) ─── */
-  --color-secundario-celeste: #3b82f6;        /* Celeste principal (Blue-500) */
-  --color-secundario-celeste-oscuro: #2563eb; /* Celeste hover/activo (Blue-600) */
-  --color-secundario-celeste-claro: #eff6ff;  /* Fondo celeste suave (Blue-50) */
-  --color-secundario-celeste-border: #bfdbfe; /* Borde celeste (Blue-200) */
+  --color-secundario-verde: #0fb59f;
+  --color-secundario-verde-oscuro: #0a8f7f;
+  --color-secundario-verde-claro: #dcfff0;
+  --color-secundario-verde-border: #b8f5dc;
 
-  /* ─── Verde Médico (Salud / Éxito) ─── */
-  --color-secundario-verde: #10b981;        /* Verde médico (Emerald-500) */
-  --color-secundario-verde-oscuro: #059669; /* Verde hover/activo (Emerald-600) */
-  --color-secundario-verde-claro: #ecfdf5;  /* Fondo verde suave (Emerald-50) */
-  --color-secundario-verde-border: #a7f3d0; /* Borde verde (Emerald-200) */
+  --color-borde: #e1ebf7;
+  --color-borde-fuerte: #c9d7e8;
+  --color-sombra-celeste: rgba(23, 105, 246, 0.2);
+  --color-sombra-verde: rgba(15, 181, 159, 0.18);
 
-  /* ─── Bordes y Sombras ─── */
-  --color-borde: #e2e8f0;                 /* Borde sutil (Slate-200) */
-  --color-borde-fuerte: #cbd5e1;          /* Borde más marcado (Slate-300) */
-  --color-sombra-celeste: rgba(59, 130, 246, 0.15);
-  --color-sombra-verde: rgba(16, 185, 129, 0.15);
-
-  /* ─── Estados ─── */
   --color-success: var(--color-secundario-verde);
-  --color-error: #ef4444;
+  --color-error: #d32f2f;
   --color-warning: #f59e0b;
   --color-info: var(--color-secundario-celeste);
 }
 
-/* ═══════════════════════════════════════
-   MODO OSCURO (Dark Mode)
-   Se activa automáticamente con la clase "dark" en <html>.
-   ═══════════════════════════════════════ */
 html.dark {
-  /* ─── Fondos y Superficies ─── */
-  --color-principal-bg: #0f172a;            /* Fondo principal oscuro */
-  --color-surface: #1e293b;                 /* Fondo secundario oscuro */
-  --color-surface-soft: #334155;            /* Hover en modo oscuro */
-  --color-card: #1e293b;                    /* Tarjetas en oscuro */
-  --color-principal-texto: #f1f5f9;         /* Texto principal claro */
-  --color-texto-secundario: #94a3b8;        /* Texto secundario gris claro */
+  --color-principal-bg: #07111f;
+  --color-surface: #0d1b2e;
+  --color-surface-soft: #13243a;
+  --color-card: #101f33;
+  --color-principal-texto: #f4f8ff;
+  --color-texto-secundario: #a8b6ca;
 
-  /* ─── Celeste (Primario) ─── */
-  --color-secundario-celeste: #60a5fa;         /* Celeste brillante (Blue-400) */
-  --color-secundario-celeste-oscuro: #3b82f6;  /* Celeste hover (Blue-500) */
-  --color-secundario-celeste-claro: #1e3a5f;   /* Fondo celeste oscuro */
-  --color-secundario-celeste-border: #1e40af;   /* Borde celeste oscuro */
+  --color-secundario-celeste: #5aa2ff;
+  --color-secundario-celeste-oscuro: #2b7cff;
+  --color-secundario-celeste-claro: #102b52;
+  --color-secundario-celeste-border: #224b82;
 
-  /* ─── Verde Médico ─── */
-  --color-secundario-verde: #34d399;         /* Verde brillante (Emerald-400) */
-  --color-secundario-verde-oscuro: #10b981;  /* Verde hover (Emerald-500) */
-  --color-secundario-verde-claro: #064e3b;   /* Fondo verde oscuro */
-  --color-secundario-verde-border: #065f46;   /* Borde verde oscuro */
+  --color-secundario-verde: #37d6bd;
+  --color-secundario-verde-oscuro: #15b49d;
+  --color-secundario-verde-claro: #083d38;
+  --color-secundario-verde-border: #0d6b60;
 
-  /* ─── Bordes y Sombras ─── */
-  --color-borde: rgba(51, 65, 85, 0.8);
-  --color-borde-fuerte: rgba(71, 85, 105, 0.8);
-  --color-sombra-celeste: rgba(59, 130, 246, 0.25);
-  --color-sombra-verde: rgba(16, 185, 129, 0.25);
+  --color-borde: rgba(77, 101, 132, 0.65);
+  --color-borde-fuerte: rgba(112, 132, 158, 0.75);
+  --color-sombra-celeste: rgba(90, 162, 255, 0.26);
+  --color-sombra-verde: rgba(55, 214, 189, 0.22);
 }
