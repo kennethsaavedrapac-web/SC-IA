@@ -155,118 +155,97 @@ html.dark .health-app-bg {
   content: "";
   position: absolute;
   inset: 0;
-  background-image:
-    url("data:image/svg+xml,%3Csvg width='180' height='96' viewBox='0 0 180 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 54H52L64 34L78 70L94 54H180' fill='none' stroke='%230f9f8f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.16'/%3E%3C/svg%3E"),
-    linear-gradient(90deg, rgba(15, 159, 143, 0.055) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(15, 159, 143, 0.045) 1px, transparent 1px);
-  background-size: 360px 192px, 56px 56px, 56px 56px;
-  background-position: 8% 12%, 0 0, 0 0;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 82%);
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(15, 181, 159, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(55, 214, 189, 0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 75%, rgba(15, 181, 159, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 10% 70%, rgba(55, 214, 189, 0.07) 0%, transparent 35%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
+  animation: health-bg-drift 18s ease-in-out infinite alternate;
 }
 
 .health-background-motifs::after {
   content: "";
   position: absolute;
-  inset: -10%;
+  inset: -5%;
   background:
-    radial-gradient(circle at 18% 20%, rgba(15, 159, 143, 0.1) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 78% 18%, rgba(55, 214, 189, 0.14) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 82% 72%, rgba(15, 159, 143, 0.08) 0 1.5px, transparent 2px);
-  background-size: 84px 84px, 112px 112px, 96px 96px;
-  opacity: 0.8;
+    radial-gradient(circle at 8% 92%, rgba(15, 181, 159, 0.06) 0 1px, transparent 2px),
+    radial-gradient(circle at 92% 8%, rgba(55, 214, 189, 0.05) 0 1px, transparent 2px),
+    radial-gradient(circle at 50% 50%, rgba(184, 245, 220, 0.04) 0 2px, transparent 3px);
+  background-size: 140px 140px, 120px 120px, 180px 180px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 90%);
 }
 
 html.dark .health-background-motifs::before {
-  background-image:
-    url("data:image/svg+xml,%3Csvg width='180' height='96' viewBox='0 0 180 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 54H52L64 34L78 70L94 54H180' fill='none' stroke='%2337d6bd' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.18'/%3E%3C/svg%3E"),
-    linear-gradient(90deg, rgba(55, 214, 189, 0.06) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(55, 214, 189, 0.045) 1px, transparent 1px);
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(55, 214, 189, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(15, 181, 159, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 75%, rgba(55, 214, 189, 0.07) 0%, transparent 40%),
+    radial-gradient(ellipse at 10% 70%, rgba(15, 181, 159, 0.09) 0%, transparent 35%);
 }
 
-@keyframes health-avatar-pulse {
+html.dark .health-background-motifs::after {
+  background:
+    radial-gradient(circle at 8% 92%, rgba(55, 214, 189, 0.08) 0 1px, transparent 2px),
+    radial-gradient(circle at 92% 8%, rgba(15, 181, 159, 0.07) 0 1px, transparent 2px),
+    radial-gradient(circle at 50% 50%, rgba(55, 214, 189, 0.06) 0 2px, transparent 3px);
+}
+
+@keyframes health-bg-drift {
   0% {
-    opacity: 0.42;
-    transform: scale(0.94);
+    transform: translate(0%, 0%) scale(1);
   }
-
-  70% {
-    opacity: 0;
-    transform: scale(1.2);
+  33% {
+    transform: translate(2%, -1.5%) scale(1.02);
   }
-
+  66% {
+    transform: translate(-1.5%, 1%) scale(0.98);
+  }
   100% {
-    opacity: 0;
-    transform: scale(1.2);
+    transform: translate(1%, 0.5%) scale(1.01);
   }
 }
 
-@keyframes health-avatar-orbit {
-  to {
-    transform: rotate(360deg);
+@keyframes health-avatar-ring-glow {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(15, 181, 159, 0.15), 0 0 0 2px rgba(184, 245, 220, 0.6);
   }
-}
-
-@keyframes health-avatar-breathe {
-  0%,
-  100% {
-    box-shadow: 0 10px 28px rgba(15, 159, 143, 0.2), 0 0 0 1px rgba(184, 245, 220, 0.85);
-  }
-
   50% {
-    box-shadow: 0 14px 34px rgba(15, 159, 143, 0.3), 0 0 0 5px rgba(220, 255, 240, 0.72);
+    box-shadow: 0 6px 24px rgba(15, 181, 159, 0.22), 0 0 0 3px rgba(184, 245, 220, 0.8);
   }
 }
 
 .health-avatar-ring {
   isolation: isolate;
   background: #ffffff;
-  box-shadow: 0 10px 28px rgba(15, 159, 143, 0.2), 0 0 0 1px rgba(184, 245, 220, 0.85);
-  animation: health-avatar-breathe 3.6s ease-in-out infinite;
-  transition: transform 260ms ease, box-shadow 260ms ease, filter 260ms ease;
-}
-
-.health-avatar-ring::before,
-.health-avatar-ring::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: inherit;
-  pointer-events: none;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(15, 181, 159, 0.15), 0 0 0 2px rgba(184, 245, 220, 0.6);
+  animation: health-avatar-ring-glow 3s ease-in-out infinite;
+  transition: transform 300ms ease, box-shadow 300ms ease;
 }
 
 .health-avatar-ring::before {
-  z-index: 0;
-  inset: 0;
-  background: conic-gradient(from 20deg, #0f9f8f 0 20%, #dcfff0 20% 32%, #37d6bd 32% 58%, #08776c 58% 78%, #dcfff0 78% 100%);
-  opacity: 1;
-  animation: health-avatar-orbit 7s linear infinite;
-  transition: filter 260ms ease;
-}
-
-.health-avatar-ring::after {
-  inset: -12px;
-  border: 1px solid rgba(15, 159, 143, 0.32);
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(15, 181, 159, 0.2);
   opacity: 0;
-  z-index: -1;
+  pointer-events: none;
+  transition: opacity 500ms ease, transform 500ms ease;
 }
 
 .health-avatar-ring:hover,
 .health-avatar-ring:focus-within {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(15, 181, 159, 0.25), 0 0 0 3px rgba(184, 245, 220, 0.9);
   animation-play-state: paused;
-  filter: saturate(1.05);
-  transform: translateY(-3px) scale(1.045);
-  box-shadow: 0 18px 42px rgba(15, 159, 143, 0.34), 0 0 0 7px rgba(220, 255, 240, 0.78);
 }
 
 .health-avatar-ring:hover::before,
 .health-avatar-ring:focus-within::before {
-  animation-duration: 2.6s;
-  filter: brightness(1.04) saturate(1.1);
-}
-
-.health-avatar-ring:hover::after,
-.health-avatar-ring:focus-within::after {
-  animation: health-avatar-pulse 1.45s ease-out infinite;
+  opacity: 1;
+  transform: scale(1.08);
 }
 
 .home-welcome-card {
