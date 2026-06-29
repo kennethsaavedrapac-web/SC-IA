@@ -589,11 +589,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   <img
                     src={user.avatarUrl}
                     alt={user.name}
-                    className="w-full h-full rounded-full object-cover border-[7px] sm:border-[10px] border-[#eef7ff] dark:border-slate-900 bg-slate-200"
+                    className="w-full h-full rounded-full object-cover border-[7px] sm:border-[10px] border-emerald-500 dark:border-emerald-400 bg-slate-200 ring-4 ring-emerald-500/30"
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border-[7px] sm:border-[10px] border-[#eef7ff] dark:border-slate-900">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center border-[7px] sm:border-[10px] border-emerald-500 dark:border-emerald-400 ring-4 ring-emerald-500/30">
                     <span className="text-4xl sm:text-6xl font-bold text-slate-500 dark:text-slate-400">
                       {getInitials(user.name)}
                     </span>
