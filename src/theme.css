@@ -1,58 +1,127 @@
 /*
-  Paleta global de Salud-Conecta IA.
-  Inspirada en una app de salud: fondos claros, tarjetas blancas,
-  verde clinico para acciones principales y menta suave como apoyo.
+  ═══════════════════════════════════════════════════════════════
+  Paleta global de Salud-Conecta IA
+  ───────────────────────────────────────────────────────────────
+  Extraída del degradado del logo: Azul Cobalto → Verde Teal
+  Estética: Neon Dark / Deep Tech
+  ═══════════════════════════════════════════════════════════════
 */
 
 :root {
-  --color-principal-bg: #f7fbff;
-  --color-surface: #eef6ff;
-  --color-surface-soft: #e8f2ff;
+  /* ── Fondos & Superficies ───────────────────────────────── */
+  --color-principal-bg: #F0F4FA;
+  --color-surface: #E8EFF8;
+  --color-surface-soft: #DFE8F4;
   --color-card: #ffffff;
-  --color-principal-texto: #101828;
-  --color-texto-secundario: #667085;
+  --color-principal-texto: #0A1628;
+  --color-texto-secundario: #5A6B82;
 
-  --color-secundario-celeste: #0f9f8f;
-  --color-secundario-celeste-oscuro: #08776c;
-  --color-secundario-celeste-claro: #e8fff7;
-  --color-secundario-celeste-border: #b8f5dc;
+  /* ── Primario: Azul Cobalto ─────────────────────────────── */
+  --color-cobalt: #2B5EA7;
+  --color-cobalt-deep: #1A3A8F;
+  --color-cobalt-light: #E0ECFF;
+  --color-cobalt-border: #B0C8F0;
 
-  --color-secundario-verde: #0fb59f;
-  --color-secundario-verde-oscuro: #0a8f7f;
-  --color-secundario-verde-claro: #dcfff0;
-  --color-secundario-verde-border: #b8f5dc;
+  /* ── Secundario: Verde Teal / Acento ────────────────────── */
+  --color-teal: #00B4A0;
+  --color-teal-bright: #00D4AA;
+  --color-teal-deep: #008F7A;
+  --color-teal-light: #E0FFF5;
+  --color-teal-border: #A0E8D8;
 
-  --color-borde: #e1ebf7;
-  --color-borde-fuerte: #c9d7e8;
-  --color-sombra-celeste: rgba(15, 159, 143, 0.2);
-  --color-sombra-verde: rgba(15, 181, 159, 0.18);
+  /* ── Neón Acento (verde brillante del logo) ─────────────── */
+  --color-neon: #2EE8B7;
+  --color-neon-soft: rgba(46, 232, 183, 0.12);
 
-  --color-success: var(--color-secundario-verde);
-  --color-error: #d32f2f;
-  --color-warning: #f59e0b;
-  --color-info: var(--color-secundario-celeste);
+  /* ── Degradado del logo ─────────────────────────────────── */
+  --gradient-logo: linear-gradient(135deg, #1A3A8F 0%, #2B5EA7 25%, #1E8A9A 50%, #00B4A0 75%, #00D4AA 100%);
+  --gradient-accent: linear-gradient(135deg, #1A3A8F, #00D4AA);
+  --gradient-accent-reverse: linear-gradient(135deg, #00D4AA, #1A3A8F);
+
+  /* ── Bordes ─────────────────────────────────────────────── */
+  --color-borde: #D0DAE8;
+  --color-borde-fuerte: #B8C6D8;
+
+  /* ── Sombras ────────────────────────────────────────────── */
+  --color-sombra-cobalt: rgba(43, 94, 167, 0.12);
+  --color-sombra-teal: rgba(0, 180, 160, 0.12);
+  --color-sombra-neon: rgba(46, 232, 183, 0.08);
+
+  /* ── Semánticos ─────────────────────────────────────────── */
+  --color-success: #00B4A0;
+  --color-error: #D32F2F;
+  --color-warning: #F59E0B;
+  --color-info: #2B5EA7;
+
+  /* ── Secundarios (compatibilidad existente) ─────────────── */
+  --color-secundario-celeste: #2B5EA7;
+  --color-secundario-celeste-oscuro: #1A3A8F;
+  --color-secundario-celeste-claro: #E0ECFF;
+  --color-secundario-celeste-border: #B0C8F0;
+
+  --color-secundario-verde: #00B4A0;
+  --color-secundario-verde-oscuro: #008F7A;
+  --color-secundario-verde-claro: #E0FFF5;
+  --color-secundario-verde-border: #A0E8D8;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   MODO OSCURO — NEON DARK / DEEP TECH
+   ═══════════════════════════════════════════════════════════════ */
 html.dark {
-  --color-principal-bg: #07111f;
-  --color-surface: #0d1b2e;
-  --color-surface-soft: #13243a;
-  --color-card: #101f33;
-  --color-principal-texto: #f4f8ff;
-  --color-texto-secundario: #a8b6ca;
+  /* ── Fondos profundos con tinte azul marino ──────────────── */
+  --color-principal-bg: #060B18;
+  --color-surface: #0C1529;
+  --color-surface-soft: #111E36;
+  --color-card: #0D1A2F;
+  --color-principal-texto: #E8F0FF;
+  --color-texto-secundario: #8A9CBF;
 
-  --color-secundario-celeste: #37d6bd;
-  --color-secundario-celeste-oscuro: #15b49d;
-  --color-secundario-celeste-claro: #083d38;
-  --color-secundario-celeste-border: #0d6b60;
+  /* ── Primario: Cobalto luminoso ─────────────────────────── */
+  --color-cobalt: #5B8FD4;
+  --color-cobalt-deep: #3A6FC4;
+  --color-cobalt-light: #0F1E3A;
+  --color-cobalt-border: #1A3060;
 
-  --color-secundario-verde: #37d6bd;
-  --color-secundario-verde-oscuro: #15b49d;
-  --color-secundario-verde-claro: #083d38;
-  --color-secundario-verde-border: #0d6b60;
+  /* ── Secundario: Teal neón ──────────────────────────────── */
+  --color-teal: #00D4AA;
+  --color-teal-bright: #2EE8B7;
+  --color-teal-deep: #00B4A0;
+  --color-teal-light: #082E28;
+  --color-teal-border: #0D5F50;
 
-  --color-borde: rgba(77, 101, 132, 0.65);
-  --color-borde-fuerte: rgba(112, 132, 158, 0.75);
-  --color-sombra-celeste: rgba(55, 214, 189, 0.26);
-  --color-sombra-verde: rgba(55, 214, 189, 0.22);
+  /* ── Neón intensificado ─────────────────────────────────── */
+  --color-neon: #3FFFCC;
+  --color-neon-soft: rgba(63, 255, 204, 0.1);
+
+  /* ── Degradado Dark ─────────────────────────────────────── */
+  --gradient-logo: linear-gradient(135deg, #3A6FC4 0%, #5B8FD4 25%, #00B4A0 50%, #00D4AA 75%, #2EE8B7 100%);
+  --gradient-accent: linear-gradient(135deg, #3A6FC4, #2EE8B7);
+  --gradient-accent-reverse: linear-gradient(135deg, #2EE8B7, #3A6FC4);
+
+  /* ── Bordes oscuros ─────────────────────────────────────── */
+  --color-borde: rgba(90, 120, 170, 0.25);
+  --color-borde-fuerte: rgba(120, 150, 200, 0.35);
+
+  /* ── Sombras con glow neón ──────────────────────────────── */
+  --color-sombra-cobalt: rgba(59, 111, 196, 0.2);
+  --color-sombra-teal: rgba(0, 212, 170, 0.2);
+  --color-sombra-neon: rgba(46, 232, 183, 0.25);
+
+  /* ── Semánticos Dark ────────────────────────────────────── */
+  --color-success: #2EE8B7;
+  --color-error: #FF6B6B;
+  --color-warning: #FFBE45;
+  --color-info: #5B8FD4;
+
+  /* ── Compatibilidad ─────────────────────────────────────── */
+  --color-secundario-celeste: #5B8FD4;
+  --color-secundario-celeste-oscuro: #3A6FC4;
+  --color-secundario-celeste-claro: #0F1E3A;
+  --color-secundario-celeste-border: #1A3060;
+
+  --color-secundario-verde: #00D4AA;
+  --color-secundario-verde-oscuro: #00B4A0;
+  --color-secundario-verde-claro: #082E28;
+  --color-secundario-verde-border: #0D5F50;
 }

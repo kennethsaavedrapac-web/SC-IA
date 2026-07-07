@@ -606,19 +606,34 @@ export default function App() {
   
   if (!initialized) {
     return (
-      <div className="min-h-dvh bg-gradient-to-b from-[#ffffff] to-[#f8fafc] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
+      <div className="splash-screen">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-5"
+          initial={{ opacity: 0, scale: 0.8, filter: "blur(8px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center gap-6"
         >
-          <img
-            src="/app-logo-v1.jpg"
-            alt="Logo"
-            className="w-20 h-20 rounded-[28px] shadow-2xl object-cover border-2 border-white dark:border-slate-800"
-          />
-          <Loader2 className="w-6 h-6 text-brand-600 animate-spin" />
-          <p className="text-sm text-slate-500 font-semibold">{t('verifyingSession')}</p>
+          {/* Logo con borde degradado y anillo de respiración */}
+          <div className="splash-logo-container">
+            <div className="splash-logo-ring neon-glow-subtle">
+              <img
+                src="/app-logo-v1.jpg"
+                alt="Logo Salud-Conecta IA"
+                className="splash-logo-img"
+              />
+            </div>
+          </div>
+
+          {/* Spinner neón */}
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--color-teal-bright, #00D4AA)' }} />
+
+          {/* Texto con gradiente */}
+          <div className="flex flex-col items-center gap-1.5">
+            <h1 className="font-display font-bold text-lg tracking-tight text-slate-800 dark:text-white">
+              Salud-Conecta <span className="gradient-accent-text">IA</span>
+            </h1>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-texto-secundario)' }}>{t('verifyingSession')}</p>
+          </div>
         </motion.div>
       </div>
     );
@@ -651,18 +666,22 @@ export default function App() {
 
       {}
       {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
-        <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-          <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
-            <img
-              src="/app-logo-v1.jpg"
-              alt="Logo"
-              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
-            />
+        <aside className="hidden md:flex flex-col w-[260px] fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#0A1222] border-r border-slate-200/80 dark:border-[#1A2A45]/80 shadow-[4px_0_32px_rgba(0,0,0,0.03)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.3)]">
+          {/* ── Cabecera: Logo con borde degradado ─────────── */}
+          <div className="p-6 flex items-center gap-3.5 cursor-pointer group" onClick={() => setCurrentView("home")}>
+            <div className="p-[2px] rounded-xl bg-white dark:bg-transparent" style={{ background: 'var(--gradient-accent)' }}>
+              <img
+                src="/app-logo-v1.jpg"
+                alt="Logo Salud-Conecta IA"
+                className="w-9 h-9 rounded-[10px] object-cover bg-white dark:bg-[#0D1A2F] transition-transform group-hover:scale-105"
+              />
+            </div>
             <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-              Salud-Conecta <span className="text-brand-600">IA</span>
+              Salud-Conecta <span className="gradient-accent-text">IA</span>
             </span>
           </div>
 
+          {/* ── Menú principal ─────────────────────────────── */}
           <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
@@ -676,24 +695,32 @@ export default function App() {
               <button
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id as any)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                  ? "bg-brand-50 dark:bg-brand-900/20 text-brand-900 dark:text-brand-400 font-bold shadow-sm border border-brand-100/50 dark:border-brand-900/50"
-                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all relative overflow-hidden ${currentView === tab.id
+                  ? "bg-brand-50/80 dark:bg-[#0D2A3A]/60 font-bold shadow-sm border border-brand-200/50 dark:border-[#0D5F50]/50"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#111E36]/60 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
                   }`}
+                style={currentView === tab.id ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
               >
+                {/* Borde izquierdo degradado para item activo */}
+                {currentView === tab.id && (
+                  <span
+                    className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+                    style={{ background: 'var(--gradient-accent)' }}
+                  />
+                )}
                 <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
                 <span className="text-[13.5px]">{tab.label}</span>
               </button>
             ))}
           </div>
 
-          {}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
+          {/* ── Perfil de usuario ──────────────────────────── */}
+          <div className="p-4 border-t border-slate-100 dark:border-[#1A2A45]/60">
+            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-[#111E36] border-slate-200 dark:border-[#1A2A45]" : "hover:bg-slate-50 dark:hover:bg-[#111E36]/60 border-transparent"} text-left`}>
               {localUser.avatarUrl ? (
-                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover shadow-sm" style={{ border: '2px solid var(--color-teal, #00B4A0)' }} />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm select-none shrink-0" style={{ background: 'var(--gradient-accent)' }}>
                   {localUser.name ? localUser.name.charAt(0).toUpperCase() : "U"}
                 </div>
               )}
@@ -932,15 +959,16 @@ export default function App() {
 
         {}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
-          <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
+          <nav className="fixed bottom-0 inset-x-0 z-40 w-full pb-safe-bottom md:hidden bg-white/90 dark:bg-[#0A1222]/85 backdrop-blur-xl border-t border-slate-200/60 dark:border-[#1A2A45]/50 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.3)]">
             <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
-              {}
+              {/* ── Inicio ──────────────────────────────────── */}
               <button
                 id="btn-nav-home"
                 onClick={() => setCurrentView("home")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
+                style={currentView === "home" ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
               >
                 <div className="p-1 mb-0.5">
                   <svg className={`w-[25px] h-[25px] ${currentView === "home" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "home" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -948,20 +976,21 @@ export default function App() {
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight ${currentView === "home" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('home')}
                 </span>
                 {currentView === "home" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gradient-accent)' }} />
                 )}
               </button>
 
-              {}
+              {/* ── Consulta ────────────────────────────────── */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
+                style={currentView === "consulta" ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
               >
                 <div className="p-1 mb-0.5">
                   <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -970,21 +999,22 @@ export default function App() {
                     <path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight ${currentView === "consulta" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('consulta')}
                 </span>
                 {currentView === "consulta" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gradient-accent)' }} />
                 )}
               </button>
 
-              {}
+              {/* ── Buscar ──────────────────────────────────── */}
               {featureFlags.healthUnitSearch && (
                 <button
                   id="btn-nav-buscar"
                   onClick={() => setCurrentView("buscar")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-emerald-600 dark:text-emerald-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
+                  style={currentView === "buscar" ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
                 >
                   <div className="p-1 mb-0.5">
                     <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -992,33 +1022,34 @@ export default function App() {
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-emerald-600 dark:text-emerald-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight ${currentView === "buscar" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('buscar')}
                   </span>
                   {currentView === "buscar" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-emerald-600 dark:text-emerald-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gradient-accent)' }} />
                   )}
                 </button>
               )}
 
-              {}
+              {/* ── Premium ─────────────────────────────────── */}
               {featureFlags.premiumFeatures && (
                 <button
                   id="btn-nav-premium"
                   onClick={() => setCurrentView("premium")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
+                  style={currentView === "premium" ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
                 >
                   <div className="p-1 mb-0.5">
                     <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight ${currentView === "premium" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('premium')}
                   </span>
                   {currentView === "premium" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--gradient-accent)' }} />
                   )}
                 </button>
               )}
