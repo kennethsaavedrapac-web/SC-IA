@@ -948,7 +948,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
           >
             <img
-              src="/app-logo-v1.jpg"
+              src="/app-logo-v2.jpg"
               alt="Logo"
               className="w-7 h-7 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
             />

@@ -23,7 +23,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
           <img
-            src="/app-logo-v1.jpg"
+            src="/app-logo-v2.jpg"
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-slate-200/60 dark:border-slate-700/60"
           />
@@ -80,7 +80,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => onNavigate("perfil")}
-              className="mt-4 px-5 py-2.5 bg-brand-600 dark:bg-brand-600 text-white font-semibold text-[13px] tracking-wide rounded-[100px] shadow-[0_4px_14px_rgba(15,159,143,0.28)] hover:bg-brand-800 dark:hover:bg-brand-500 transition-all border border-brand-600/50"
+              className="mt-4 px-5 py-2.5 gradient-accent text-white font-semibold text-[13px] tracking-wide rounded-[100px] shadow-[0_4px_14px_rgba(0,212,170,0.3)] hover:brightness-110 transition-all border border-transparent"
             >
               {t('viewProfile')}
             </motion.button>

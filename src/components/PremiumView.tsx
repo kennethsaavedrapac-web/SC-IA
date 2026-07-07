@@ -71,7 +71,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
           >
             <img
-              src="/app-logo-v1.jpg"
+              src="/app-logo-v2.jpg"
               alt="Logo"
               className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
             />

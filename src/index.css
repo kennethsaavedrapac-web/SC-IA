@@ -15,12 +15,12 @@
   --color-brand-100: #C0F5E5;
   --color-brand-200: #A0E8D8;
   --color-brand-300: #5BD4C0;
-  --color-brand-400: #00D4AA;
-  --color-brand-500: #00B4A0;
-  --color-brand-600: #00917F;
-  --color-brand-700: #007A6C;
-  --color-brand-800: #006058;
-  --color-brand-900: #004A44;
+  --color-brand-400: #2EE8B7;
+  --color-brand-500: #00D4AA;
+  --color-brand-600: #00D4AA; /* Force vibrant teal globally */
+  --color-brand-700: #00B4A0;
+  --color-brand-800: #008F7A;
+  --color-brand-900: #005F50;
 
   /* ── Primario (Teal principal) ─────────────────────────────── */
   --color-primary: var(--color-teal, #00B4A0);
@@ -534,4 +534,19 @@ html.dark .splash-screen {
   object-fit: cover;
   display: block;
   background: var(--color-card);
+}
+
+@layer utilities {
+  /* Forzar el degradado del logo en el botón primario de toda la app */
+  .bg-brand-600 {
+    background: var(--gradient-accent) !important;
+  }
+  .hover\:bg-brand-600:hover {
+    background: var(--gradient-accent) !important;
+    filter: brightness(1.1) !important;
+  }
+  .hover\:bg-brand-900:hover {
+    background: var(--gradient-accent) !important;
+    filter: brightness(0.9) !important;
+  }
 }
