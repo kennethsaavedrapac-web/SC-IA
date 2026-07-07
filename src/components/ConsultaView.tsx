@@ -541,7 +541,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           onClick={() => onNavigate && onNavigate("home")}
         >
           <img
-            src="/app-logo-v1.jpg"
+            src="/app-logo-v2.jpg"
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
           />

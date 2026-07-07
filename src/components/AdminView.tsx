@@ -94,7 +94,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/app-logo-v1.jpg" alt="Logo" className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30" />
+            <img src="/app-logo-v2.jpg" alt="Logo" className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30" />
             <h1 className="font-bold text-lg text-slate-900 dark:text-white leading-tight">
               {t('adminPanel')}
             </h1>

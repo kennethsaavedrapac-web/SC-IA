@@ -114,7 +114,7 @@ export const EmergencyQR: React.FC<EmergencyQRProps> = ({ user, healthConditions
           level="H" 
           includeMargin={true}
           imageSettings={{
-            src: "/app-logo-v1.jpg",
+            src: "/app-logo-v2.jpg",
             x: undefined,
             y: undefined,
             height: 40,
