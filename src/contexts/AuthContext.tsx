@@ -8,27 +8,25 @@ import {
   onAuthStateChange,
   getUserProfile,
   type UserProfile,
+  type AuthResult,
 } from '../lib/authService';
 
-
 interface AuthContextType {
-  
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
   initialized: boolean;
 
-  
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password: string) => Promise<AuthResult>;
+  register: (email: string, password: string, nombre: string) => Promise<AuthResult>;
+  loginWithGoogle: () => Promise<AuthResult>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
+  completeMfaLogin: (userId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -37,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  
   const loadProfile = useCallback(async (userId: string) => {
     const { profile: fetchedProfile } = await getUserProfile(userId);
     if (fetchedProfile) {
@@ -45,14 +42,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  
   useEffect(() => {
     const subscription = onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
-        
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           setTimeout(() => loadProfile(newSession.user.id), 300);
         }
@@ -68,40 +63,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadProfile]);
 
-  
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     setLoading(true);
     try {
       const result = await signInWithEmail(email, password);
       if (result.success && result.user) {
         await loadProfile(result.user.id);
       }
-      return { success: result.success, error: result.error };
+      return result;
     } finally {
       setLoading(false);
     }
   }, [loadProfile]);
 
-  const register = useCallback(async (email: string, password: string, nombre: string) => {
+  const completeMfaLogin = useCallback(async (userId: string) => {
+    await loadProfile(userId);
+  }, [loadProfile]);
+
+  const register = useCallback(async (email: string, password: string, nombre: string): Promise<AuthResult> => {
     setLoading(true);
     try {
       const result = await signUpWithEmail(email, password, nombre);
       if (result.success && result.user) {
-        
         await new Promise((resolve) => setTimeout(resolve, 500));
         await loadProfile(result.user.id);
       }
-      return { success: result.success, error: result.error };
+      return result;
     } finally {
       setLoading(false);
     }
   }, [loadProfile]);
 
-  const loginWithGoogle = useCallback(async () => {
+  const loginWithGoogle = useCallback(async (): Promise<AuthResult> => {
     setLoading(true);
     try {
       const result = await signInWithGoogle();
-      return { success: result.success, error: result.error };
+      return result;
     } finally {
       setLoading(false);
     }
@@ -111,11 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const result = await authSignOut();
-      if (result.success) {
-        setUser(null);
-        setSession(null);
-        setProfile(null);
-      }
+      setUser(null);
+      setSession(null);
+      setProfile(null);
       return result;
     } finally {
       setLoading(false);
@@ -139,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loginWithGoogle,
     logout,
     refreshProfile,
+    completeMfaLogin,
   };
 
   return (
@@ -147,7 +143,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);

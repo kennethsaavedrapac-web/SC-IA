@@ -3,6 +3,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, UserPlus, Moon, Sun, Loader2 } fro
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
+import MfaChallengeModal from "./MfaChallengeModal";
 
 interface LoginViewProps {
   onLogin: (name: string) => void;
@@ -30,6 +31,10 @@ export default function LoginView({
   // Validation states
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const [mfaModalOpen, setMfaModalOpen] = useState(false);
+  const [tempMfaToken, setTempMfaToken] = useState("");
+  const { completeMfaLogin } = useAuth();
 
   const validateEmail = (value: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,6 +75,10 @@ export default function LoginView({
       if (result.success) {
         onToast?.(createToast(t('welcomeBack'), "success"));
         onLogin(email.trim());
+      } else if (result.mfaRequired && result.tempToken) {
+        // Desafío 2FA requerido para perfiles con MFA activo
+        setTempMfaToken(result.tempToken);
+        setMfaModalOpen(true);
       } else {
         onToast?.(createToast(result.error || t('loginError'), "error"));
       }
@@ -339,9 +348,17 @@ export default function LoginView({
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-brand-400 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>
           </svg>
-        </div>
-      </footer>
-
+      <MfaChallengeModal
+        isOpen={mfaModalOpen}
+        tempToken={tempMfaToken}
+        onClose={() => setMfaModalOpen(false)}
+        onSuccess={async (data) => {
+          setMfaModalOpen(false);
+          await completeMfaLogin(data.userId);
+          onLogin(email.trim());
+        }}
+        onToast={onToast}
+      />
     </div>
   );
 }
