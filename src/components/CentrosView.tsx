@@ -928,8 +928,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   }, [googleMapsApiKey, googleMapsMapId]);
 
   return (
-    <div className="health-app-bg flex flex-col md:flex-row h-[100dvh] w-full transition-colors duration-300 overflow-hidden relative">
-      <div className="health-background-motifs" />
+    <div className="flex flex-col md:flex-row h-[100dvh] w-full transition-colors duration-300 overflow-hidden relative">
 
       { }
       <div className={`w-full md:w-[380px] lg:w-[420px] flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 z-20 transition-all duration-300 ${mobileView === "list" ? "h-full flex" : "hidden md:flex md:h-full"}`}>

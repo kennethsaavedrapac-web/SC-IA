@@ -71,8 +71,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const currentLabel = sections.find(s => s.id === activeSection)?.label;
 
   return (
-    <div className="health-app-bg flex h-dvh overflow-hidden font-sans antialiased relative">
-      <div className="health-background-motifs" />
+    <div className="flex h-dvh overflow-hidden font-sans antialiased relative">
 
       {}
       <AnimatePresence>

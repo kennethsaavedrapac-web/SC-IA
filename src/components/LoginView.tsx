@@ -103,8 +103,7 @@ export default function LoginView({
   const isLoading = isSubmitting || loading;
 
   return (
-    <div className="health-app-bg min-h-dvh w-full flex flex-col justify-between text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
-      <div className="health-background-motifs" />
+    <div className="min-h-dvh w-full flex flex-col justify-between text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
 
       {}
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">

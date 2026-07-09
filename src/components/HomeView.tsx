@@ -16,8 +16,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
   const firstName = isGuest ? t('guest') : user.name.split(" ")[0];
 
   return (
-    <div className="health-app-bg flex flex-col min-h-dvh relative overflow-x-hidden transition-colors duration-300">
-      <div className="health-background-motifs" />
+    <div className="flex flex-col min-h-dvh relative overflow-x-hidden transition-colors duration-300">
 
       {}
       <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">

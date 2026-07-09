@@ -518,8 +518,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   return (
-    <div className="health-app-bg flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
-      <div className="health-background-motifs" />
+    <div className="flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
 
       {}
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">

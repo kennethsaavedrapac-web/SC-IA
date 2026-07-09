@@ -656,8 +656,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   return (
-    <div className="health-app-bg flex flex-col min-h-dvh relative overflow-hidden font-sans transition-colors duration-300">
-      <div className="health-background-motifs" />
+    <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans transition-colors duration-300">
 
       {}
       <motion.header

@@ -656,6 +656,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
+      <div className="health-background-motifs" />
 
       {}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
@@ -732,7 +733,7 @@ export default function App() {
       )}
 
       {}
-      <div className={`health-app-bg flex-1 w-full flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {}
         <AnimatePresence>

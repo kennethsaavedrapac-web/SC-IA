@@ -73,8 +73,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   };
 
   return (
-    <div className="health-app-bg flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
-      <div className="health-background-motifs" />
+    <div className="flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
       { }
       <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-emerald-50/70 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
