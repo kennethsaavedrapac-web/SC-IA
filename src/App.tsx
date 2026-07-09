@@ -184,17 +184,13 @@ export default function App() {
   });
 
   
-  const [darkMode, setDarkMode] = useState<boolean>(true);
-
-  useEffect(() => {
-    const initializeDarkMode = () => {
-      // Forzar siempre el modo oscuro (Neon Dark / Deep Tech)
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    };
-    initializeDarkMode();
-  }, []);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("theme") !== "light";
+    } catch {
+      return true;
+    }
+  });
 
   
   useEffect(() => {
@@ -822,7 +818,7 @@ export default function App() {
                   onLogin={handleLoginSuccess}
                   onNavigateToRegister={() => setCurrentView("register")}
                   darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToggleDarkMode={() => setDarkMode((current) => !current)}
                   onToast={addToast}
                 />
               </Suspense>
@@ -843,7 +839,7 @@ export default function App() {
                   onRegister={handleRegisterSuccess}
                   onNavigateToLogin={() => setCurrentView("login")}
                   darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToggleDarkMode={() => setDarkMode((current) => !current)}
                   onToast={addToast}
                 />
               </Suspense>
@@ -1129,7 +1125,7 @@ export default function App() {
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('darkMode')}</span>
                           </div>
                           <button
-                            onClick={() => setDarkMode(!darkMode)}
+                            onClick={() => setDarkMode((current) => !current)}
                             className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-700"}`}
                           >
                             <motion.div
