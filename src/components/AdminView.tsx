@@ -72,8 +72,6 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
 
   return (
     <div className="health-app-bg flex h-dvh overflow-hidden font-sans antialiased relative">
-      <div className="health-background-motifs" />
-
       {}
       <AnimatePresence>
         {isSidebarOpen && (

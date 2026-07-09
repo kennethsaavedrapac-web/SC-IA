@@ -24,7 +24,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
-  
+
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
@@ -145,7 +145,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     const prefString = newPrefs.join(",");
     localStorage.setItem("notifPreference", prefString);
 
-    
+
     if (user.id && user.id !== "guest") {
       try {
         await supabase
@@ -212,7 +212,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     return "bg-indigo-50 dark:bg-indigo-900/25 border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300";
   };
 
-  
+
   const handleAddCondition = useCallback(() => {
     const trimmed = newCondition.trim();
     if (trimmed && !editConditions.includes(trimmed)) {
@@ -318,35 +318,35 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     import("jspdf").then(({ default: jsPDF }) => {
       const doc = new jsPDF();
 
-      
-      const primaryColor = [30, 58, 138]; 
-      const secondaryColor = [13, 148, 136]; 
-      const accentColor = [56, 189, 248]; 
-      const slateDark = [15, 23, 42]; 
-      const slateLight = [100, 116, 139]; 
-      const bgPage = [255, 255, 255]; 
-      const sectionBg = [248, 250, 252]; 
 
-      
+      const primaryColor = [30, 58, 138];
+      const secondaryColor = [13, 148, 136];
+      const accentColor = [56, 189, 248];
+      const slateDark = [15, 23, 42];
+      const slateLight = [100, 116, 139];
+      const bgPage = [255, 255, 255];
+      const sectionBg = [248, 250, 252];
+
+
       const drawBackground = (pageDoc: any) => {
-        
+
         pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
         pageDoc.rect(0, 0, 210, 297, 'F');
 
-        
+
         pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
         pageDoc.rect(0, 0, 210, 35, 'F');
 
-        
+
         pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
         pageDoc.rect(0, 35, 210, 2, 'F');
 
-        
+
         pageDoc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
         pageDoc.rect(10, 45, 1.5, 240, 'F');
 
-        
-        pageDoc.setFillColor(241, 245, 249); 
+
+        pageDoc.setFillColor(241, 245, 249);
         pageDoc.rect(0, 285, 210, 12, 'F');
         pageDoc.setFontSize(8);
         pageDoc.setFont("helvetica", "italic");
@@ -356,7 +356,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       drawBackground(doc);
 
-      
+
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(255, 255, 255);
@@ -367,13 +367,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setTextColor(200, 215, 255);
       doc.text(t('pdfConfidential'), 15, 28);
 
-      
+
       let yPos = 55;
 
-      
+
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
-      doc.setDrawColor(226, 232, 240); 
+      doc.setDrawColor(226, 232, 240);
       doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'S');
 
       doc.setFontSize(14);
@@ -398,7 +398,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFont("helvetica", "bold");
       doc.text(t('pdfBlood'), 20, yPos);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(225, 29, 72); 
+      doc.setTextColor(225, 29, 72);
       doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified')}`, 40, yPos);
 
       doc.setFont("helvetica", "bold");
@@ -419,7 +419,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : t('pdfNotRegistered')}`, 130, yPos);
       yPos += 18;
 
-      
+
       doc.setFontSize(14);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
@@ -429,7 +429,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(10);
 
       const renderMedicalItem = (label: string, value: string) => {
-        
+
         doc.setFillColor(255, 255, 255);
         doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'F');
         doc.setDrawColor(226, 232, 240);
@@ -442,7 +442,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.setFont("helvetica", "normal");
         doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
 
-        
+
         const splitText = doc.splitTextToSize(value || t('pdfNoneRegistered'), 120);
         doc.text(splitText, 60, yPos + 2);
         yPos += (splitText.length * 5) + 8;
@@ -454,12 +454,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       renderMedicalItem(t('pdfPills'), localMedicalData.pastillas);
       renderMedicalItem(t('pdfVaccines'), localMedicalData.vacunas);
 
-      
+
       if (user.healthConditions && user.healthConditions.length > 0) {
         renderMedicalItem(t('pdfOtherCond'), user.healthConditions.join(", "));
       }
 
-      
+
       yPos += 5;
       if (yPos > 210) {
         doc.addPage();
@@ -467,7 +467,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         yPos = 55;
       }
 
-      
+
       doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
       doc.roundedRect(15, yPos, 180, 50, 3, 3, 'F');
       doc.setDrawColor(226, 232, 240);
@@ -484,7 +484,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.text(t('pdfQrDesc'), 85, yPos + 22);
 
       doc.setFontSize(8);
-      doc.setTextColor(225, 29, 72); 
+      doc.setTextColor(225, 29, 72);
       doc.text(t('pdfQrFooter'), 85, yPos + 38);
 
       const svg = qrRef.current?.querySelector("svg");
@@ -503,7 +503,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             ctx.drawImage(img, 0, 0, 512, 512);
           }
           const pngData = canvas.toDataURL("image/png");
-          
+
           doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
 
           doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
@@ -519,9 +519,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   return (
     <div className="health-app-bg flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
-      <div className="health-background-motifs" />
 
-      {}
+      { }
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">
         <div className="flex justify-between items-start w-full max-w-5xl mx-auto">
           <button
@@ -563,13 +562,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         </div>
       </header>
 
-      {}
+      { }
       <main className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-8 flex-1 space-y-5 sm:space-y-7 max-w-5xl mx-auto w-full">
 
-        {}
+        { }
         <section className="grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-5 sm:gap-8 md:gap-12 md:min-h-[330px]">
 
-          {}
+          { }
           <div className="flex justify-center md:justify-end">
             <div className="relative group shrink-0 select-none">
               <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-brand-200/60 dark:border-brand-900/40"></div>
@@ -595,14 +594,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   </div>
                 )}
 
-                {}
+                { }
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
                     <Loader2 className="w-7 h-7 sm:w-9 sm:h-9 text-white animate-spin" />
                   </div>
                 )}
 
-                {}
+                { }
                 {user.id !== "guest" && !isUploading && (
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
                     <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-white drop-shadow-md" />
@@ -610,7 +609,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 )}
               </div>
 
-              {}
+              { }
               {user.id !== "guest" && (
                 <input
                   type="file"
@@ -623,7 +622,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
               <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
-              {}
+              { }
               {user.id !== "guest" && (
                 <button
                   type="button"
@@ -664,7 +663,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {}
+            { }
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
               {user.emergencyPhone && (
                 <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
@@ -688,10 +687,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {}
+        { }
         <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
           <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
-            {}
+            { }
             <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2 sm:gap-5">
                 <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
@@ -703,7 +702,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {}
+            { }
             <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
               <div
                 ref={qrRef}
@@ -741,12 +740,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {}
+        { }
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start md:max-h-[50vh] md:overflow-y-auto md:pr-2">
-            {}
+            { }
             {[
               {
                 id: "personal",
@@ -799,7 +798,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-brand-600" : ""}`} />
                   </button>
 
-                  {}
+                  { }
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
@@ -810,7 +809,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       >
                         <div className="p-5 text-xs text-slate-600 space-y-4">
 
-                          {}
+                          { }
                           {item.id === "personal" && (
                             <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -890,7 +889,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </form>
                           )}
 
-                          {}
+                          { }
                           {item.id === "seguridad" && (
                             <div className="space-y-3 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
@@ -915,7 +914,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {}
+                          { }
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
                               <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
@@ -950,7 +949,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {}
+                          { }
                           {item.id === "datos_medicos" && (
                             <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -1086,11 +1085,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                               {/* Sync status indicator */}
                               {medicalSyncSource !== "none" && (
-                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${
-                                  medicalSyncSource === "fhir"
+                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${medicalSyncSource === "fhir"
                                     ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
                                     : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40"
-                                }`}>
+                                  }`}>
                                   {medicalSyncSource === "fhir" ? (
                                     <><Cloud className="w-3 h-3" /> Sincronizado con Google Cloud FHIR</>
                                   ) : (
@@ -1133,7 +1131,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
           <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-900/50">
             <Shield className="w-5 h-5 text-brand-600" />
@@ -1148,7 +1146,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {}
+        { }
         {onGoToAdmin && (
           <button
             onClick={onGoToAdmin}
@@ -1159,7 +1157,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </button>
         )}
 
-        {}
+        { }
         {onLogout && (
           <button
             id="btn-profile-logout"
@@ -1173,7 +1171,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       </main>
 
-      {}
+      { }
       <AnimatePresence>
         {isSavedAlertOpen && (
           <motion.div
@@ -1189,7 +1187,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {}
+      { }
       <AnimatePresence>
         {isNotificationInboxOpen && (
           <motion.div
@@ -1253,11 +1251,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                       return (
                         <div key={notification.id} className="p-4 flex items-start gap-3">
-                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                            notification.read
+                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${notification.read
                               ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300"
                               : getNotificationTone(notification)
-                          }`}>
+                            }`}>
                             <TypeIcon className="w-4.5 h-4.5" />
                           </div>
                           <div className="min-w-0 flex-1">
@@ -1268,11 +1265,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </span>
                                 <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
                               </div>
-                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
-                                notification.read
+                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${notification.read
                                   ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
                                   : "bg-blue-600 text-white"
-                              }`}>
+                                }`}>
                                 {notification.read ? t('read') : t('unread')}
                               </span>
                             </div>
@@ -1301,7 +1297,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {}
+      { }
       <AnimatePresence>
         {showQRModal && (
           <motion.div
@@ -1318,7 +1314,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl"
             >
-              {}
+              { }
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display font-bold text-2xl sm:text-3xl text-slate-950 dark:text-white">
                   {t('shareProfile')}
@@ -1331,9 +1327,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </button>
               </div>
 
-              {}
+              { }
               <div className="flex flex-col items-center space-y-6">
-                {}
+                { }
                 <div
                   ref={qrRef}
                   className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-brand-200 dark:border-brand-900 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
@@ -1346,14 +1342,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   />
                 </div>
 
-                {}
+                { }
                 <div className="w-full space-y-3 text-center">
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                     {t('emergencyDesc')}
                   </p>
                 </div>
 
-                {}
+                { }
                 <div className="flex gap-3 w-full pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={downloadQRCode}
