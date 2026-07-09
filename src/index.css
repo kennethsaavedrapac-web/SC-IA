@@ -273,8 +273,8 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(30, 83, 168, 0.28) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 145, 130, 0.24) 1px, transparent 1px);
+    linear-gradient(rgba(56, 189, 248, 0.34) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.3) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.95), transparent 78%);
   opacity: 0.32;
@@ -287,8 +287,8 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(135deg, transparent 0 45%, rgba(0, 145, 130, 0.2) 45% 46%, transparent 46% 100%),
-    linear-gradient(135deg, transparent 0 52%, rgba(30, 83, 168, 0.18) 52% 53%, transparent 53% 100%);
+    linear-gradient(135deg, transparent 0 45%, rgba(56, 189, 248, 0.26) 45% 46%, transparent 46% 100%),
+    linear-gradient(135deg, transparent 0 52%, rgba(14, 165, 233, 0.22) 52% 53%, transparent 53% 100%);
   background-size: 300px 300px, 380px 380px;
   opacity: 0.38;
   animation: care-lines-drift 90s linear infinite;
@@ -299,8 +299,8 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%231E53A8' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round' opacity='.62'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%23009182' stroke-width='3.2' stroke-linecap='round' opacity='.48'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%23009182' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' opacity='.56'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%231E53A8' stroke-width='3.1' stroke-linecap='round' opacity='.44'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%230EA5E9' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round' opacity='.62'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%2338BDF8' stroke-width='3.2' stroke-linecap='round' opacity='.48'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%2338BDF8' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' opacity='.56'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%230EA5E9' stroke-width='3.1' stroke-linecap='round' opacity='.44'/%3E%3C/svg%3E");
   background-position: 4vw 10vh, 34vw 58vh;
   background-repeat: no-repeat;
   background-size: min(760px, 92vw) auto, min(760px, 94vw) auto;
@@ -313,10 +313,10 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 145, 130, 0.38), rgba(0, 145, 130, 0.38)),
-    linear-gradient(90deg, rgba(0, 145, 130, 0.38), rgba(0, 145, 130, 0.38)),
-    linear-gradient(rgba(30, 83, 168, 0.32), rgba(30, 83, 168, 0.32)),
-    linear-gradient(90deg, rgba(30, 83, 168, 0.32), rgba(30, 83, 168, 0.32));
+    linear-gradient(rgba(56, 189, 248, 0.46), rgba(56, 189, 248, 0.46)),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.46), rgba(56, 189, 248, 0.46)),
+    linear-gradient(rgba(14, 165, 233, 0.4), rgba(14, 165, 233, 0.4)),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.4), rgba(14, 165, 233, 0.4));
   background-position:
     14vw 26vh,
     calc(14vw - 14px) calc(26vh + 14px),
