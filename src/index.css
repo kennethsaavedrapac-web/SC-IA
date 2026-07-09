@@ -273,11 +273,11 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(43, 94, 167, 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 180, 160, 0.16) 1px, transparent 1px);
+    linear-gradient(rgba(30, 83, 168, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 145, 130, 0.24) 1px, transparent 1px);
   background-size: 64px 64px;
   mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.95), transparent 78%);
-  opacity: 0.2;
+  opacity: 0.32;
   animation: clinical-grid-drift 70s linear infinite;
   z-index: 1;
 }
@@ -287,10 +287,10 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(135deg, transparent 0 45%, rgba(0, 180, 160, 0.13) 45% 46%, transparent 46% 100%),
-    linear-gradient(135deg, transparent 0 52%, rgba(43, 94, 167, 0.12) 52% 53%, transparent 53% 100%);
+    linear-gradient(135deg, transparent 0 45%, rgba(0, 145, 130, 0.2) 45% 46%, transparent 46% 100%),
+    linear-gradient(135deg, transparent 0 52%, rgba(30, 83, 168, 0.18) 52% 53%, transparent 53% 100%);
   background-size: 300px 300px, 380px 380px;
-  opacity: 0.28;
+  opacity: 0.38;
   animation: care-lines-drift 90s linear infinite;
   z-index: 1;
 }
@@ -299,12 +299,12 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%232B5EA7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' opacity='.34'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%2300B4A0' stroke-width='2.5' stroke-linecap='round' opacity='.28'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%2300B4A0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' opacity='.28'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%232B5EA7' stroke-width='2.4' stroke-linecap='round' opacity='.25'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%231E53A8' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round' opacity='.62'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%23009182' stroke-width='3.2' stroke-linecap='round' opacity='.48'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%23009182' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' opacity='.56'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%231E53A8' stroke-width='3.1' stroke-linecap='round' opacity='.44'/%3E%3C/svg%3E");
   background-position: 4vw 10vh, 34vw 58vh;
   background-repeat: no-repeat;
   background-size: min(760px, 92vw) auto, min(760px, 94vw) auto;
-  opacity: 0.58;
+  opacity: 0.78;
   animation: ecg-float 18s ease-in-out infinite;
   z-index: 1;
 }
@@ -313,10 +313,10 @@ html.dark .health-app-bg {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 180, 160, 0.22), rgba(0, 180, 160, 0.22)),
-    linear-gradient(90deg, rgba(0, 180, 160, 0.22), rgba(0, 180, 160, 0.22)),
-    linear-gradient(rgba(43, 94, 167, 0.18), rgba(43, 94, 167, 0.18)),
-    linear-gradient(90deg, rgba(43, 94, 167, 0.18), rgba(43, 94, 167, 0.18));
+    linear-gradient(rgba(0, 145, 130, 0.38), rgba(0, 145, 130, 0.38)),
+    linear-gradient(90deg, rgba(0, 145, 130, 0.38), rgba(0, 145, 130, 0.38)),
+    linear-gradient(rgba(30, 83, 168, 0.32), rgba(30, 83, 168, 0.32)),
+    linear-gradient(90deg, rgba(30, 83, 168, 0.32), rgba(30, 83, 168, 0.32));
   background-position:
     14vw 26vh,
     calc(14vw - 14px) calc(26vh + 14px),
@@ -324,25 +324,25 @@ html.dark .health-app-bg {
     calc(78vw - 12px) calc(18vh + 12px);
   background-repeat: no-repeat;
   background-size: 28px 4px, 4px 28px, 24px 3px, 3px 24px;
-  opacity: 0.68;
+  opacity: 0.82;
   animation: medical-symbols-breathe 10s ease-in-out infinite alternate;
   z-index: 2;
 }
 
 html.dark .health-background-motifs::before {
-  opacity: 0.15;
+  opacity: 0.14;
 }
 
 html.dark .health-background-motifs::after {
-  opacity: 0.25;
+  opacity: 0.23;
 }
 
 html.dark .health-background-motifs > .radial-lines {
-  opacity: 0.36;
+  opacity: 0.34;
 }
 
 html.dark .health-background-motifs > .accent-lines {
-  opacity: 0.45;
+  opacity: 0.42;
 }
 
 @keyframes clinical-grid-drift {
@@ -369,18 +369,18 @@ html.dark .health-background-motifs > .accent-lines {
   .health-background-motifs::before {
     background-size: 42px 42px;
     mask-image: linear-gradient(165deg, rgba(0, 0, 0, 1), transparent 86%);
-    opacity: 0.28;
+    opacity: 0.38;
   }
 
   .health-background-motifs::after {
     background-size: 180px 180px, 240px 240px;
-    opacity: 0.34;
+    opacity: 0.46;
   }
 
   .health-background-motifs > .radial-lines {
-    background-position: -82px 86px, -160px 72vh;
-    background-size: 520px auto, 560px auto;
-    opacity: 0.72;
+    background-position: -92px 72px, -190px 68vh;
+    background-size: 590px auto, 620px auto;
+    opacity: 0.92;
   }
 
   .health-background-motifs > .accent-lines {
@@ -389,11 +389,11 @@ html.dark .health-background-motifs > .accent-lines {
       calc(8vw - 14px) calc(18vh + 14px),
       82vw 46vh,
       calc(82vw - 12px) calc(46vh + 12px);
-    opacity: 0.78;
+    opacity: 0.9;
   }
 
   html.dark .health-background-motifs::before {
-    opacity: 0.17;
+    opacity: 0.16;
   }
 
   html.dark .health-background-motifs::after {
@@ -401,11 +401,11 @@ html.dark .health-background-motifs > .accent-lines {
   }
 
   html.dark .health-background-motifs > .radial-lines {
-    opacity: 0.42;
+    opacity: 0.4;
   }
 
   html.dark .health-background-motifs > .accent-lines {
-    opacity: 0.5;
+    opacity: 0.48;
   }
 }
 
