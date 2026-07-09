@@ -271,46 +271,14 @@ html.dark .health-app-bg {
 .health-background-motifs::before {
   content: "";
   position: absolute;
-  top: 5%;
-  left: -5%;
-  width: 45vw;
-  height: 45vw;
-  max-width: 600px;
-  max-height: 600px;
-  background: linear-gradient(135deg, var(--color-antigravity), transparent);
-  opacity: 0.18;
-  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-  filter: blur(40px);
-  animation: blob-morph 18s ease-in-out infinite alternate;
-}
-
-.health-background-motifs::after {
-  content: "";
-  position: absolute;
-  bottom: 0%;
-  right: -5%;
-  width: 40vw;
-  height: 40vw;
-  max-width: 500px;
-  max-height: 500px;
-  background: linear-gradient(135deg, transparent, var(--color-antigravity));
-  opacity: 0.22;
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  filter: blur(50px);
-  animation: blob-morph 22s ease-in-out infinite alternate-reverse;
-}
-
-/* Líneas diagonales sutiles de fondo */
-.health-background-motifs::before {
-  content: "";
-  position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(45deg, var(--color-antigravity) 1px, transparent 1px),
-    linear-gradient(-45deg, var(--color-antigravity) 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: 0.04;
-  animation: lines-drift 60s linear infinite;
+  background-image:
+    linear-gradient(rgba(43, 94, 167, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 180, 160, 0.1) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.7), transparent 65%);
+  opacity: 0.16;
+  animation: clinical-grid-drift 70s linear infinite;
   z-index: 1;
 }
 
@@ -318,97 +286,83 @@ html.dark .health-app-bg {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(90deg, var(--color-teal) 1px, transparent 1px),
-    linear-gradient(0deg, var(--color-teal) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.03;
-  animation: lines-drift-reverse 80s linear infinite;
+  background-image:
+    linear-gradient(135deg, transparent 0 45%, rgba(0, 180, 160, 0.08) 45% 46%, transparent 46% 100%),
+    linear-gradient(135deg, transparent 0 52%, rgba(43, 94, 167, 0.07) 52% 53%, transparent 53% 100%);
+  background-size: 340px 340px, 420px 420px;
+  opacity: 0.2;
+  animation: care-lines-drift 90s linear infinite;
   z-index: 1;
 }
 
-/* Líneas radiales desde las esquinas */
 .health-background-motifs > .radial-lines {
   position: absolute;
   inset: 0;
-  background-image: 
-    radial-gradient(circle at 0% 0%, transparent 40%, var(--color-antigravity) 40.5%, var(--color-antigravity) 41%, transparent 41.5%),
-    radial-gradient(circle at 100% 0%, transparent 40%, var(--color-teal) 40.5%, var(--color-teal) 41%, transparent 41.5%),
-    radial-gradient(circle at 0% 100%, transparent 40%, var(--color-teal) 40.5%, var(--color-teal) 41%, transparent 41.5%),
-    radial-gradient(circle at 100% 100%, transparent 40%, var(--color-antigravity) 40.5%, var(--color-antigravity) 41%, transparent 41.5%);
-  background-size: 300px 300px;
-  opacity: 0.05;
-  animation: radial-pulse 20s ease-in-out infinite;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%232B5EA7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' opacity='.34'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%2300B4A0' stroke-width='2.5' stroke-linecap='round' opacity='.28'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%2300B4A0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' opacity='.28'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%232B5EA7' stroke-width='2.4' stroke-linecap='round' opacity='.25'/%3E%3C/svg%3E");
+  background-position: 5vw 12vh, 38vw 64vh;
+  background-repeat: no-repeat;
+  background-size: min(680px, 82vw) auto, min(720px, 88vw) auto;
+  opacity: 0.42;
+  animation: ecg-float 18s ease-in-out infinite;
   z-index: 1;
 }
 
-/* Líneas horizontales de acento */
 .health-background-motifs > .accent-lines {
   position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(180deg, transparent 0%, transparent 49%, var(--color-antigravity) 50%, transparent 51%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, transparent 49%, var(--color-teal) 50%, transparent 51%, transparent 100%);
-  background-size: 100% 200px;
-  background-position: 0% 10%, 0% 60%;
-  opacity: 0.06;
-  animation: accent-scan 15s ease-in-out infinite alternate;
+  background-image:
+    linear-gradient(rgba(0, 180, 160, 0.22), rgba(0, 180, 160, 0.22)),
+    linear-gradient(90deg, rgba(0, 180, 160, 0.22), rgba(0, 180, 160, 0.22)),
+    linear-gradient(rgba(43, 94, 167, 0.18), rgba(43, 94, 167, 0.18)),
+    linear-gradient(90deg, rgba(43, 94, 167, 0.18), rgba(43, 94, 167, 0.18));
+  background-position:
+    14vw 26vh,
+    calc(14vw - 14px) calc(26vh + 14px),
+    78vw 18vh,
+    calc(78vw - 12px) calc(18vh + 12px);
+  background-repeat: no-repeat;
+  background-size: 28px 4px, 4px 28px, 24px 3px, 3px 24px;
+  opacity: 0.55;
+  animation: medical-symbols-breathe 10s ease-in-out infinite alternate;
   z-index: 2;
 }
 
 html.dark .health-background-motifs::before {
-  opacity: 0.25;
+  opacity: 0.13;
 }
 
 html.dark .health-background-motifs::after {
-  opacity: 0.3;
+  opacity: 0.24;
 }
 
 html.dark .health-background-motifs > .radial-lines {
-  opacity: 0.08;
+  opacity: 0.34;
 }
 
 html.dark .health-background-motifs > .accent-lines {
-  opacity: 0.1;
+  opacity: 0.45;
 }
 
-@keyframes blob-morph {
-  0% {
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
-    transform: translate(3%, 5%) rotate(10deg) scale(1.05);
-  }
-  66% {
-    border-radius: 100% 60% 60% 100% / 100% 100% 60% 60%;
-    transform: translate(-2%, 8%) rotate(-5deg) scale(0.95);
-  }
-  100% {
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
+@keyframes clinical-grid-drift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 72px 72px, 72px 72px; }
 }
 
-@keyframes lines-drift {
-  0% { background-position: 0 0; }
-  100% { background-position: 60px 60px; }
+@keyframes care-lines-drift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 340px 340px, -420px -420px; }
 }
 
-@keyframes lines-drift-reverse {
-  0% { background-position: 0 0; }
-  100% { background-position: -80px -80px; }
+@keyframes ecg-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
 }
 
-@keyframes radial-pulse {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.05; }
-  50% { transform: scale(1.1) rotate(5deg); opacity: 0.08; }
-}
-
-@keyframes accent-scan {
-  0% { background-position: 0% 10%, 0% 60%; }
-  100% { background-position: 0% 40%, 0% 90%; }
+@keyframes medical-symbols-breathe {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 8px, 0); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
