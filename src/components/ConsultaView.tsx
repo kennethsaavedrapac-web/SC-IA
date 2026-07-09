@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle } from "lucide-react";
+import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2 } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
+import { supabase } from "../lib/supabaseClient";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -151,6 +152,8 @@ const normalizeStoredMessages = (messages: ChatMessage[]) => {
     });
 };
 
+// ─── localStorage helpers (fallback para usuarios no autenticados) ───────────
+
 const loadTriageHistory = (userId?: string): ChatMessage[] => {
   try {
     const stored = localStorage.getItem(getTriageHistoryKey(userId));
@@ -198,6 +201,78 @@ const mergeMessagesById = (messages: ChatMessage[]) => {
   );
 };
 
+// ─── Supabase helpers ────────────────────────────────────────────────────────
+
+/** Carga el historial de los últimos 14 días desde Supabase, más reciente primero. */
+async function loadConsultationsFromSupabase(userId: string): Promise<ChatMessage[]> {
+  const cutoff = new Date(Date.now() - TRIAGE_HISTORY_MS).toISOString();
+  const { data, error } = await supabase
+    .from("consultations")
+    .select("id, user_message, ai_response, created_at")
+    .eq("user_id", userId)
+    .gte("created_at", cutoff)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.warn("[Supabase] Error al cargar historial:", error.message);
+    return [];
+  }
+
+  if (!data || data.length === 0) return [];
+
+  // Convierte cada fila en dos ChatMessages: user + bot
+  const result: ChatMessage[] = [];
+  for (const row of data) {
+    const date = new Date(row.created_at);
+    const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    result.push(
+      {
+        id: `${row.id}-user`,
+        text: row.user_message,
+        sender: "user",
+        timestamp: timeStr,
+        createdAt: row.created_at,
+      },
+      {
+        id: `${row.id}-bot`,
+        text: row.ai_response,
+        sender: "bot",
+        timestamp: timeStr,
+        createdAt: row.created_at,
+      }
+    );
+  }
+  return result;
+}
+
+/** Guarda un par consulta/respuesta en Supabase. */
+async function saveConsultationToSupabase(
+  userId: string,
+  userMessage: string,
+  aiResponse: string
+): Promise<void> {
+  // Verificar sesión activa antes de insertar
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData?.session) {
+    console.warn("[Supabase] No hay sesión activa — el INSERT fue bloqueado por RLS. El historial se guardó solo en localStorage.");
+    return;
+  }
+
+  console.log("[Supabase] Guardando consulta para user_id:", userId, "| auth.uid:", sessionData.session.user.id);
+
+  const { error, data } = await supabase.from("consultations").insert({
+    user_id: userId,
+    user_message: userMessage,
+    ai_response: aiResponse,
+  }).select("id");
+
+  if (error) {
+    console.error("[Supabase] Error al guardar consulta:", error.message, error.code, error.details);
+  } else {
+    console.log("[Supabase] ✅ Consulta guardada exitosamente. ID:", data?.[0]?.id);
+  }
+}
+
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
@@ -209,17 +284,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [storedHistory, setStoredHistory] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
+  // Al cambiar de usuario, reiniciar chat y cargar historial desde localStorage (fallback)
   useEffect(() => {
     setMessages([]);
     setStoredHistory(loadTriageHistory(user.id));
   }, [user.id]);
 
+  // Guardar en localStorage (fallback para usuarios no autenticados)
   const persistTriageMessages = (nextMessages: ChatMessage[]) => {
     const nextHistory = saveTriageHistory(user.id, mergeMessagesById([...storedHistory, ...nextMessages]));
     setStoredHistory(nextHistory);
@@ -229,6 +308,32 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     if (messages.length === 0) return;
     persistTriageMessages(messages);
   }, [messages]);
+
+  // Carga el historial desde Supabase cuando se abre el panel
+  const handleOpenHistory = useCallback(async () => {
+    setIsHistoryOpen(true);
+    setHistoryError(null);
+
+    // Si el usuario está autenticado, cargamos desde Supabase
+    if (user.id) {
+      setIsLoadingHistory(true);
+      try {
+        const supabaseHistory = await loadConsultationsFromSupabase(user.id);
+        if (supabaseHistory.length > 0) {
+          setStoredHistory(supabaseHistory);
+        } else {
+          // Si Supabase no tiene datos aún, usamos el localStorage como respaldo
+          setStoredHistory(loadTriageHistory(user.id));
+        }
+      } catch (err) {
+        console.warn("[Supabase] Falló la carga de historial, usando localStorage:", err);
+        setHistoryError("No se pudo cargar el historial desde la nube. Mostrando datos locales.");
+        setStoredHistory(loadTriageHistory(user.id));
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
+  }, [user.id]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -370,6 +475,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Guardar en Supabase si el usuario está autenticado
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, miskitoResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -386,6 +495,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Guardar en Supabase si el usuario está autenticado
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, kriolResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -402,6 +515,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Intentar guardar en Supabase aunque sea modo offline (puede fallarcasi siempre, pero no bloquea)
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -434,6 +551,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, errorMsg]);
+        // Guardar en Supabase incluso con respuesta de fallback offline
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+        }
         return;
       }
       
@@ -458,6 +579,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       };
       
       setMessages(prev => [...prev, botMsg]);
+
+      // Guardar el par consulta/respuesta en Supabase (si el usuario está autenticado)
+      if (user.id) {
+        saveConsultationToSupabase(user.id, userText, botText).catch((err) =>
+          console.warn("[Supabase] No se guardó la consulta:", err)
+        );
+      }
     } catch (error) {
       console.error("Fetch error:", error);
       const offlineResponse = getOfflineTriageResponse(userText, user);
@@ -469,6 +597,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         createdAt: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);
+      // Guardar en Supabase incluso cuando hay error de red
+      if (user.id) {
+        saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+      }
     } finally {
       setIsLoading(false);
     }
@@ -554,7 +686,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.94 }}
-            onClick={() => setIsHistoryOpen(true)}
+            onClick={handleOpenHistory}
             className="relative flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 shadow-[0_8px_24px_rgba(37,99,235,0.10)] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             title="Historial de triaje"
           >
@@ -827,21 +959,44 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
               <div className="px-5 sm:px-6 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[11px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/25 rounded-full px-3 py-1.5">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{historyMessages.length} mensajes</span>
+                  {isLoadingHistory ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <MessageCircle className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isLoadingHistory ? "Cargando..." : `${historyMessages.length} mensajes`}</span>
                 </div>
-                {historyMessages.length > 0 && (
-                  <button
-                    onClick={handleClearHistory}
-                    className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
-                  >
-                    Limpiar historial
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {user.id && (
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-full px-2.5 py-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                      Nube
+                    </span>
+                  )}
+                  {historyMessages.length > 0 && (
+                    <button
+                      onClick={handleClearHistory}
+                      className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
+                    >
+                      Limpiar historial
+                    </button>
+                  )}
+                </div>
               </div>
+              {historyError && (
+                <div className="px-5 sm:px-6 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2 text-[11px] text-amber-700 dark:text-amber-300">
+                  <span>⚠️</span>
+                  <span>{historyError}</span>
+                </div>
+              )}
 
               <div className="max-h-[58dvh] overflow-y-auto px-4 sm:px-6 py-4 bg-slate-50/70 dark:bg-slate-950/30">
-                {historyMessages.length > 0 ? (
+                {isLoadingHistory ? (
+                  <div className="py-16 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Cargando historial desde la nube…</p>
+                  </div>
+                ) : historyMessages.length > 0 ? (
                   <div className="space-y-3">
                     {historyMessages.map((message) => (
                       <div
