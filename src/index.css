@@ -300,12 +300,76 @@ html.dark .health-app-bg {
   animation: blob-morph 22s ease-in-out infinite alternate-reverse;
 }
 
+/* Líneas diagonales sutiles de fondo */
+.health-background-motifs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(45deg, var(--color-antigravity) 1px, transparent 1px),
+    linear-gradient(-45deg, var(--color-antigravity) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.04;
+  animation: lines-drift 60s linear infinite;
+  z-index: 1;
+}
+
+.health-background-motifs::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(90deg, var(--color-teal) 1px, transparent 1px),
+    linear-gradient(0deg, var(--color-teal) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: 0.03;
+  animation: lines-drift-reverse 80s linear infinite;
+  z-index: 1;
+}
+
+/* Líneas radiales desde las esquinas */
+.health-background-motifs > .radial-lines {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 0% 0%, transparent 40%, var(--color-antigravity) 40.5%, var(--color-antigravity) 41%, transparent 41.5%),
+    radial-gradient(circle at 100% 0%, transparent 40%, var(--color-teal) 40.5%, var(--color-teal) 41%, transparent 41.5%),
+    radial-gradient(circle at 0% 100%, transparent 40%, var(--color-teal) 40.5%, var(--color-teal) 41%, transparent 41.5%),
+    radial-gradient(circle at 100% 100%, transparent 40%, var(--color-antigravity) 40.5%, var(--color-antigravity) 41%, transparent 41.5%);
+  background-size: 300px 300px;
+  opacity: 0.05;
+  animation: radial-pulse 20s ease-in-out infinite;
+  z-index: 1;
+}
+
+/* Líneas horizontales de acento */
+.health-background-motifs > .accent-lines {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(180deg, transparent 0%, transparent 49%, var(--color-antigravity) 50%, transparent 51%, transparent 100%),
+    linear-gradient(180deg, transparent 0%, transparent 49%, var(--color-teal) 50%, transparent 51%, transparent 100%);
+  background-size: 100% 200px;
+  background-position: 0% 10%, 0% 60%;
+  opacity: 0.06;
+  animation: accent-scan 15s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
 html.dark .health-background-motifs::before {
   opacity: 0.25;
 }
 
 html.dark .health-background-motifs::after {
   opacity: 0.3;
+}
+
+html.dark .health-background-motifs > .radial-lines {
+  opacity: 0.08;
+}
+
+html.dark .health-background-motifs > .accent-lines {
+  opacity: 0.1;
 }
 
 @keyframes blob-morph {
@@ -325,6 +389,26 @@ html.dark .health-background-motifs::after {
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
     transform: translate(0, 0) rotate(0deg) scale(1);
   }
+}
+
+@keyframes lines-drift {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+@keyframes lines-drift-reverse {
+  0% { background-position: 0 0; }
+  100% { background-position: -80px -80px; }
+}
+
+@keyframes radial-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.05; }
+  50% { transform: scale(1.1) rotate(5deg); opacity: 0.08; }
+}
+
+@keyframes accent-scan {
+  0% { background-position: 0% 10%, 0% 60%; }
+  100% { background-position: 0% 40%, 0% 90%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════

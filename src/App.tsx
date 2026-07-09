@@ -656,7 +656,10 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
-      <div className="health-background-motifs" />
+      <div className="health-background-motifs">
+        <div className="radial-lines" />
+        <div className="accent-lines" />
+      </div>
 
       {}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
