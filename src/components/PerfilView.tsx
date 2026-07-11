@@ -395,195 +395,176 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         toDataUrl("/app-logo-v2.jpg"),
       ]);
 
-      doc.setFillColor(241, 245, 249);
+      doc.setFillColor(236, 243, 248);
       doc.rect(0, 0, 297, 210, "F");
 
-      const cardX = 18;
-      const cardY = 24;
-      const cardW = 261;
-      const cardH = 162;
-      const bandW = 40;
-      const innerX = cardX + bandW + 10;
-      const innerY = cardY + 12;
-      const innerRight = cardX + cardW - 12;
-      const innerBottom = cardY + cardH - 10;
-      const qrBoxW = 62;
-      const qrBoxH = 78;
+      const cardX = 14;
+      const cardY = 18;
+      const cardW = 269;
+      const cardH = 174;
+      const pad = 10;
+      const innerX = cardX + pad;
+      const innerY = cardY + pad;
+      const innerRight = cardX + cardW - pad;
+      const innerBottom = cardY + cardH - pad;
+      const qrBoxW = 58;
+      const qrBoxH = 72;
       const qrBoxX = innerRight - qrBoxW;
-      const qrBoxY = cardY + 47;
-      const contentRight = qrBoxX - 10;
-
-      doc.setFillColor(255, 255, 255);
-      doc.roundedRect(cardX, cardY, cardW, cardH, 9, 9, "F");
-      doc.setDrawColor(border[0], border[1], border[2]);
-      doc.roundedRect(cardX, cardY, cardW, cardH, 9, 9, "S");
-
-      doc.setFillColor(blue[0], blue[1], blue[2]);
-      doc.roundedRect(cardX, cardY, bandW, cardH, 9, 9, "F");
-      doc.setFillColor(teal[0], teal[1], teal[2]);
-      doc.rect(cardX, cardY + cardH * 0.54, bandW, cardH * 0.46, "F");
-
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(0.22);
-      for (let i = 0; i < 12; i += 1) {
-        const offset = i * 4;
-        doc.lines([[18, -18], [46, 24], [20, 68]], cardX - 7 + offset, cardY + 12, [1, 1], "S");
-        doc.lines([[22, -16], [50, 18], [18, 55]], cardX - 11 + offset, cardY + 82, [1, 1], "S");
-      }
-
-      doc.setFillColor(255, 255, 255);
-      doc.circle(cardX + 20, cardY + 78, 16, "S");
-      doc.setLineWidth(0.45);
-      doc.lines([[10, 18], [10, -18], [-20, 0]], cardX + 10, cardY + 87, [1, 1], "S");
-      doc.setLineWidth(0.25);
-      doc.line(cardX + 16, cardY + 78, cardX + 24, cardY + 78);
-      doc.line(cardX + 15, cardY + 82, cardX + 25, cardY + 82);
-      doc.line(cardX + 14, cardY + 86, cardX + 26, cardY + 86);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(7);
-      doc.setTextColor(255, 255, 255);
-      doc.text("REPUBLICA DE", cardX + 20, cardY + 55, { align: "center" });
-      doc.text("NICARAGUA", cardX + 20, cardY + 64, { align: "center" });
-      doc.text("AMERICA CENTRAL", cardX + 20, cardY + 105, { align: "center" });
-
-      doc.setFillColor(paleBlue[0], paleBlue[1], paleBlue[2]);
-      doc.circle(cardX + 157, cardY + 104, 52, "F");
-      doc.setDrawColor(186, 220, 232);
-      doc.setLineWidth(0.12);
-      for (let i = 0; i < 10; i += 1) {
-        doc.ellipse(cardX + 157, cardY + 104, 52 - i * 4, 18 + i * 2, "S");
-      }
-
-      if (logoPng) {
-        doc.addImage(logoPng, "PNG", innerX, innerY - 1, 15, 15);
-      } else {
-        doc.setDrawColor(blue[0], blue[1], blue[2]);
-        doc.circle(innerX + 7.5, innerY + 6.5, 6.5, "S");
-      }
-      doc.setTextColor(teal[0], teal[1], teal[2]);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.text("SALUD", innerX + 18, innerY + 5);
-      doc.text("CONECTA", innerX + 18, innerY + 13);
-
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.setFontSize(18);
-      doc.setCharSpace(1.1);
-      doc.text("DOCUMENTO DE EMERGENCIA", innerX + 68, innerY + 8);
-      doc.setFontSize(9);
-      doc.setCharSpace(1.6);
-      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", innerX + 68, innerY + 18);
-      doc.setCharSpace(0);
-
-      doc.setDrawColor(blue[0], blue[1], blue[2]);
-      doc.setLineWidth(2);
-      doc.line(innerRight - 8, innerY, innerRight - 8, innerY + 17);
-      doc.line(innerRight - 16, innerY + 8.5, innerRight, innerY + 8.5);
-      doc.setFontSize(13);
-      doc.text("*", innerRight - 8, innerY + 12, { align: "center" });
-
+      const qrBoxY = cardY + 50;
+      const mainRight = qrBoxX - 8;
       const photoX = innerX;
-      const photoY = cardY + 52;
+      const photoY = cardY + 50;
+      const photoW = 37;
+      const photoH = 45;
+      const nameX = photoX + photoW + 9;
+      const medicalTop = cardY + 116;
 
-      doc.setFillColor(255, 255, 255);
-      doc.roundedRect(photoX - 4, photoY - 6, contentRight - photoX + 4, 96, 4, 4, "F");
-      doc.setDrawColor(226, 232, 240);
-      doc.roundedRect(photoX - 4, photoY - 6, contentRight - photoX + 4, 96, 4, 4, "S");
-
-      doc.setFillColor(226, 232, 240);
-      doc.roundedRect(photoX, photoY, 36, 45, 2, 2, "F");
-      if (avatarPng) {
-        doc.addImage(avatarPng, "PNG", photoX, photoY, 36, 45);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(24);
-        doc.setTextColor(100, 116, 139);
-        doc.text(getInitials(user.name), photoX + 18, photoY + 29, { align: "center" });
-      }
-
-      const dataX = photoX + 44;
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.setCharSpace(1);
-      doc.text("NOMBRE COMPLETO", dataX, photoY + 8);
-      doc.setCharSpace(0);
-      doc.setFontSize(18);
-      const nameLines = doc.splitTextToSize(user.name || displayName, contentRight - dataX).slice(0, 3);
-      doc.text(nameLines, dataX, photoY + 21);
-
-      const field = (label: string, value: string, x: number, y: number, width = 46) => {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(7.4);
-        doc.setTextColor(blue[0], blue[1], blue[2]);
-        doc.setCharSpace(0.35);
-        doc.text(label.toUpperCase(), x, y);
-        doc.setCharSpace(0);
-        doc.setFontSize(10);
-        doc.setTextColor(navy[0], navy[1], navy[2]);
-        const lines = doc.splitTextToSize(value || t('pdfNotRegistered'), width).slice(0, 2);
-        doc.text(lines, x, y + 7);
+      const clipText = (value: string, maxChars = 80) => {
+        const clean = (value || t('pdfNoneRegistered')).replace(/\s+/g, " ").trim();
+        return clean.length > maxChars ? `${clean.slice(0, maxChars - 3)}...` : clean;
       };
 
-      doc.setDrawColor(226, 232, 240);
-      doc.line(photoX, cardY + 107, contentRight, cardY + 107);
-      field("Fecha de emision", shortDate, photoX, cardY + 118, 34);
-      field("Lugar", city.toUpperCase(), photoX + 41, cardY + 118, 38);
-      field("Contacto", emergencyPhone, photoX + 85, cardY + 118, 46);
-      field("Numero de identidad", idNumber, photoX, cardY + 138, 53);
-      field("Tipo de sangre", bloodType, photoX + 62, cardY + 138, 26);
-      field("Pais", country.toUpperCase(), photoX + 96, cardY + 138, 34);
+      const drawPanel = (x: number, y: number, w: number, h: number) => {
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(x, y, w, h, 4, 4, "F");
+        doc.setDrawColor(222, 230, 238);
+        doc.roundedRect(x, y, w, h, 4, 4, "S");
+      };
 
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 6, 6, "F");
-      doc.setDrawColor(114, 125, 139);
-      doc.roundedRect(qrBoxX, qrBoxY, qrBoxW, qrBoxH, 6, 6, "S");
-      if (qrPng) {
-        doc.addImage(qrPng, "PNG", qrBoxX + 8, qrBoxY + 7, 46, 46);
+      const drawField = (label: string, value: string, x: number, y: number, w: number) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.8);
+        doc.setTextColor(blue[0], blue[1], blue[2]);
+        doc.text(label.toUpperCase(), x, y);
+        doc.setFontSize(8.8);
+        doc.setTextColor(navy[0], navy[1], navy[2]);
+        const lines = doc.splitTextToSize(clipText(value, 42), w).slice(0, 2);
+        doc.text(lines, x, y + 5.5);
+      };
+
+      const drawMedicalField = (label: string, value: string, x: number, y: number, w: number) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.5);
+        doc.setTextColor(blue[0], blue[1], blue[2]);
+        doc.text(label.toUpperCase(), x, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.2);
+        doc.setTextColor(muted[0], muted[1], muted[2]);
+        const lines = doc.splitTextToSize(clipText(value, 95), w).slice(0, 2);
+        doc.text(lines, x, y + 4.6);
+      };
+
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(cardX, cardY, cardW, cardH, 8, 8, "F");
+      doc.setDrawColor(border[0], border[1], border[2]);
+      doc.setLineWidth(0.35);
+      doc.roundedRect(cardX, cardY, cardW, cardH, 8, 8, "S");
+
+      doc.setFillColor(245, 250, 252);
+      doc.roundedRect(cardX + 2, cardY + 2, cardW - 4, cardH - 4, 7, 7, "F");
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(cardX + 4, cardY + 4, cardW - 8, cardH - 8, 6, 6, "F");
+
+      doc.setFillColor(paleBlue[0], paleBlue[1], paleBlue[2]);
+      doc.circle(cardX + cardW - 78, cardY + 101, 55, "F");
+      doc.setDrawColor(190, 220, 232);
+      doc.setLineWidth(0.12);
+      for (let i = 0; i < 8; i += 1) {
+        doc.ellipse(cardX + cardW - 78, cardY + 101, 52 - i * 5, 18 + i * 2, "S");
+      }
+
+      doc.setFillColor(14, 89, 169);
+      doc.roundedRect(cardX, cardY, cardW, 25, 8, 8, "F");
+      doc.setFillColor(0, 139, 127);
+      doc.rect(cardX, cardY + 20, cardW, 5, "F");
+
+      if (logoPng) {
+        doc.addImage(logoPng, "PNG", innerX, innerY - 2, 17, 17);
+      }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(255, 255, 255);
+      doc.text("SALUD CONECTA", innerX + 21, innerY + 5);
+      doc.setFontSize(18);
+      doc.text("DOCUMENTO DE EMERGENCIA", cardX + 135, innerY + 5, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", cardX + 135, innerY + 14, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text("+", innerRight - 6, innerY + 10, { align: "center" });
+
+      drawPanel(innerX, cardY + 38, mainRight - innerX, 70);
+      doc.setFillColor(226, 232, 240);
+      doc.roundedRect(photoX + 5, photoY, photoW, photoH, 2, 2, "F");
+      if (avatarPng) {
+        doc.addImage(avatarPng, "PNG", photoX + 5, photoY, photoW, photoH);
       } else {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.setTextColor(muted[0], muted[1], muted[2]);
-        doc.text("QR no disponible", qrBoxX + qrBoxW / 2, qrBoxY + 31, { align: "center" });
+        doc.setFontSize(23);
+        doc.setTextColor(100, 116, 139);
+        doc.text(getInitials(user.name), photoX + 5 + photoW / 2, photoY + 28, { align: "center" });
       }
-      doc.setFillColor(blue[0], blue[1], blue[2]);
-      doc.roundedRect(qrBoxX, qrBoxY + 58, qrBoxW, 20, 0, 0, "F");
-      doc.setFillColor(teal[0], teal[1], teal[2]);
-      doc.rect(qrBoxX + qrBoxW / 2, qrBoxY + 58, qrBoxW / 2, 20, "F");
-      doc.setFillColor(255, 255, 255);
-      doc.circle(qrBoxX + 13, qrBoxY + 68, 5.4, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(7.5);
-      doc.setTextColor(255, 255, 255);
-      doc.text(["ESCANEAR PARA", "DATOS MEDICOS"], qrBoxX + 23, qrBoxY + 66);
-
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(photoX - 4, innerBottom - 24, 80, 20, 3, 3, "F");
-      doc.setDrawColor(226, 232, 240);
-      doc.roundedRect(photoX - 4, innerBottom - 24, 80, 20, 3, 3, "S");
-      doc.setDrawColor(blue[0], blue[1], blue[2]);
-      doc.setLineWidth(1);
-      doc.line(photoX + 6, innerBottom - 14, photoX + 15, innerBottom - 14);
-      doc.line(photoX + 10.5, innerBottom - 19, photoX + 10.5, innerBottom - 9);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(7.5);
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text(["USO EXCLUSIVO EN", "SITUACIONES DE EMERGENCIA"], photoX + 23, innerBottom - 16);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(6.5);
-      doc.setTextColor(muted[0], muted[1], muted[2]);
-      doc.text("No sustituye la cedula de identidad.", photoX + 23, innerBottom - 6);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.5);
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text("SALUD QUE TE CONECTA, VIDA QUE TE ACOMPANA", contentRight - 12, innerBottom - 18, { align: "center" });
-      doc.setFontSize(9.5);
       doc.setTextColor(blue[0], blue[1], blue[2]);
-      doc.text("SALUD CONECTA", contentRight - 12, innerBottom - 7, { align: "center" });
-      doc.setDrawColor(teal[0], teal[1], teal[2]);
-      doc.line(contentRight - 39, innerBottom - 8, contentRight - 63, innerBottom - 8);
-      doc.line(contentRight + 15, innerBottom - 8, contentRight + 39, innerBottom - 8);
+      doc.text("NOMBRE COMPLETO", nameX, photoY + 6);
+      doc.setFontSize(17);
+      doc.setTextColor(navy[0], navy[1], navy[2]);
+      doc.text(doc.splitTextToSize(user.name || displayName, mainRight - nameX - 4).slice(0, 2), nameX, photoY + 18);
+
+      drawField("Cedula", idNumber, nameX, photoY + 42, 45);
+      drawField("Sangre", bloodType, nameX + 52, photoY + 42, 22);
+      drawField("Contacto emergencia", emergencyPhone, nameX + 82, photoY + 42, mainRight - nameX - 84);
+
+      drawField("Fecha de emision", shortDate, photoX + 5, cardY + 101, 32);
+      drawField("Lugar", city.toUpperCase(), photoX + 47, cardY + 101, 45);
+      drawField("Pais", country.toUpperCase(), photoX + 100, cardY + 101, 36);
+      drawField("Peso / Altura", `${localMedicalData.peso || "-"} kg / ${localMedicalData.altura || "-"} cm`, photoX + 143, cardY + 101, 40);
+
+      drawPanel(qrBoxX, qrBoxY, qrBoxW, qrBoxH);
+      if (qrPng) {
+        doc.addImage(qrPng, "PNG", qrBoxX + 7, qrBoxY + 6, 44, 44);
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(muted[0], muted[1], muted[2]);
+        doc.text("QR no disponible", qrBoxX + qrBoxW / 2, qrBoxY + 30, { align: "center" });
+      }
+      doc.setFillColor(14, 89, 169);
+      doc.roundedRect(qrBoxX + 5, qrBoxY + 54, qrBoxW - 10, 13, 3, 3, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.3);
+      doc.setTextColor(255, 255, 255);
+      doc.text("ESCANEAR DATOS MEDICOS", qrBoxX + qrBoxW / 2, qrBoxY + 62, { align: "center" });
+
+      drawPanel(innerX, medicalTop, cardW - pad * 2, 49);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(teal[0], teal[1], teal[2]);
+      doc.text("INFORMACION MEDICA", innerX + 6, medicalTop + 8);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(innerX + 6, medicalTop + 12, innerRight - 6, medicalTop + 12);
+
+      const col1 = innerX + 6;
+      const col2 = innerX + 88;
+      const col3 = innerX + 170;
+      const medY = medicalTop + 21;
+      drawMedicalField("Enfermedades", localMedicalData.enfermedades, col1, medY, 72);
+      drawMedicalField("Alergias", localMedicalData.alergias, col2, medY, 72);
+      drawMedicalField("Tratamientos", localMedicalData.tratamientos, col3, medY, 72);
+      drawMedicalField("Pastillas", localMedicalData.pastillas, col1, medY + 18, 72);
+      drawMedicalField("Vacunas", localMedicalData.vacunas, col2, medY + 18, 72);
+      drawMedicalField("Otras condiciones", user.healthConditions?.join(", ") || "", col3, medY + 18, 72);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(navy[0], navy[1], navy[2]);
+      doc.text("USO EXCLUSIVO EN SITUACIONES DE EMERGENCIA", innerX, innerBottom - 1);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(muted[0], muted[1], muted[2]);
+      doc.text("Este documento no sustituye la cedula de identidad.", innerRight, innerBottom - 1, { align: "right" });
 
       doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
     }).catch(err => {
