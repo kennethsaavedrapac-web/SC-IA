@@ -787,7 +787,17 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
                     <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
-                      <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
+                      <span
+                        className="flex items-center justify-center"
+                        style={{
+                          opacity: isActive ? 1 : 0.7,
+                          color: isActive
+                            ? 'white'
+                            : 'var(--color-brand-600)',
+                        }}
+                      >
+                        {chip.icon}
+                      </span>
                       <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
                   );
