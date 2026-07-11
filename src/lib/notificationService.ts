@@ -199,8 +199,8 @@ export const subscribeToPushNotifications = async (userId: string) => {
     
     if (!subscription) {
       const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-      if (!publicVapidKey) {
-        console.error("VITE_VAPID_PUBLIC_KEY no está configurada");
+      if (!publicVapidKey || publicVapidKey === "tu_vapid_public_key_aqui" || publicVapidKey.includes("YOUR_")) {
+        console.warn("VITE_VAPID_PUBLIC_KEY no está configurada con una clave válida. Saltando suscripción Push.");
         return false;
       }
       
@@ -230,7 +230,11 @@ export const subscribeToPushNotifications = async (userId: string) => {
     
     return true;
   } catch (err) {
-    console.error("Error en suscripción Push:", err);
+    if (err instanceof DOMException && err.name === "AbortError") {
+      console.warn("No se pudo registrar la suscripción Push con el servicio del navegador (posible bloqueo de red o clave inválida).", err);
+    } else {
+      console.error("Error en suscripción Push:", err);
+    }
     return false;
   }
 };
