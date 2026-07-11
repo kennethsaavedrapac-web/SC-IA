@@ -19,7 +19,6 @@ import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/upda
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
-import { useNavigationHistory, type ViewType } from "./hooks/useNavigationHistory";
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -33,14 +32,6 @@ export default function App() {
   const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
-  
-  // ─── Navigation History Hook ──────────────────────────────────
-  const navigationHistory = useNavigationHistory(
-    currentView as ViewType,
-    (view) => setCurrentView(view),
-    "home" // fallback view cuando el historial esté vacío
-  );
-
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
@@ -587,7 +578,6 @@ export default function App() {
       setLocalUser(DEFAULT_USER);
       setAppointments(INITIAL_APPOINTMENTS);
       setIsPremium(false);
-      navigationHistory.clearHistory(); // Limpiar historial al cerrar sesión
       setCurrentView("login");
       addToast(createToast(t('sessionClosed'), "info"));
     } else {
