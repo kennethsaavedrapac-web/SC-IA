@@ -654,8 +654,20 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
-                      <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
+                    <motion.button
+                      key={chip.id}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }}
+                      className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive
+                        ? "bg-blue-600 dark:bg-emerald-500 text-white border-transparent"
+                        : "bg-white dark:bg-slate-900 text-blue-700 dark:text-emerald-400 border-blue-100 dark:border-slate-800"
+                        }`}
+                      style={{
+                        padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px",
+                        boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.25), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)"
+                      }}
+                    >
+                      <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.8 }}>{chip.icon}</span>
                       <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
                   );
@@ -678,8 +690,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-[1.6] whitespace-pre-wrap ${msg.sender === "user"
-                      ? "bg-brand-600 text-white rounded-tr-sm"
-                      : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
+                    ? "bg-brand-600 text-white rounded-tr-sm"
+                    : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
                     }`}
                 >
                   {formatMessageText(msg.text)}
@@ -844,8 +856,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                       <div
                         key={`history-${message.id}`}
                         className={`rounded-2xl border p-4 shadow-sm ${message.sender === "user"
-                            ? "bg-blue-600 border-blue-500 text-white"
-                            : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
+                          ? "bg-blue-600 border-blue-500 text-white"
+                          : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
                           }`}
                       >
                         <div className={`flex flex-wrap items-center gap-2 mb-2 text-[10px] font-black ${message.sender === "user" ? "text-blue-100" : "text-slate-400 dark:text-slate-500"
@@ -861,8 +873,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                             {formatHistoryTime(message.createdAt)}
                           </span>
                           <span className={`ml-auto rounded-full px-2 py-1 ${message.sender === "user"
-                              ? "bg-white/15 text-white"
-                              : "bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400"
+                            ? "bg-white/15 text-white"
+                            : "bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400"
                             }`}>
                             {message.sender === "user" ? "Tú" : "Salud-Conecta IA"}
                           </span>
