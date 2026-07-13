@@ -323,13 +323,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       const H = 53.98;
       const R = 3.2;
 
-      // ── Colours (exact match with reference PDF aesthetic) ─
+      // ── Colours ────────────────────────────────────────────
       const WHITE     = [255, 255, 255];
       const NAVY      = [8, 25, 48];
       const BLUE      = [24, 84, 160];
       const TEAL      = [0, 155, 140];
-      const RED       = [200, 30, 40];
-      const GOLD      = [212, 175, 55];
       const GRAY      = [100, 116, 139];
       const BG        = [238, 245, 250];
       const PHOTO_BG  = [220, 230, 242];
@@ -351,18 +349,18 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         qrToDataUrl(qrRef.current),
       ]);
 
-      // ── Emergency-critical data only ──────────────────────
+      // ── Emergency-critical data ───────────────────────────
       const bloodType    = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
       const emergencyPh  = localMedicalData.contactoEmergencia || user.emergencyPhone || "---";
       const cedulaNum    = sanitize(localMedicalData.cedula, "---");
       const displayName  = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
       const fullLocation = `${sanitize(user.city)}, ${sanitize(user.country)}`;
-      const diseases     = clip(sanitize(localMedicalData.enfermedades, "-"), 28);
-      const allergies    = sanitize(localMedicalData.alergias, "-");
-      const treatments   = clip(sanitize(localMedicalData.tratamientos, "-"), 28);
-      const medications  = clip(sanitize(localMedicalData.pastillas, "-"), 28);
-      const vaccines     = clip(sanitize(localMedicalData.vacunas, "-"), 28);
-      const healthConds  = clip(user.healthConditions?.join(", ") || "-", 32);
+      const diseases     = clip(sanitize(localMedicalData.enfermedades, "-"), 24);
+      const allergies    = clip(sanitize(localMedicalData.alergias, "-"), 24);
+      const treatments   = clip(sanitize(localMedicalData.tratamientos, "-"), 24);
+      const medications  = clip(sanitize(localMedicalData.pastillas, "-"), 24);
+      const vaccines     = clip(sanitize(localMedicalData.vacunas, "-"), 24);
+      const healthConds  = clip(user.healthConditions?.join(", ") || "-", 28);
       const shortDate    = new Date().toLocaleDateString("es-NI", {
         day: "2-digit", month: "2-digit", year: "numeric",
       });
@@ -370,286 +368,312 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [W, H] });
 
       // ═══════════════════════════════════════════════════════
-      //  BACKGROUND
+      //  LAYOUT GRID (all positions pre-calculated)
       // ═══════════════════════════════════════════════════════
+      //  Margins: 0.3mm outer, 1mm internal gaps
+      //  ┌──────────────────────────────────────────────────┐
+      //  │ BAND │  HEADER (logo + title + +)               │
+      //  │(12mm)│──────────────────────────────────────────│
+      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR  │
+      //  │      │(17mm) │                         │(20mm)│
+      //  │      │──────────────────────────────────────────│
+      //  │      │  MEDICAL DATA PANEL (3 cols × 2 rows)    │
+      //  │      │──────────────────────────────────────────│
+      //  │      │  notice                                  │
+      //  └──────────────────────────────────────────────────┘
+
+      // ── Background ────────────────────────────────────────
       doc.setFillColor(BG[0], BG[1], BG[2]);
       doc.roundedRect(0, 0, W, H, R, R, "F");
       doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.25);
+      doc.setLineWidth(0.2);
       doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, R, R, "S");
 
       // ═══════════════════════════════════════════════════════
-      //  LEFT VERTICAL BAND (like cédula stripe)
+      //  ZONE 1 — LEFT VERTICAL BAND (12mm × full height)
       // ═══════════════════════════════════════════════════════
-      const bandW = 12;
       const bandX = 0.3;
-      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(bandX, 0.3, bandW, H - 0.6, 3, 3, "F");
-      // Fill middle flat
-      doc.rect(bandX, 2, bandW, H - 4, "F");
+      const bandW = 12;
+      const bandR = 3;
 
-      // Bottom half teal overlay
+      // Blue band (top 55%)
+      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
+      doc.roundedRect(bandX, 0.3, bandW, H * 0.55, bandR, bandR, "F");
+      doc.rect(bandX, 2, bandW, H * 0.55 - 2, "F");
+
+      // Teal band (bottom 45%)
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
       doc.rect(bandX, H * 0.55, bandW, H * 0.45 - 0.3, "F");
 
-      // Decorative concentric ellipses
+      // Decorative ellipses
       doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
       doc.setLineWidth(0.08);
-      for (let i = 0; i < 6; i++) {
-        doc.ellipse(bandX + bandW / 2, H * 0.65, 6 - i * 0.5, 3 + i * 0.8, "S");
-        doc.ellipse(bandX + bandW / 2, H * 0.32, 5 - i * 0.4, 2 + i * 0.6, "S");
+      for (let i = 0; i < 5; i++) {
+        doc.ellipse(bandX + bandW / 2, H * 0.33, 5 - i * 0.4, 2 + i * 0.5, "S");
+        doc.ellipse(bandX + bandW / 2, H * 0.66, 5.5 - i * 0.5, 2.5 + i * 0.6, "S");
       }
 
-      // Small circle + cross (medical symbol)
+      // Medical cross symbol
       doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.2);
-      doc.circle(bandX + bandW / 2, H * 0.42, 4, "S");
+      doc.setLineWidth(0.15);
+      doc.circle(bandX + bandW / 2, H * 0.44, 3.5, "S");
 
-      // Text in band
+      // Rotated text
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.8);
+      doc.setFontSize(2.5);
       doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
       doc.text("REPUBLICA", bandX + bandW / 2, H * 0.30, { align: "center", angle: 90 });
       doc.text("NICARAGUA", bandX + bandW / 2, H * 0.38, { align: "center", angle: 90 });
-      doc.text("AMERICA", bandX + bandW / 2, H * 0.73, { align: "center", angle: 90 });
-      doc.text("CENTRAL", bandX + bandW / 2, H * 0.80, { align: "center", angle: 90 });
+      doc.text("AMERICA", bandX + bandW / 2, H * 0.74, { align: "center", angle: 90 });
+      doc.text("CENTRAL", bandX + bandW / 2, H * 0.81, { align: "center", angle: 90 });
 
       // ═══════════════════════════════════════════════════════
-      //  TOP HEADER STRIP
+      //  ZONE 2 — HEADER (band right edge → right edge, 12mm tall)
       // ═══════════════════════════════════════════════════════
-      const headerY = 0.3;
-      const headerH = 12;
-      const hLeft = bandX + bandW + 0.5;
+      const hX = bandX + bandW + 0.5;
+      const hY = 0.3;
+      const hW = W - hX - 0.3;
+      const hH = 12;
 
-      // White background for header area
+      // Header background
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-      doc.roundedRect(hLeft, headerY, W - hLeft - 0.3, headerH, 3, 3, "F");
-      doc.rect(hLeft, 2, W - hLeft - 0.3, headerH - 2, "F");
+      doc.roundedRect(hX, hY, hW, hH, bandR, bandR, "F");
+      doc.rect(hX, 2, hW, hH - 2, "F");
 
-      // Logo
+      // Logo (8×8mm)
       if (logoPng) {
-        doc.addImage(logoPng, "PNG", hLeft + 2, headerY + 1.2, 8, 8);
+        doc.addImage(logoPng, "PNG", hX + 1.5, hY + 1.5, 8, 8);
       }
 
-      // "SALUD" in blue
+      // Brand text
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(7);
+      doc.setFontSize(6.5);
       doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("SALUD", hLeft + 12, headerY + 6);
-
-      // "CONECTA" in teal
+      doc.text("SALUD", hX + 11, hY + 5.5);
       doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("CONECTA", hLeft + 12, headerY + 10.5);
+      doc.text("CONECTA", hX + 11, hY + 10);
 
-      // Vertical divider line
+      // Vertical divider
       doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.2);
-      doc.line(hLeft + 26, headerY + 2, hLeft + 26, headerY + headerH - 2);
+      doc.setLineWidth(0.15);
+      doc.line(hX + 25, hY + 2, hX + 25, hY + hH - 2);
 
       // Document title
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.8);
+      doc.setFontSize(4.5);
       doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.text("DOCUMENTO DE EMERGENCIA", hLeft + 33, headerY + 5.5);
+      doc.text("DOCUMENTO DE EMERGENCIA", hX + 30, hY + 5);
 
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(3.5);
+      doc.setFontSize(3.2);
       doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", hLeft + 33, headerY + 9.5);
+      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", hX + 30, hY + 9);
 
-      // Red cross / plus symbol
+      // Plus symbol
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("+", W - 4, headerY + 9, { align: "right" });
+      doc.text("+", W - 3.5, hY + 8.5, { align: "right" });
 
       // ═══════════════════════════════════════════════════════
-      //  PHOTO (left column, under band)
+      //  ZONE 3 — PHOTO (left, below header)
       // ═══════════════════════════════════════════════════════
-      const phX = bandX + bandW + 2.5;
-      const phY = headerY + headerH + 2.5;
-      const phS = 17;
+      const phX = bandX + bandW + 2;
+      const phY = hY + hH + 2;
+      const phS = 16;
 
+      // Photo white card
       doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(phX - 0.4, phY - 0.4, phS + 0.8, phS + 0.8, 1.5, 1.5, "F");
+      doc.roundedRect(phX - 0.3, phY - 0.3, phS + 0.6, phS + 0.6, 1.5, 1.5, "F");
       doc.setFillColor(PHOTO_BG[0], PHOTO_BG[1], PHOTO_BG[2]);
       doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "F");
       doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.2);
+      doc.setLineWidth(0.15);
       doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "S");
 
       if (avatarPng) {
         doc.addImage(avatarPng, "PNG", phX, phY, phS, phS);
       } else {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
+        doc.setFontSize(8);
         doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
         doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 2.5, { align: "center" });
       }
 
-      // Blood type badge — critical emergency info
-      const bS = 7.5;
-      const bX = phX + phS - bS + 1;
-      const bY = phY + phS - bS + 1;
+      // Blood type badge (bottom-right corner of photo)
+      const bS = 7;
+      const bX = phX + phS - bS + 0.5;
+      const bY = phY + phS - bS + 0.5;
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
       doc.roundedRect(bX, bY, bS, bS, 1.5, 1.5, "F");
       doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.3);
+      doc.setLineWidth(0.25);
       doc.roundedRect(bX, bY, bS, bS, 1.5, 1.5, "S");
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(4);
+      doc.setFontSize(3.5);
       doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text(clip(bloodType, 3), bX + bS / 2, bY + 4.8, { align: "center" });
+      doc.text(clip(bloodType, 3), bX + bS / 2, bY + 4.5, { align: "center" });
 
       // ═══════════════════════════════════════════════════════
-      //  PATIENT NAME & ID INFO (center)
+      //  ZONE 4 — PATIENT INFO (center, between photo & QR)
       // ═══════════════════════════════════════════════════════
-      const cX = phX + phS + 3.5;
-      const cW = W - cX - 32; // leave room for QR
+      const iX = phX + phS + 3;
+      const iW = W - iX - 24; // leave 24mm for QR zone
 
-      // Full name
+      // Name
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(6);
+      doc.setFontSize(5.5);
       doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      const nameP = doc.splitTextToSize(displayName.toUpperCase(), cW);
-      doc.text(nameP.slice(0, 2), cX, phY + 5.5);
+      const nameP = doc.splitTextToSize(displayName.toUpperCase(), iW);
+      doc.text(nameP.slice(0, 2), iX, phY + 5);
 
-      // Separator line
+      // Separator
       doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.setLineWidth(0.2);
-      doc.line(cX, phY + 7.5, cX + cW, phY + 7.5);
+      doc.setLineWidth(0.15);
+      doc.line(iX, phY + 7, iX + iW, phY + 7);
 
-      // Critical emergency info rows
-      const emergencyRows: { label: string; val: string }[] = [
-        { label: "CEDULA DE IDENTIDAD", val: cedulaNum },
+      // Info rows (4 rows, evenly spaced)
+      const infoRows: { label: string; val: string }[] = [
+        { label: "CEDULA", val: cedulaNum },
         { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
-        { label: "TELEFONO EMERGENCIA", val: emergencyPh },
-        { label: "DIRECCION", val: clip(fullLocation, 24) },
+        { label: "TELEFONO", val: emergencyPh },
+        { label: "DIRECCION", val: clip(fullLocation, 22) },
       ];
 
-      emergencyRows.forEach((r, i) => {
-        const y = phY + 11 + i * 6.5;
+      const rowStartY = phY + 10;
+      const rowGap = 6;
+
+      infoRows.forEach((r, i) => {
+        const y = rowStartY + i * rowGap;
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(2.5);
+        doc.setFontSize(2.3);
         doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(r.label, cX, y);
+        doc.text(r.label, iX, y);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(4);
+        doc.setFontSize(3.8);
         doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        doc.text(r.val, cX, y + 3.2);
-        // Subtle separator between rows
-        if (i < emergencyRows.length - 1) {
-          doc.setDrawColor(230, 235, 242);
-          doc.setLineWidth(0.08);
-          doc.line(cX, y + 4.8, cX + cW, y + 4.8);
-        }
+        doc.text(r.val, iX, y + 3);
       });
 
       // ═══════════════════════════════════════════════════════
-      //  QR CODE (right side)
+      //  ZONE 5 — QR CODE (right side, aligned with photo top)
       // ═══════════════════════════════════════════════════════
-      const qS = 18;
-      const qX = W - qS - 3.5;
+      const qS = 17;
+      const qX = W - qS - 3;
       const qY = phY;
 
-      // White QR container
+      // QR container
       doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(qX - 1, qY - 0.5, qS + 2, qS + 13, 2, 2, "F");
+      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "F");
       doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.18);
-      doc.roundedRect(qX - 1, qY - 0.5, qS + 2, qS + 13, 2, 2, "S");
+      doc.setLineWidth(0.15);
+      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "S");
 
       if (qrPng) {
         doc.addImage(qrPng, "PNG", qX, qY, qS, qS);
       } else {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(4);
+        doc.setFontSize(3.5);
         doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
         doc.text("QR", qX + qS / 2, qY + qS / 2 + 1.5, { align: "center" });
       }
 
-      // QR label — exact match to reference style
+      // QR label bar (blue + teal split)
+      const qLabelY = qY + qS + 0.5;
+      const qLabelH = 4;
       doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(qX - 1, qY + qS + 0.5, qS + 2, 4.5, 1, 1, "F");
+      doc.roundedRect(qX - 0.8, qLabelY, qS + 1.6, qLabelH, 1, 1, "F");
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(qX + (qS + 2) / 2, qY + qS + 0.5, (qS + 2) / 2, 4.5, "F");
+      doc.rect(qX + (qS + 1.6) / 2, qLabelY, (qS + 1.6) / 2, qLabelH, "F");
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.8);
+      doc.setFontSize(2.5);
       doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("ESCANEAR", qX + (qS + 2) / 2, qY + qS + 3.8, { align: "center" });
+      doc.text("ESCANEAR", qX + (qS + 1.6) / 2, qLabelY + 2.8, { align: "center" });
 
       // ═══════════════════════════════════════════════════════
-      //  BOTTOM MEDICAL CHIP (compact grid of emergency info)
+      //  ZONE 6 — MEDICAL DATA PANEL (bottom area)
       // ═══════════════════════════════════════════════════════
-      const medY = phY + phS + 3;
-      const medH = H - medY - 4;
       const medX = bandX + bandW + 1;
+      const medY = phY + phS + 2.5;
       const medW = W - medX - 1;
+      const medH = H - medY - 3.5;
 
-      // Medical panel background
+      // Panel background
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
       doc.roundedRect(medX, medY, medW, medH, 2, 2, "F");
 
-      // Medical header
+      // Panel header
+      const medHeaderH = 5;
       doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.roundedRect(medX + 0.5, medY + 0.5, medW - 1, 5.5, 1.5, 1.5, "F");
+      doc.roundedRect(medX + 0.4, medY + 0.4, medW - 0.8, medHeaderH, 1.5, 1.5, "F");
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(3.2);
+      doc.setFontSize(3);
       doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 4.5, { align: "center" });
+      doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 3.8, { align: "center" });
 
-      // Teal underline
+      // Teal accent line
       doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(medX + 3, medY + 6.5, 12, 0.5, "F");
+      doc.rect(medX + 2.5, medY + medHeaderH + 0.8, 10, 0.4, "F");
 
-      // Medical fields in 3 columns × 2 rows grid
+      // Medical fields grid (3 cols × 2 rows)
       const medFields: { label: string; val: string }[] = [
         { label: "ENFERMEDADES", val: diseases },
         { label: "ALERGIAS", val: allergies },
         { label: "TRATAMIENTOS", val: treatments },
         { label: "MEDICAMENTOS", val: medications },
         { label: "VACUNAS", val: vaccines },
-        ...(healthConds !== "-" ? [{ label: "OTRAS CONDICIONES", val: healthConds }] : []),
+        { label: "OTRAS CONDICIONES", val: healthConds },
       ];
 
-      const cols = 3;
-      const rows = Math.ceil(medFields.length / cols);
-      const cellW = (medW - 2) / cols;
-      const cellH = (medH - 7.5) / rows;
+      const gridX = medX + 0.8;
+      const gridY = medY + medHeaderH + 1.8;
+      const gridW = medW - 1.6;
+      const gridH = medH - medHeaderH - 2.5;
+      const gCols = 3;
+      const gRows = 2;
+      const gCellW = gridW / gCols;
+      const gCellH = gridH / gRows;
 
       medFields.forEach((f, idx) => {
-        const col = idx % cols;
-        const row = Math.floor(idx / cols);
-        const cx = medX + 1 + col * cellW;
-        const cy = medY + 7.5 + row * cellH;
+        const col = idx % gCols;
+        const row = Math.floor(idx / gCols);
+        const cx = gridX + col * gCellW;
+        const cy = gridY + row * gCellH;
 
+        // Label
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(2.2);
+        doc.setFontSize(2);
         doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(f.label, cx + 2, cy + 3);
+        doc.text(f.label, cx + 1.5, cy + 2.5);
 
+        // Value
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(2.8);
+        doc.setFontSize(2.5);
         doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        const vl = doc.splitTextToSize(clip(f.val, 26), cellW - 4);
-        doc.text(vl.slice(0, 2), cx + 2, cy + 5.8);
+        const vl = doc.splitTextToSize(f.val, gCellW - 3);
+        doc.text(vl.slice(0, 2), cx + 1.5, cy + 5);
 
-        // Separator line between rows
-        if (row < rows - 1) {
+        // Row separator
+        if (row < gRows - 1) {
           doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.08);
-          doc.line(medX + 1, cy + cellH - 0.2, medX + medW - 1, cy + cellH - 0.2);
+          doc.setLineWidth(0.06);
+          doc.line(gridX, cy + gCellH - 0.1, gridX + gridW, cy + gCellH - 0.1);
+        }
+        // Column separator
+        if (col < gCols - 1) {
+          doc.setDrawColor(212, 220, 232);
+          doc.setLineWidth(0.06);
+          doc.line(cx + gCellW, cy, cx + gCellW, cy + gCellH);
         }
       });
 
       // ═══════════════════════════════════════════════════════
-      //  BOTTOM NOTICE BAR
+      //  ZONE 7 — BOTTOM NOTICE
       // ═══════════════════════════════════════════════════════
-      const noticeY = H - 2.5;
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(2);
+      doc.setFontSize(1.8);
       doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-      doc.text("Este documento no sustituye la cedula de identidad. Solo para uso en emergencias.", medX + 2, noticeY);
+      doc.text("Este documento no sustituye la cedula de identidad. Solo para uso en emergencias.", medX + 1.5, H - 1.5);
 
       // ═══════════════════════════════════════════════════════
       //  SAVE
