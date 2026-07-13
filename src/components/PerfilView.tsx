@@ -500,19 +500,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 2.5, { align: "center" });
       }
 
-      // Blood type badge (bottom-right corner of photo)
-      const bS = 7;
-      const bX = phX + phS - bS + 0.5;
-      const bY = phY + phS - bS + 0.5;
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.roundedRect(bX, bY, bS, bS, 1.5, 1.5, "F");
-      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.25);
-      doc.roundedRect(bX, bY, bS, bS, 1.5, 1.5, "S");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(3.5);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text(clip(bloodType, 3), bX + bS / 2, bY + 4.5, { align: "center" });
+      // Blood type — subtle text label next to photo info
+      // (no badge on photo, cleaner look)
 
       // ═══════════════════════════════════════════════════════
       //  ZONE 4 — PATIENT INFO (center, between photo & QR)
@@ -532,12 +521,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setLineWidth(0.15);
       doc.line(iX, phY + 7, iX + iW, phY + 7);
 
-      // Info rows (4 rows, evenly spaced)
+      // Info rows (4 rows, evenly spaced) — blood type included inline
       const infoRows: { label: string; val: string }[] = [
         { label: "CEDULA", val: cedulaNum },
         { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
         { label: "TELEFONO", val: emergencyPh },
-        { label: "DIRECCION", val: clip(fullLocation, 22) },
+        { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
       ];
 
       const rowStartY = phY + 10;
