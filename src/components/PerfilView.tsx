@@ -316,207 +316,266 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const downloadQRCode = () => {
     import("jspdf").then(async ({ default: jsPDF }) => {
-      // ── Credit card dimensions (CR80 standard) ──────────────
-      const cardW = 85.6;
-      const cardH = 53.98;
-      const r = 3.2; // corner radius
+      // ══════════════════════════════════════════════════════════
+      //  CR80 CREDIT CARD DIMENSIONS (85.6 × 53.98 mm)
+      // ══════════════════════════════════════════════════════════
+      const W = 85.6;
+      const H = 53.98;
+      const R = 3.5; // corner radius
 
       // ── Color palette ──────────────────────────────────────
-      const white      = [255, 255, 255];
-      const navy       = [10, 28, 52];
-      const blue       = [22, 78, 160];
-      const teal       = [0, 155, 140];
-      const silver     = [100, 116, 139];
-      const red        = [200, 35, 45];
-      const gold       = [218, 165, 32];
-      const bgLight    = [240, 245, 250];
+      const WHITE     = [255, 255, 255];
+      const NAVY      = [6, 18, 38];        // Azul profundo
+      const BLUE      = [20, 72, 150];       // Azul corporativo
+      const TEAL      = [0, 145, 132];       // Teal vibrante
+      const RED       = [200, 28, 38];       // Rojo emergencia
+      const GOLD      = [212, 175, 55];      // Dorado
+      const GRAY      = [120, 135, 155];     // Gris texto
+      const BG        = [240, 244, 250];     // Fondo general
+      const PHOTO_BG  = [215, 225, 238];     // Fondo foto
+      const BORDER    = [160, 176, 195];     // Borde tarjeta
 
       // ── Helpers ─────────────────────────────────────────────
-      const sanitize = (val: string | undefined | null, fb = ""): string =>
-        (val || fb).toString().trim();
-
-      const clip = (v: string, max = 30) => {
-        const c = (v || "- - -").replace(/\s+/g, " ").trim();
+      const sanitize = (v: string | undefined | null, fb = ""): string =>
+        (v || fb).toString().trim();
+      const clip = (v: string, max = 40) => {
+        const c = (v || "---").replace(/\s+/g, " ").trim();
         return c.length > max ? c.slice(0, max - 2) + ".." : c;
       };
 
-      // Pre-load images
+      // ── Pre-load images ────────────────────────────────────
       const [logoPng, avatarPng, qrPng] = await Promise.all([
         toDataUrl("/app-logo-v2.jpg"),
         user.avatarUrl ? toDataUrl(user.avatarUrl) : Promise.resolve(null),
         qrToDataUrl(qrRef.current),
       ]);
 
-      const bloodType = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
-      const emergencyPhone = localMedicalData.contactoEmergencia || user.emergencyPhone || "- - -";
-      const displayNameText = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
-
-      // ──────────────────────────────────────────────────────────
-      //  FRONT OF CARD
-      // ──────────────────────────────────────────────────────────
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [cardW, cardH] });
-
-      // Background
-      doc.setFillColor(bgLight[0], bgLight[1], bgLight[2]);
-      doc.roundedRect(0, 0, cardW, cardH, r, r, "F");
-
-      // Card border
-      doc.setDrawColor(170, 185, 200);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(0.4, 0.4, cardW - 0.8, cardH - 0.8, r, r, "S");
-
-      // ── Top band (navy) ──────────────────────────────────────
-      doc.setFillColor(navy[0], navy[1], navy[2]);
-      doc.roundedRect(0.4, 0.4, cardW - 0.8, 10.5, 2.5, 2.5, "F");
-      // Bottom of top band fill flat
-      doc.setFillColor(navy[0], navy[1], navy[2]);
-      doc.rect(0.4, 3, cardW - 0.8, 7.9, "F");
-
-      // Teal accent line
-      doc.setFillColor(teal[0], teal[1], teal[2]);
-      doc.rect(0.4, 10.9, cardW - 0.8, 0.8, "F");
-
-      // Logo in top band
-      const logoY = 1.8;
-      if (logoPng) {
-        doc.addImage(logoPng, "PNG", 2.5, logoY, 6.5, 6.5);
-      }
-
-      // Title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.text("SALUD  CONECTA", 10, logoY + 4);
-
-      doc.setFontSize(3.8);
-      doc.setTextColor(180, 210, 230);
-      doc.text("DOCUMENTO MEDICO DE EMERGENCIA", 10, logoY + 7.5);
-
-      // Right side - "EMERGENCIA" badge
-      doc.setFillColor(red[0], red[1], red[2]);
-      doc.roundedRect(cardW - 25, 1.5, 23, 7.5, 2, 2, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.2);
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.text("EMERGENCIA", cardW - 13.5, 5.2, { align: "center" });
-      doc.setFontSize(3.2);
-      doc.text("MEDICA", cardW - 13.5, 8, { align: "center" });
-
-      // ── Photo ────────────────────────────────────────────────
-      const photoX = 3.8;
-      const photoY = 14.5;
-      const photoSize = 22;
-
-      // Photo background
-      doc.setFillColor(220, 230, 240);
-      doc.roundedRect(photoX, photoY, photoSize, photoSize, 2, 2, "F");
-      doc.setDrawColor(170, 185, 200);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(photoX, photoY, photoSize, photoSize, 2, 2, "S");
-
-      if (avatarPng) {
-        doc.addImage(avatarPng, "PNG", photoX, photoY, photoSize, photoSize);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(silver[0], silver[1], silver[2]);
-        doc.text(getInitials(user.name), photoX + photoSize / 2, photoY + photoSize / 2 + 3.5, { align: "center" });
-      }
-
-      // ── Blood type badge (overlapping bottom-right of photo) ─
-      const badgeSize = 9;
-      const badgeX = photoX + photoSize - badgeSize + 2;
-      const badgeY = photoY + photoSize - badgeSize + 2;
-      doc.setFillColor(teal[0], teal[1], teal[2]);
-      doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 1.5, 1.5, "F");
-      doc.setDrawColor(white[0], white[1], white[2]);
-      doc.setLineWidth(0.4);
-      doc.roundedRect(badgeX, badgeY, badgeSize, badgeSize, 1.5, 1.5, "S");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.5);
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.text(clip(bloodType, 4), badgeX + badgeSize / 2, badgeY + 5.8, { align: "center" });
-
-      // ── Personal info ────────────────────────────────────────
-      const infoX = photoX + photoSize + 4.5;
-      const infoW = cardW - infoX - 42; // leave space for QR on right
-
-      // Name
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      const nameLine = clip(displayNameText, 30);
-      doc.text(nameLine, infoX, photoY + 6);
-
-      // Separator under name
-      doc.setDrawColor(teal[0], teal[1], teal[2]);
-      doc.setLineWidth(0.3);
-      doc.line(infoX, photoY + 8, infoX + infoW, photoY + 8);
-
-      // Info fields
-      const infoFields: { label: string; val: string }[] = [
-        { label: "CEDULA", val: sanitize(localMedicalData.cedula, "- - -") },
-        { label: "CORREO", val: sanitize(user.email, "- - -") },
-        { label: "TELEFONO", val: clip(emergencyPhone, 22) },
-        { label: "DIRECCION", val: clip(`${sanitize(user.city)}, ${sanitize(user.country)}`, 26) },
-      ];
-
-      infoFields.forEach((f, i) => {
-        const y = photoY + 13 + i * 7.5;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(3.2);
-        doc.setTextColor(teal[0], teal[1], teal[2]);
-        doc.text(f.label, infoX, y);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(4.8);
-        doc.setTextColor(navy[0], navy[1], navy[2]);
-        doc.text(f.val, infoX, y + 3.8);
+      // ── Data ───────────────────────────────────────────────
+      const bloodType    = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
+      const emergencyPh  = localMedicalData.contactoEmergencia || user.emergencyPhone || "---";
+      const cedulaNum    = sanitize(localMedicalData.cedula, "---");
+      const displayName  = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
+      const fullLocation = `${sanitize(user.city)}, ${sanitize(user.country)}`;
+      const emailText    = sanitize(user.email, "---");
+      const diseases     = sanitize(localMedicalData.enfermedades, "Ninguna");
+      const allergies    = sanitize(localMedicalData.alergias, "Ninguna");
+      const treatments   = sanitize(localMedicalData.tratamientos, "Ninguno");
+      const medications  = sanitize(localMedicalData.pastillas, "Ninguno");
+      const shortDate    = new Date().toLocaleDateString("es-NI", {
+        day: "2-digit", month: "2-digit", year: "numeric",
       });
 
-      // ── QR Code (right side) ────────────────────────────────
-      const qrSize = 24;
-      const qrX = cardW - qrSize - 4;
-      const qrY = 12.5;
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [W, H] });
 
-      // QR background
-      doc.setFillColor(white[0], white[1], white[2]);
-      doc.roundedRect(qrX - 1.5, qrY - 0.5, qrSize + 3, qrSize + 16, 2, 2, "F");
-      doc.setDrawColor(180, 195, 210);
+      // ──────────────────────────────────────────────────────────
+      //  BACKGROUND (soft gradient effect via layered fills)
+      // ──────────────────────────────────────────────────────────
+      doc.setFillColor(BG[0], BG[1], BG[2]);
+      doc.roundedRect(0, 0, W, H, R, R, "F");
+
+      // Subtle safety pattern: thin concentric border
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2]);
+      doc.setLineWidth(0.15);
+      doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, R, R, "S");
+      doc.setLineWidth(0.08);
+      doc.roundedRect(0.6, 0.6, W - 1.2, H - 1.2, R, R, "S");
+
+      // ──────────────────────────────────────────────────────────
+      //  TOP BAND — Navy header with gold accent
+      // ──────────────────────────────────────────────────────────
+      // Full-width navy band with rounded top corners
+      doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.roundedRect(0.3, 0.3, W - 0.6, 12, 3, 3, "F");
+      doc.rect(0.3, 3, W - 0.6, 9.3, "F");
+
+      // Gold underline
+      doc.setFillColor(GOLD[0], GOLD[1], GOLD[2]);
+      doc.rect(0.3, 12.3, W - 0.6, 0.5, "F");
+
+      // Logo
+      if (logoPng) {
+        doc.addImage(logoPng, "PNG", 2.5, 1.5, 7, 7);
+      }
+
+      // "SALUD CONECTA" in white
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("SALUD  CONECTA", 10.5, 4.5);
+
+      // Subtitle
+      doc.setFontSize(3.2);
+      doc.setTextColor(180, 205, 225);
+      doc.text("SISTEMA DE INFORMACION MEDICA DE EMERGENCIA", 10.5, 7.5);
+
+      // Document ID / serial
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(2.5);
+      doc.text(`ID: ${sanitize(user.id || "N/A", "---").slice(0, 18)}`, 10.5, 9.5);
+
+      // ── EMERGENCY badge (right side of top band) ─────────────
+      doc.setFillColor(RED[0], RED[1], RED[2]);
+      doc.roundedRect(W - 26.5, 1, 24, 9.5, 2, 2, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(4.5);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("EMERGENCIA", W - 14.5, 5, { align: "center" });
+      doc.setFontSize(3);
+      doc.setTextColor(240, 190, 190);
+      doc.text("DOCUMENTO MEDICO", W - 14.5, 8, { align: "center" });
+
+      // ──────────────────────────────────────────────────────────
+      //  PHOTO (left side)
+      // ──────────────────────────────────────────────────────────
+      const phX = 3.5;
+      const phY = 16;
+      const phS = 24;
+
+      // Photo card with shadow effect
+      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.roundedRect(phX - 0.5, phY - 0.5, phS + 1, phS + 1, 2, 2, "F");
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2]);
       doc.setLineWidth(0.25);
-      doc.roundedRect(qrX - 1.5, qrY - 0.5, qrSize + 3, qrSize + 16, 2, 2, "S");
+      doc.roundedRect(phX - 0.5, phY - 0.5, phS + 1, phS + 1, 2, 2, "S");
+
+      // Photo background
+      doc.setFillColor(PHOTO_BG[0], PHOTO_BG[1], PHOTO_BG[2]);
+      doc.roundedRect(phX, phY, phS, phS, 1.5, 1.5, "F");
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2]);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(phX, phY, phS, phS, 1.5, 1.5, "S");
+
+      if (avatarPng) {
+        doc.addImage(avatarPng, "PNG", phX, phY, phS, phS);
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+        doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 3.5, { align: "center" });
+      }
+
+      // ── BLOOD TYPE badge — small teal circle bottom-right of photo ──
+      const bX = phX + phS - 8.5;
+      const bY = phY + phS - 8.5;
+      const bS = 9;
+      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.roundedRect(bX, bY, bS, bS, 2, 2, "F");
+      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.setLineWidth(0.35);
+      doc.roundedRect(bX, bY, bS, bS, 2, 2, "S");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(4.8);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text(clip(bloodType, 4), bX + bS / 2, bY + 5.8, { align: "center" });
+
+      // ──────────────────────────────────────────────────────────
+      //  PATIENT NAME + KEY INFO
+      // ──────────────────────────────────────────────────────────
+      const iX = phX + phS + 5;
+      const iW = W - iX - 32; // reserved space for QR
+
+      // Large name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      const nameParts = doc.splitTextToSize(displayName.toUpperCase(), iW);
+      doc.text(nameParts.slice(0, 2), iX, phY + 7);
+
+      // Thin separator
+      doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.setLineWidth(0.25);
+      doc.line(iX, phY + 9.5, iX + iW, phY + 9.5);
+
+      // Info rows
+      const rows: { label: string; val: string }[] = [
+        { label: "CEDULA DE IDENTIDAD", val: cedulaNum },
+        { label: "FECHA / SEXO", val: `${shortDate}  |  ${cedulaNum ? "M" : "---"}` },
+        { label: "TELEFONO EMERGENCIA", val: emergencyPh },
+        { label: "RESIDENCIA", val: clip(fullLocation, 28) },
+      ];
+
+      rows.forEach((r, i) => {
+        const y = phY + 13 + i * 7.2;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(2.8);
+        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
+        doc.text(r.label, iX, y);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(4.5);
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.text(r.val, iX, y + 3.5);
+      });
+
+      // ──────────────────────────────────────────────────────────
+      //  QR CODE (right side)
+      // ──────────────────────────────────────────────────────────
+      const qS = 22;
+      const qX = W - qS - 4.5;
+      const qY = 14.5;
+
+      // QR card container
+      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.roundedRect(qX - 1.5, qY - 1, qS + 3, qS + 18, 2.5, 2.5, "F");
+      doc.setDrawColor(BORDER[0], BORDER[1], BORDER[2]);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(qX - 1.5, qY - 1, qS + 3, qS + 18, 2.5, 2.5, "S");
 
       if (qrPng) {
-        doc.addImage(qrPng, "PNG", qrX, qrY, qrSize, qrSize);
+        doc.addImage(qrPng, "PNG", qX, qY, qS, qS);
       } else {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(4);
-        doc.setTextColor(silver[0], silver[1], silver[2]);
-        doc.text("QR", qrX + qrSize / 2, qrY + qrSize / 2 + 1.5, { align: "center" });
+        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+        doc.text("QR", qX + qS / 2, qY + qS / 2 + 1.5, { align: "center" });
       }
 
+      // QR label
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(2.8);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text("ESCANEAR", qX + qS / 2, qY + qS + 3.5, { align: "center" });
+      doc.setFontSize(2.3);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      doc.text("PERFIL COMPLETO", qX + qS / 2, qY + qS + 6.2, { align: "center" });
+      doc.text("DATOS MEDICOS", qX + qS / 2, qY + qS + 8.5, { align: "center" });
+
+      // ──────────────────────────────────────────────────────────
+      //  MEDICAL ALERTS BADGE (below QR)
+      // ──────────────────────────────────────────────────────────
+      const alertY = qY + qS + 12;
+      const hasAllergies = allergies !== "Ninguna" && allergies !== "---";
+      if (hasAllergies) {
+        doc.setFillColor(RED[0], RED[1], RED[2]);
+        doc.roundedRect(qX - 1, alertY, qS + 1, 4.5, 1.5, 1.5, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(2.5);
+        doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        doc.text("ALERTA: " + clip(allergies, 14), qX + (qS + 1) / 2, alertY + 3, { align: "center" });
+      }
+
+      // ──────────────────────────────────────────────────────────
+      //  BOTTOM BAND — dual-color footer
+      // ──────────────────────────────────────────────────────────
+      doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.rect(0.3, H - 7, W - 0.6, 6.7, "F");
+      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.rect(W * 0.52, H - 7, W * 0.48 - 0.3, 6.7, "F");
+
+      // Slogan
       doc.setFont("helvetica", "bold");
       doc.setFontSize(3);
-      doc.setTextColor(navy[0], navy[1], navy[2]);
-      doc.text("ESCANEAR", qrX + qrSize / 2 - 0.5, qrY + qrSize + 3.5, { align: "center" });
-      doc.setFontSize(2.5);
-      doc.setTextColor(silver[0], silver[1], silver[2]);
-      doc.text("PERFIL MEDICO", qrX + qrSize / 2 - 0.5, qrY + qrSize + 6.5, { align: "center" });
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("SALUD QUE TE CONECTA, VIDA QUE TE ACOMPANA", 3.5, H - 3.2);
 
-      // ── Bottom band ──────────────────────────────────────────
-      doc.setFillColor(navy[0], navy[1], navy[2]);
-      doc.rect(0.4, cardH - 6.5, cardW - 0.8, 6.1, "F");
-      doc.setFillColor(teal[0], teal[1], teal[2]);
-      doc.rect(cardW * 0.5, cardH - 6.5, cardW * 0.5 - 0.4, 6.1, "F");
-
+      // Brand
       doc.setFont("helvetica", "bold");
       doc.setFontSize(3.2);
-      doc.setTextColor(white[0], white[1], white[2]);
-      doc.text("SALUD QUE TE CONECTA, VIDA QUE TE ACOMPANA", 3, cardH - 3);
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(3.5);
-      doc.text("SALUD CONECTA", cardW - 4, cardH - 3, { align: "right" });
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("SALUD CONECTA", W - 4, H - 3.2, { align: "right" });
 
-      // ── Save ────────────────────────────────────────────────
+      // ══════════════════════════════════════════════════════════
+      //  SAVE
+      // ══════════════════════════════════════════════════════════
       doc.save(`${t('pdfFileName')}-${user.name || "perfil"}.pdf`);
     }).catch(err => {
       console.error("Error cargando jsPDF", err);
