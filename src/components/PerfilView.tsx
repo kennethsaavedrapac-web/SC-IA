@@ -371,16 +371,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       //  LAYOUT GRID (all positions pre-calculated)
       // ═══════════════════════════════════════════════════════
       //  Margins: 0.3mm outer, 1mm internal gaps
-      //  ┌──────────────────────────────────────────────────┐
-      //  │ BAND │  HEADER (logo + title + +)               │
-      //  │(12mm)│──────────────────────────────────────────│
-      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR  │
-      //  │      │(17mm) │                         │(20mm)│
-      //  │      │──────────────────────────────────────────│
-      //  │      │  MEDICAL DATA PANEL (3 cols × 2 rows)    │
-      //  │      │──────────────────────────────────────────│
-      //  │      │  notice                                  │
-      //  └──────────────────────────────────────────────────┘
+      //  ┌─────────────────────────────────────────────────────┐
+      //  │ BAND │  HEADER (logo + title + +)                  │
+      //  │(12mm)│─────────────────────────────────────────────│
+      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR     │
+      //  │      │(17mm) │                            │(20mm)  │
+      //  │      │─────────────────────────────────────────────│
+      //  │      │  MEDICAL DATA PANEL (2 cols, more flexible) │
+      //  │      │─────────────────────────────────────────────│
+      //  │      │  notice                                     │
+      //  └─────────────────────────────────────────────────────┘
 
       // ── Background ────────────────────────────────────────
       doc.setFillColor(BG[0], BG[1], BG[2]);
@@ -514,7 +514,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(5.5);
       doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
       const nameP = doc.splitTextToSize(displayName.toUpperCase(), iW);
-      doc.text(nameP.slice(0, 2), iX, phY + 5);
+      doc.text(nameP.slice(0, 2), iX, phY + 4.5);
 
       // Separator
       doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
@@ -529,7 +529,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
       ];
 
-      const rowStartY = phY + 10;
+      const rowStartY = phY + 9.5;
       const rowGap = 6;
 
       infoRows.forEach((r, i) => {
@@ -599,48 +599,45 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       doc.setFontSize(3);
       doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
       doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 3.8, { align: "center" });
-
-      // Teal accent line
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(medX + 2.5, medY + medHeaderH + 0.8, 10, 0.4, "F");
-
-      // Medical fields grid (3 cols × 2 rows)
+      
+      // Medical fields grid (2 cols)
       const medFields: { label: string; val: string }[] = [
         { label: "ENFERMEDADES", val: diseases },
         { label: "ALERGIAS", val: allergies },
         { label: "TRATAMIENTOS", val: treatments },
         { label: "MEDICAMENTOS", val: medications },
         { label: "VACUNAS", val: vaccines },
-        { label: "OTRAS CONDICIONES", val: healthConds },
+        { label: "OTRAS COND.", val: healthConds },
       ];
 
       const gridX = medX + 0.8;
-      const gridY = medY + medHeaderH + 1.8;
+      const gridY = medY + medHeaderH + 1.2;
       const gridW = medW - 1.6;
-      const gridH = medH - medHeaderH - 2.5;
-      const gCols = 3;
-      const gRows = 2;
+      const gridH = medH - medHeaderH - 2;
+      const gCols = 2;
+      const gRows = 3;
       const gCellW = gridW / gCols;
       const gCellH = gridH / gRows;
 
       medFields.forEach((f, idx) => {
         const col = idx % gCols;
         const row = Math.floor(idx / gCols);
-        const cx = gridX + col * gCellW;
-        const cy = gridY + row * gCellH;
+        const cx = gridX + col * gCellW + 1;
+        const cy = gridY + row * gCellH + 1;
 
         // Label
         doc.setFont("helvetica", "bold");
         doc.setFontSize(2);
         doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(f.label, cx + 1.5, cy + 2.5);
+        doc.text(f.label, cx, cy + 1.5);
 
         // Value
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(2.5);
+        doc.setFont("helvetica", "normal"); // Use normal font for value
+        doc.setFontSize(2.2); // Slightly smaller font for better fit
         doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        const vl = doc.splitTextToSize(f.val, gCellW - 3);
-        doc.text(vl.slice(0, 2), cx + 1.5, cy + 5);
+        const vl = doc.splitTextToSize(f.val, gCellW - 2);
+        // Allow up to 3 lines for more text
+        doc.text(vl.slice(0, 3), cx, cy + 3.5);
 
         // Row separator
         if (row < gRows - 1) {
@@ -651,7 +648,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         // Column separator
         if (col < gCols - 1) {
           doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.06);
+          doc.setLineWidth(0.08);
           doc.line(cx + gCellW, cy, cx + gCellW, cy + gCellH);
         }
       });
