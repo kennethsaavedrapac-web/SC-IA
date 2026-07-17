@@ -7,6 +7,7 @@ import PerfilView from "./components/PerfilView";
 import LoginView from "./components/LoginView";
 import RegisterView from "./components/RegisterView";
 import AdminView from "./components/AdminView";
+import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
@@ -16,6 +17,7 @@ import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
+import { useSessionTimeout } from "./hooks/useSessionTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
@@ -28,7 +30,7 @@ const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) =>
 );
 
 export default function App() {
-  const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
+  const { user, profile, session, loading: authLoading, initialized, logout, requiresMFA, mfaFactorId, completeMFA } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
@@ -41,6 +43,15 @@ export default function App() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+
+  // ─── Toast Management ──────────────────────────────────────
+  const addToast = useCallback((toast: ToastData) => {
+    setToasts((prev) => [...prev, toast]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -255,6 +266,32 @@ export default function App() {
     }
   }, [session, user, initialized]);
 
+  // ─── Admin route guard (defense in depth) ──────────────────────
+  useEffect(() => {
+    if (currentView === "admin" && profileRole !== "admin") {
+      setCurrentView("home");
+    }
+  }, [currentView, profileRole]);
+
+  // ─── Session timeout (auto-logout after 30 min inactivity) ─────
+  const isSessionActive = !!(session && user && user.id !== "guest" && !requiresMFA);
+
+  const handleSessionTimeout = useCallback(() => {
+    logout().then(() => {
+      setLocalUser(DEFAULT_USER);
+      setAppointments(INITIAL_APPOINTMENTS);
+      setIsPremium(false);
+      setCurrentView("login");
+      addToast(createToast(t('sessionExpired'), "warning", 6000));
+    });
+  }, [logout, t, addToast]);
+
+  const handleSessionWarning = useCallback(() => {
+    addToast(createToast(t('sessionExpiringSoon'), "warning", 8000));
+  }, [t, addToast]);
+
+  useSessionTimeout(handleSessionTimeout, handleSessionWarning, isSessionActive);
+
   
   useEffect(() => {
     if (initialized && user && user.id !== "guest") {
@@ -331,15 +368,6 @@ export default function App() {
       });
     }
   }, [profile]);
-
-  // ─── Toast Management ──────────────────────────────────────
-  const addToast = useCallback((toast: ToastData) => {
-    setToasts((prev) => [...prev, toast]);
-  }, []);
-
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   const triggerUpdateNotification = useCallback((reg: ServiceWorkerRegistration, force = false) => {
     showUpdateNotification(() => {
@@ -937,7 +965,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "admin" && (
+          {currentView === "admin" && profileRole === "admin" && (
             <motion.div
               key="admin"
               initial={{ opacity: 0 }}
@@ -952,6 +980,21 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ─── 2FA Verification Modal (post-login) ──────────────── */}
+        {requiresMFA && mfaFactorId && (
+          <TwoFactorVerify
+            factorId={mfaFactorId}
+            onVerified={completeMFA}
+            onCancel={() => {
+              logout().then(() => {
+                setLocalUser(DEFAULT_USER);
+                setCurrentView("login");
+                addToast(createToast(t('mfaCancelledLogin'), "info"));
+              });
+            }}
+          />
+        )}
 
         {}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (

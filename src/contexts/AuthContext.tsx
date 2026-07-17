@@ -9,6 +9,7 @@ import {
   getUserProfile,
   type UserProfile,
 } from '../lib/authService';
+import { getAssuranceLevel, getMFAFactors } from '../lib/mfaService';
 
 
 interface AuthContextType {
@@ -19,12 +20,17 @@ interface AuthContextType {
   loading: boolean;
   initialized: boolean;
 
+  // MFA state
+  requiresMFA: boolean;
+  mfaFactorId: string | null;
+
   
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
+  completeMFA: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,6 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+
+  // MFA state
+  const [requiresMFA, setRequiresMFA] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
 
   
   const loadProfile = useCallback(async (userId: string) => {
@@ -75,6 +85,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithEmail(email, password);
       if (result.success && result.user) {
         await loadProfile(result.user.id);
+
+        // Check if user has MFA enabled and needs verification
+        try {
+          const assurance = await getAssuranceLevel();
+          if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
+            // User has MFA factors but hasn't verified yet in this session
+            const { factors } = await getMFAFactors();
+            const verifiedFactor = factors.find(f => f.status === 'verified');
+            if (verifiedFactor) {
+              setRequiresMFA(true);
+              setMfaFactorId(verifiedFactor.id);
+            }
+          }
+        } catch {
+          // MFA check failed silently — don't block login
+        }
       }
       return { success: result.success, error: result.error };
     } finally {
@@ -115,6 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setSession(null);
         setProfile(null);
+        setRequiresMFA(false);
+        setMfaFactorId(null);
       }
       return result;
     } finally {
@@ -128,17 +156,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loadProfile]);
 
+  const completeMFA = useCallback(() => {
+    setRequiresMFA(false);
+    setMfaFactorId(null);
+  }, []);
+
   const value: AuthContextType = {
     user,
     session,
     profile,
     loading,
     initialized,
+    requiresMFA,
+    mfaFactorId,
     login,
     register,
     loginWithGoogle,
     logout,
     refreshProfile,
+    completeMFA,
   };
 
   return (

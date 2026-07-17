@@ -3,6 +3,7 @@ import { Eye, EyeOff, User, Mail, Lock, ArrowRight, LogIn, Moon, Sun, Loader2 } 
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
+import { sanitizeAndTrim, validateEmail, validateName, getPasswordStrength } from "../lib/security";
 
 interface RegisterViewProps {
   onRegister: (name: string) => void;
@@ -39,11 +40,6 @@ export default function RegisterView({
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [termsError, setTermsError] = useState("");
 
-  const validateEmail = (value: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || loading) return;
@@ -51,21 +47,20 @@ export default function RegisterView({
     let hasError = false;
 
     // Validate Name
-    if (!name.trim()) {
-      setNameError(t('nameRequired'));
-      hasError = true;
-    } else if (name.trim().length < 3) {
-      setNameError(t('nameMin'));
+    const nameVal = validateName(name);
+    if (!nameVal.valid) {
+      setNameError(nameVal.error === 'tooShort' ? t('nameMin') : t('nameRequired'));
       hasError = true;
     } else {
       setNameError("");
     }
 
     // Validate Email
-    if (!email.trim()) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
       setEmailError(t('emailRequired'));
       hasError = true;
-    } else if (!validateEmail(email.trim())) {
+    } else if (!validateEmail(cleanEmail)) {
       setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
@@ -106,10 +101,11 @@ export default function RegisterView({
 
     setIsSubmitting(true);
     try {
-      const result = await register(email.trim(), password, name.trim());
+      const sanitizedName = sanitizeAndTrim(name);
+      const result = await register(cleanEmail, password, sanitizedName);
       if (result.success) {
         onToast?.(createToast(t('registerSuccess'), "success"));
-        onRegister(name.trim());
+        onRegister(sanitizedName);
       } else {
         onToast?.(createToast(result.error || t('registerError'), "error"));
       }
@@ -305,6 +301,32 @@ export default function RegisterView({
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {password && (
+              <div className="mt-1 px-1.5 space-y-1">
+                <div className="flex gap-1 h-1">
+                  {[...Array(4)].map((_, i) => {
+                    const strength = getPasswordStrength(password);
+                    const colors = [
+                      "bg-red-500", // 1 - Weak
+                      "bg-amber-500", // 2 - Fair
+                      "bg-blue-500", // 3 - Good
+                      "bg-emerald-500", // 4 - Strong
+                    ];
+                    const active = i < strength;
+                    const colorClass = active ? colors[strength - 1] : "bg-slate-100 dark:bg-slate-800";
+                    return (
+                      <div key={i} className={`flex-1 rounded-full transition-all duration-300 ${colorClass}`} />
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                  {getPasswordStrength(password) === 1 && t('passWeak' as any)}
+                  {getPasswordStrength(password) === 2 && t('passFair' as any)}
+                  {getPasswordStrength(password) === 3 && t('passGood' as any)}
+                  {getPasswordStrength(password) === 4 && t('passStrong' as any)}
+                </p>
+              </div>
+            )}
             {passwordError && (
               <p className="text-red-500 text-[11px] font-semibold pl-1.5 mt-0.5">{passwordError}</p>
             )}

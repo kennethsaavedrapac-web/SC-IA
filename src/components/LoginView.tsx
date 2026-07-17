@@ -3,6 +3,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, UserPlus, Moon, Sun, Loader2 } fro
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
+import { validateEmail } from "../lib/security";
 
 interface LoginViewProps {
   onLogin: (name: string) => void;
@@ -31,21 +32,17 @@ export default function LoginView({
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const validateEmail = (value: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || loading) return;
 
     let hasError = false;
+    const cleanEmail = email.trim();
 
-    if (!email.trim()) {
+    if (!cleanEmail) {
       setEmailError(t('emailRequired'));
       hasError = true;
-    } else if (!validateEmail(email.trim())) {
+    } else if (!validateEmail(cleanEmail)) {
       setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
@@ -66,10 +63,10 @@ export default function LoginView({
 
     setIsSubmitting(true);
     try {
-      const result = await login(email.trim(), password);
+      const result = await login(cleanEmail, password);
       if (result.success) {
         onToast?.(createToast(t('welcomeBack'), "success"));
-        onLogin(email.trim());
+        onLogin(cleanEmail);
       } else {
         onToast?.(createToast(result.error || t('loginError'), "error"));
       }

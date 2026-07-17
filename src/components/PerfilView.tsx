@@ -7,6 +7,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
+import { sanitizeAndTrim, validateEmail, validateName, validatePhone } from "../lib/security";
+import TwoFactorSetup from "./TwoFactorSetup";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
@@ -297,15 +299,32 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate inputs before saving
+    const nameValidation = validateName(editName);
+    if (!nameValidation.valid) {
+      alert(nameValidation.error === 'tooShort' ? t('nameMin') : t('nameRequired'));
+      return;
+    }
+    if (!validateEmail(editEmail)) {
+      alert(t('emailInvalid'));
+      return;
+    }
+    if (editPhone && !validatePhone(editPhone)) {
+      alert(t('phoneInvalid'));
+      return;
+    }
+
+    // Sanitize inputs before saving
     onUpdateUser({
       ...user,
-      name: editName,
-      email: editEmail,
-      city: editCity,
-      country: editCountry,
-      emergencyPhone: editPhone,
+      name: sanitizeAndTrim(editName),
+      email: editEmail.trim(),
+      city: sanitizeAndTrim(editCity),
+      country: sanitizeAndTrim(editCountry),
+      emergencyPhone: editPhone.trim(),
       bloodType: editBloodType,
-      healthConditions: editConditions,
+      healthConditions: editConditions.map(c => sanitizeAndTrim(c)),
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
@@ -1103,10 +1122,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                           { }
                           {item.id === "seguridad" && (
-                            <div className="space-y-3 text-left">
+                            <div className="space-y-4 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
                                 {t('securityConfigDesc')}
                               </p>
+
+                              {/* 2FA Setup */}
+                              <TwoFactorSetup userId={user.id || 'guest'} />
+
+                              {/* Google Account info */}
                               <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
