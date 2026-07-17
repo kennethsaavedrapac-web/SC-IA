@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 import helmet from "helmet";
 import cors from "cors";
@@ -20,18 +19,6 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const PORT = 3000;
 
-
-let aiClient: GoogleGenerativeAI | null = null;
-function getGeminiClient() {
-  if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.warn("⚠️ Warning: GEMINI_API_KEY is not defined in the environment.");
-    }
-    aiClient = new GoogleGenerativeAI(apiKey || "");
-  }
-  return aiClient;
-}
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -92,15 +79,14 @@ async function startServer() {
       }
 
       
-      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
+      const groqApiKey = process.env.GROQ_API_KEY;
+      if (!groqApiKey || groqApiKey.length < 10) {
         console.log("Using simulated response (unconfigured API key).");
         return res.json({
           text: `Nivel de prioridad: 🟡 Moderado\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas reportados ("${message}") indican una situación que requiere vigilancia activa. El análisis sugiere que no se detectan signos de emergencia inmediata, pero es fundamental seguir las pautas de cuidado para monitorear que el cuadro no progrese.\n\n✅ RECOMENDACIONES\n🔹 Mantener reposo absoluto y evitar esfuerzos físicos.\n🔹 Hidratación constante con líquidos claros o suero oral.\n🔹 Monitorear síntomas cada 2-4 horas.\n🔹 Si los síntomas persisten o empeoran tras 24 horas, acuda a su centro de salud.\n🔹 Contacte al 118 si presenta dificultad para respirar, dolor severo o cambios de conciencia.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
           simulated: true,
         });
       }
-
-      const client = getGeminiClient();
 
       const systemInstruction = `Eres "Salud-Conecta IA", un asistente médico virtual y asesor de triaje clínico inteligente para Nicaragua.
 
@@ -191,7 +177,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
 
       const finalSystemInstruction = systemInstruction + timeContext + profileContext + historyContext;
 
-      let aiModel = "gemini-2.5-flash-lite";
+      let aiModel = "llama-3.3-70b-versatile";
       try {
         if (!process.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL.includes("placeholder")) {
            throw new Error("Supabase no configurado");
@@ -203,33 +189,59 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
           .eq("clave", "global_config")
           .single();
         if (!error && data && data.valor && (data.valor as any).aiModel) {
-          aiModel = (data.valor as any).aiModel;
+          const dbModel = (data.valor as any).aiModel;
+          if (dbModel && !dbModel.startsWith("gemini")) {
+            aiModel = dbModel;
+          }
         }
       } catch (dbErr) {
         console.error("Error fetching dynamic model config from Supabase:", dbErr);
       }
 
-      const model = client.getGenerativeModel({
-        model: aiModel,
-        systemInstruction: finalSystemInstruction
-      });
+      // Map chat history and build message payload for Groq
+      const messages = [
+        { role: "system", content: finalSystemInstruction }
+      ];
 
-      
-      const chat = model.startChat({
-        history: history && Array.isArray(history) ? history.map((turn: any) => ({
-          role: (turn.sender === "user" || turn.role === "user") ? "user" : "model",
-          parts: [{ text: turn.text || turn.content || "" }]
-        })) : [],
-      });
+      if (history && Array.isArray(history)) {
+        history.forEach((turn: any) => {
+          const role = (turn.sender === "user" || turn.role === "user") ? "user" : "assistant";
+          const text = turn.text || turn.content || "";
+          if (text) {
+            messages.push({ role, content: text });
+          }
+        });
+      }
 
-      // Send message and get response
+      messages.push({ role: "user", content: message });
+
+      // Send request to Groq API
       let responseText = "";
       try {
-        const result = await chat.sendMessage(message);
-        responseText = result.response ? result.response.text() : "";
+        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${groqApiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: aiModel,
+            messages: messages,
+            temperature: 0.2,
+            max_tokens: 1024
+          })
+        });
+
+        if (!groqResponse.ok) {
+          const errBody = await groqResponse.text();
+          throw new Error(`Groq API responded with status ${groqResponse.status}: ${errBody}`);
+        }
+
+        const groqData: any = await groqResponse.json();
+        responseText = groqData.choices?.[0]?.message?.content || "";
       } catch (aiErr: any) {
-        console.error("AI Generation Error:", aiErr);
-        if (aiErr?.message?.includes("SAFETY")) {
+        console.error("Groq Generation Error:", aiErr);
+        if (aiErr?.message?.includes("safety") || aiErr?.message?.includes("refuse")) {
             return res.status(200).json({ text: "Consulta bloqueada por seguridad. Reformule sus síntomas.", simulated: false });
         }
         throw aiErr;

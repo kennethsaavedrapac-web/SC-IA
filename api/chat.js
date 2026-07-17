@@ -1,31 +1,9 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
-
-let aiClient = null;
-
-function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey || apiKey.length < 10) {
-    return null;
-  }
-
-  if (!aiClient) {
-    try {
-      aiClient = new GoogleGenerativeAI(apiKey);
-    } catch (e) {
-      console.error("Error creating GoogleGenerativeAI client:", e);
-      throw e;
-    }
-  }
-
-  return aiClient;
-}
 
 const FALLBACK_SYSTEM_INSTRUCTION = `Eres el "Asistente de Triaje Digital de Salud-Conecta IA", un sistema profesional de orientación clínica diseñado para la población de Nicaragua.
 
@@ -106,23 +84,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey || apiKey.length < 10) {
       console.log("API key not configured, returning simulated response");
       return res.status(200).json({
         text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${message}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
-      });
-    }
-
-    const ai = getGeminiClient();
-
-    if (!ai) {
-      console.error("Failed to initialize Gemini client - API key may be invalid");
-      return res.status(500).json({
-        error: "No se pudo inicializar el servicio de IA. Intente nuevamente más tarde.",
-        timestamp: new Date().toISOString(),
       });
     }
 
@@ -188,7 +156,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
 
     // Obtener aiModel dinámico desde Supabase
-    let aiModel = "gemini-2.5-flash-lite";
+    let aiModel = "llama-3.3-70b-versatile";
     if (supabase) {
       try {
         const { data: configData, error: configError } = await supabase
@@ -198,32 +166,46 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
           .single();
 
         if (!configError && configData?.valor?.aiModel) {
-          aiModel = configData.valor.aiModel;
+          const dbModel = configData.valor.aiModel;
+          if (dbModel && !dbModel.startsWith("gemini")) {
+            aiModel = dbModel;
+          }
         }
       } catch (dbErr) {
         console.error("Error fetching dynamic model config from Supabase in serverless function:", dbErr);
       }
     }
 
-    const model = ai.getGenerativeModel({
-      model: aiModel,
-      systemInstruction: systemPrompt,
-    });
-
-    // Iniciar chat sin historial (ahorro máximo de tokens - no se envía historial a la API)
-    const chat = model.startChat({
-      history: [],
-    });
-
-
-    // Generate response
-    let response;
+    // Call Groq API
+    let responseText = "";
     try {
-      response = await chat.sendMessage(message);
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: aiModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: message }
+          ],
+          temperature: 0.2,
+          max_tokens: 1024
+        })
+      });
+
+      if (!groqResponse.ok) {
+        const errBody = await groqResponse.text();
+        throw new Error(`Groq API responded with status ${groqResponse.status}: ${errBody}`);
+      }
+
+      const groqData = await groqResponse.json();
+      responseText = groqData.choices?.[0]?.message?.content || "";
     } catch (sendErr) {
-      console.error("Gemini Send Message Error:", sendErr);
-      // Si el error es por seguridad o filtros
-      if (sendErr.message?.includes("SAFETY")) {
+      console.error("Groq Send Message Error:", sendErr);
+      if (sendErr.message?.includes("safety") || sendErr.message?.includes("refuse")) {
         return res.status(200).json({
           text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
           simulated: false
@@ -231,8 +213,6 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       }
       throw sendErr;
     }
-
-    const responseText = response && response.response ? response.response.text() : null;
 
     // Try to log the chat interaction to the database (fail silently if table doesn't exist)
     if (supabase) {
@@ -262,7 +242,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     let shouldUseFallback = false;
 
     if (errorMessage.includes("API_KEY") || errorMessage.includes("401") || errorMessage.includes("403") || errorMessage.includes("PERMISSION")) {
-      userMessage = "Error de autenticación con la API de Gemini. Verifica que la API key sea válida.";
+      userMessage = "Error de autenticación con la API de Groq. Verifica que la API key sea válida.";
     } else if (errorMessage.includes("SAFETY")) {
       userMessage = "La respuesta fue bloqueada por filtros de seguridad. Intenta reformular tu consulta.";
     } else if (errorMessage.includes("quota") || errorMessage.includes("429") || errorMessage.includes("Too Many Requests")) {
