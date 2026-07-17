@@ -4,29 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Salud-Conecta IA</title>
-    <!-- Fonts -->
+    <meta name="description" content="Salud-Conecta IA — Tu asistente de salud inteligente. Consultas médicas, búsqueda de centros de salud y más, potenciado por inteligencia artificial." />
+    <link rel="icon" type="image/jpeg" href="/app-logo-v2.jpg" />
+    <link rel="apple-touch-icon" href="/app-logo-v2.jpg">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- PWA Manifest -->
+    
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#2563eb" />
-    <script type="module" crossorigin src="/assets/index-D0FrTZja.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Gp3gl27B.css">
+    <meta name="theme-color" content="#0C1529" />
+    <script type="module" crossorigin src="/assets/index-DXOxX8dD.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BteOw_zo.css">
   </head>
-  <body class="bg-slate-50 antialiased text-slate-900">
-    <div id="root"></div>
+  <body class="bg-white antialiased text-slate-900">
+    <div id="root"></div>
 
-    <!-- Register service worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('PWA SW registered scope:', reg.scope))
-            .catch(err => console.error('PWA SW registration failed:', err));
-        });
-      }
-    </script>
   </body>
 </html>
+
 

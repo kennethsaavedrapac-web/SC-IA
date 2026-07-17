@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import type { AuthError, User, Session } from '@supabase/supabase-js';
 
-// ─── Types ────────────────────────────────────────────────────
+
 export interface UserProfile {
   id: string;
   nombre: string;
@@ -20,7 +20,7 @@ export interface AuthResult {
   error?: string;
 }
 
-// ─── Error Messages (Spanish, user-friendly) ──────────────────
+
 function translateAuthError(error: AuthError): string {
   const code = error.message?.toLowerCase() || '';
 
@@ -52,16 +52,13 @@ function translateAuthError(error: AuthError): string {
     return 'El formato del correo electrónico no es válido.';
   }
 
-  // Fallback
+  
   return error.message || 'Ha ocurrido un error inesperado. Intenta de nuevo.';
 }
 
-// ─── Auth Functions ───────────────────────────────────────────
 
-/**
- * Registrar un usuario nuevo con email y contraseña.
- * El nombre se envía como metadata para que el trigger lo use al crear el perfil.
- */
+
+
 export async function signUpWithEmail(
   email: string,
   password: string,
@@ -96,9 +93,7 @@ export async function signUpWithEmail(
   }
 }
 
-/**
- * Iniciar sesión con email y contraseña.
- */
+
 export async function signInWithEmail(
   email: string,
   password: string
@@ -126,13 +121,10 @@ export async function signInWithEmail(
   }
 }
 
-/**
- * Iniciar sesión / registrarse con Google OAuth.
- * Redirige al usuario a la página de Google.
- */
+
 export async function signInWithGoogle(): Promise<AuthResult> {
   try {
-    // Evita intentar redirigir a Google si estamos usando el placeholder de Supabase
+    
     if (!import.meta.env.VITE_SUPABASE_URL) {
       return {
         success: false,
@@ -151,7 +143,7 @@ export async function signInWithGoogle(): Promise<AuthResult> {
       return { success: false, error: translateAuthError(error) };
     }
 
-    // OAuth redirect happens — this code won't execute in the same context
+    
     return { success: true };
   } catch (err: any) {
     return {
@@ -161,9 +153,7 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   }
 }
 
-/**
- * Cerrar sesión del usuario actual.
- */
+
 export async function signOut(): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase.auth.signOut();
@@ -176,17 +166,13 @@ export async function signOut(): Promise<{ success: boolean; error?: string }> {
   }
 }
 
-/**
- * Obtener la sesión actual del usuario.
- */
+
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
   return { session: data.session, error };
 }
 
-/**
- * Suscribirse a cambios de estado de autenticación.
- */
+
 export function onAuthStateChange(
   callback: (event: string, session: Session | null) => void
 ) {
@@ -196,9 +182,7 @@ export function onAuthStateChange(
   return data.subscription;
 }
 
-/**
- * Obtener perfil del usuario desde la tabla profiles.
- */
+
 export async function getUserProfile(
   userId: string
 ): Promise<{ profile: UserProfile | null; error?: string }> {
@@ -220,9 +204,7 @@ export async function getUserProfile(
   }
 }
 
-/**
- * Actualizar datos del perfil del usuario.
- */
+
 export async function updateUserProfile(
   userId: string,
   updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais'>>

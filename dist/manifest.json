@@ -1,21 +1,38 @@
 {
+  "id": "/?v=8",
+  "name": "Salud Conecta IA",
   "short_name": "SaludConecta",
-  "name": "Salud-Conecta IA",
+  "description": "Plataforma de salud avanzada con triaje inteligente por IA, mapas de centros de salud y búsqueda de médicos y farmacias.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#4A90E2",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=192&h=192",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "sizes": "192x192"
+      "purpose": "any"
     },
     {
-      "src": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=512&h=512",
+      "src": "/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "sizes": "512x512"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ],
-  "start_url": "/",
-  "background_color": "#f8fafc",
-  "theme_color": "#2563eb",
-  "display": "standalone",
-  "orientation": "portrait"
+  ]
 }

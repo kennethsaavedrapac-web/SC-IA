@@ -1,0 +1,84 @@
+{
+  "departamento": "ZELAYA CENTRAL",
+  "total_registros": 6,
+  "unidades_salud": [
+    {
+      "numero": 1,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Centro de Salud Mulukukú",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Mulukukú",
+      "localidad": "Del Parque 3 cuadras al este, Mulukukú",
+      "zona": "Urbano",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    },
+    {
+      "numero": 2,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Puesto de Salud San Isidro",
+      "tipo_unidad_salud": "Puesto de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Muelle de los Bueyes",
+      "localidad": "Comunidad San Isidro, contiguo a la iglesia católica",
+      "zona": "Rural",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    },
+    {
+      "numero": 3,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Puesto de Salud El Zanjón",
+      "tipo_unidad_salud": "Puesto de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Muelle de los Bueyes",
+      "localidad": "Comunidad El Zanjón, contiguo a la escuela pública",
+      "zona": "Rural",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    },
+    {
+      "numero": 4,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Puesto de Salud Nueva Esperanza",
+      "tipo_unidad_salud": "Puesto de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Mulukukú",
+      "localidad": "Comunidad Nueva Esperanza, Nueva Esperanza",
+      "zona": "Rural",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    },
+    {
+      "numero": 5,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Puesto de Salud San Pablo",
+      "tipo_unidad_salud": "Puesto de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Muelle de los Bueyes",
+      "localidad": "Comunidad San Pablo, contiguo a escuela primaria, San Pablo",
+      "zona": "Rural",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    },
+    {
+      "numero": 6,
+      "silais": "ZELAYA CENTRAL",
+      "nombre": "Puesto de Salud Gustavo Somarriba (Los Laureles)",
+      "tipo_unidad_salud": "Puesto de Salud",
+      "departamento_region": "ZELAYA CENTRAL",
+      "municipio": "Muelle de los Bueyes",
+      "localidad": "Colonia Los Laureles, Frente al Colegio Los Laureles, Colonia Los Laureles",
+      "zona": "Urbano",
+      "telefono": null,
+      "latitud": null,
+      "longitud": null
+    }
+  ]
+}

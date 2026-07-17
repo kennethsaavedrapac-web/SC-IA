@@ -1,29 +1,118 @@
+@import "./theme.css";
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   TAILWIND DESIGN TOKENS
+   Mapeo de variables CSS a tokens de Tailwind v4
+   ═══════════════════════════════════════════════════════════════ */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* ── Escala Brand (Cobalto → Teal) ────────────────────────── */
+  --color-brand-50: #E0FFF5;
+  --color-brand-100: #C0F5E5;
+  --color-brand-200: #A0E8D8;
+  --color-brand-300: #5BD4C0;
+  --color-brand-400: #2EE8B7;
+  --color-brand-500: #00D4AA;
+  --color-brand-600: var(--color-antigravity); /* Force Antigravity brand globally */
+  --color-brand-700: #00B4A0;
+  --color-brand-800: #008F7A;
+  --color-brand-900: #005F50;
+
+  /* ── Primario (Antigravity) ─────────────────────────────── */
+  --color-primary: var(--color-antigravity);
+  --color-primary-dark: var(--color-teal-deep, #008F7A);
+  --color-primary-light: var(--color-teal-light, #E0FFF5);
+  --color-primary-border: var(--color-teal-border, #A0E8D8);
+
+  /* ── Health (Cobalto) ──────────────────────────────────────── */
+  --color-health: var(--color-cobalt, #2B5EA7);
+  --color-health-dark: var(--color-cobalt-deep, #1A3A8F);
+  --color-health-light: var(--color-cobalt-light, #E0ECFF);
+  --color-health-border: var(--color-cobalt-border, #B0C8F0);
+
+  /* ── Escala Blue (Cobalto) ─────────────────────────────────── */
+  --color-blue-50: #E0ECFF;
+  --color-blue-100: #C5DAFC;
+  --color-blue-200: #A0C4F5;
+  --color-blue-300: #7AACEE;
+  --color-blue-400: #5B8FD4;
+  --color-blue-500: #2B5EA7;
+  --color-blue-600: #1A3A8F;
+  --color-blue-700: #142E78;
+  --color-blue-800: #0F2260;
+  --color-blue-900: #0A1648;
+
+  /* ── Escala Emerald (Teal Neón) ────────────────────────────── */
+  --color-emerald-50: #E0FFF5;
+  --color-emerald-100: #C0F5E5;
+  --color-emerald-200: #A0E8D8;
+  --color-emerald-300: #5BD4C0;
+  --color-emerald-400: #2EE8B7;
+  --color-emerald-500: #00D4AA;
+  --color-emerald-600: #00B4A0;
+  --color-emerald-700: #008F7A;
+  --color-emerald-800: #006A5E;
+  --color-emerald-900: #004A44;
+
+  /* ── Fondos & Superficies ──────────────────────────────────── */
+  --color-background: var(--color-principal-bg, #F0F4FA);
+  --color-surface: var(--color-surface, #E8EFF8);
+  --color-surface-soft: var(--color-surface-soft, #DFE8F4);
+  --color-card: var(--color-card, #ffffff);
+
+  /* ── Semánticos ────────────────────────────────────────────── */
+  --color-success: var(--color-teal, #00B4A0);
+  --color-warning: #F59E0B;
+  --color-error: #D32F2F;
+  --color-info: var(--color-cobalt, #2B5EA7);
+
+  /* ── Texto & Bordes ────────────────────────────────────────── */
+  --color-text-main: var(--color-principal-texto, #0A1628);
+  --color-text-secondary: var(--color-texto-secundario, #5A6B82);
+  --color-border: var(--color-borde, #D0DAE8);
+  --color-border-strong: var(--color-borde-fuerte, #B8C6D8);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@keyframes float-slow {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+/* ═══════════════════════════════════════════════════════════════
+   UTILIDADES PERSONALIZADAS
+   ═══════════════════════════════════════════════════════════════ */
+@layer utilities {
+  .pb-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
   }
-  50% {
-    transform: translateY(-15px) rotate(5deg);
+
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top, 44px);
+  }
+
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+
+  .h-dvh {
+    height: 100dvh;
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   ANIMACIONES KEYFRAMES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Flotación suave ─────────────────────────────────────────── */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
 @keyframes float-reverse {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(12px) rotate(-5deg);
-  }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(-5deg); }
 }
 
 .animate-float-slow {
@@ -34,40 +123,524 @@
   animation: float-reverse 15s ease-in-out infinite;
 }
 
-/* Custom scrollbar representing premium aesthetics */
+/* ── Rotación lenta ──────────────────────────────────────────── */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* ── Glow Neón pulsante ──────────────────────────────────────── */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgba(0, 212, 170, 0.3),
+      0 0 24px rgba(0, 212, 170, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgba(0, 212, 170, 0.5),
+      0 0 40px rgba(0, 212, 170, 0.2),
+      0 0 60px rgba(46, 232, 183, 0.08);
+  }
+}
+
+@keyframes neon-pulse-subtle {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(0, 212, 170, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(0, 212, 170, 0.3), 0 0 24px rgba(46, 232, 183, 0.1);
+  }
+}
+
+/* ── Splash fade-in con scale ────────────────────────────────── */
+@keyframes splash-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ── Breathing ring para logo ────────────────────────────────── */
+@keyframes breathing-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* ── Gradient border rotation ────────────────────────────────── */
+@keyframes gradient-rotate {
+  0% { --gradient-angle: 0deg; }
+  100% { --gradient-angle: 360deg; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLASES DE UTILIDAD — NEON DARK THEME
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Degradado de acento (botones, badges) ───────────────────── */
+.gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.gradient-accent-text {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glow Neón ───────────────────────────────────────────────── */
+.neon-glow {
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.neon-glow-subtle {
+  animation: neon-pulse-subtle 4s ease-in-out infinite;
+}
+
+/* ── Borde degradado ─────────────────────────────────────────── */
+.neon-border {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.neon-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--gradient-accent);
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FONDO PRINCIPAL DE LA APP
+   ═══════════════════════════════════════════════════════════════ */
+.health-app-bg {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(43, 94, 167, 0.06) 0%, transparent 30%),
+    radial-gradient(circle at 8% 82%, rgba(0, 180, 160, 0.08) 0%, transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #F0F4FA 48%, #EBF2FC 100%);
+}
+
+html.dark .health-app-bg {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(59, 111, 196, 0.1) 0%, transparent 30%),
+    radial-gradient(circle at 8% 82%, rgba(0, 212, 170, 0.08) 0%, transparent 34%),
+    radial-gradient(circle at 50% 50%, rgba(46, 232, 183, 0.03) 0%, transparent 50%),
+    linear-gradient(180deg, #060B18 0%, #0C1529 52%, #060B18 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTIVOS DE FONDO DECORATIVOS
+   ═══════════════════════════════════════════════════════════════ */
+.health-background-motifs {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.health-background-motifs::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.2) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.95), transparent 78%);
+  opacity: 0.22;
+  animation: clinical-grid-drift 70s linear infinite;
+  z-index: 1;
+}
+
+.health-background-motifs::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(135deg, transparent 0 45%, rgba(56, 189, 248, 0.16) 45% 46%, transparent 46% 100%),
+    linear-gradient(135deg, transparent 0 52%, rgba(14, 165, 233, 0.14) 52% 53%, transparent 53% 100%);
+  background-size: 300px 300px, 380px 380px;
+  opacity: 0.26;
+  animation: care-lines-drift 90s linear infinite;
+  z-index: 1;
+}
+
+.health-background-motifs > .radial-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='680' height='180' viewBox='0 0 680 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 94H94l20-42 28 92 34-76 22 26h110l18-30 22 62 28-32h304' fill='none' stroke='%230EA5E9' stroke-width='3.1' stroke-linecap='round' stroke-linejoin='round' opacity='.42'/%3E%3Cpath d='M42 132h70M77 97v70M520 44h58M549 15v58' stroke='%2338BDF8' stroke-width='3' stroke-linecap='round' opacity='.32'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='720' height='210' viewBox='0 0 720 210' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 112h116l16-28 24 68 28-40h118l16-46 26 96 30-50h346' fill='none' stroke='%2338BDF8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' opacity='.38'/%3E%3Cpath d='M594 142h76M632 104v76' stroke='%230EA5E9' stroke-width='2.8' stroke-linecap='round' opacity='.3'/%3E%3C/svg%3E");
+  background-position: 4vw 10vh, 34vw 58vh;
+  background-repeat: no-repeat;
+  background-size: min(760px, 92vw) auto, min(760px, 94vw) auto;
+  opacity: 0.54;
+  animation: ecg-float 18s ease-in-out infinite;
+  z-index: 1;
+}
+
+.health-background-motifs > .accent-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.28), rgba(56, 189, 248, 0.28)),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.28), rgba(56, 189, 248, 0.28)),
+    linear-gradient(rgba(14, 165, 233, 0.24), rgba(14, 165, 233, 0.24)),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.24), rgba(14, 165, 233, 0.24));
+  background-position:
+    14vw 26vh,
+    calc(14vw - 14px) calc(26vh + 14px),
+    78vw 18vh,
+    calc(78vw - 12px) calc(18vh + 12px);
+  background-repeat: no-repeat;
+  background-size: 28px 4px, 4px 28px, 24px 3px, 3px 24px;
+  opacity: 0.58;
+  animation: medical-symbols-breathe 10s ease-in-out infinite alternate;
+  z-index: 2;
+}
+
+html.dark .health-background-motifs::before {
+  opacity: 0.14;
+}
+
+html.dark .health-background-motifs::after {
+  opacity: 0.23;
+}
+
+html.dark .health-background-motifs > .radial-lines {
+  opacity: 0.34;
+}
+
+html.dark .health-background-motifs > .accent-lines {
+  opacity: 0.42;
+}
+
+@keyframes clinical-grid-drift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 72px 72px, 72px 72px; }
+}
+
+@keyframes care-lines-drift {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 340px 340px, -420px -420px; }
+}
+
+@keyframes ecg-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+@keyframes medical-symbols-breathe {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, 8px, 0); }
+}
+
+@media (max-width: 640px) {
+  .health-background-motifs::before {
+    background-size: 42px 42px;
+    mask-image: linear-gradient(165deg, rgba(0, 0, 0, 1), transparent 86%);
+    opacity: 0.26;
+  }
+
+  .health-background-motifs::after {
+    background-size: 180px 180px, 240px 240px;
+    opacity: 0.3;
+  }
+
+  .health-background-motifs > .radial-lines {
+    background-position: -92px 72px, -190px 68vh;
+    background-size: 590px auto, 620px auto;
+    opacity: 0.62;
+  }
+
+  .health-background-motifs > .accent-lines {
+    background-position:
+      8vw 18vh,
+      calc(8vw - 14px) calc(18vh + 14px),
+      82vw 46vh,
+      calc(82vw - 12px) calc(46vh + 12px);
+    opacity: 0.64;
+  }
+
+  html.dark .health-background-motifs::before {
+    opacity: 0.16;
+  }
+
+  html.dark .health-background-motifs::after {
+    opacity: 0.26;
+  }
+
+  html.dark .health-background-motifs > .radial-lines {
+    opacity: 0.4;
+  }
+
+  html.dark .health-background-motifs > .accent-lines {
+    opacity: 0.48;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AVATAR RING CON GLOW
+   ═══════════════════════════════════════════════════════════════ */
+@keyframes health-avatar-ring-glow {
+  0%, 100% {
+    box-shadow:
+      0 4px 16px rgba(0, 180, 160, 0.15),
+      0 0 0 2px rgba(0, 212, 170, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 6px 24px rgba(0, 180, 160, 0.22),
+      0 0 0 3px rgba(46, 232, 183, 0.5);
+  }
+}
+
+.health-avatar-ring {
+  isolation: isolate;
+  background: #ffffff;
+  border-radius: 9999px;
+  box-shadow:
+    0 4px 16px rgba(0, 180, 160, 0.15),
+    0 0 0 2px rgba(0, 212, 170, 0.3);
+  animation: health-avatar-ring-glow 3s ease-in-out infinite;
+  transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.health-avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1.5px solid rgba(0, 180, 160, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms ease, transform 500ms ease;
+}
+
+.health-avatar-ring:hover,
+.health-avatar-ring:focus-within {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 8px 28px rgba(0, 180, 160, 0.25),
+    0 0 0 3px rgba(46, 232, 183, 0.6);
+  animation-play-state: paused;
+}
+
+.health-avatar-ring:hover::before,
+.health-avatar-ring:focus-within::before {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TARJETA DE BIENVENIDA
+   ═══════════════════════════════════════════════════════════════ */
+.home-welcome-card {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+html.dark .home-welcome-card {
+  background: rgba(13, 26, 47, 0.72);
+}
+
+.home-welcome-card::before {
+  content: "";
+  position: absolute;
+  top: -62%;
+  right: -26%;
+  width: min(560px, 72vw);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(43, 94, 167, 0.15) 0%, rgba(0, 212, 170, 0.08) 35%, transparent 68%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(10%, -8%) scale(0.72);
+  transition: opacity 420ms ease, transform 620ms ease;
+}
+
+.home-welcome-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0 54%, rgba(224, 255, 245, 0.6) 72%, rgba(43, 94, 167, 0.08) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
+}
+
+.home-welcome-card:hover::before,
+.home-welcome-card:focus-within::before {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+.home-welcome-card:hover::after,
+.home-welcome-card:focus-within::after {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR PERSONALIZADO
+   ═══════════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(90, 120, 170, 0.25);
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(0, 180, 160, 0.45);
 }
 
-/* Additional utility for background glassmorphism */
+/* ═══════════════════════════════════════════════════════════════
+   GLASSMORPHISM
+   ═══════════════════════════════════════════════════════════════ */
 .glassmorphism {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-.glassmorphism-dark {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
 }
 
-/* Hide scrollbar for horizontal scroll areas */
+.glassmorphism-dark {
+  background: rgba(6, 11, 24, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+/* ═══════════════════════════════════════════════════════════════
+   INPUT FOCUS — BORDE DEGRADADO DEL LOGO
+   Aplica automáticamente a todos los inputs, textareas y selects
+   ═══════════════════════════════════════════════════════════════ */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-antigravity) !important;
+  box-shadow:
+    0 0 0 3px rgba(0, 82, 255, 0.15),
+    0 0 12px rgba(0, 82, 255, 0.08);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
 }
 
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: var(--color-antigravity) !important;
+  box-shadow:
+    0 0 0 3px rgba(51, 119, 255, 0.2),
+    0 0 16px rgba(51, 119, 255, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SPLASH SCREEN
+   ═══════════════════════════════════════════════════════════════ */
+.splash-screen {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(43, 94, 167, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(0, 212, 170, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #ffffff 0%, #F0F4FA 100%);
+}
+
+html.dark .splash-screen {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(59, 111, 196, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(0, 212, 170, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(46, 232, 183, 0.04) 0%, transparent 60%),
+    linear-gradient(180deg, #060B18 0%, #0C1529 50%, #060B18 100%);
+}
+
+.splash-logo-container {
+  animation: splash-entrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.splash-logo-ring {
+  position: relative;
+  border-radius: 28px;
+  padding: 3px;
+  background: var(--gradient-accent);
+}
+
+.splash-logo-ring::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 32px;
+  border: 2px solid transparent;
+  background: var(--gradient-accent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 2px;
+  opacity: 0.4;
+  animation: breathing-ring 2.5s ease-in-out infinite;
+}
+
+.splash-logo-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 25px;
+  object-fit: cover;
+  display: block;
+  background: var(--color-card);
+}
+
+@layer utilities {
+  /* Forzar el degradado del logo en el botón primario de toda la app */
+  .bg-brand-600 {
+    background: var(--gradient-accent) !important;
+  }
+  .hover\:bg-brand-600:hover {
+    background: var(--gradient-accent) !important;
+    filter: brightness(1.1) !important;
+  }
+  .hover\:bg-brand-900:hover {
+    background: var(--gradient-accent) !important;
+    filter: brightness(0.9) !important;
+  }
+}

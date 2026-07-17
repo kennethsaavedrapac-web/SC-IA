@@ -13,6 +13,7 @@ export interface Pharmacy {
   id: string;
   name: string;
   address: string;
+  phone: string;
   distance: string;
   status: "Disponible" | "Poco stock" | "Agotado";
   openNow: boolean;
@@ -29,6 +30,17 @@ export interface HealthCenter {
   durationMin: number;
   lat: number; // percentage of map container Y (0 - 100) for custom interactive map
   lng: number; // percentage of map container X (0 - 100)
+  latitude?: number;
+  longitude?: number;
+  distanceKm?: number;
+  department?: string;
+  municipality?: string;
+  locality?: string;
+  zone?: string;
+  phone?: string;
+  silais?: string;
+  sourceNumber?: number;
+  hasCoordinates?: boolean;
 }
 
 export interface ChatMessage {
@@ -36,6 +48,7 @@ export interface ChatMessage {
   text: string;
   sender: "user" | "bot";
   timestamp: string;
+  createdAt?: string;
 }
 
 export interface Appointment {
@@ -48,10 +61,13 @@ export interface Appointment {
 }
 
 export interface UserProfile {
+  id?: string;
   name: string;
   email: string;
   city: string;
   country: string;
   avatarUrl: string;
   healthConditions: string[];
+  emergencyPhone?: string;
+  bloodType?: string;
 }

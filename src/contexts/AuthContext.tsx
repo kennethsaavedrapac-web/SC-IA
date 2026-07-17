@@ -9,27 +9,33 @@ import {
   getUserProfile,
   type UserProfile,
 } from '../lib/authService';
+import { getAssuranceLevel, getMFAFactors } from '../lib/mfaService';
 
-// ─── Types ────────────────────────────────────────────────────
+
 interface AuthContextType {
-  // State
+  
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
   initialized: boolean;
 
-  // Actions
+  // MFA state
+  requiresMFA: boolean;
+  mfaFactorId: string | null;
+
+  
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
+  completeMFA: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ─── Provider ─────────────────────────────────────────────────
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -37,7 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  // Load profile data from profiles table
+  // MFA state
+  const [requiresMFA, setRequiresMFA] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+
+  
   const loadProfile = useCallback(async (userId: string) => {
     const { profile: fetchedProfile } = await getUserProfile(userId);
     if (fetchedProfile) {
@@ -45,14 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Listen for auth state changes
+  
   useEffect(() => {
     const subscription = onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
-        // Small delay to allow trigger to create profile on SIGNED_UP
+        
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           setTimeout(() => loadProfile(newSession.user.id), 300);
         }
@@ -68,13 +78,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadProfile]);
 
-  // ─── Auth Actions ──────────────────────────────────────────
+  
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
       const result = await signInWithEmail(email, password);
       if (result.success && result.user) {
         await loadProfile(result.user.id);
+
+        // Check if user has MFA enabled and needs verification
+        try {
+          const assurance = await getAssuranceLevel();
+          if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
+            // User has MFA factors but hasn't verified yet in this session
+            const { factors } = await getMFAFactors();
+            const verifiedFactor = factors.find(f => f.status === 'verified');
+            if (verifiedFactor) {
+              setRequiresMFA(true);
+              setMfaFactorId(verifiedFactor.id);
+            }
+          }
+        } catch {
+          // MFA check failed silently — don't block login
+        }
       }
       return { success: result.success, error: result.error };
     } finally {
@@ -87,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signUpWithEmail(email, password, nombre);
       if (result.success && result.user) {
-        // Give trigger time to create the profile
+        
         await new Promise((resolve) => setTimeout(resolve, 500));
         await loadProfile(result.user.id);
       }
@@ -115,6 +141,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setSession(null);
         setProfile(null);
+        setRequiresMFA(false);
+        setMfaFactorId(null);
       }
       return result;
     } finally {
@@ -128,17 +156,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loadProfile]);
 
+  const completeMFA = useCallback(() => {
+    setRequiresMFA(false);
+    setMfaFactorId(null);
+  }, []);
+
   const value: AuthContextType = {
     user,
     session,
     profile,
     loading,
     initialized,
+    requiresMFA,
+    mfaFactorId,
     login,
     register,
     loginWithGoogle,
     logout,
     refreshProfile,
+    completeMFA,
   };
 
   return (
@@ -148,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────
+
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {

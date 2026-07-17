@@ -1,8 +1,22 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/manifest.json",
+      "destination": "/manifest.json"
+    },
+    {
+      "source": "/sw.js",
+      "destination": "/sw.js"
+    },
+    {
+      "source": "/((?!api/|manifest\\.json|sw\\.js).*)",
       "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron-notifications",
+      "schedule": "0 14 * * *"
     }
   ]
 }

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, Mail, Lock, ArrowRight, LogIn, Moon, Sun, Loader2 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
+import { useLanguage } from "../contexts/LanguageContext";
+import { sanitizeAndTrim, validateEmail, validateName, getPasswordStrength } from "../lib/security";
 
 interface RegisterViewProps {
   onRegister: (name: string) => void;
@@ -18,6 +20,7 @@ export default function RegisterView({
   onToggleDarkMode,
   onToast
 }: RegisterViewProps) {
+  const { t } = useLanguage();
   const { register, loginWithGoogle, loading } = useAuth();
 
   const [name, setName] = useState("");
@@ -37,11 +40,6 @@ export default function RegisterView({
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [termsError, setTermsError] = useState("");
 
-  const validateEmail = (value: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || loading) return;
@@ -49,22 +47,21 @@ export default function RegisterView({
     let hasError = false;
 
     // Validate Name
-    if (!name.trim()) {
-      setNameError("Ingresa tu nombre completo.");
-      hasError = true;
-    } else if (name.trim().length < 3) {
-      setNameError("El nombre debe tener al menos 3 caracteres.");
+    const nameVal = validateName(name);
+    if (!nameVal.valid) {
+      setNameError(nameVal.error === 'tooShort' ? t('nameMin') : t('nameRequired'));
       hasError = true;
     } else {
       setNameError("");
     }
 
     // Validate Email
-    if (!email.trim()) {
-      setEmailError("Ingresa tu correo electrónico.");
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setEmailError(t('emailRequired'));
       hasError = true;
-    } else if (!validateEmail(email.trim())) {
-      setEmailError("Ingresa un correo electrónico válido.");
+    } else if (!validateEmail(cleanEmail)) {
+      setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
       setEmailError("");
@@ -72,10 +69,10 @@ export default function RegisterView({
 
     // Validate Password
     if (!password) {
-      setPasswordError("Ingresa una contraseña.");
+      setPasswordError(t('passRequired'));
       hasError = true;
     } else if (password.length < 6) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres.");
+      setPasswordError(t('passMin'));
       hasError = true;
     } else {
       setPasswordError("");
@@ -83,10 +80,10 @@ export default function RegisterView({
 
     // Validate Confirm Password
     if (!confirmPassword) {
-      setConfirmPasswordError("Confirma tu contraseña.");
+      setConfirmPasswordError(t('confirmPassRequired'));
       hasError = true;
     } else if (confirmPassword !== password) {
-      setConfirmPasswordError("Las contraseñas no coinciden.");
+      setConfirmPasswordError(t('passMismatch'));
       hasError = true;
     } else {
       setConfirmPasswordError("");
@@ -94,7 +91,7 @@ export default function RegisterView({
 
     // Validate Terms Checkbox
     if (!agreeToTerms) {
-      setTermsError("Debes aceptar los Términos y Condiciones.");
+      setTermsError(t('termsRequired'));
       hasError = true;
     } else {
       setTermsError("");
@@ -104,15 +101,16 @@ export default function RegisterView({
 
     setIsSubmitting(true);
     try {
-      const result = await register(email.trim(), password, name.trim());
+      const sanitizedName = sanitizeAndTrim(name);
+      const result = await register(cleanEmail, password, sanitizedName);
       if (result.success) {
-        onToast?.(createToast("¡Cuenta creada exitosamente! Bienvenido.", "success"));
-        onRegister(name.trim());
+        onToast?.(createToast(t('registerSuccess'), "success"));
+        onRegister(sanitizedName);
       } else {
-        onToast?.(createToast(result.error || "Error al crear la cuenta.", "error"));
+        onToast?.(createToast(result.error || t('registerError'), "error"));
       }
     } catch {
-      onToast?.(createToast("Error de conexión. Intenta de nuevo.", "error"));
+      onToast?.(createToast(t('connError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -124,10 +122,10 @@ export default function RegisterView({
     try {
       const result = await loginWithGoogle();
       if (!result.success) {
-        onToast?.(createToast(result.error || "Error al conectar con Google.", "error"));
+        onToast?.(createToast(result.error || t('googleError'), "error"));
       }
     } catch {
-      onToast?.(createToast("No se pudo conectar con Google.", "error"));
+      onToast?.(createToast(t('googleConnError'), "error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -136,9 +134,9 @@ export default function RegisterView({
   const isLoading = isSubmitting || loading;
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-between bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-[#0b0f19] dark:to-[#0f172a] text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-dvh w-full flex flex-col justify-between text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
 
-      {/* 3D Glassmorphic Floating Rings (Decorative Elements) */}
+      {}
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">
         <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full transform rotate-12">
           <circle cx="100" cy="100" r="70" stroke="url(#ringGrad1)" strokeWidth="18" strokeLinecap="round" filter="url(#glow)" />
@@ -168,7 +166,7 @@ export default function RegisterView({
         </svg>
       </div>
 
-      {/* Top Header / Action Bar */}
+      {}
       <header className="w-full px-6 pt-6 flex justify-end items-center z-10">
         <button
           id="btn-register-toggle-darkmode"
@@ -180,53 +178,41 @@ export default function RegisterView({
         </button>
       </header>
 
-      {/* Main Form Content */}
-      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-blue-500/10 md:dark:shadow-blue-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
+      {}
+      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-primary/10 md:dark:shadow-primary/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
-        {/* Brand Logo & Name */}
+        {}
         <div className="flex flex-col items-center mb-5">
-          <svg className="w-14 h-14 drop-shadow-md" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="26" r="14" stroke="url(#logoGrad1)" strokeWidth="3.5" strokeLinecap="round" />
-            <circle cx="38" cy="38" r="14" stroke="url(#logoGrad2)" strokeWidth="3.5" strokeLinecap="round" />
-            <defs>
-              <linearGradient id="logoGrad1" x1="12" y1="12" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#2563eb" />
-                <stop offset="1" stopColor="#1d4ed8" />
-              </linearGradient>
-              <linearGradient id="logoGrad2" x1="24" y1="24" x2="52" y2="52" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3b82f6" />
-                <stop offset="1" stopColor="#60a5fa" />
-              </linearGradient>
-            </defs>
-          </svg>
+          <img
+            src="/app-logo-v2.jpg"
+            alt="Logo"
+            className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
+          />
           <h1 className="mt-3 text-lg font-bold tracking-tight text-slate-800 dark:text-slate-200">
-            Salud-Conecta <span className="text-blue-600 dark:text-blue-500">IA</span>
+            Salud-Conecta <span className="text-brand-600 dark:text-brand-400">IA</span>
           </h1>
         </div>
 
-        {/* Title Group */}
+        {}
         <div className="mb-6 text-left">
           <h2 className="text-[34px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-            Crea tu cuenta<span className="text-blue-600 dark:text-blue-500">.</span>
+            {t('createAccount')}<span className="text-brand-600 dark:text-brand-400">.</span>
           </h2>
           <p className="text-slate-500 dark:text-slate-400 text-[13.5px] mt-2 font-medium leading-relaxed">
-            Empieza hoy tu camino hacia una vida más{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">saludable</span>,{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">conectada</span> e{" "}
-            <span className="text-blue-600 dark:text-blue-400 font-semibold">inteligente</span>.
+            {t('registerSubtitle')}
           </p>
         </div>
 
-        {/* Form Fields */}
+        {}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nombre Completo Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Nombre completo
+              {t('fullName')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <User className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <User className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-name"
@@ -241,7 +227,7 @@ export default function RegisterView({
                 autoComplete="name"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-4.5 py-3.5 rounded-[20px] border ${nameError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
@@ -250,14 +236,14 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Email Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Correo electrónico
+              {t('emailLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Mail className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Mail className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-email"
@@ -272,7 +258,7 @@ export default function RegisterView({
                 autoComplete="email"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-4.5 py-3.5 rounded-[20px] border ${emailError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
@@ -281,14 +267,14 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Contraseña Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
-              Contraseña
+              {t('passwordLabel')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Lock className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Lock className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-password"
@@ -303,7 +289,7 @@ export default function RegisterView({
                 autoComplete="new-password"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-12 py-3.5 rounded-[20px] border ${passwordError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
               <button
@@ -315,19 +301,45 @@ export default function RegisterView({
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {password && (
+              <div className="mt-1 px-1.5 space-y-1">
+                <div className="flex gap-1 h-1">
+                  {[...Array(4)].map((_, i) => {
+                    const strength = getPasswordStrength(password);
+                    const colors = [
+                      "bg-red-500", // 1 - Weak
+                      "bg-amber-500", // 2 - Fair
+                      "bg-blue-500", // 3 - Good
+                      "bg-emerald-500", // 4 - Strong
+                    ];
+                    const active = i < strength;
+                    const colorClass = active ? colors[strength - 1] : "bg-slate-100 dark:bg-slate-800";
+                    return (
+                      <div key={i} className={`flex-1 rounded-full transition-all duration-300 ${colorClass}`} />
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                  {getPasswordStrength(password) === 1 && t('passWeak' as any)}
+                  {getPasswordStrength(password) === 2 && t('passFair' as any)}
+                  {getPasswordStrength(password) === 3 && t('passGood' as any)}
+                  {getPasswordStrength(password) === 4 && t('passStrong' as any)}
+                </p>
+              </div>
+            )}
             {passwordError && (
               <p className="text-red-500 text-[11px] font-semibold pl-1.5 mt-0.5">{passwordError}</p>
             )}
           </div>
 
-          {/* Confirmar Contraseña Input */}
+          {}
           <div className="space-y-1">
             <label className="text-[11px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
-              Confirmar contraseña
+              {t('confirmPassword')}
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
-                <Lock className="w-5 h-5 text-blue-650 dark:text-blue-500 transition-colors group-focus-within:text-blue-600" />
+                <Lock className="w-5 h-5 text-brand-600 dark:text-brand-400 transition-colors group-focus-within:text-brand-600" />
               </div>
               <input
                 id="input-register-confirm-password"
@@ -342,7 +354,7 @@ export default function RegisterView({
                 autoComplete="new-password"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-12 py-3.5 rounded-[20px] border ${confirmPasswordError
                     ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-blue-500 focus:ring-blue-100/50 dark:focus:ring-blue-900/30"
+                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
               <button
@@ -359,7 +371,7 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Checkbox Términos y Condiciones */}
+          {}
           <div className="space-y-1 pt-1">
             <label className="flex items-start space-x-3 cursor-pointer group">
               <input
@@ -371,17 +383,10 @@ export default function RegisterView({
                   if (e.target.checked) setTermsError("");
                 }}
                 disabled={isLoading}
-                className="mt-0.5 w-[18px] h-[18px] rounded-[6px] text-blue-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-0 cursor-pointer transition-all shrink-0"
+                className="mt-0.5 w-[18px] h-[18px] rounded-[6px] text-brand-600 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-0 cursor-pointer transition-all shrink-0"
               />
               <span className="text-[12.5px] text-slate-500 dark:text-slate-400 leading-snug font-medium select-none">
-                Acepto los{" "}
-                <a href="#terminos" onClick={(e) => { e.preventDefault(); alert("Mostrando Términos y Condiciones..."); }} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                  Términos y Condiciones
-                </a>{" "}
-                y la{" "}
-                <a href="#privacidad" onClick={(e) => { e.preventDefault(); alert("Mostrando Política de Privacidad..."); }} className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                  Política de Privacidad
-                </a>.
+                {t('agreeToTerms')}
               </span>
             </label>
             {termsError && (
@@ -389,40 +394,40 @@ export default function RegisterView({
             )}
           </div>
 
-          {/* Submit Button */}
+          {}
           <button
             id="btn-register-submit"
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-650 active:scale-[0.98] text-white py-3.5 px-5 rounded-[20px] font-bold text-sm tracking-wide shadow-lg shadow-blue-500/20 dark:shadow-blue-900/10 flex items-center justify-center space-x-1.5 transition-all duration-200 cursor-pointer pt-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+            className="w-full bg-gradient-to-r from-brand-900 to-brand-600 hover:from-brand-900 hover:to-brand-600 active:scale-[0.98] text-white py-3.5 px-5 rounded-[20px] font-bold text-sm tracking-wide shadow-lg shadow-brand-500/20 dark:shadow-brand-900/10 flex items-center justify-center space-x-1.5 transition-all duration-200 cursor-pointer pt-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-4.5 h-4.5 animate-spin" />
-                <span>Creando cuenta...</span>
+                <span>{t('creatingAccount')}</span>
               </>
             ) : (
               <>
-                <span>Registrarse</span>
+                <span>{t('registerButton')}</span>
                 <ArrowRight className="w-4.5 h-4.5" />
               </>
             )}
           </button>
         </form>
 
-        {/* Divider */}
+        {}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-150 dark:border-slate-800/80"></div>
           </div>
           <div className="relative flex justify-center text-xs font-semibold uppercase tracking-wider">
             <span className="bg-[#f8fafc] dark:bg-[#0b0f19] px-4 text-slate-400 dark:text-slate-500 transition-colors duration-300">
-              o regístrate con
+              {t('orContinueWith')}
             </span>
           </div>
         </div>
 
-        {/* Google Register */}
+        {}
         <button
           id="btn-register-google"
           type="button"
@@ -440,27 +445,27 @@ export default function RegisterView({
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
             </svg>
           )}
-          <span>Continuar con Google</span>
+            <span>{t('continueWithGoogle')}</span>
         </button>
 
-        {/* Already have account -> Login */}
+        {}
         <button
           id="btn-register-login-back"
           type="button"
           onClick={onNavigateToLogin}
           disabled={isLoading}
-          className="w-full bg-transparent hover:bg-blue-50/20 text-blue-600 dark:text-blue-400 py-3.5 px-5 rounded-[20px] border border-blue-600/35 dark:border-blue-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 mt-3.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-transparent hover:bg-brand-50/20 text-brand-600 dark:text-brand-400 py-3.5 px-5 rounded-[20px] border border-brand-600/35 dark:border-brand-400/30 font-bold text-[13.5px] flex items-center justify-center space-x-2 mt-3.5 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <LogIn className="w-5 h-5 text-blue-650 dark:text-blue-450 shrink-0" />
-          <span>Ya tengo cuenta. Iniciar sesión</span>
+          <LogIn className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" />
+            <span>{t('alreadyHaveAccount')}</span>
         </button>
 
       </main>
 
-      {/* Decorative Wave at the bottom */}
+      {}
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center relative">
         <div className="absolute bottom-0 inset-x-0 w-full overflow-hidden leading-none pointer-events-none opacity-40 dark:opacity-20 -z-10">
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-blue-500 fill-current">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-brand-400 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>
           </svg>
         </div>
