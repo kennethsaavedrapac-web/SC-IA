@@ -8,6 +8,10 @@
 */
 
 :root {
+  /* ── Brand Identity: Antigravity ────────────────────────── */
+  /* NOTA: Pega el código HEX real de tu logotipo aquí si es diferente */
+  --color-antigravity: #0052FF;
+
   /* ── Fondos & Superficies ───────────────────────────────── */
   --color-principal-bg: #F0F4FA;
   --color-surface: #E8EFF8;
@@ -34,9 +38,9 @@
   --color-neon-soft: rgba(46, 232, 183, 0.12);
 
   /* ── Degradado del logo ─────────────────────────────────── */
-  --gradient-logo: linear-gradient(135deg, #1A3A8F 0%, #2B5EA7 25%, #1E8A9A 50%, #00B4A0 75%, #00D4AA 100%);
-  --gradient-accent: linear-gradient(135deg, #1A3A8F, #00D4AA);
-  --gradient-accent-reverse: linear-gradient(135deg, #00D4AA, #1A3A8F);
+  --gradient-logo: linear-gradient(135deg, var(--color-antigravity) 0%, #2B5EA7 25%, #1E8A9A 50%, #00B4A0 75%, #00D4AA 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-antigravity), #00D4AA);
+  --gradient-accent-reverse: linear-gradient(135deg, #00D4AA, var(--color-antigravity));
 
   /* ── Bordes ─────────────────────────────────────────────── */
   --color-borde: #D0DAE8;
@@ -69,6 +73,10 @@
    MODO OSCURO — NEON DARK / DEEP TECH
    ═══════════════════════════════════════════════════════════════ */
 html.dark {
+  /* ── Brand Identity: Antigravity (Dark Mode) ────────────── */
+  /* NOTA: Pega el código HEX real de tu logotipo aquí si es diferente. Ajustado para contraste en fondos oscuros. */
+  --color-antigravity: #3377FF;
+
   /* ── Fondos profundos con tinte azul marino ──────────────── */
   --color-principal-bg: #060B18;
   --color-surface: #0C1529;
@@ -95,9 +103,9 @@ html.dark {
   --color-neon-soft: rgba(63, 255, 204, 0.1);
 
   /* ── Degradado Dark ─────────────────────────────────────── */
-  --gradient-logo: linear-gradient(135deg, #3A6FC4 0%, #5B8FD4 25%, #00B4A0 50%, #00D4AA 75%, #2EE8B7 100%);
-  --gradient-accent: linear-gradient(135deg, #3A6FC4, #2EE8B7);
-  --gradient-accent-reverse: linear-gradient(135deg, #2EE8B7, #3A6FC4);
+  --gradient-logo: linear-gradient(135deg, var(--color-antigravity) 0%, #5B8FD4 25%, #00B4A0 50%, #00D4AA 75%, #2EE8B7 100%);
+  --gradient-accent: linear-gradient(135deg, var(--color-antigravity), #2EE8B7);
+  --gradient-accent-reverse: linear-gradient(135deg, #2EE8B7, var(--color-antigravity));
 
   /* ── Bordes oscuros ─────────────────────────────────────── */
   --color-borde: rgba(90, 120, 170, 0.25);
