@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
@@ -101,6 +102,45 @@ Responde en un español amigable, estructurado y fácil de leer con viñetas.`;
       console.error("Gemini Error:", error);
       return res.status(500).json({
         error: "Ocurrió un error procesando el triaje virtual con IA.",
+        details: error?.message || ""
+      });
+    }
+  });
+
+  // API endpoint for admin panel metrics
+  app.get("/api/admin/metrics", (req, res) => {
+    try {
+      const metricsPath = path.resolve(process.cwd(), "src/data/simulatedMetrics.json");
+      if (!fs.existsSync(metricsPath)) {
+        return res.status(404).json({ error: "Simulated metrics file not found" });
+      }
+      
+      const rawData = fs.readFileSync(metricsPath, "utf-8");
+      const metrics = JSON.parse(rawData);
+      
+      // Allow dynamic query param overrides for testing the weighted load calculations
+      const activeUsersQuery = req.query.activeUsers ? parseInt(req.query.activeUsers as string) : undefined;
+      const messagesQuery = req.query.messagesLastHour ? parseInt(req.query.messagesLastHour as string) : undefined;
+      
+      if (activeUsersQuery !== undefined && !isNaN(activeUsersQuery)) {
+        metrics.systemStatus.activeUsers = activeUsersQuery;
+        // L_server = (U_active / C_max) * 100
+        const serverLoad = (activeUsersQuery / metrics.systemStatus.maxConcurrentCapacity) * 100;
+        metrics.systemStatus.serverLoadPercentage = Math.min(100.0, parseFloat(serverLoad.toFixed(1)));
+      }
+      
+      if (messagesQuery !== undefined && !isNaN(messagesQuery)) {
+        metrics.systemStatus.messagesLastHour = messagesQuery;
+        // A_workload = (M_hour / M_baseline) * 100
+        const workloadPct = (messagesQuery / metrics.systemStatus.hourlyMessageBaseline) * 100;
+        metrics.systemStatus.workloadActivityPercentage = Math.min(100.0, parseFloat(workloadPct.toFixed(1)));
+      }
+      
+      return res.json(metrics);
+    } catch (error: any) {
+      console.error("Error fetching metrics:", error);
+      return res.status(500).json({
+        error: "Failed to load admin panel metrics.",
         details: error?.message || ""
       });
     }

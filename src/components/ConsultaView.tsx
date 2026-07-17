@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface ConsultaViewProps {
   user: UserProfile;
@@ -113,6 +114,7 @@ const SYMPTOM_CHIPS = [
 ];
 
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
+  const { language, t } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
   const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -325,7 +327,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             fontFamily: "'Inter', sans-serif",
           }}
         >
-          Hola {firstName}.
+          {t("hello")} {firstName}.
         </h1>
 
         {/* Secondary heading */}
@@ -338,8 +340,17 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             fontFamily: "'Inter', sans-serif",
           }}
         >
-          Soy tu asistente de salud<br />
-          en <span className="text-[#2563eb] font-medium">Granada.</span>
+          {language === "es" ? (
+            <>
+              Soy tu asistente de salud<br />
+              en <span className="text-[#2563eb] font-medium">Granada.</span>
+            </>
+          ) : (
+            <>
+              I am your health assistant<br />
+              in <span className="text-[#2563eb] font-medium">Granada.</span>
+            </>
+          )}
         </h2>
 
         {/* Divider line */}
@@ -368,7 +379,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               letterSpacing: "0.01em",
             }}
           >
-            Contame cómo te sentís hoy.
+            {t("howFeel")}
           </p>
           <p
             className="text-[#94a3b8]"
@@ -379,7 +390,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               letterSpacing: "0.01em",
             }}
           >
-            Estoy aquí para ayudarte.
+            {t("hereToHelp")}
           </p>
         </div>
       </motion.main>
@@ -546,7 +557,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder="Describe tus síntomas…"
+            placeholder={t("describeSymptoms")}
             className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400"
             style={{
               height: "56px",
@@ -650,7 +661,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             letterSpacing: "-0.01em",
           }}
         >
-          Cumplimos con normativas<br />de salud internacionales.
+          {language === "es" ? (
+            <>
+              Cumplimos con normativas<br />de salud internacionales.
+            </>
+          ) : (
+            <>
+              We comply with international<br />health regulations.
+            </>
+          )}
         </p>
       </motion.div>
     </div>

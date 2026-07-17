@@ -11,19 +11,52 @@ import { ToastContainer, createToast, type ToastData } from "./components/Toast"
 import { useAuth } from "./contexts/AuthContext";
 import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
-import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2 } from "lucide-react";
+import { MessageSquare, MapPin, Search, Sparkles, X, Settings, RefreshCw, Eye, Star, Info, ShieldAlert, Loader2, Sun, Moon, Globe, Type, FileText, ShieldCheck, HelpCircle, ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "./contexts/LanguageContext";
 
 export default function App() {
   const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "centros" | "buscar" | "premium" | "perfil">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
   const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsSubView, setSettingsSubView] = useState<"main" | "guide" | "terms" | "privacy">("main");
+  const [guideStep, setGuideStep] = useState(1);
+  const [isDevToolsExpanded, setIsDevToolsExpanded] = useState(false);
   const [isEmergencyModalOpen, setIsEmergencyModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+  const [fontSize, setFontSize] = useState<"sm" | "md" | "lg">(() => {
+    try {
+      const savedSize = localStorage.getItem("fontSize");
+      if (savedSize === "sm" || savedSize === "md" || savedSize === "lg") {
+        return savedSize;
+      }
+    } catch (e) {
+      console.warn("localStorage reading is blocked:", e);
+    }
+    return "md";
+  });
+
+  // Synchronize font size
+  useEffect(() => {
+    try {
+      const root = document.documentElement;
+      if (fontSize === "sm") {
+        root.style.fontSize = "14px";
+      } else if (fontSize === "lg") {
+        root.style.fontSize = "18px";
+      } else {
+        root.style.fontSize = "16px";
+      }
+      localStorage.setItem("fontSize", fontSize);
+    } catch (e) {
+      console.warn("Failed to set font size in localStorage:", e);
+    }
+  }, [fontSize]);
 
   // Global dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -130,9 +163,9 @@ export default function App() {
       setAppointments(INITIAL_APPOINTMENTS);
       setIsPremium(false);
       setCurrentView("login");
-      addToast(createToast("Sesión cerrada correctamente.", "info"));
+      addToast(createToast(language === "es" ? "Sesión cerrada correctamente." : "Logged out successfully.", "info"));
     } else {
-      addToast(createToast(result.error || "Error al cerrar sesión.", "error"));
+      addToast(createToast(result.error || (language === "es" ? "Error al cerrar sesión." : "Error logging out."), "error"));
     }
   };
 
@@ -142,7 +175,7 @@ export default function App() {
     setIsPremium(false);
     setCurrentView("home");
     setIsSettingsOpen(false);
-    addToast(createToast("Aplicación reiniciada a sus valores por defecto.", "info"));
+    addToast(createToast(language === "es" ? "Aplicación reiniciada a sus valores por defecto." : "Application reset to default values.", "info"));
   };
 
   // ─── Loading Screen ────────────────────────────────────────
@@ -194,14 +227,16 @@ export default function App() {
           </div>
 
           <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 pl-3">Menú Principal</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 pl-3">
+              {language === "es" ? "Menú Principal" : "Main Menu"}
+            </div>
 
             {[
-              { id: "home", label: "Inicio", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
-              { id: "consulta", label: "Consulta IA", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
-              { id: "centros", label: "Centros Médicos", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
-              { id: "buscar", label: "Buscador / Citas", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
-              { id: "premium", label: "Premium", icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
+              { id: "home", label: t("navHome"), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg> },
+              { id: "consulta", label: t("navConsulta"), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg> },
+              { id: "centros", label: t("navCentros"), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg> },
+              { id: "buscar", label: t("navBuscar"), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg> },
+              { id: "premium", label: t("navPremium"), icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 12l10 10 10-10z" /></svg> },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -387,9 +422,8 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
-                  Consulta
+                  {t("navConsulta")}
                 </span>
-                {/* Active indicator dot/lines */}
                 {currentView === "consulta" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
                 )}
@@ -409,7 +443,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "centros" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
-                  Centros
+                  {t("navCentros")}
                 </span>
                 {currentView === "centros" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -430,7 +464,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
-                  Buscar
+                  {t("navBuscar")}
                 </span>
                 {currentView === "buscar" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -450,7 +484,7 @@ export default function App() {
                   </svg>
                 </div>
                 <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-[#1d4ed8]" : "text-[#94a3b8]"}`}>
-                  Premium
+                  {t("navPremium")}
                 </span>
                 {currentView === "premium" && (
                   <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-[#1d4ed8] font-bold text-xs tracking-[1.5px] leading-none">...</span>
@@ -468,80 +502,369 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-6"
           >
             <motion.div
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 text-slate-800"
+              className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-colors duration-300 max-h-[85vh] overflow-y-auto"
             >
-              <div className="flex justify-between items-start pb-4 border-b border-slate-100">
+              {/* Modal Header */}
+              <div className="flex justify-between items-start pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
                 <div>
-                  <h3 className="font-display font-bold text-lg text-slate-900 flex items-center gap-1.5">
-                    <Settings className="w-5 h-5 text-blue-600 animate-spin" />
-                    <span>Ajustes del Sistema</span>
+                  <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400 animate-spin" />
+                    <span>{t("settingsTitle")}</span>
                   </h3>
-                  <p className="text-xs text-slate-400">Panel de evaluación para Salud-Conecta IA</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{t("settingsSubtitle")}</p>
                 </div>
                 <button
-                  onClick={() => setIsSettingsOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
+                  onClick={() => {
+                    setIsSettingsOpen(false);
+                    setSettingsSubView("main");
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Body */}
-              <div className="py-4 space-y-4">
-                {/* Simulated Diagnostic report of scheduled appointments */}
-                <div className="p-3 bg-blue-50 rounded-2xl border border-blue-100 text-xs">
-                  <span className="font-bold text-blue-800 block mb-1">Citas agendadas por {localUser.name}:</span>
-                  <p className="text-slate-600">{appointments.length} citas registradas.</p>
-                  <ul className="list-disc leading-normal list-inside pl-1 mt-1 text-slate-500 text-[11px]">
-                    {appointments.map((a, i) => (
-                      <li key={i}>{a.doctorName} - {a.specialty} ({a.date})</li>
-                    ))}
-                  </ul>
-                </div>
+              {/* Modal Body with views switching */}
+              {settingsSubView === "main" ? (
+                // --- MAIN SETTINGS INDEX VIEW ---
+                <div className="space-y-5">
+                  {/* Preferences Section */}
+                  <div className="space-y-4">
+                    {/* Dark Mode Preference */}
+                    <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/30">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                          {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                        </div>
+                        <div>
+                          <span className="text-[13px] font-bold block">{t("darkMode")}</span>
+                          <span className="text-[10px] text-slate-400">{t("darkModeDesc")}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setDarkMode(!darkMode)}
+                        className={`w-12 h-6.5 rounded-full p-1 transition-all duration-350 cursor-pointer ${darkMode ? "bg-blue-600 flex justify-end" : "bg-slate-200 dark:bg-slate-750 flex justify-start"
+                          }`}
+                      >
+                        <motion.div
+                          layout
+                          className="w-4.5 h-4.5 rounded-full bg-white shadow-sm"
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
+                      </button>
+                    </div>
 
-                {/* Supabase Auth Status */}
-                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-[11px] text-emerald-800 leading-normal flex items-start space-x-2">
-                  <ShieldAlert className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Estado de Autenticación Supabase:</span>
-                    <p className="mt-0.5">
-                      {session ? (
-                        <>✅ Sesión activa — {user?.email}</>
-                      ) : (
-                        <>⚠️ Sin sesión activa (modo invitado)</>
-                      )}
+                    {/* Font Size Preference */}
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/30 space-y-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#eff6ff] dark:bg-blue-950/20 text-[#2563eb] dark:text-[#60a5fa] flex items-center justify-center">
+                          <Type className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[13px] font-bold block">{t("fontSize")}</span>
+                          <span className="text-[10px] text-slate-400">{t("fontSizeDesc")}</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 pt-1">
+                        {[
+                          { id: "sm", label: t("fontSizeSmall") },
+                          { id: "md", label: t("fontSizeMedium") },
+                          { id: "lg", label: t("fontSizeLarge") }
+                        ].map((sz) => (
+                          <button
+                            key={sz.id}
+                            onClick={() => setFontSize(sz.id as any)}
+                            className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition-all cursor-pointer ${fontSize === sz.id
+                                ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10"
+                                : "bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800"
+                              }`}
+                          >
+                            {sz.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Language Preference */}
+                    <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100/50 dark:border-slate-700/30 space-y-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                          <Globe className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[13px] font-bold block">{t("language")}</span>
+                          <span className="text-[10px] text-slate-400">{t("languageDesc")}</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        {[
+                          { id: "es", label: t("languageEs") },
+                          { id: "en", label: t("languageEn") }
+                        ].map((lang) => (
+                          <button
+                            key={lang.id}
+                            onClick={() => setLanguage(lang.id as any)}
+                            className={`py-2 px-1 text-[11px] font-bold rounded-xl border text-center transition-all cursor-pointer ${language === lang.id
+                                ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/10"
+                                : "bg-white dark:bg-slate-850 border-slate-200 dark:border-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-800"
+                              }`}
+                          >
+                            {lang.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Informational Buttons List */}
+                  <div className="space-y-2">
+                    {[
+                      { id: "guide", title: t("userGuide"), desc: t("userGuideDesc"), icon: HelpCircle, color: "text-purple-600 bg-purple-50 dark:bg-purple-900/20 dark:text-purple-400" },
+                      { id: "terms", title: t("terms"), desc: t("termsDesc"), icon: FileText, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400" },
+                      { id: "privacy", title: t("privacy"), desc: t("privacyDesc"), icon: ShieldCheck, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400" }
+                    ].map((opt) => {
+                      const Icon = opt.icon;
+                      return (
+                        <button
+                          key={opt.id}
+                          onClick={() => {
+                            if (opt.id === "guide") setGuideStep(1);
+                            setSettingsSubView(opt.id as any);
+                          }}
+                          className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent hover:border-slate-100 dark:hover:border-slate-800/80 transition-all text-left outline-none cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3.5">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${opt.color}`}>
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-[13px] font-bold">{opt.title}</h4>
+                              <p className="text-[10px] text-slate-400">{opt.desc}</p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Collapsible Developer/Testing Utilities */}
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                    <button
+                      onClick={() => setIsDevToolsExpanded(!isDevToolsExpanded)}
+                      className="w-full flex items-center justify-between text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 py-1.5 transition-colors cursor-pointer text-xs font-semibold"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ShieldAlert className="w-4 h-4" />
+                        <span>{t("devTools")}</span>
+                      </span>
+                      <ChevronDown className={`w-4 h-4 transform transition-transform ${isDevToolsExpanded ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isDevToolsExpanded && (
+                      <div className="mt-3 space-y-3.5 pb-2">
+                        {/* Appointments diagnosis */}
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100/50 dark:border-blue-900/30 text-xs">
+                          <span className="font-bold text-blue-800 dark:text-blue-400 block mb-1">
+                            {t("appointmentsLength").replace("{name}", localUser.name)} ({appointments.length}):
+                          </span>
+                          {appointments.length > 0 ? (
+                            <ul className="list-disc leading-normal list-inside pl-1 mt-1 text-slate-600 dark:text-slate-400 text-[11px]">
+                              {appointments.map((a, i) => (
+                                <li key={i}>{a.doctorName} - {a.specialty} ({a.date})</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-slate-500 text-[11px]">No appointments registered.</p>
+                          )}
+                        </div>
+
+                        {/* Supabase Status */}
+                        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30 text-[11px] text-emerald-800 dark:text-emerald-400 leading-normal flex items-start space-x-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">{t("supabaseStatus")}</span>
+                            <p className="mt-0.5">
+                              {session ? (
+                                <>✅ {t("supabaseActive")} — {user?.email}</>
+                              ) : (
+                                <>⚠️ {t("supabaseInactive")}</>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Gemini AI Status */}
+                        <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-2xl border border-amber-100/50 dark:border-amber-900/30 text-[11px] text-amber-800 dark:text-amber-400 leading-normal flex items-start space-x-2">
+                          <Info className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">{t("geminiActive")}</span>
+                            <p className="mt-0.5 text-slate-600 dark:text-slate-400">{t("geminiActiveDesc")}</p>
+                          </div>
+                        </div>
+
+                        {/* Reset Local DB Button */}
+                        <button
+                          onClick={handleResetApp}
+                          className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 active:scale-98 text-white py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow cursor-pointer"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          <span>{t("resetDb")}</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 dark:text-slate-600 text-center pt-3 border-t border-slate-100 dark:border-slate-800">
+                    {t("appVersion")}
+                  </div>
+                </div>
+              ) : settingsSubView === "guide" ? (
+                // --- USER GUIDE VIEW ---
+                <div className="space-y-6">
+                  {/* Stepper Wizard content */}
+                  <div className="flex flex-col items-center text-center p-4 bg-slate-50 dark:bg-slate-800/40 rounded-3xl border border-slate-150/40 dark:border-slate-800/80 min-h-[220px] justify-center">
+                    <div className="mb-4 transform scale-110">
+                      {[
+                        <MessageSquare className="w-12 h-12 text-blue-600 dark:text-blue-400 animate-pulse" />,
+                        <MapPin className="w-12 h-12 text-emerald-600 dark:text-emerald-400 animate-pulse" />,
+                        <Search className="w-12 h-12 text-purple-600 dark:text-purple-400 animate-pulse" />,
+                        <ShieldAlert className="w-12 h-12 text-red-600 dark:text-red-400 animate-pulse" />
+                      ][guideStep - 1]}
+                    </div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-blue-500 mb-1">
+                      {language === "es" ? `Paso ${guideStep} de 4` : `Step ${guideStep} of 4`}
+                    </span>
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-white mb-2 leading-tight">
+                      {[
+                        t("guideStep1Title"),
+                        t("guideStep2Title"),
+                        t("guideStep3Title"),
+                        t("guideStep4Title")
+                      ][guideStep - 1]}
+                    </h4>
+                    <p className="text-[11.5px] leading-relaxed text-slate-500 dark:text-slate-400 max-w-[280px]">
+                      {[
+                        t("guideStep1Desc"),
+                        t("guideStep2Desc"),
+                        t("guideStep3Desc"),
+                        t("guideStep4Desc")
+                      ][guideStep - 1]}
                     </p>
                   </div>
-                </div>
 
-                {/* API Info key safety */}
-                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-100 text-[11px] text-amber-800 leading-normal flex items-start space-x-2">
-                  <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold">Servicios Gemini AI Activos:</span>
-                    <p className="mt-0.5">La app enruta las consultas de triaje mediante una llamada server-side a `gemini-3.5-flash`.</p>
+                  {/* Wizard Dots navigation */}
+                  <div className="flex justify-center gap-1.5">
+                    {[1, 2, 3, 4].map((step) => (
+                      <button
+                        key={step}
+                        onClick={() => setGuideStep(step)}
+                        className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${guideStep === step ? "w-6 bg-blue-600" : "w-2.5 bg-slate-200 dark:bg-slate-700"
+                          }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Navigation buttons */}
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={() => setSettingsSubView("main")}
+                      className="px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      {t("back")}
+                    </button>
+                    <div className="flex gap-2">
+                      {guideStep > 1 && (
+                        <button
+                          onClick={() => setGuideStep((prev) => prev - 1)}
+                          className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold rounded-xl transition-all cursor-pointer"
+                        >
+                          {language === "es" ? "Anterior" : "Back"}
+                        </button>
+                      )}
+                      {guideStep < 4 ? (
+                        <button
+                          onClick={() => setGuideStep((prev) => prev + 1)}
+                          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow transition-all cursor-pointer"
+                        >
+                          {language === "es" ? "Siguiente" : "Next"}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setSettingsSubView("main")}
+                          className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition-all cursor-pointer"
+                        >
+                          {language === "es" ? "Finalizar" : "Finish"}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
+              ) : (
+                // --- LEGAL DOCUMENTS VIEW (TERMS & PRIVACY) ---
+                <div className="space-y-4">
+                  {/* Scrollable content container */}
+                  <div className="bg-slate-50 dark:bg-slate-850 p-4 rounded-2xl border border-slate-150/50 dark:border-slate-800/80 max-h-[300px] overflow-y-auto">
+                    {settingsSubView === "terms" ? (
+                      <div className="space-y-3 text-[12px] leading-relaxed text-slate-650 dark:text-slate-350">
+                        <h4 className="font-bold text-[13px] text-slate-900 dark:text-white uppercase tracking-wide border-b border-slate-100 dark:border-slate-850 pb-1.5 mb-2">
+                          {t("terms")}
+                        </h4>
+                        {language === "es" ? (
+                          <div className="space-y-3">
+                            <p><strong>1. Aceptación de los Términos:</strong> Al usar Salud-Conecta IA, usted acepta voluntariamente estos términos de servicio.</p>
+                            <p><strong>2. Sin Carácter Clínico Directo:</strong> Este sistema es un triaje automatizado basado en Inteligencia Artificial y no sustituye el criterio, consejo, diagnóstico o tratamiento de un médico profesional.</p>
+                            <p><strong>3. Responsabilidad:</strong> No nos hacemos responsables de las decisiones de salud personales tomadas basándose únicamente en las respuestas de la IA.</p>
+                            <p><strong>4. Línea de Emergencia:</strong> En caso de sospechar peligro o riesgo vital, debe comunicarse inmediatamente con la Cruz Roja llamando a la línea 128.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <p><strong>1. Acceptance of Terms:</strong> By using Salud-Conecta AI, you voluntarily agree to these terms of service.</p>
+                            <p><strong>2. No Direct Clinical Value:</strong> This system is an automated triage based on Artificial Intelligence and does not replace the criteria, advice, diagnosis, or treatment of a medical professional.</p>
+                            <p><strong>3. Liability:</strong> We are not responsible for any personal health decisions made solely based on the responses provided by the AI.</p>
+                            <p><strong>4. Emergency Hotline:</strong> In case of suspected danger or life-threat, you must immediately call the Red Cross at 128.</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-3 text-[12px] leading-relaxed text-slate-650 dark:text-slate-350">
+                        <h4 className="font-bold text-[13px] text-slate-900 dark:text-white uppercase tracking-wide border-b border-slate-100 dark:border-slate-850 pb-1.5 mb-2">
+                          {t("privacy")}
+                        </h4>
+                        {language === "es" ? (
+                          <div className="space-y-3">
+                            <p><strong>1. Cumplimiento de Privacidad:</strong> Cumplimos estrictamente con las directrices HIPAA y GDPR para salvaguardar su información de salud.</p>
+                            <p><strong>2. Procesamiento Anónimo:</strong> Las conversaciones médicas y los síntomas ingresados se anonimizan completamente antes de procesarse y nunca se asocian con datos personales identificables.</p>
+                            <p><strong>3. Datos de Perfil:</strong> Su información personal de perfil y el historial de citas se almacenan de manera encriptada y segura en su dispositivo local y en servidores seguros Supabase.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <p><strong>1. Privacy Compliance:</strong> We strictly comply with HIPAA and GDPR guidelines to safeguard your health information.</p>
+                            <p><strong>2. Anonymous Processing:</strong> Medical conversations and symptoms entered are fully anonymized before processing and are never associated with identifiable personal data.</p>
+                            <p><strong>3. Profile Data:</strong> Your personal profile details and appointment history are stored securely and encrypted on your local device and secure Supabase servers.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
-                {/* Reset system */}
-                <button
-                  onClick={handleResetApp}
-                  className="w-full bg-slate-900 hover:bg-slate-800 active:scale-95 text-white py-3 px-4 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 transition-all shadow"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Reiniciar base de datos local</span>
-                </button>
-              </div>
-
-              <div className="text-[10px] text-slate-400 text-center pt-3 border-t border-slate-100">
-                Salud-Conecta IA • v1.0.0 PWA • 2026
-              </div>
+                  {/* Back button */}
+                  <div className="flex justify-start pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={() => setSettingsSubView("main")}
+                      className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
+                    >
+                      {t("back")}
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
