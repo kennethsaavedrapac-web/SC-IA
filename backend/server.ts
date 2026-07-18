@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import path from "path";
 import dotenv from "dotenv";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 import helmet from "helmet";
@@ -12,7 +11,12 @@ import rateLimit from "express-rate-limit";
 import fhirHandler from "./api/fhir.js";
 import fhirGetHandler from "./api/fhir-get.js";
 
-dotenv.config();
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config(); // fallback
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || "placeholder-key";
@@ -209,7 +213,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
         console.error("Error fetching dynamic model config from Supabase:", dbErr);
       }
 
-      const model = client.getGenerativeModel({
+      const model = getGeminiClient().getGenerativeModel({
         model: aiModel,
         systemInstruction: finalSystemInstruction
       });
@@ -273,12 +277,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
 
   // Hot module reloading and client asset serving
   if (process.env.NODE_ENV !== "production") {
-    console.log("Configuring Vite Development Server Middleware...");
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
+    console.log("Development mode: API Server running. (Frontend Vite is handled separately)");
   } else {
     console.log("Serving production build of client from /dist...");
     const distPath = path.resolve(process.cwd(), 'dist');
