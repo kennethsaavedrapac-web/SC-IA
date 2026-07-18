@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --force",
+    "vercel-build": "npm i lightningcss-linux-x64-gnu @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --no-save && tsc && vite build",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
