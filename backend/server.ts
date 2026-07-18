@@ -9,8 +9,8 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 
 // Import Vercel API handlers to make them work locally
-import fhirHandler from "./api/fhir.js";
-import fhirGetHandler from "./api/fhir-get.js";
+import fhirHandler from "../api/fhir.js";
+import fhirGetHandler from "../api/fhir-get.js";
 
 import { fileURLToPath } from 'url';
 

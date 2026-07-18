@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "build": "npm run build -w frontend",
+    "vercel-build": "npm install @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 lightningcss-linux-x64-gnu --no-save && npm run build -w frontend",
     "install:all": "npm install"
   },
   "devDependencies": {
