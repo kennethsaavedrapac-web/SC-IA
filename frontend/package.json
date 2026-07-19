@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --force",
     "vercel-build": "npm i lightningcss-linux-x64-gnu @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --no-save && tsc && vite build",
-    "build": "npm i lightningcss-linux-x64-gnu --no-save --force && tsc && vite build",
+    "build": "npm i lightningcss-linux-x64-gnu @tailwindcss/oxide-linux-x64-gnu @rollup/rollup-linux-x64-gnu @esbuild/linux-x64 --no-save --force && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
