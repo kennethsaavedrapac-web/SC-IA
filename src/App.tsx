@@ -1,24 +1,25 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
+import React, { lazy, useState, useEffect, useCallback, Suspense } from "react";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
-import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
-import { UserProfile, Appointment } from "./types";
+import { DEFAULT_USER } from "./data/medicalData";
+import type { UserProfile } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -33,7 +34,6 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
-  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
@@ -516,10 +516,6 @@ export default function App() {
     setCurrentView("home");
   };
 
-  const handleAddAppointment = (newApp: Appointment) => {
-    setAppointments((prev) => [newApp, ...prev]);
-  };
-
   const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
 
@@ -576,7 +572,6 @@ export default function App() {
     setIsLogoutModalOpen(false);
     if (result.success) {
       setLocalUser(DEFAULT_USER);
-      setAppointments(INITIAL_APPOINTMENTS);
       setIsPremium(false);
       setCurrentView("login");
       addToast(createToast(t('sessionClosed'), "info"));
@@ -587,7 +582,6 @@ export default function App() {
 
   const handleResetApp = () => {
     setLocalUser(DEFAULT_USER);
-    setAppointments(INITIAL_APPOINTMENTS);
     setIsPremium(false);
     setCurrentView("home");
     setIsSettingsOpen(false);
