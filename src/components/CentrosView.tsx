@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -271,6 +271,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
   }, [mergedCenters]);
 
+  const mergedCentersRef = useRef(mergedCenters);
+  mergedCentersRef.current = mergedCenters;
+
+  const userLocationRef = useRef(userLocation);
+  userLocationRef.current = userLocation;
+
   useEffect(() => {
     if (!("geolocation" in navigator)) {
       setGeoStatus("error");
@@ -288,14 +294,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           accuracy: position.coords.accuracy,
         };
 
-
-
+        const prevLoc = userLocationRef.current;
         let shouldUpdate = true;
-        if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
-
-
-          if (distanceMeters < 10) {
+        if (prevLoc) {
+          const distanceMeters = getDistanceKm(userLoc, prevLoc as unknown as HealthCenter) * 1000;
+          if (distanceMeters < 15) {
             shouldUpdate = false;
           }
         }
@@ -306,14 +309,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           setGeoError("");
           setLocationMode("nearby");
 
-
-
-          const nearestCenter = mergedCenters
+          const nearestCenter = mergedCentersRef.current
             .filter((center) => center.latitude && center.longitude)
             .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
             .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
-          if (nearestCenter) {
+          if (nearestCenter && !userLocationRef.current) {
             setActiveFilter("centro");
             setSelectedCenter(nearestCenter);
           }
@@ -332,7 +333,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
+  }, []);
 
   useEffect(() => {
     if (!userLocation) return;

@@ -1,15 +1,6 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
-import TwoFactorVerify from "./components/TwoFactorVerify";
-import AnnouncementModal from "./components/AnnouncementModal";
+import React, { useState, useEffect, useCallback, Suspense, lazy, useRef } from "react";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
+import { ViewSkeleton, ChatSkeleton, MapSkeleton } from "./components/SkeletonLoaders";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
@@ -22,11 +13,20 @@ import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Su
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 
-const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
-  <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
-    <Loader2 className="w-8 h-8 text-brand-600 animate-spin mb-4" />
-    <span className="text-sm font-semibold text-slate-500">{text}</span>
-  </div>
+// Lazy loading of view components
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
+const TwoFactorVerify = lazy(() => import("./components/TwoFactorVerify"));
+const AnnouncementModal = lazy(() => import("./components/AnnouncementModal"));
+
+const LoadingFallback = ({ text = "Cargando..." }: { text?: string }) => (
+  <ViewSkeleton title={text} />
 );
 
 export default function App() {
@@ -99,6 +99,9 @@ export default function App() {
     }
   });
 
+  const dismissedAnnouncementsRef = useRef(dismissedAnnouncements);
+  dismissedAnnouncementsRef.current = dismissedAnnouncements;
+
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -107,10 +110,9 @@ export default function App() {
         if (!error && data) {
           const now = new Date();
           const active = data.filter((a: any) => {
-            
             const start = new Date(a.fecha_inicio + "T00:00:00");
             const end = new Date(a.fecha_fin + "T23:59:59");
-            return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
+            return now >= start && now <= end && !dismissedAnnouncementsRef.current.includes(a.id);
           });
           if (user?.id) {
             saveAdminAnnouncementRecords(user.id, active.map((announcement: any) => ({
@@ -130,7 +132,6 @@ export default function App() {
     };
     fetchAnnouncements();
 
-    
     const announcementsSub = supabase
       .channel('announcements-channel')
       .on(
@@ -143,7 +144,7 @@ export default function App() {
       .subscribe();
 
     return () => { supabase.removeChannel(announcementsSub); };
-  }, [dismissedAnnouncements, user?.id]);
+  }, [user?.id]);
 
   
   useEffect(() => {

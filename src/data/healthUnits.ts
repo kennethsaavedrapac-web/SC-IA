@@ -101,46 +101,62 @@ function estimateDuration(index: number): number {
   return 5 + (index % 16);
 }
 
+let _cachedCenters: HealthCenter[] | null = null;
+
+function buildHealthCenters(): HealthCenter[] {
+  if (_cachedCenters) return _cachedCenters;
+
+  let globalIndex = 0;
+  const centers: HealthCenter[] = [];
+
+  for (let d = 0; d < HEALTH_UNIT_DATABASE.length; d++) {
+    const department = HEALTH_UNIT_DATABASE[d];
+    const rawDept = department.departamento || "Nicaragua";
+    const departmentName = rawDept === "RACCN" || rawDept === "RACCS"
+      ? rawDept
+      : rawDept.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+
+    for (let u = 0; u < department.unidades_salud.length; u++) {
+      const unit = department.unidades_salud[u];
+      const position = coordinateToMapPosition(unit, globalIndex);
+      const municipality = normalizeText(unit.municipio);
+      const zone = normalizeText(unit.zona);
+
+      centers.push({
+        id: `${department.departamento.toLowerCase().replace(/\s+/g, "-")}-${unit.numero}-${u}`,
+        name: normalizeText(unit.nombre),
+        type: normalizeText(unit.tipo_unidad_salud),
+        schedule: "Registro oficial MINSA",
+        distance: `${municipality} · ${departmentName}`,
+        durationMin: estimateDuration(globalIndex),
+        lat: position.lat,
+        lng: position.lng,
+        latitude: unit.latitud ?? undefined,
+        longitude: unit.longitud ?? undefined,
+        department: departmentName,
+        municipality,
+        locality: normalizeText(unit.localidad),
+        zone,
+        phone: unit.telefono ?? undefined,
+        silais: normalizeText(unit.silais, department.departamento),
+        sourceNumber: unit.numero,
+        hasCoordinates: position.hasCoordinates,
+      });
+
+      globalIndex++;
+    }
+  }
+
+  _cachedCenters = centers;
+  return _cachedCenters;
+}
+
 export const HEALTH_CENTER_TOTAL = HEALTH_UNIT_DATABASE.reduce(
   (total, department) => total + department.unidades_salud.length,
   0,
 );
 
-export const HEALTH_CENTERS: HealthCenter[] = HEALTH_UNIT_DATABASE.flatMap((department) =>
-  department.unidades_salud.map((unit, unitIndex) => {
-    const globalIndex = HEALTH_UNIT_DATABASE
-      .slice(0, HEALTH_UNIT_DATABASE.indexOf(department))
-      .reduce((total, current) => total + current.unidades_salud.length, 0) + unitIndex;
-    const position = coordinateToMapPosition(unit, globalIndex);
-    const rawDept = department.departamento || "Nicaragua";
-    const departmentName = rawDept === "RACCN" || rawDept === "RACCS"
-      ? rawDept
-      : rawDept.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-    const municipality = normalizeText(unit.municipio);
-    const zone = normalizeText(unit.zona);
-
-    return {
-      id: `${department.departamento.toLowerCase().replace(/\s+/g, "-")}-${unit.numero}-${unitIndex}`,
-      name: normalizeText(unit.nombre),
-      type: normalizeText(unit.tipo_unidad_salud),
-      schedule: "Registro oficial MINSA",
-      distance: `${municipality} · ${departmentName}`,
-      durationMin: estimateDuration(globalIndex),
-      lat: position.lat,
-      lng: position.lng,
-      latitude: unit.latitud ?? undefined,
-      longitude: unit.longitud ?? undefined,
-      department: departmentName,
-      municipality,
-      locality: normalizeText(unit.localidad),
-      zone,
-      phone: unit.telefono ?? undefined,
-      silais: normalizeText(unit.silais, department.departamento),
-      sourceNumber: unit.numero,
-      hasCoordinates: position.hasCoordinates,
-    };
-  }),
-);
+export const HEALTH_CENTERS: HealthCenter[] = buildHealthCenters();
 
 export const HEALTH_CENTER_DEPARTMENTS = Array.from(
   new Set(HEALTH_CENTERS.map((center) => center.department)),

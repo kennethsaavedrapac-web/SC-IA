@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { User, Session } from '@supabase/supabase-js';
 import {
   signUpWithEmail,
@@ -11,9 +11,7 @@ import {
 } from '../lib/authService';
 import { getAssuranceLevel, getMFAFactors } from '../lib/mfaService';
 
-
 interface AuthContextType {
-  
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
@@ -24,7 +22,6 @@ interface AuthContextType {
   requiresMFA: boolean;
   mfaFactorId: string | null;
 
-  
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
@@ -35,11 +32,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(() => {
+    try {
+      const cached = localStorage.getItem('cached_user_profile');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -47,27 +50,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [requiresMFA, setRequiresMFA] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
 
-  
+  // Control de promesas activas para evitar consultas duplicadas simultáneas
+  const activeProfilePromiseRef = useRef<{ userId: string; promise: Promise<void> } | null>(null);
+
   const loadProfile = useCallback(async (userId: string) => {
-    const { profile: fetchedProfile } = await getUserProfile(userId);
-    if (fetchedProfile) {
-      setProfile(fetchedProfile);
+    if (!userId) return;
+
+    // Deduplicación de promesas en vuelo
+    if (activeProfilePromiseRef.current && activeProfilePromiseRef.current.userId === userId) {
+      return activeProfilePromiseRef.current.promise;
     }
+
+    const promise = (async () => {
+      try {
+        const { profile: fetchedProfile } = await getUserProfile(userId);
+        if (fetchedProfile) {
+          setProfile(fetchedProfile);
+          try {
+            localStorage.setItem('cached_user_profile', JSON.stringify(fetchedProfile));
+          } catch {
+            // Silencioso si falla el almacenamiento
+          }
+        }
+      } catch (err) {
+        console.warn('[AuthContext] Error al cargar perfil:', err);
+      } finally {
+        activeProfilePromiseRef.current = null;
+      }
+    })();
+
+    activeProfilePromiseRef.current = { userId, promise };
+    return promise;
   }, []);
 
-  
   useEffect(() => {
     const subscription = onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
       if (newSession?.user) {
-        
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-          setTimeout(() => loadProfile(newSession.user.id), 300);
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          loadProfile(newSession.user.id);
         }
       } else {
         setProfile(null);
+        try {
+          localStorage.removeItem('cached_user_profile');
+        } catch {}
       }
 
       setInitialized(true);
@@ -78,7 +107,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [loadProfile]);
 
-  
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -86,11 +114,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (result.success && result.user) {
         await loadProfile(result.user.id);
 
-        // Check if user has MFA enabled and needs verification
         try {
           const assurance = await getAssuranceLevel();
           if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
-            // User has MFA factors but hasn't verified yet in this session
             const { factors } = await getMFAFactors();
             const verifiedFactor = factors.find(f => f.status === 'verified');
             if (verifiedFactor) {
@@ -99,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         } catch {
-          // MFA check failed silently — don't block login
+          // MFA silencioso
         }
       }
       return { success: result.success, error: result.error };
@@ -113,8 +139,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await signUpWithEmail(email, password, nombre);
       if (result.success && result.user) {
-        
-        await new Promise((resolve) => setTimeout(resolve, 500));
         await loadProfile(result.user.id);
       }
       return { success: result.success, error: result.error };
@@ -143,6 +167,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(null);
         setRequiresMFA(false);
         setMfaFactorId(null);
+        try {
+          localStorage.removeItem('cached_user_profile');
+        } catch {}
       }
       return result;
     } finally {
@@ -161,7 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMfaFactorId(null);
   }, []);
 
-  const value: AuthContextType = {
+  const value = useMemo<AuthContextType>(() => ({
     user,
     session,
     profile,
@@ -175,7 +202,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     refreshProfile,
     completeMFA,
-  };
+  }), [
+    user,
+    session,
+    profile,
+    loading,
+    initialized,
+    requiresMFA,
+    mfaFactorId,
+    login,
+    register,
+    loginWithGoogle,
+    logout,
+    refreshProfile,
+    completeMFA,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -183,7 +224,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);

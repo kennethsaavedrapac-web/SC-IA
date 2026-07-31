@@ -3,9 +3,6 @@ import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2 } from "lucide-react";
-import { getOfflineTriageResponse } from "../lib/offlineTriage";
-import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
-import { getKriolTriageResponse } from "../lib/kriolTriage";
 import { supabase } from "../lib/supabaseClient";
 interface ConsultaViewProps {
   user: UserProfile;
@@ -464,7 +461,8 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     setIsLoading(true);
 
     if (language === 'mi') {
-      setTimeout(() => {
+      try {
+        const { getMiskitoTriageResponse } = await import("../lib/miskitoTriage");
         const miskitoResponse = getMiskitoTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -475,16 +473,18 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
-        // Guardar en Supabase si el usuario está autenticado
         if (user.id) {
           saveConsultationToSupabase(user.id, userText, miskitoResponse).catch(() => {});
         }
-      }, 800);
+      } catch (err) {
+        setIsLoading(false);
+      }
       return;
     }
 
     if (language === 'kr') {
-      setTimeout(() => {
+      try {
+        const { getKriolTriageResponse } = await import("../lib/kriolTriage");
         const kriolResponse = getKriolTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -495,16 +495,18 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
-        // Guardar en Supabase si el usuario está autenticado
         if (user.id) {
           saveConsultationToSupabase(user.id, userText, kriolResponse).catch(() => {});
         }
-      }, 800);
+      } catch (err) {
+        setIsLoading(false);
+      }
       return;
     }
 
     if (!navigator.onLine) {
-      setTimeout(() => {
+      try {
+        const { getOfflineTriageResponse } = await import("../lib/offlineTriage");
         const offlineResponse = getOfflineTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -515,11 +517,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
-        // Intentar guardar en Supabase aunque sea modo offline (puede fallarcasi siempre, pero no bloquea)
         if (user.id) {
           saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
         }
-      }, 800);
+      } catch (err) {
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -542,6 +545,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       if (!response.ok) {
         console.error("API Error Response:", data);
         console.error("Response status:", response.status);
+        const { getOfflineTriageResponse } = await import("../lib/offlineTriage");
         const offlineResponse = getOfflineTriageResponse(userText, user);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -551,20 +555,17 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, errorMsg]);
-        // Guardar en Supabase incluso con respuesta de fallback offline
         if (user.id) {
           saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
         }
         return;
       }
 
-
       if (data.simulated) {
         console.warn("[ConsultaView] Simulated response received:", data.warning);
       }
 
       let botText = data.text || "Lo siento, no pude procesar la respuesta.";
-
 
       if (data.simulated && data.warning) {
         botText = `📋 ${data.warning}\n\n${botText}`;
@@ -580,7 +581,6 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
       setMessages(prev => [...prev, botMsg]);
 
-      // Guardar el par consulta/respuesta en Supabase (si el usuario está autenticado)
       if (user.id) {
         saveConsultationToSupabase(user.id, userText, botText).catch((err) =>
           console.warn("[Supabase] No se guardó la consulta:", err)
@@ -588,6 +588,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       }
     } catch (error) {
       console.error("Fetch error:", error);
+      const { getOfflineTriageResponse } = await import("../lib/offlineTriage");
       const offlineResponse = getOfflineTriageResponse(userText, user);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
