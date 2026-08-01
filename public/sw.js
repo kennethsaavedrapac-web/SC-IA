@@ -95,41 +95,34 @@ self.addEventListener('notificationclick', (event) => {
 
 
 self.addEventListener('fetch', (event) => {
-  
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
 
+  // Bypass dynamic APIs & auth endpoints from strict cache
+  if (url.pathname.startsWith('/api') || url.hostname.includes('supabase.co')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Stale-While-Revalidate for app assets and JS/CSS chunks
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
           }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
 
-          
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
-
-          
-          return new Response('Contenido no disponible sin conexión a internet', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
-          });
-        });
-      })
+      return cachedResponse || fetchPromise || caches.match('/');
+    })
   );
 });
 

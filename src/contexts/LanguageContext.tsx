@@ -9,6 +9,8 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const translationCache: Record<string, any> = {};
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     try {
@@ -27,15 +29,39 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const t = (key: TranslationKey | string): any => {
-    const getNested = (obj: any, path: string) => {
-      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-    };
-    return getNested(translations[language], key) || getNested(translations['es'], key) || key;
-  };
+  const t = React.useCallback((key: TranslationKey | string): any => {
+    const cacheKey = `${language}:${key}`;
+    if (translationCache[cacheKey] !== undefined) {
+      return translationCache[cacheKey];
+    }
+
+    const currentLangDict = translations[language] as Record<string, any>;
+    const defaultLangDict = translations['es'] as Record<string, any>;
+
+    let res: any;
+    if (currentLangDict && key in currentLangDict) {
+      res = currentLangDict[key];
+    } else if (defaultLangDict && key in defaultLangDict) {
+      res = defaultLangDict[key];
+    } else {
+      const getNested = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+      };
+      res = getNested(translations[language], key) || getNested(translations['es'], key) || key;
+    }
+
+    translationCache[cacheKey] = res;
+    return res;
+  }, [language]);
+
+  const contextValue = React.useMemo(() => ({
+    language,
+    setLanguage,
+    t
+  }), [language, t]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

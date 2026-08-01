@@ -1,13 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
-import AnnouncementModal from "./components/AnnouncementModal";
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
@@ -19,6 +10,17 @@ import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/upda
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+
+// Code-Split Lazy Loaded Views
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
+const AnnouncementModal = lazy(() => import("./components/AnnouncementModal"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -88,6 +90,11 @@ export default function App() {
     }
   });
 
+  const dismissedAnnouncementsRef = React.useRef(dismissedAnnouncements);
+  useEffect(() => {
+    dismissedAnnouncementsRef.current = dismissedAnnouncements;
+  }, [dismissedAnnouncements]);
+
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -96,10 +103,9 @@ export default function App() {
         if (!error && data) {
           const now = new Date();
           const active = data.filter((a: any) => {
-            
             const start = new Date(a.fecha_inicio + "T00:00:00");
             const end = new Date(a.fecha_fin + "T23:59:59");
-            return now >= start && now <= end && !dismissedAnnouncements.includes(a.id);
+            return now >= start && now <= end && !dismissedAnnouncementsRef.current.includes(a.id);
           });
           if (user?.id) {
             saveAdminAnnouncementRecords(user.id, active.map((announcement: any) => ({
@@ -119,7 +125,6 @@ export default function App() {
     };
     fetchAnnouncements();
 
-    
     const announcementsSub = supabase
       .channel('announcements-channel')
       .on(
@@ -132,7 +137,7 @@ export default function App() {
       .subscribe();
 
     return () => { supabase.removeChannel(announcementsSub); };
-  }, [dismissedAnnouncements, user?.id]);
+  }, [user?.id]);
 
   
   useEffect(() => {
