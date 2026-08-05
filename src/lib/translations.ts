@@ -1,6 +1,6 @@
 export const translations = {
   es: {
-    
+
     home: "Inicio",
     consulta: "Consulta IA",
     centros: "Centros Médicos",
@@ -8,7 +8,7 @@ export const translations = {
     premium: "Premium",
     perfil: "Mi perfil",
 
-    
+
     settings: "Configuración",
     appearance: "Apariencia",
     darkMode: "Modo oscuro",
@@ -25,7 +25,7 @@ export const translations = {
     resetApp: "Reiniciar base de datos local",
     version: "v1.2.0 • 2026",
 
-    
+
     loadingModule: "Cargando módulo...",
     maintenanceTitle: "En Mantenimiento",
     maintenanceDesc: "Estamos realizando mejoras en la plataforma. Por favor, vuelve a intentarlo más tarde.",
@@ -61,19 +61,19 @@ export const translations = {
     updatePostponed: "Actualización pospuesta (Simulado)",
     useBrowserMenu: "Usa el menú del navegador para 'Instalar' o 'Añadir a pantalla de inicio'.",
 
-    
+
     termsTitle: "Términos de Servicio",
     privacyTitle: "Política de Privacidad",
     guideTitle: "¿Cómo usar Salud-Conecta IA?",
 
-    
+
     pwaBannerTitle: "Instala la App Móvil",
     pwaBannerDesc: "Accede al instante a tu triaje médico con IA y disfruta de funciones offline optimizadas.",
     pwaInstallButton: "Instalar PWA",
     pwaIosInstructions: "En iOS: presiona el botón compartir ⎋ y selecciona 'Agregar a Inicio' ⊞",
     pwaSuccessToast: "¡Salud-Conecta IA se ha instalado correctamente!",
 
-    
+
     welcome: "Bienvenido",
     guest: "Invitado",
     hello: "Hola",
@@ -114,7 +114,7 @@ export const translations = {
     homeEmergDesc: "Llama rápidamente a los servicios de emergencia (128).",
     backToApp: "Volver a la App",
 
-    
+
     searchTitle: "Buscador",
     pharmacies: "Farmacias",
     doctors: "Médicos",
@@ -163,7 +163,7 @@ export const translations = {
     bookingSuccessDesc: "Tu cita con **{name}** ha quedado confirmada de forma segura bajo el número de registro **APP-{id}**.",
     smsReminder: "Un recordatorio SMS ha sido enviado.",
 
-    
+
     verified: "Verificado",
     changePhoto: "Cambiar foto",
     noAlerts: "No tienes alertas críticas pendientes. Su historial clínico de triaje virtual se encuentra en perfecto orden.",
@@ -218,7 +218,7 @@ export const translations = {
     logoutModalSecureNote: "Tus datos médicos y preferencias seguirán protegidos en Salud-Conecta IA.",
     logoutModalStay: "Permanecer",
 
-    
+
     premiumTitle: "Premium",
     premiumSubtitle: "Potencia tu bienestar con beneficios exclusivos.",
     premiumActiveMsg: "¡Felicidades, {name}! Tu suscripción Premium está ACTIVA.",
@@ -262,7 +262,7 @@ export const translations = {
     checkoutSuccessMsg: "¡Gracias! Tu pago de **{price}** para **{name}** se procesó con éxito de forma segura.",
     transactionId: "ID de Transacción",
 
-    
+
     loginTitle: "Bienvenido",
     loginSubtitle: "Tu salud, conectada e inteligente.",
     emailLabel: "Correo electrónico",
@@ -299,7 +299,7 @@ export const translations = {
     passMismatch: "Las contraseñas no coinciden.",
     termsRequired: "Debes aceptar los Términos y Condiciones.",
 
-    
+
     adminPanel: "Panel de Administración",
     userManagement: "Gestión de Usuarios",
     healthUnitManagement: "Gestión de Unidades de Salud",
@@ -349,7 +349,7 @@ export const translations = {
     voiceInput: "Entrada por Voz",
     videoConsultation: "Consulta por Video",
 
-    
+
     addAnnouncement: "Agregar Anuncio",
     editAnnouncement: "Editar Anuncio",
     announcementsList: "Lista de Anuncios",
@@ -372,7 +372,7 @@ export const translations = {
     activate: "Activar",
     deactivate: "Desactivar",
 
-    
+
     selectCenterToAdjust: "Seleccione un centro para ajustar",
     centerType: "Tipo",
     department: "Departamento",
@@ -393,7 +393,7 @@ export const translations = {
     centersWithCoords: "Centros con Coordenadas",
     centersWithoutCoords: "Centros sin Coordenadas",
 
-    
+
     lastUpdated: "Última Actualización",
     settingsSaved: "Configuración guardada correctamente",
     saveAllSettings: "Guardar Toda la Configuración",
@@ -421,7 +421,7 @@ export const translations = {
       videoConsultation: "Consulta por Video"
     },
 
-    
+
     iaConfiguration: "Configuración de IA",
     addAIConfig: "Agregar Configuración de IA",
     editAIConfig: "Editar Configuración de IA",
@@ -492,10 +492,46 @@ export const translations = {
     pdfNoneRegistered: "Ninguno registrado",
     pdfNotRegistered: "No registrada",
     pdfNotSpecified: "No espec.",
-    pdfFileName: "Info-Emergencia"
+    pdfFileName: "Info-Emergencia",
+
+    // Security & 2FA translations (ES)
+    sessionExpired: "Su sesión ha expirado por inactividad. Por favor inicie sesión de nuevo por seguridad.",
+    sessionExpiringSoon: "Su sesión expirará pronto por inactividad. Interactúe con la pantalla para mantenerla.",
+    phoneInvalid: "El formato del número de teléfono no es válido.",
+    mfaTitle: "Autenticación de Dos Factores (2FA)",
+    mfaEnabled: "Verificación de dos factores activa para mayor seguridad",
+    mfaDisabled: "Proteja su cuenta requiriendo un código de 6 dígitos al iniciar sesión",
+    mfaActivate: "Activar verificación 2FA",
+    mfaDeactivate: "Desactivar verificación 2FA",
+    mfaScanQR: "Escanee el código QR de seguridad",
+    mfaScanQRDesc: "Use una aplicación de autenticación (como Google Authenticator o Microsoft Authenticator) para escanear el código QR.",
+    mfaCopySecret: "Copiar clave secreta manual",
+    mfaEnterCode: "Código de 6 dígitos",
+    mfaCodeInvalid: "El código debe tener exactamente 6 dígitos.",
+    mfaVerify: "Confirmar y habilitar 2FA",
+    mfaVerifyBtn: "Verificar código",
+    mfaVerifyTitle: "Verificación de Seguridad 2FA",
+    mfaVerifyDesc: "Ingrese el código de 6 dígitos generado por su aplicación de autenticación para continuar.",
+    mfaCancelLogin: "Cancelar inicio de sesión",
+    mfaCancelledLogin: "Inicio de sesión cancelado por seguridad.",
+    mfaPreparing: "Generando desafío de seguridad MFA...",
+    mfaAttemptsRemaining: "Intentos restantes de verificación",
+    mfaMaxAttempts: "Demasiados intentos fallidos. Por seguridad, debe iniciar sesión de nuevo.",
+    mfaConfirmDisable: "¿Está seguro que desea desactivar el 2FA?",
+    mfaConfirmDisableDesc: "Esto reducirá significativamente la seguridad de su cuenta. Ya no se le solicitará el código de seguridad al iniciar sesión.",
+    mfaConfirmDisableBtn: "Desactivar seguridad 2FA",
+    mfaEnrollError: "Error al iniciar la configuración de 2FA.",
+    mfaVerifyError: "Código incorrecto. Por favor verifique e intente de nuevo.",
+    mfaDisableError: "Error al desactivar la autenticación de dos factores.",
+    mfaChallengeError: "Error al generar el desafío de seguridad MFA.",
+    mfaGuestNotice: "La verificación de dos factores no está disponible para cuentas de invitado.",
+    passWeak: "Fortaleza: Débil 🔴",
+    passFair: "Fortaleza: Aceptable 🟡",
+    passGood: "Fortaleza: Buena 🔵",
+    passStrong: "Fortaleza: Muy fuerte 🟢"
   },
   en: {
-    
+
     home: "Home",
     consulta: "AI Consultation",
     centros: "Medical Centers",
@@ -503,7 +539,7 @@ export const translations = {
     premium: "Premium",
     perfil: "My Profile",
 
-    
+
     settings: "Settings",
     appearance: "Appearance",
     darkMode: "Dark Mode",
@@ -520,7 +556,7 @@ export const translations = {
     resetApp: "Reset local database",
     version: "v1.2.0 • 2026",
 
-    
+
     loadingModule: "Loading module...",
     maintenanceTitle: "Under Maintenance",
     maintenanceDesc: "We are making improvements to the platform. Please try again later.",
@@ -556,19 +592,19 @@ export const translations = {
     updatePostponed: "Update postponed (Simulated)",
     useBrowserMenu: "Use the browser menu to 'Install' or 'Add to Home Screen'.",
 
-    
+
     termsTitle: "Terms of Service",
     privacyTitle: "Privacy Policy",
     guideTitle: "How to use Salud-Conecta IA?",
 
-    
+
     pwaBannerTitle: "Install the Mobile App",
     pwaBannerDesc: "Instantly access your AI medical triage and enjoy optimized offline features.",
     pwaInstallButton: "Install PWA",
     pwaIosInstructions: "On iOS: tap the share button ⎋ and select 'Add to Home Screen' ⊞",
     pwaSuccessToast: "Salud-Conecta IA has been installed successfully!",
 
-    
+
     welcome: "Welcome",
     guest: "Guest",
     hello: "Hello",
@@ -609,7 +645,7 @@ export const translations = {
     homeEmergDesc: "Quickly call emergency services (128).",
     backToApp: "Back to App",
 
-    
+
     searchTitle: "Search",
     pharmacies: "Pharmacies",
     doctors: "Doctors",
@@ -658,7 +694,7 @@ export const translations = {
     bookingSuccessDesc: "Your appointment with **{name}** has been securely confirmed under registration number **APP-{id}**.",
     smsReminder: "An SMS reminder has been sent.",
 
-    
+
     verified: "Verified",
     changePhoto: "Change photo",
     noAlerts: "You have no pending critical alerts. Your virtual triage clinical history is in perfect order.",
@@ -713,7 +749,7 @@ export const translations = {
     logoutModalSecureNote: "Your medical data and preferences will remain protected in Salud-Conecta IA.",
     logoutModalStay: "Stay signed in",
 
-    
+
     premiumTitle: "Premium",
     premiumSubtitle: "Boost your well-being with exclusive benefits.",
     premiumActiveMsg: "Congratulations, {name}! Your Premium subscription is ACTIVE.",
@@ -757,7 +793,7 @@ export const translations = {
     checkoutSuccessMsg: "Thank you! Your payment of **{price}** for **{name}** was processed successfully and securely.",
     transactionId: "Transaction ID",
 
-    
+
     loginTitle: "Welcome",
     loginSubtitle: "Your health, connected and smart.",
     emailLabel: "Email address",
@@ -794,7 +830,7 @@ export const translations = {
     passMismatch: "Passwords do not match.",
     termsRequired: "You must accept the Terms and Conditions.",
 
-    
+
     adminPanel: "Admin Panel",
     userManagement: "User Management",
     healthUnitManagement: "Health Unit Management",
@@ -844,7 +880,7 @@ export const translations = {
     voiceInput: "Voice Input",
     videoConsultation: "Video Consultation",
 
-    
+
     addAnnouncement: "Add Announcement",
     editAnnouncement: "Edit Announcement",
     announcementsList: "Announcements List",
@@ -867,7 +903,7 @@ export const translations = {
     activate: "Activate",
     deactivate: "Deactivate",
 
-    
+
     selectCenterToAdjust: "Select a center to adjust",
     centerType: "Type",
     department: "Department",
@@ -888,7 +924,7 @@ export const translations = {
     centersWithCoords: "Centers with Coordinates",
     centersWithoutCoords: "Centers without Coordinates",
 
-    
+
     lastUpdated: "Last Updated",
     settingsSaved: "Settings saved successfully",
     saveAllSettings: "Save All Settings",
@@ -916,7 +952,7 @@ export const translations = {
       videoConsultation: "Video Consultation"
     },
 
-    
+
     iaConfiguration: "IA Configuration",
     addAIConfig: "Add AI Configuration",
     editAIConfig: "Edit AI Configuration",
@@ -931,7 +967,7 @@ export const translations = {
     description: "Description",
     refresh: "Refresh",
 
-    
+
     medicalData: "Medical Data",
     medicalDataSubtitle: "Specialized clinical information",
     diseases: "Underlying diseases",
@@ -989,10 +1025,46 @@ export const translations = {
     pdfNoneRegistered: "None registered",
     pdfNotRegistered: "Not registered",
     pdfNotSpecified: "Not spec.",
-    pdfFileName: "Emergency-Info"
+    pdfFileName: "Emergency-Info",
+
+    // Security & 2FA translations (EN)
+    sessionExpired: "Your session has expired due to inactivity. Please log in again for security.",
+    sessionExpiringSoon: "Your session will expire soon due to inactivity. Interact with the screen to keep it active.",
+    phoneInvalid: "The phone number format is invalid.",
+    mfaTitle: "Two-Factor Authentication (2FA)",
+    mfaEnabled: "Two-factor verification active for enhanced security",
+    mfaDisabled: "Protect your account by requiring a 6-digit code when logging in",
+    mfaActivate: "Enable 2FA verification",
+    mfaDeactivate: "Disable 2FA verification",
+    mfaScanQR: "Scan the security QR code",
+    mfaScanQRDesc: "Use an authenticator application (such as Google Authenticator or Microsoft Authenticator) to scan the QR code.",
+    mfaCopySecret: "Copy manual secret key",
+    mfaEnterCode: "6-digit code",
+    mfaCodeInvalid: "The code must be exactly 6 digits.",
+    mfaVerify: "Confirm and enable 2FA",
+    mfaVerifyBtn: "Verify code",
+    mfaVerifyTitle: "2FA Security Verification",
+    mfaVerifyDesc: "Enter the 6-digit code generated by your authenticator application to continue.",
+    mfaCancelLogin: "Cancel login",
+    mfaCancelledLogin: "Login cancelled for security.",
+    mfaPreparing: "Generating MFA security challenge...",
+    mfaAttemptsRemaining: "Remaining verification attempts",
+    mfaMaxAttempts: "Too many failed attempts. For safety, you must log in again.",
+    mfaConfirmDisable: "Are you sure you want to disable 2FA?",
+    mfaConfirmDisableDesc: "This will significantly reduce your account's security. You will no longer be asked for a security code when logging in.",
+    mfaConfirmDisableBtn: "Disable 2FA security",
+    mfaEnrollError: "Error initiating 2FA setup.",
+    mfaVerifyError: "Incorrect code. Please verify and try again.",
+    mfaDisableError: "Error disabling two-factor authentication.",
+    mfaChallengeError: "Error generating MFA security challenge.",
+    mfaGuestNotice: "Two-factor verification is not available for guest accounts.",
+    passWeak: "Strength: Weak 🔴",
+    passFair: "Strength: Fair 🟡",
+    passGood: "Strength: Good 🔵",
+    passStrong: "Strength: Very strong 🟢"
   },
   mi: {
-    
+
     home: "Watla",
     consulta: "IA Makabanka",
     centros: "Siknis Watla",
@@ -1000,7 +1072,7 @@ export const translations = {
     premium: "Premium",
     perfil: "Nini Dukia",
 
-    
+
     settings: "Dukia Mangkanka",
     appearance: "Kaikanka",
     darkMode: "Tihmia Natka",
@@ -1017,7 +1089,7 @@ export const translations = {
     resetApp: "App Kli Mangkaya",
     version: "v1.2.0 • 2026",
 
-    
+
     loadingModule: "Mangkisa...",
     maintenanceTitle: "Mantenimiento Ra",
     maintenanceDesc: "App pain paski sna. Kli try muns taim wala.",
@@ -1053,19 +1125,19 @@ export const translations = {
     updatePostponed: "Update swin.",
     useBrowserMenu: "Browser menu yus muns mangkaya.",
 
-    
+
     termsTitle: "Ligal Natka Nani",
     privacyTitle: "Baman Dukia Natka",
     guideTitle: "Nahki Salud-Conecta IA yus munaia?",
 
-    
+
     pwaBannerTitle: "App Mangkaya",
     pwaBannerDesc: "Siknis IA app na mangks, net apia sin yus munaia.",
     pwaInstallButton: "Mangkaya",
     pwaIosInstructions: "iOS ra: share pruks ⎋ bara 'Add to Home Screen' pliks ⊞",
     pwaSuccessToast: "Salud-Conecta IA pain mangkan!",
 
-    
+
     welcome: "Pain wam",
     guest: "Ula",
     hello: "Naksa",
@@ -1106,7 +1178,7 @@ export const translations = {
     homeEmergDesc: "Imaijinsi taim ra 128 aisas.",
     backToApp: "App kli dimaia",
 
-    
+
     searchTitle: "Plikaya",
     pharmacies: "Midisin Watla Nani",
     doctors: "Duktur Nani",
@@ -1155,7 +1227,7 @@ export const translations = {
     bookingSuccessDesc: "Cita **{name}** wal pain, numira **APP-{id}**.",
     smsReminder: "SMS walan.",
 
-    
+
     verified: "Pain",
     changePhoto: "Mawan kli",
     noAlerts: "Trabil apia. Siknis history pain.",
@@ -1210,7 +1282,7 @@ export const translations = {
     logoutModalSecureNote: "Man medical data bara preferences ba Salud-Conecta IA ra pain bribia.",
     logoutModalStay: "Dima bri",
 
-    
+
     premiumTitle: "Premium",
     premiumSubtitle: "Premium pain.",
     premiumActiveMsg: "Liliapa, {name}! Premium ACTIVA.",
@@ -1254,7 +1326,7 @@ export const translations = {
     checkoutSuccessMsg: "Tinki! Pay **{price}** **{name}** dukia pain.",
     transactionId: "Transaccion ID",
 
-    
+
     loginTitle: "Pain wam",
     loginSubtitle: "Mawan pain, kumi ba.",
     emailLabel: "Email",
@@ -1291,7 +1363,7 @@ export const translations = {
     passMismatch: "Pasword apia.",
     termsRequired: "Ligal natka pain mangkaya.",
 
-    
+
     adminPanel: "Admin Watla",
     userManagement: "Yus munra nani luki",
     healthUnitManagement: "Siknis Watla luki",
@@ -1341,7 +1413,7 @@ export const translations = {
     voiceInput: "Bila wal",
     videoConsultation: "Video Makabanka",
 
-    
+
     addAnnouncement: "Alart mangkaya",
     editAnnouncement: "Alart kli mangkaya",
     announcementsList: "Alart nani",
@@ -1364,7 +1436,7 @@ export const translations = {
     activate: "Bara",
     deactivate: "Apia",
 
-    
+
     selectCenterToAdjust: "Siknis watla pliks",
     centerType: "Type",
     department: "Departamento",
@@ -1385,7 +1457,7 @@ export const translations = {
     centersWithCoords: "Tawan bara",
     centersWithoutCoords: "Tawan apia",
 
-    
+
     lastUpdated: "Las mangkan",
     settingsSaved: "Luki pain mangkan",
     saveAllSettings: "Luki sut mangkaya",
@@ -1413,7 +1485,7 @@ export const translations = {
       videoConsultation: "Video Makabanka"
     },
 
-    
+
     iaConfiguration: "IA Luki",
     addAIConfig: "IA Luki mangkaya",
     editAIConfig: "IA Luki kli mangkaya",
@@ -1425,8 +1497,10 @@ export const translations = {
     noDescription: "Bila apia",
     updatedAt: "Las mangkan",
     saveChanges: "Mangkaya",
+    description: "Bila",
+    refresh: "Kli kaikaya",
 
-    
+
     medicalData: "Siknis Dukia",
     medicalDataSubtitle: "Siknis history baha",
     diseases: "Siknis nani prukisa",
@@ -1484,10 +1558,46 @@ export const translations = {
     pdfNoneRegistered: "Dukia mangka apia",
     pdfNotRegistered: "Mangka apia",
     pdfNotSpecified: "Nu apia",
-    pdfFileName: "Imaijinsi-Dukia"
+    pdfFileName: "Imaijinsi-Dukia",
+
+    // Security & 2FA translations (MI)
+    sessionExpired: "Man sesion ba taim sut apia yus munan wina takbia. Luki pain dukia ra kli dimaia.",
+    sessionExpiringSoon: "Man sesion ba taim sut apia yus munan wina takbia. Kaikanka ra yus munaia.",
+    phoneInvalid: "Phone number format pain apia.",
+    mfaTitle: "Dos Factor Autenticacion (2FA)",
+    mfaEnabled: "Dos factor verifikacion bara luki pain dukia ra",
+    mfaDisabled: "Man account ba luki pain munaia 6 digito code wal",
+    mfaActivate: "2FA verifikacion briaia",
+    mfaDeactivate: "2FA verifikacion sakaia",
+    mfaScanQR: "QR code scan munaia",
+    mfaScanQRDesc: "Autenticacion app yus munaia (Google Authenticator o Microsoft Authenticator) QR code scan munaia.",
+    mfaCopySecret: "Secret key kli paskaia",
+    mfaEnterCode: "6 digito code",
+    mfaCodeInvalid: "Code ba 6 digito pain kaka.",
+    mfaVerify: "2FA pain munaia",
+    mfaVerifyBtn: "Code kaikaya",
+    mfaVerifyTitle: "2FA Luki Kaikanka",
+    mfaVerifyDesc: "6 digito code man autenticacion app wina blikan ba mangkaya.",
+    mfaCancelLogin: "Dimaia swia",
+    mfaCancelledLogin: "Dimaia swan luki dukia ra.",
+    mfaPreparing: "MFA luki paskisa...",
+    mfaAttemptsRemaining: "Kaikanka taim nani",
+    mfaMaxAttempts: "Tara trabil. Luki dukia ra kli dimaia.",
+    mfaConfirmDisable: "2FA sakaia man sma?",
+    mfaConfirmDisableDesc: "Naha man account luki pain sakaia. Code apia kli dimi taim ra.",
+    mfaConfirmDisableBtn: "2FA luki sakaia",
+    mfaEnrollError: "Trabil 2FA paskaia ra.",
+    mfaVerifyError: "Code apia. Kli kaikaya bara try munaia.",
+    mfaDisableError: "Trabil dos factor autenticacion sakaia ra.",
+    mfaChallengeError: "Trabil MFA luki paskaia ra.",
+    mfaGuestNotice: "Dos factor verifikacion ula account ra apia.",
+    passWeak: "Luki: Sampi 🔴",
+    passFair: "Luki: Pain 🟡",
+    passGood: "Luki: Pain tara 🔵",
+    passStrong: "Luki: Pain sut 🟢"
   },
   kr: {
-    
+
     home: "Yard",
     consulta: "AI Consultation",
     centros: "Medical Centers",
@@ -1495,7 +1605,7 @@ export const translations = {
     premium: "Premium",
     perfil: "Mi Profail",
 
-    
+
     settings: "Settiinz",
     appearance: "Luk",
     darkMode: "Daak Muod",
@@ -1512,7 +1622,7 @@ export const translations = {
     resetApp: "Reset local database",
     version: "v1.2.0 • 2026",
 
-    
+
     loadingModule: "Loading module...",
     maintenanceTitle: "Under Maintenance",
     maintenanceDesc: "We are making improvements to the platform. Please try again later.",
@@ -1538,8 +1648,8 @@ export const translations = {
     iosStep3Title: "Add to Yard Screen",
     iosStep3Desc: "Scroll down and select the 'Add to Yard Screen' option.",
     gotIt: "Got it",
-    profileSievd: "Profile saved to the database.",
-    profileSievError: "Error synchronizing profile with the database.",
+    profileSaved: "Profile saved to the database.",
+    profileSaveError: "Error synchronizing profile with the database.",
     profileUnexpectedError: "Unexpected error saving profile changes.",
     sessionClosed: "Session closed successfully.",
     sessionCloseError: "Error closing session.",
@@ -1548,19 +1658,19 @@ export const translations = {
     updatePostponed: "Update postponed (Simulated)",
     useBrowserMenu: "Use the browser menu to 'Install' or 'Add to Yard Screen'.",
 
-    
+
     termsTitle: "Terms of Service",
     privacyTitle: "Privacy Policy",
     guideTitle: "How to use Salud-Conecta IA?",
 
-    
+
     pwaBannerTitle: "Install the Mobile App",
     pwaBannerDesc: "Instantly access your AI medical triage and enjoy optimized offline features.",
     pwaInstallButton: "Install PWA",
     pwaIosInstructions: "On iOS: tap the share button ⎋ and select 'Add to Yard Screen' ⊞",
     pwaSuccessToast: "Salud-Conecta IA has been installed successfully!",
 
-    
+
     welcome: "Welkom",
     guest: "Ges",
     hello: "Helo",
@@ -1601,7 +1711,7 @@ export const translations = {
     homeEmergDesc: "Quickly call emergency services (128).",
     backToApp: "Bak to App",
 
-    
+
     searchTitle: "Search",
     pharmacies: "Pharmacies",
     doctors: "Doctors",
@@ -1650,7 +1760,7 @@ export const translations = {
     bookingSuccessDesc: "Your appointment with **{name}** has been securely confirmed under registration number **APP-{id}**.",
     smsReminder: "An SMS reminder has been sent.",
 
-    
+
     verified: "Verified",
     changePhoto: "Change photo",
     noAlerts: "You have no pending critical alerts. Your virtual triage clinical history is in perfect order.",
@@ -1705,7 +1815,7 @@ export const translations = {
     logoutModalSecureNote: "Your medical data and preferences will remain protected in Salud-Conecta IA.",
     logoutModalStay: "Stay signed in",
 
-    
+
     premiumTitle: "Premium",
     premiumSubtitle: "Boost your well-being with exclusive benefits.",
     premiumActiveMsg: "Congratulations, {name}! Your Premium subscription is ACTIVE.",
@@ -1749,7 +1859,7 @@ export const translations = {
     checkoutSuccessMsg: "Thank you! Your payment of **{price}** for **{name}** was processed successfully and securely.",
     transactionId: "Transaction ID",
 
-    
+
     loginTitle: "Welkom",
     loginSubtitle: "Your health, connected and smart.",
     emailLabel: "Email address",
@@ -1758,7 +1868,7 @@ export const translations = {
     loggingIn: "Signing in...",
     orContinueWith: "or continue with",
     continueWithGoogle: "Continue with Google",
-    continueAsGes: "Continue without account",
+    continueAsGuest: "Continue without account",
     noAccount: "Don't have an account?",
     registerLink: "Sign up",
     createAccount: "Create your account",
@@ -1769,7 +1879,7 @@ export const translations = {
     registerButton: "Sign up",
     creatingAccount: "Creating account...",
     alreadyHaveAccount: "Already have an account? Sign in",
-    welcomeBak: "Welkom back!",
+    welcomeBack: "Welkom back!",
     loginError: "Error logging in.",
     connError: "Connection error. Try again.",
     googleError: "Error signing in with Google.",
@@ -1786,7 +1896,7 @@ export const translations = {
     passMismatch: "Passwords do not match.",
     termsRequired: "You must accept the Terms and Conditions.",
 
-    
+
     adminPanel: "Admin Panel",
     userManagement: "User Management",
     healthUnitManagement: "Health Unit Management",
@@ -1816,9 +1926,9 @@ export const translations = {
     zone: "Zone",
     silais: "SILAIS",
     phone: "Phone",
-    generalSettiinz: "General Settiinz",
+    generalSettings: "General Settiinz",
     featureFlags: "Feature Flags",
-    aiSettiinz: "AI Settiinz",
+    aiSettings: "AI Settiinz",
     appName: "App Name",
     welcomeMessage: "Welkom Message",
     contactEmail: "Contact Email",
@@ -1828,15 +1938,15 @@ export const translations = {
     enableAnalytics: "Enable Analytics",
     aiModel: "AI Model",
     maxConsultationLength: "Max Consultation Length",
-    availableLangwijs: "Available Langwijs",
-    defaultLangwij: "Default Langwij",
+    availableLanguages: "Available Langwijs",
+    defaultLanguage: "Default Langwij",
     premiumFeatures: "Premium Features",
     appointmentBooking: "Appointment Booking",
     healthUnitSearch: "Health Unit Search",
     voiceInput: "Voice Input",
     videoConsultation: "Video Consultation",
 
-    
+
     addAnnouncement: "Add Announcement",
     editAnnouncement: "Edit Announcement",
     announcementsList: "Announcements List",
@@ -1859,7 +1969,7 @@ export const translations = {
     activate: "Activate",
     deactivate: "Deactivate",
 
-    
+
     selectCenterToAdjust: "Select a center to adjust",
     centerType: "Type",
     department: "Department",
@@ -1880,10 +1990,10 @@ export const translations = {
     centersWithCoords: "Centers with Coordinates",
     centersWithoutCoords: "Centers without Coordinates",
 
-    
+
     lastUpdated: "Last Updated",
-    settingsSievd: "Settiinz saved successfully",
-    saveAllSettiinz: "Siev All Settiinz",
+    settingsSaved: "Settiinz saved successfully",
+    saveAllSettings: "Siev All Settiinz",
     accessDenied: "Access Denied",
     loading: "Loading...",
     consultationsTrend: "Consultations Trend",
@@ -1908,7 +2018,7 @@ export const translations = {
       videoConsultation: "Video Consultation"
     },
 
-    
+
     iaConfiguration: "IA Configuration",
     addAIConfig: "Add AI Configuration",
     editAIConfig: "Edit AI Configuration",
@@ -1920,8 +2030,10 @@ export const translations = {
     noDescription: "No description",
     updatedAt: "Updated at",
     saveChanges: "Siev Changes",
+    description: "Description",
+    refresh: "Refresh",
 
-    
+
     medicalData: "Medical Data",
     medicalDataSubtitle: "Specialized clinical information",
     diseases: "Underlying diseases",
@@ -1979,7 +2091,43 @@ export const translations = {
     pdfNoneRegistered: "None registered",
     pdfNotRegistered: "Not registered",
     pdfNotSpecified: "Not spec.",
-    pdfFileName: "Emergency-Info"
+    pdfFileName: "Emergency-Info",
+
+    // Security & 2FA translations (KR)
+    sessionExpired: "Your session has expired due to inactivity. Please log in again for security.",
+    sessionExpiringSoon: "Your session will expire soon due to inactivity. Interact with the screen to keep it active.",
+    phoneInvalid: "The phone number format is invalid.",
+    mfaTitle: "Two-Factor Authentication (2FA)",
+    mfaEnabled: "Two-factor verification active for enhanced security",
+    mfaDisabled: "Protect your account by requiring a 6-digit code when logging in",
+    mfaActivate: "Enable 2FA verification",
+    mfaDeactivate: "Disable 2FA verification",
+    mfaScanQR: "Scan the security QR code",
+    mfaScanQRDesc: "Use an authenticator application (such as Google Authenticator or Microsoft Authenticator) to scan the QR code.",
+    mfaCopySecret: "Copy manual secret key",
+    mfaEnterCode: "6-digit code",
+    mfaCodeInvalid: "The code must be exactly 6 digits.",
+    mfaVerify: "Confirm and enable 2FA",
+    mfaVerifyBtn: "Verify code",
+    mfaVerifyTitle: "2FA Security Verification",
+    mfaVerifyDesc: "Enter the 6-digit code generated by your authenticator application to continue.",
+    mfaCancelLogin: "Cancel login",
+    mfaCancelledLogin: "Login cancelled for security.",
+    mfaPreparing: "Generating MFA security challenge...",
+    mfaAttemptsRemaining: "Remaining verification attempts",
+    mfaMaxAttempts: "Too many failed attempts. For safety, you must log in again.",
+    mfaConfirmDisable: "Are you sure you want to disable 2FA?",
+    mfaConfirmDisableDesc: "This will significantly reduce your account's security. You will no longer be asked for a security code when logging in.",
+    mfaConfirmDisableBtn: "Disable 2FA security",
+    mfaEnrollError: "Error initiating 2FA setup.",
+    mfaVerifyError: "Incorrect code. Please verify and try again.",
+    mfaDisableError: "Error disabling two-factor authentication.",
+    mfaChallengeError: "Error generating MFA security challenge.",
+    mfaGuestNotice: "Two-factor verification is not available for guest accounts.",
+    passWeak: "Strength: Weak 🔴",
+    passFair: "Strength: Fair 🟡",
+    passGood: "Strength: Good 🔵",
+    passStrong: "Strength: Very strong 🟢"
   },
 };
 
