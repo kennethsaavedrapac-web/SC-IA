@@ -11,6 +11,7 @@ import { sanitizeAndTrim, validateEmail, validateName, validatePhone } from "../
 import TwoFactorSetup from "./TwoFactorSetup";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
+import EmergencyCard from "./EmergencyCard";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -918,58 +919,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        { }
-        <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
-          <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
-            { }
-            <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
-              <div className="flex items-center gap-2 sm:gap-5">
-                <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
-                  {t('shareProfile')}
-                </h4>
-              </div>
-              <p className="hidden sm:block text-slate-600 dark:text-slate-300 text-sm sm:text-lg leading-relaxed max-w-md">
-                {t('emergencyDesc')}
-              </p>
-            </div>
-
-            { }
-            <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
-              <div
-                ref={qrRef}
-                className="w-24 h-24 sm:w-64 sm:h-64 border-2 sm:border-4 border-brand-200 dark:border-brand-900 p-2 sm:p-6 bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-md"
-              >
-                <QRCodeSVG
-                  value={qrTelemetryText}
-                  size={200}
-                  level="H"
-                  includeMargin={true}
-                  className="w-full h-full text-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowQRModal(true)}
-                  className="p-2 sm:px-5 sm:py-3 bg-brand-600 hover:bg-brand-600 text-white rounded-lg sm:rounded-xl font-bold transition-all active:scale-95 shadow-sm"
-                >
-                  <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button
-                  onClick={downloadQRCode}
-                  className="p-2 sm:px-5 sm:py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg sm:rounded-xl font-bold transition-all active:scale-95 shadow-sm"
-                >
-                  <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center text-[10px] sm:text-base text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 mt-3.5 pt-3 sm:pt-4 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 shrink-0" />
-            <span>{t('qrDisclaimer')}</span>
-          </div>
-        </section>
+        <EmergencyCard user={user} localMedicalData={localMedicalData} />
 
         { }
         <div className="space-y-3">

@@ -23,9 +23,8 @@ La aplicación está diseñada para solventar barreras geográficas y lingüíst
 
 ### 2. Triajes Especializados e Interculturales (Offline)
 Pensando en la diversidad de la Costa Caribe nicaragüense, donde la conectividad a Internet suele verse interrumpida, la aplicación dispone de motores de triaje preprogramados y bases de conocimiento clínico locales cargadas en la memoria del navegador.
-* **Triaje Multilingüe:**
-  * **Miskito (Miskitu):** Triaje con bases de conocimiento e interfaz localizada en lengua Miskita.
-  * **Kriol (Caribeño):** Triaje configurado en inglés criollo nicaragüense.
+* **Miskito (Miskitu):** Triaje con bases de conocimiento e interfaz localizada en lengua Miskita.
+* **Kriol (Caribeño):** Triaje configurado en inglés criollo nicaragüense.
 * **Funcionamiento 100% Offline:** Utiliza una base de datos estática e indexada que analiza combinaciones clave de síntomas y signos vitales reportados para arrojar una evaluación de gravedad inmediata sin requerir red.
 
 ### 3. Búsqueda y Navegación de Centros de Salud
@@ -36,10 +35,9 @@ Pensando en la diversidad de la Costa Caribe nicaragüense, donde la conectivida
   * **Ver Ruta (Google Maps / OpenStreetMap):** Genera rutas óptimas de asistencia.
   * **Botón de WhatsApp:** Redirección directa para consultas rápidas con la farmacia seleccionada (requiere la propiedad obligatoria `phone` en la interfaz).
 
-### 4. Tarjeta de Emergencia QR (Ficha Médica Portable)
-* **Generación de QR Dinámico:** A través de la biblioteca `qrcode.react`, se consolida la información vital del paciente (tipo de sangre, contactos de emergencia, alergias, condiciones) en un código QR cifrado o estructurado para uso de paramédicos y socorristas.
-* **Branding Unificado:** Incorpora el logotipo oficial de la app (`public/app-logo-v1.jpg`) en el centro del código QR para un acabado profesional y de marca unificada.
-* **Descarga en PDF:** El usuario puede exportar su ficha médica formateada en alta calidad mediante `jspdf`.
+### 4. Documento de Emergencia Dinámico (Ficha Médica Portable)
+* **Generación Progresiva del Documento:** En la aplicación se va creando automáticamente un documento de emergencia personalizado a medida que el paciente ingresa y actualiza sus datos en su perfil (tipo de sangre, contactos de emergencia, alergias, medicamentos y afecciones crónicas).
+* **Descarga Directa en PDF:** El usuario puede exportar y descargar este documento de emergencia formateado en alta calidad en archivo PDF (mediante la integración con `jspdf`) para llevarlo consigo, imprimirlo o compartirlo fácilmente con personal médico y socorristas.
 
 ### 5. Panel de Administración Avanzado
 * **Mantenimiento Global:** Activa el "Modo Mantenimiento", bloqueando el acceso a usuarios no administradores mediante pantallas descriptivas del MINSA.
@@ -65,7 +63,7 @@ La aplicación sigue una arquitectura moderna de **SPA (Single Page Application)
 │                                                                        │
 │   ┌────────────────────┐   ┌────────────────────┐   ┌──────────────┐   │
 │   │   i18n & Contexts  │   │  Servicios Locales │   │  PWA / Cache │   │
-│   │ (Language/Auth/Theme)│ │ (Offline Triage/QR)│   │ (sw.js /     │   │
+│   │ (Language/Auth/Theme)│ │(Emergency Doc/PDF) │   │ (sw.js /     │   │
 │   └─────────┬──────────┘   └─────────┬──────────┘   │ manifest.json)   │
 └─────────────┼────────────────────────┼──────────────┴──────┬───────┴───┘
               │                        │                     │
@@ -109,10 +107,10 @@ La aplicación sigue una arquitectura moderna de **SPA (Single Page Application)
 
 ## 📂 Estructura del Directorio (Modular)
 
-La estructura del código fuente está altamente organizada de acuerdo a responsabilidades de dominio bien definidas:
+La estructura del código fuente actualizada según el repositorio oficial ([https://github.com/kennethsaavedrapac-web/SC-IA](https://github.com/kennethsaavedrapac-web/SC-IA)) está organizada de acuerdo a responsabilidades de dominio bien definidas:
 
 ```
-salud-conecta-ia/
+SC-IA/ (salud-conecta-ia)
 ├── api/                             # Funciones Serverless de Backend para Vercel
 │   ├── _lib/                        # Librerías internas y utilidades de backend
 │   ├── chat.js                      # Handler para la consulta médica de IA
@@ -122,7 +120,7 @@ salud-conecta-ia/
 │   ├── geocode.js                   # Proxy de geocodificación de direcciones
 │   └── health.js                    # Diagnóstico de estado del backend
 ├── public/                          # Recursos estáticos globales públicos
-│   ├── app-logo-v1.jpg              # Logotipo oficial (Branding, favicon, QR central)
+│   ├── app-logo-v1.jpg              # Logotipo oficial (Branding & favicon)
 │   ├── app-logo-v2.jpg              # Variaciones de imagen de marca
 │   ├── manifest.json                # Configuración de PWA e iconos de instalación
 │   └── sw.js                        # Service Worker de la aplicación (Caché & Notificaciones)
@@ -163,7 +161,6 @@ salud-conecta-ia/
 │   ├── lib/                         # Clientes SDK y algoritmos centrales
 │   │   ├── authService.ts           # Funciones de lógica de negocio de autenticación
 │   │   ├── avatarService.ts         # Generador e integrador de avatares del perfil
-│   │   ├── EmergencyQR.tsx          # Renderizador del QR con logo de marca insertado
 │   │   ├── fhirService.ts           # Serializador y conector bajo el estándar HL7 FHIR
 │   │   ├── kriolTriage.ts           # Motor del triaje sin conexión en Criollo
 │   │   ├── miskitoTriage.ts         # Motor del triaje sin conexión en Miskito
@@ -181,7 +178,7 @@ salud-conecta-ia/
 │   ├── theme.css                    # Variables CSS de paleta de colores oscuros/claros
 │   └── vite-env.d.ts                # Tipados para importaciones de Vite
 ├── .env.example                     # Plantilla de variables de entorno del proyecto
-├── .npmrc                           # Configuración NPM (ej. legacy-peer-deps para React 19)
+├── .npmrc                           # Configuración NPM
 ├── index.html                       # HTML5 esqueleto principal
 ├── server.ts                        # Servidor local de desarrollo y producción Express
 ├── tsconfig.json                    # Reglas de compilación y tipado estricto TypeScript
@@ -226,8 +223,7 @@ Las respuestas de la IA están restringidas bajo directivas de sistema (*System 
 * **`@google/generative-ai` (v0.24.1):** SDK oficial para conectar con la API de Gemini.
 * **`@supabase/supabase-js` (v2.106.2):** Cliente para persistencia de datos y sincronización en tiempo real.
 * **`express` (v4.21.2) & `cors` / `helmet`:** Infraestructura de servidor y directivas de seguridad.
-* **`jspdf` (v4.2.1):** Generador de PDF en lado del cliente para exportar la ficha médica QR.
-* **`qrcode.react` (v3.1.0):** Generador del código QR de emergencia.
+* **`jspdf` (v4.2.1):** Librería para generación y descarga del documento de emergencia en PDF.
 * **`motion` (v12.23.24):** Framework de transiciones fluidas.
 * **`lucide-react` (v0.546.0):** Catálogo de iconos vectoriales integrados.
 
@@ -294,9 +290,9 @@ Puedes ejecutar las siguientes tareas desde la consola en la carpeta raíz:
 
 1. **Instalar dependencias:**
    ```bash
-   npm install --legacy-peer-deps
+   npm install
    ```
-   *(Nota: Se emplea `--legacy-peer-deps` debido a la coexistencia de librerías como `qrcode.react` con la versión de React 19).*
+   *(Instala las dependencias declaradas en el archivo `package.json` del proyecto).*
 
 2. **Configurar el entorno:**
    Copia el archivo modelo de configuración:
