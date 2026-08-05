@@ -1,12 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
+import React, { lazy, useState, useEffect, useCallback, Suspense } from "react";
 import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
@@ -21,6 +13,17 @@ import { useSessionTimeout } from "./hooks/useSessionTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+
+// Each screen is independent. Loading it on demand keeps the authentication and
+// home experiences responsive while preserving the existing navigation model.
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">

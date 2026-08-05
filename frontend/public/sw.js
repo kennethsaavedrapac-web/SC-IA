@@ -1,6 +1,4 @@
-
-const CACHE_NAME = 'salud-conecta-cache-v10';
-
+const CACHE_NAME = 'salud-conecta-cache-v11';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -10,71 +8,42 @@ const ASSETS_TO_CACHE = [
   '/icon-512.png'
 ];
 
-
-
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Pre-caching de assets esenciales iniciado');
-        return cache.addAll(ASSETS_TO_CACHE);
-      })
-      .then(() => {
-        
-        return self.skipWaiting();
-      })
+      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
   );
 });
-
-
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Eliminando caché obsoleta:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then((cacheNames) => Promise.all(cacheNames.map((cacheName) => (
+        cacheName !== CACHE_NAME ? caches.delete(cacheName) : undefined
+      ))))
+      .then(() => self.clients.claim())
   );
 });
 
-
-
-
 self.addEventListener('push', (event) => {
-  let data = { title: 'Salud-Conecta IA', body: 'Tienes una nueva notificación' };
-  
+  let data = { title: 'Salud-Conecta IA', body: 'Tienes una nueva notificacion' };
   if (event.data) {
     try {
       data = event.data.json();
-    } catch (e) {
+    } catch {
       data.body = event.data.text();
     }
   }
 
-  const options = {
+  event.waitUntil(self.registration.showNotification(data.title, {
     body: data.body,
     icon: '/app-logo-v1.jpg',
     badge: '/app-logo-v1.jpg',
     vibrate: [200, 100, 200],
-    data: {
-      url: data.url || '/'
-    }
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+    data: { url: data.url || '/' }
+  }));
 });
-
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
@@ -82,61 +51,56 @@ self.addEventListener('notificationclick', (event) => {
     self.clients.matchAll({ type: 'window' }).then((clientList) => {
       const url = event.notification.data.url;
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
+        if (client.url === url && 'focus' in client) return client.focus();
       }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(url);
-      }
+      return self.clients.openWindow ? self.clients.openWindow(url) : undefined;
     })
   );
 });
 
-
 self.addEventListener('fetch', (event) => {
-  
   if (event.request.method !== 'GET') return;
 
+  const requestUrl = new URL(event.request.url);
+  // API data can be sensitive or user-specific. It must never enter Cache Storage.
+  if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith('/api/')) return;
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', response.clone()));
+          return response;
+        })
+        .catch(() => caches.match('/index.html').then((response) => response || caches.match('/')))
+    );
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        
+    caches.match(event.request).then((cachedResponse) => {
+      const networkRequest = fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
         }
         return networkResponse;
-      })
-      .catch(() => {
-        
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
+      });
 
-          
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
+      // Static assets return immediately on repeat visits and refresh in background.
+      if (cachedResponse) {
+        event.waitUntil(networkRequest.catch(() => undefined));
+        return cachedResponse;
+      }
 
-          
-          return new Response('Contenido no disponible sin conexión a internet', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
-          });
-        });
-      })
+      return networkRequest.catch(() => new Response('Contenido no disponible sin conexion a internet', {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
+      }));
+    })
   );
 });
 
-
-
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
