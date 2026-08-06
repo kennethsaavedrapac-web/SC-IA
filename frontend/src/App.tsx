@@ -1,4 +1,4 @@
-import React, { lazy, useState, useEffect, useCallback, Suspense } from "react";
+import React, { lazy, useState, useEffect, useCallback, Suspense, useRef } from "react";
 import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
@@ -13,17 +13,33 @@ import { useSessionTimeout } from "./hooks/useSessionTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+import LazyErrorBoundary from "./components/LazyErrorBoundary";
 
+// ─── Lazy-loaded views with diagnostic timers ────────────────────────────────
 // Each screen is independent. Loading it on demand keeps the authentication and
 // home experiences responsive while preserving the existing navigation model.
-const HomeView = lazy(() => import("./components/HomeView"));
-const ConsultaView = lazy(() => import("./components/ConsultaView"));
-const CentrosView = lazy(() => import("./components/CentrosView"));
-const PremiumView = lazy(() => import("./components/PremiumView"));
-const PerfilView = lazy(() => import("./components/PerfilView"));
-const LoginView = lazy(() => import("./components/LoginView"));
-const RegisterView = lazy(() => import("./components/RegisterView"));
-const AdminView = lazy(() => import("./components/AdminView"));
+function timedLazy(label: string, factory: () => Promise<{ default: React.ComponentType<any> }>) {
+  return lazy(() => {
+    const t0 = performance.now();
+    console.info(`[LazyLoad] ⏳ Loading chunk: ${label}`);
+    return factory().then((mod) => {
+      console.info(`[LazyLoad] ✅ ${label} loaded in ${(performance.now() - t0).toFixed(0)}ms`);
+      return mod;
+    }).catch((err) => {
+      console.error(`[LazyLoad] ❌ ${label} FAILED after ${(performance.now() - t0).toFixed(0)}ms`, err);
+      throw err;
+    });
+  });
+}
+
+const HomeView = timedLazy("HomeView", () => import("./components/HomeView"));
+const ConsultaView = timedLazy("ConsultaView", () => import("./components/ConsultaView"));
+const CentrosView = timedLazy("CentrosView", () => import("./components/CentrosView"));
+const PremiumView = timedLazy("PremiumView", () => import("./components/PremiumView"));
+const PerfilView = timedLazy("PerfilView", () => import("./components/PerfilView"));
+const LoginView = timedLazy("LoginView", () => import("./components/LoginView"));
+const RegisterView = timedLazy("RegisterView", () => import("./components/RegisterView"));
+const AdminView = timedLazy("AdminView", () => import("./components/AdminView"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -240,7 +256,17 @@ export default function App() {
 
 
   
+  // ─── Navigation diagnostics ─────────────────────────────────────────────
+  const prevViewRef = useRef(currentView);
   useEffect(() => {
+    const from = prevViewRef.current;
+    const to = currentView;
+    if (from !== to) {
+      console.info(
+        `[Navigation] 🔀 ${from} → ${to} at ${new Date().toISOString()}`
+      );
+    }
+    prevViewRef.current = to;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView]);
 
@@ -834,155 +860,167 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence mode="wait">
-          {currentView === "login" && (
-            <motion.div
-              key="login"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1 flex flex-col"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <LoginView
-                  onLogin={handleLoginSuccess}
-                  onNavigateToRegister={() => setCurrentView("register")}
-                  darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode((current) => !current)}
-                  onToast={addToast}
-                />
-              </Suspense>
-            </motion.div>
-          )}
+        {/* Suspense lives OUTSIDE AnimatePresence so the loading fallback
+            doesn't compete with exit/enter animations.  When a lazy chunk is
+            still downloading, Suspense renders the spinner while
+            AnimatePresence keeps its current child visible – preventing the
+            blank-screen race condition. */}
+        <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
+          <AnimatePresence mode="wait">
+            {currentView === "login" && (
+              <motion.div
+                key="login"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1 flex flex-col"
+              >
+                <LazyErrorBoundary name="LoginView">
+                  <LoginView
+                    onLogin={handleLoginSuccess}
+                    onNavigateToRegister={() => setCurrentView("register")}
+                    darkMode={darkMode}
+                    onToggleDarkMode={() => setDarkMode((current) => !current)}
+                    onToast={addToast}
+                  />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "register" && (
-            <motion.div
-              key="register"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1 flex flex-col"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <RegisterView
-                  onRegister={handleRegisterSuccess}
-                  onNavigateToLogin={() => setCurrentView("login")}
-                  darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode((current) => !current)}
-                  onToast={addToast}
-                />
-              </Suspense>
-            </motion.div>
-          )}
+            {currentView === "register" && (
+              <motion.div
+                key="register"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1 flex flex-col"
+              >
+                <LazyErrorBoundary name="RegisterView">
+                  <RegisterView
+                    onRegister={handleRegisterSuccess}
+                    onNavigateToLogin={() => setCurrentView("login")}
+                    darkMode={darkMode}
+                    onToggleDarkMode={() => setDarkMode((current) => !current)}
+                    onToast={addToast}
+                  />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "home" && (
-            <motion.div
-              key="home"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <HomeView
-                  user={localUser}
-                  onNavigate={(tab) => setCurrentView(tab)}
-                  onOpenSettings={() => setIsSettingsOpen(true)}
-                />
-              </Suspense>
-            </motion.div>
-          )}
+            {currentView === "home" && (
+              <motion.div
+                key="home"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1"
+              >
+                <LazyErrorBoundary name="HomeView">
+                  <HomeView
+                    user={localUser}
+                    onNavigate={(tab) => setCurrentView(tab)}
+                    onOpenSettings={() => setIsSettingsOpen(true)}
+                  />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "consulta" && (
-            <motion.div
-              key="consulta"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1 flex flex-col h-[calc(100vh-80px)]"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
-              </Suspense>
-            </motion.div>
-          )}
+            {currentView === "consulta" && (
+              <motion.div
+                key="consulta"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1 flex flex-col h-[calc(100vh-80px)]"
+              >
+                <LazyErrorBoundary name="ConsultaView">
+                  <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "buscar" && featureFlags.healthUnitSearch && (
-            <motion.div
-              key="buscar"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
-              </Suspense>
-            </motion.div>
-          )}
+            {/* The featureFlags guard was removed from the render condition.
+                The useEffect on line ~188 already redirects to "home" when the
+                flag is disabled.  Having the guard HERE caused a blank screen
+                when globalSettings hadn't loaded yet (featureFlags defaulted
+                to true then flipped, or the Supabase query was still pending). */}
+            {currentView === "buscar" && (
+              <motion.div
+                key="buscar"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1"
+              >
+                <LazyErrorBoundary name="CentrosView">
+                  <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "premium" && featureFlags.premiumFeatures && (
-            <motion.div
-              key="premium"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <PremiumView
-                  user={localUser}
-                  isPremium={isPremium}
-                  onUnlockPremium={handleUnlockPremium}
-                  onNavigate={(tab) => setCurrentView(tab)}
-                />
-              </Suspense>
-            </motion.div>
-          )}
+            {currentView === "premium" && (
+              <motion.div
+                key="premium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1"
+              >
+                <LazyErrorBoundary name="PremiumView">
+                  <PremiumView
+                    user={localUser}
+                    isPremium={isPremium}
+                    onUnlockPremium={handleUnlockPremium}
+                    onNavigate={(tab) => setCurrentView(tab)}
+                  />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "perfil" && (
-            <motion.div
-              key="perfil"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <PerfilView
-                  user={localUser}
-                  isPremium={isPremium}
-                  onGoBack={() => setCurrentView("home")}
-                  onUpdateUser={handleUpdateUser}
-                  onLogout={() => setIsLogoutModalOpen(true)}
-                  onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
-                />
-              </Suspense>
-            </motion.div>
-          )}
+            {currentView === "perfil" && (
+              <motion.div
+                key="perfil"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1"
+              >
+                <LazyErrorBoundary name="PerfilView">
+                  <PerfilView
+                    user={localUser}
+                    isPremium={isPremium}
+                    onGoBack={() => setCurrentView("home")}
+                    onUpdateUser={handleUpdateUser}
+                    onLogout={() => setIsLogoutModalOpen(true)}
+                    onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
+                  />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
 
-          {currentView === "admin" && profileRole === "admin" && (
-            <motion.div
-              key="admin"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex-1 flex flex-col h-screen"
-            >
-              <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-                <AdminView onGoBack={() => setCurrentView("home")} />
-              </Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {currentView === "admin" && profileRole === "admin" && (
+              <motion.div
+                key="admin"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex-1 flex flex-col h-screen"
+              >
+                <LazyErrorBoundary name="AdminView">
+                  <AdminView onGoBack={() => setCurrentView("home")} />
+                </LazyErrorBoundary>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Suspense>
 
         {/* ─── 2FA Verification Modal (post-login) ──────────────── */}
         {requiresMFA && mfaFactorId && (
