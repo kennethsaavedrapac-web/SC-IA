@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Star, Building, Check, ShieldCheck, Ticket, Sparkles, X, Gift, Heart, ShieldAlert, CreditCard, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -14,17 +14,11 @@ interface PremiumViewProps {
 
 export default function PremiumView({ user, onUnlockPremium, isPremium, onNavigate }: PremiumViewProps) {
   const { t } = useLanguage();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const renderCountRef = useRef(0);
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [showBadgeMessage, setShowBadgeMessage] = useState(false);
-
-  // Diagnostic lifecycle logging
-  React.useEffect(() => {
-    console.info("[PremiumView] 🚀 Component mounted", { userId: user?.id, isPremium });
-    return () => {
-      console.info("[PremiumView] 🧹 Component unmounted");
-    };
-  }, [user?.id, isPremium]);
 
   // Checkout simulator
   const [checkoutPlan, setCheckoutPlan] = useState<{ name: string; price: string } | null>(null);
@@ -33,6 +27,61 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   const [cardCVV, setCardCVV] = useState("");
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+
+  renderCountRef.current += 1;
+  console.info("[Premium] Render started", {
+    render: renderCountRef.current,
+    userId: user?.id,
+    userName: user?.name,
+    isPremium,
+    hasUnlockHandler: typeof onUnlockPremium === "function",
+    hasNavigateHandler: typeof onNavigate === "function",
+  });
+
+  // This effect intentionally has no reactive dependencies: it distinguishes a
+  // real mount/unmount from an ordinary prop update in the diagnostic trace.
+  useEffect(() => {
+    console.info("[Premium] Component mounted");
+    return () => {
+      console.info("[Premium] Component unmounted");
+    };
+  }, []);
+
+  useEffect(() => {
+    console.info("[Premium] Props/state received", {
+      userId: user?.id,
+      userName: user?.name,
+      isPremium,
+      promoCodeLength: promoCode.length,
+      checkoutPlan: checkoutPlan?.name ?? null,
+    });
+  }, [user?.id, user?.name, isPremium, promoCode.length, checkoutPlan?.name]);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) {
+      console.error("[Premium] Render completed but root DOM node is missing");
+      return;
+    }
+
+    const logLayout = () => {
+      const styles = window.getComputedStyle(root);
+      const rect = root.getBoundingClientRect();
+      console.info("[Premium] Render completed / DOM visible check", {
+        connected: root.isConnected,
+        children: root.childElementCount,
+        rect: { width: rect.width, height: rect.height, top: rect.top, bottom: rect.bottom },
+        display: styles.display,
+        visibility: styles.visibility,
+        opacity: styles.opacity,
+        overflow: styles.overflow,
+        zIndex: styles.zIndex,
+      });
+    };
+
+    const animationFrame = window.requestAnimationFrame(logLayout);
+    return () => window.cancelAnimationFrame(animationFrame);
+  });
 
   const handleApplyPromo = () => {
     if (promoCode.trim().toUpperCase() === "SALUD100") {
@@ -63,14 +112,12 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
     }, 2000);
   };
 
-  console.log("Renderizando: PremiumView", { userId: user?.id, userName: user?.name, isPremium });
-
   const safeFirstName = (user?.id === "guest" || user?.name === "Invitado" || !user?.name)
     ? t('guest')
     : user.name.split(" ")[0];
 
   return (
-    <div className="flex flex-col min-h-dvh relative overflow-hidden">
+    <div ref={rootRef} className="flex flex-col min-h-dvh relative overflow-hidden">
       {}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-2xl h-[500px] bg-brand-600/10 dark:bg-brand-600/10 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 dark:bg-cyan-500/10 blur-[100px] pointer-events-none"></div>

@@ -202,6 +202,11 @@ export default function App() {
 
   
   useEffect(() => {
+    console.info("[App][Premium navigation guard]", {
+      currentView,
+      settingsLoaded: Boolean(globalSettings),
+      premiumFeatures: featureFlags.premiumFeatures,
+    });
     if (globalSettings) {
       if (currentView === "buscar" && !featureFlags.healthUnitSearch) setCurrentView("home");
       if (currentView === "premium" && !featureFlags.premiumFeatures) setCurrentView("home");
@@ -976,6 +981,8 @@ export default function App() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 className="flex-1"
+                onAnimationStart={() => console.info("[Premium] Parent enter animation started")}
+                onAnimationComplete={() => console.info("[Premium] Parent enter animation completed")}
               >
                 <LazyErrorBoundary name="PremiumView">
                   <PremiumView
