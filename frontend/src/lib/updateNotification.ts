@@ -1,6 +1,6 @@
 
 
-export const APP_VERSION = "v1.0.10";
+export const APP_VERSION = "v1.0.9";
 const DISMISS_KEY = "updateNotificationDismissedAt";
 const REAPPEAR_INTERVAL = 24 * 60 * 60 * 1000; 
 

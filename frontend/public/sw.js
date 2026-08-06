@@ -1,6 +1,4 @@
-// Increment this whenever the application shell changes so installed PWAs
-// cannot retain an incompatible HTML/chunk combination after a deployment.
-const CACHE_NAME = 'salud-conecta-cache-v13';
+const CACHE_NAME = 'salud-conecta-cache-v12';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -11,7 +9,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v13...');
+  console.log('[SW] Installing Service Worker v12...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -20,7 +18,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v13...');
+  console.log('[SW] Activating Service Worker v12...');
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => Promise.all(cacheNames.map((cacheName) => (

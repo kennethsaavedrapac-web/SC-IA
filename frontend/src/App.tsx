@@ -871,11 +871,12 @@ export default function App() {
         </AnimatePresence>
 
         {/* Suspense lives OUTSIDE AnimatePresence so the loading fallback
-            doesn't compete with route transitions. Page transitions use the
-            default sync mode: the incoming screen must never wait for the
-            outgoing screen (notably Buscar) to finish its exit animation. */}
+            doesn't compete with exit/enter animations.  When a lazy chunk is
+            still downloading, Suspense renders the spinner while
+            AnimatePresence keeps its current child visible – preventing the
+            blank-screen race condition. */}
         <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-          <AnimatePresence initial={false} onExitComplete={() => console.info("[Navigation] Previous view exit completed")}>
+          <AnimatePresence mode="wait">
             {currentView === "login" && (
               <motion.div
                 key="login"
