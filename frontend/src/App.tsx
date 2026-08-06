@@ -275,25 +275,29 @@ export default function App() {
   useEffect(() => {
     if (!initialized) return;
 
-    if (session && user) {
-      
+    const isAuthenticated = !!(session && user) || localUser.id === "guest";
+    console.info(`[AuthGuard] Check: initialized=${initialized}, session=${!!session}, user=${user?.id}, localUser=${localUser.id}, currentView=${currentView}, isAuthenticated=${isAuthenticated}`);
+
+    if (isAuthenticated) {
       if (currentView === "login" || currentView === "register") {
+        console.info("[AuthGuard] Authenticated user on auth screen → redirecting to home");
         setCurrentView("home");
       }
 
-      
-      requestNotificationPermission().then((granted) => {
-        if (granted) {
-          showDailyNotification(user.id);
-        }
-      });
+      if (user?.id) {
+        requestNotificationPermission().then((granted) => {
+          if (granted) {
+            showDailyNotification(user.id);
+          }
+        });
+      }
     } else {
-      
       if (currentView !== "login" && currentView !== "register") {
+        console.warn(`[AuthGuard] Unauthenticated navigation attempt to '${currentView}' → redirecting to login`);
         setCurrentView("login");
       }
     }
-  }, [session, user, initialized]);
+  }, [session, user, initialized, localUser.id, currentView]);
 
   // ─── Admin route guard (defense in depth) ──────────────────────
   useEffect(() => {
@@ -706,6 +710,7 @@ export default function App() {
   const bottomNavCount = 1 + (featureFlags.healthUnitSearch ? 1 : 0) + (featureFlags.appointmentBooking ? 1 : 0) + (featureFlags.premiumFeatures ? 1 : 0);
   const gridColsClass = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[bottomNavCount] || "grid-cols-4";
   const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
+  console.log("Renderizando: App", { currentView, user: localUser.id, session: !!session });
 
   return (
     <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">

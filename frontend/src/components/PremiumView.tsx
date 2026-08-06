@@ -18,6 +18,14 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
   const [promoMessage, setPromoMessage] = useState<{ text: string; error: boolean } | null>(null);
   const [showBadgeMessage, setShowBadgeMessage] = useState(false);
 
+  // Diagnostic lifecycle logging
+  React.useEffect(() => {
+    console.info("[PremiumView] 🚀 Component mounted", { userId: user?.id, isPremium });
+    return () => {
+      console.info("[PremiumView] 🧹 Component unmounted");
+    };
+  }, [user?.id, isPremium]);
+
   // Checkout simulator
   const [checkoutPlan, setCheckoutPlan] = useState<{ name: string; price: string } | null>(null);
   const [cardNumber, setCardNumber] = useState("");
@@ -54,6 +62,12 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
       }, 2500);
     }, 2000);
   };
+
+  console.log("Renderizando: PremiumView", { userId: user?.id, userName: user?.name, isPremium });
+
+  const safeFirstName = (user?.id === "guest" || user?.name === "Invitado" || !user?.name)
+    ? t('guest')
+    : user.name.split(" ")[0];
 
   return (
     <div className="flex flex-col min-h-dvh relative overflow-hidden">
@@ -119,7 +133,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
           <div className="mt-6 bg-emerald-500/10 dark:bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 p-4.5 rounded-2xl text-sm text-emerald-800 dark:text-emerald-300 font-bold flex items-center space-x-4 shadow-lg shadow-emerald-500/5">
             <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-lg shadow-inner">🏆</div>
             <div>
-              <span className="text-base">{t('premiumActiveMsg').replace('{name}', (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name.split(" ")[0])}</span>
+              <span className="text-base">{t('premiumActiveMsg').replace('{name}', safeFirstName)}</span>
               <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 font-medium mt-0.5">{t('premiumActiveSub')}</p>
             </div>
           </div>

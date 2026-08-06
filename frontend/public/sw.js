@@ -1,4 +1,4 @@
-const CACHE_NAME = 'salud-conecta-cache-v11';
+const CACHE_NAME = 'salud-conecta-cache-v12';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -9,6 +9,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing Service Worker v12...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -17,6 +18,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating Service Worker v12...');
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => Promise.all(cacheNames.map((cacheName) => (
@@ -27,7 +29,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'Salud-Conecta IA', body: 'Tienes una nueva notificacion' };
+  let data = { title: 'Salud-Conecta IA', body: 'Tienes una nueva notificación' };
   if (event.data) {
     try {
       data = event.data.json();
@@ -62,41 +64,58 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const requestUrl = new URL(event.request.url);
-  // API data can be sensitive or user-specific. It must never enter Cache Storage.
+  // API requests must bypass SW cache completely
   if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith('/api/')) return;
 
+  // Navigation requests (HTML): Always Network-First to guarantee fresh chunk references
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', response.clone()));
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', copy));
+          }
           return response;
         })
-        .catch(() => caches.match('/index.html').then((response) => response || caches.match('/')))
+        .catch(() => {
+          console.warn('[SW] Offline navigate fallback');
+          return caches.match('/index.html').then((res) => res || caches.match('/'));
+        })
     );
     return;
   }
 
+  // Static assets & JS chunks: Network-First for JS chunks to prevent stale chunk errors after deploy
+  if (requestUrl.pathname.includes('/assets/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          console.warn('[SW] Fetching cached asset offline:', event.request.url);
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+
+  // Generic assets (images, icons, manifest): Cache-First
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const networkRequest = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
+      if (cachedResponse) return cachedResponse;
+      return fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return networkResponse;
       });
-
-      // Static assets return immediately on repeat visits and refresh in background.
-      if (cachedResponse) {
-        event.waitUntil(networkRequest.catch(() => undefined));
-        return cachedResponse;
-      }
-
-      return networkRequest.catch(() => new Response('Contenido no disponible sin conexion a internet', {
-        status: 503,
-        statusText: 'Service Unavailable',
-        headers: new Headers({ 'Content-Type': 'text/plain; charset=utf-8' })
-      }));
     })
   );
 });
