@@ -261,14 +261,14 @@ export const showDailyNotification = async (userId: string) => {
       if (registration) {
         registration.showNotification("Salud-Conecta IA", {
           body: message,
-          icon: "/app-logo-v1.jpg",
-          badge: "/app-logo-v1.jpg",
+          icon: "/app-logo-v2.png",
+          badge: "/app-logo-v2.png",
           vibrate: [200, 100, 200]
         } as any);
       } else {
         new Notification("Salud-Conecta IA", {
           body: message,
-          icon: "/app-logo-v1.jpg"
+          icon: "/app-logo-v2.png"
         });
       }
 

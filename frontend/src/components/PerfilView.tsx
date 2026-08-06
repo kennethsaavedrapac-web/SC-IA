@@ -364,7 +364,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       // ── Pre-load images ───────────────────────────────────
       const [logoPng, avatarPng, qrPng] = await Promise.all([
-        toDataUrl("/app-logo-v2.jpg"),
+        toDataUrl("/app-logo-v2.png"),
         user.avatarUrl ? toDataUrl(user.avatarUrl) : Promise.resolve(null),
         qrToDataUrl(qrRef.current),
       ]);
@@ -770,7 +770,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             </h2>
             <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
               <img
-                src="/app-logo-v2.jpg"
+                src="/app-logo-v2.png"
                 alt="Logo"
                 className="w-4 h-4 sm:w-6 sm:h-6 rounded shadow-sm object-cover"
               />

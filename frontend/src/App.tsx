@@ -675,7 +675,7 @@ export default function App() {
           <div className="splash-logo-container">
             <div className="splash-logo-ring neon-glow-subtle">
               <img
-                src="/app-logo-v2.jpg"
+                src="/app-logo-v2.png"
                 alt="Logo Salud-Conecta IA"
                 className="splash-logo-img"
               />
@@ -734,7 +734,7 @@ export default function App() {
           <div className="p-6 flex items-center gap-3.5 cursor-pointer group" onClick={() => setCurrentView("home")}>
             <div className="p-[2px] rounded-xl bg-white dark:bg-transparent" style={{ background: 'var(--gradient-accent)' }}>
               <img
-                src="/app-logo-v2.jpg"
+                src="/app-logo-v2.png"
                 alt="Logo Salud-Conecta IA"
                 className="w-9 h-9 rounded-[10px] object-cover bg-white dark:bg-[#0D1A2F] transition-transform group-hover:scale-105"
               />

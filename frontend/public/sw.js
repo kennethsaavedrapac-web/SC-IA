@@ -40,8 +40,8 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(self.registration.showNotification(data.title, {
     body: data.body,
-    icon: '/app-logo-v1.jpg',
-    badge: '/app-logo-v1.jpg',
+    icon: '/app-logo-v2.png',
+    badge: '/app-logo-v2.png',
     vibrate: [200, 100, 200],
     data: { url: data.url || '/' }
   }));

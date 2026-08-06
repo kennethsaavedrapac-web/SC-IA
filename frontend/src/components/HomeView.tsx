@@ -22,7 +22,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
           <img
-            src="/app-logo-v2.jpg"
+            src="/app-logo-v2.png"
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-slate-200/60 dark:border-slate-700/60"
           />

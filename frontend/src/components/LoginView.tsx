@@ -150,7 +150,7 @@ export default function LoginView({
         { }
         <div className="flex flex-col items-center mb-7">
           <img
-            src="/app-logo-v2.jpg"
+            src="/app-logo-v2.png"
             alt="Logo"
             className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
           />
