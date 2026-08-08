@@ -802,7 +802,7 @@ export default function App() {
       )}
 
       {}
-      <div className={`flex-1 w-full flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full flex flex-col relative min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {}
         <AnimatePresence>
@@ -877,7 +877,7 @@ export default function App() {
             Keeping the keyed screen wrapper stable prevents the full-screen
             map in Buscar from blocking the next screen's mount. */}
         <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             {!(currentView === "admin" && profileRole !== "admin") && (
               <motion.div
                 key={currentView}
@@ -925,7 +925,7 @@ export default function App() {
                 )}
                 {currentView === "buscar" && (
                   <LazyErrorBoundary name="CentrosView">
-                    <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+                    <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} darkMode={darkMode} />
                   </LazyErrorBoundary>
                 )}
                 {currentView === "premium" && (
