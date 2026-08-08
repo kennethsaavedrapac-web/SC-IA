@@ -10,7 +10,6 @@ import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategory
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
   onTriggerEmergency?: () => void;
-  darkMode?: boolean;
 }
 
 interface UserLocation {
@@ -86,7 +85,7 @@ function getNearestHospital(
   return nearest ? { hospital: nearest, distanceKm: minDistance } : null;
 }
 
-export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }: CentrosViewProps) {
+export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
@@ -102,9 +101,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
   const [mobileView, setMobileView] = useState<"map" | "list">("map");
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
-  const isDarkMode = darkMode ?? document.documentElement.classList.contains("dark");
+  const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
   const lastUserLocationRef = useRef<UserLocation | null>(null);
   const lastGeocodedLocationRef = useRef<UserLocation | null>(null);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
 
   const MEDICAL_CATEGORIES: MedicalCategory[] = useMemo(() => [
@@ -131,14 +138,14 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
   ], [t]);
 
 
-  const findNearestCenter = useCallback((loc: UserLocation | null) => {
-    if (!loc) return null;
+  const findNearestCenter = useCallback(() => {
+    if (!userLocation) return null;
 
     return mergedCenters
       .filter((center) => center.latitude && center.longitude)
-      .map((center) => ({ center, distanceKm: getDistanceKm(loc, center) }))
+      .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center ?? null;
-  }, [mergedCenters]);
+  }, [mergedCenters, userLocation]);
 
 
   const handleCategorySelected = useCallback((category: string) => {
@@ -146,7 +153,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
 
     if (category === "centros" && userLocation) {
 
-      const nearestCenter = findNearestCenter(userLocation);
+      const nearestCenter = findNearestCenter();
       if (nearestCenter) {
         setActiveFilter("centro");
         setSelectedCenter(nearestCenter);
@@ -252,7 +259,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
 
 
 
-        const nearestCenter = findNearestCenter(userLoc);
+        const nearestCenter = mergedCenters
+          .filter((center) => center.latitude && center.longitude)
+          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
         if (nearestCenter) {
           setActiveFilter("centro");
@@ -270,7 +280,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
         timeout: 12000,
       },
     );
-  }, [findNearestCenter]);
+  }, [mergedCenters]);
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -311,7 +321,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
 
 
 
-          const nearestCenter = findNearestCenter(userLoc);
+          const nearestCenter = mergedCenters
+            .filter((center) => center.latitude && center.longitude)
+            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
           if (nearestCenter) {
             setActiveFilter("centro");
@@ -332,12 +345,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [findNearestCenter]);
+  }, [mergedCenters]);
 
   useEffect(() => {
     if (!userLocation) return;
 
-    const nearestCenter = findNearestCenter(userLocation);
+    const nearestCenter = mergedCenters
+      .filter((center) => center.latitude && center.longitude)
+      .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
+      .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
     const fallbackCity = nearestCenter?.municipality ?? "";
 
@@ -376,7 +392,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency, darkMode }
     reverseGeocode();
 
     return () => controller.abort();
-  }, [userLocation, findNearestCenter]);
+  }, [userLocation, mergedCenters]);
 
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
