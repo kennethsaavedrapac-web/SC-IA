@@ -244,42 +244,43 @@ export const showDailyNotification = async (userId: string) => {
     return;
   }
 
-  
-  await subscribeToPushNotifications(userId);
-
   const today = getLocalDateKey();
   const storageKey = `lastNotificationDate_${userId}`;
   const lastDate = localStorage.getItem(storageKey);
 
-  if (lastDate !== today) {
-    
-    const randomIndex = Math.floor(Math.random() * DAILY_MESSAGES.length);
-    const message = DAILY_MESSAGES[randomIndex];
+  // This function is called during navigation so the app can detect a new
+  // calendar day without a reload. Avoid the Push subscription upsert after
+  // today's notification has already been handled.
+  if (lastDate === today) return;
 
-    try {
-      const registration = await navigator.serviceWorker.getRegistration();
-      if (registration) {
-        registration.showNotification("Salud-Conecta IA", {
-          body: message,
-          icon: "/app-logo-v2.png",
-          badge: "/app-logo-v2.png",
-          vibrate: [200, 100, 200]
-        } as any);
-      } else {
-        new Notification("Salud-Conecta IA", {
-          body: message,
-          icon: "/app-logo-v2.png"
-        });
-      }
+  await subscribeToPushNotifications(userId);
 
-      saveNotificationRecord(userId, {
-        title: "Salud-Conecta IA",
+  const randomIndex = Math.floor(Math.random() * DAILY_MESSAGES.length);
+  const message = DAILY_MESSAGES[randomIndex];
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (registration) {
+      registration.showNotification("Salud-Conecta IA", {
         body: message,
-        source: "daily"
+        icon: "/app-logo-v2.png",
+        badge: "/app-logo-v2.png",
+        vibrate: [200, 100, 200]
+      } as any);
+    } else {
+      new Notification("Salud-Conecta IA", {
+        body: message,
+        icon: "/app-logo-v2.png"
       });
-      localStorage.setItem(storageKey, today);
-    } catch (e) {
-      console.error("Error mostrando notificación", e);
     }
+
+    saveNotificationRecord(userId, {
+      title: "Salud-Conecta IA",
+      body: message,
+      source: "daily"
+    });
+    localStorage.setItem(storageKey, today);
+  } catch (e) {
+    console.error("Error mostrando notificación", e);
   }
 };

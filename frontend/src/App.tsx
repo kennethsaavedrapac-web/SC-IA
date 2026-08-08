@@ -1,4 +1,4 @@
-import React, { lazy, useState, useEffect, useCallback, Suspense, useRef } from "react";
+import React, { lazy, useState, useEffect, useCallback, Suspense } from "react";
 import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
@@ -40,6 +40,13 @@ const PerfilView = timedLazy("PerfilView", () => import("./components/PerfilView
 const LoginView = timedLazy("LoginView", () => import("./components/LoginView"));
 const RegisterView = timedLazy("RegisterView", () => import("./components/RegisterView"));
 const AdminView = timedLazy("AdminView", () => import("./components/AdminView"));
+
+const DEFAULT_FEATURE_FLAGS = {
+  premiumFeatures: true,
+  healthUnitSearch: true,
+  appointmentBooking: true,
+  emergencyCard: true,
+};
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -195,18 +202,13 @@ export default function App() {
     return () => { supabase.removeChannel(settingsSub); };
   }, []);
 
-  const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
+  const featureFlags = globalSettings?.featureFlags ?? DEFAULT_FEATURE_FLAGS;
   const maintenanceMode = globalSettings?.maintenanceMode || false;
   const profileRole = (profile as any)?.role ?? (profile as any)?.rol;
   const isMaintenanceBlocked = maintenanceMode && profile && profileRole !== 'admin';
 
   
   useEffect(() => {
-    console.info("[App][Premium navigation guard]", {
-      currentView,
-      settingsLoaded: Boolean(globalSettings),
-      premiumFeatures: featureFlags.premiumFeatures,
-    });
     if (globalSettings) {
       if (currentView === "buscar" && !featureFlags.healthUnitSearch) setCurrentView("home");
       if (currentView === "premium" && !featureFlags.premiumFeatures) setCurrentView("home");
@@ -261,17 +263,7 @@ export default function App() {
 
 
   
-  // ─── Navigation diagnostics ─────────────────────────────────────────────
-  const prevViewRef = useRef(currentView);
   useEffect(() => {
-    const from = prevViewRef.current;
-    const to = currentView;
-    if (from !== to) {
-      console.info(
-        `[Navigation] 🔀 ${from} → ${to} at ${new Date().toISOString()}`
-      );
-    }
-    prevViewRef.current = to;
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentView]);
 
@@ -281,21 +273,19 @@ export default function App() {
     if (!initialized) return;
 
     const isAuthenticated = !!(session && user) || localUser.id === "guest";
-    console.info(`[AuthGuard] Check: initialized=${initialized}, session=${!!session}, user=${user?.id}, localUser=${localUser.id}, currentView=${currentView}, isAuthenticated=${isAuthenticated}`);
-
     if (isAuthenticated) {
       if (currentView === "login" || currentView === "register") {
-        console.info("[AuthGuard] Authenticated user on auth screen → redirecting to home");
         setCurrentView("home");
       }
 
       if (user?.id) {
-        requestNotificationPermission().then((granted) => {
+        void requestNotificationPermission().then((granted) => {
           if (granted) {
-            showDailyNotification(user.id);
+            void showDailyNotification(user.id);
           }
         });
       }
+
     } else {
       if (currentView !== "login" && currentView !== "register") {
         console.warn(`[AuthGuard] Unauthenticated navigation attempt to '${currentView}' → redirecting to login`);
@@ -450,8 +440,13 @@ export default function App() {
   
   useEffect(() => {
     
+    const handleControllerChange = () => {
+      console.log('[PWA] Nuevo Service Worker en control.');
+    };
+    let registerSW: (() => void) | null = null;
+
     if ('serviceWorker' in navigator) {
-      const registerSW = () => {
+      registerSW = () => {
         navigator.serviceWorker.register('/sw.js')
           .then(reg => {
             console.log('[PWA] Service Worker registrado:', reg.scope);
@@ -484,9 +479,7 @@ export default function App() {
       }
 
       
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        console.log('[PWA] Nuevo Service Worker en control.');
-      });
+      navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
     }
 
     
@@ -523,6 +516,10 @@ export default function App() {
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
+      if (registerSW && 'serviceWorker' in navigator) {
+        window.removeEventListener('load', registerSW);
+        navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      }
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
@@ -715,8 +712,6 @@ export default function App() {
   const bottomNavCount = 1 + (featureFlags.healthUnitSearch ? 1 : 0) + (featureFlags.appointmentBooking ? 1 : 0) + (featureFlags.premiumFeatures ? 1 : 0);
   const gridColsClass = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[bottomNavCount] || "grid-cols-4";
   const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
-  console.log("Renderizando: App", { currentView, user: localUser.id, session: !!session });
-
   return (
     <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
       <div className="health-background-motifs">
@@ -981,8 +976,6 @@ export default function App() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 className="flex-1"
-                onAnimationStart={() => console.info("[Premium] Parent enter animation started")}
-                onAnimationComplete={() => console.info("[Premium] Parent enter animation completed")}
               >
                 <LazyErrorBoundary name="PremiumView">
                   <PremiumView

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HealthCenter } from "../types";
 import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -19,9 +19,10 @@ interface UserLocation {
 }
 
 const NEARBY_RADIUS_KM = 25;
+const REVERSE_GEOCODE_MIN_DISTANCE_KM = 0.25;
 const COORDINATED_CENTER_COUNT = HEALTH_CENTERS.filter((center) => center.latitude && center.longitude).length;
 
-function getDistanceKm(from: UserLocation, to: HealthCenter): number {
+function getDistanceKm(from: UserLocation, to: Pick<HealthCenter, "latitude" | "longitude">): number {
   if (!to.latitude || !to.longitude) return Number.POSITIVE_INFINITY;
 
   const earthRadiusKm = 6371;
@@ -103,6 +104,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+  const lastUserLocationRef = useRef<UserLocation | null>(null);
+  const lastGeocodedLocationRef = useRef<UserLocation | null>(null);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -181,6 +184,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
 
   useEffect(() => {
+    let isCurrent = true;
+
     const fetchOverrides = async () => {
       try {
         const { data, error } = await supabase.from('health_center_overrides').select('*');
@@ -213,12 +218,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           id: o.center_id, name: o.nombre_nuevo, type: o.tipo, department: o.departamento, municipality: o.municipio, locality: o.localidad, zone: o.zona, phone: o.telefono, silais: o.silais || "", latitude: o.latitud_ajustada, longitude: o.longitud_ajustada, sourceNumber: 0, hasCoordinates: !!(o.latitud_ajustada && o.longitud_ajustada)
         }));
 
-        setMergedCenters([...updatedCenters, ...customCenters] as HealthCenter[]);
+        if (isCurrent) {
+          setMergedCenters([...updatedCenters, ...customCenters] as HealthCenter[]);
+        }
       } catch (err) {
         console.error("Error syncing centers from database:", err);
       }
     };
     fetchOverrides();
+
+    return () => {
+      isCurrent = false;
+    };
   }, []);
 
   const normalizeQuery = (value?: string) =>
@@ -293,8 +304,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
 
         let shouldUpdate = true;
-        if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
+        const previousLocation = lastUserLocationRef.current;
+        if (previousLocation) {
+          const distanceMeters = getDistanceKm(userLoc, previousLocation) * 1000;
 
 
           if (distanceMeters < 10) {
@@ -303,6 +315,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         }
 
         if (shouldUpdate) {
+          lastUserLocationRef.current = userLoc;
           setUserLocation(userLoc);
           setGeoStatus("ready");
           setGeoError("");
@@ -334,7 +347,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
+  }, [mergedCenters]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -351,6 +364,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       setLocationQuery(fallbackCity || "Mi ubicación");
       return;
     }
+
+    const previousLocation = lastGeocodedLocationRef.current;
+    if (
+      previousLocation &&
+      getDistanceKm(userLocation, previousLocation) < REVERSE_GEOCODE_MIN_DISTANCE_KM
+    ) {
+      return;
+    }
+    lastGeocodedLocationRef.current = userLocation;
 
     const controller = new AbortController();
     const reverseGeocode = async () => {
