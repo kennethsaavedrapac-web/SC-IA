@@ -873,20 +873,16 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* AnimatePresence in wait mode must receive exactly one direct child.
-            Keeping the keyed screen wrapper stable prevents the full-screen
-            map in Buscar from blocking the next screen's mount. */}
+        {/* La vista actual se monta/desmonta de inmediato (sin depender de la
+            animación de salida de la anterior). El patrón AnimatePresence
+            mode="wait" + React.lazy dejaba una pantalla vacía al salir de
+            Buscar (mapa Leaflet en iframe a pantalla completa). */}
         <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-          <AnimatePresence mode="wait">
-            {!(currentView === "admin" && profileRole !== "admin") && (
-              <motion.div
-                key={currentView}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className={viewContainerClassName}
-              >
+          {!(currentView === "admin" && profileRole !== "admin") && (
+            <div
+              key={currentView}
+              className={viewContainerClassName}
+            >
                 {currentView === "login" && (
                   <LazyErrorBoundary name="LoginView">
                     <LoginView
@@ -955,9 +951,8 @@ export default function App() {
                     <AdminView onGoBack={() => setCurrentView("home")} />
                   </LazyErrorBoundary>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+            </div>
+          )}
         </Suspense>
 
         {/* ─── 2FA Verification Modal (post-login) ──────────────── */}
