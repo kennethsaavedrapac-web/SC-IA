@@ -87,8 +87,6 @@ function getNearestHospital(
 
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
-  const googleMapsMapId = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined;
   const [locationQuery, setLocationQuery] = useState("Granada");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
@@ -359,12 +357,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
     const fallbackCity = nearestCenter?.municipality ?? "";
 
-    if (!googleMapsApiKey) {
-      setDetectedCity(fallbackCity);
-      setLocationQuery(fallbackCity || "Mi ubicación");
-      return;
-    }
-
     const previousLocation = lastGeocodedLocationRef.current;
     if (
       previousLocation &&
@@ -378,40 +370,21 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     const reverseGeocode = async () => {
       try {
         const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${userLocation.latitude},${userLocation.longitude}&key=${encodeURIComponent(googleMapsApiKey)}&language=es`,
+          `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
           { signal: controller.signal },
         );
-        const data = await response.json();
-        if (data.status === "OK" && data.results?.[0]) {
-          const components = data.results[0].address_components ?? [];
-          const cityComponent = components.find((component: { types: string[] }) =>
-            component.types.includes("locality") ||
-            component.types.includes("administrative_area_level_2") ||
-            component.types.includes("administrative_area_level_1"),
-          );
-          const city = cityComponent?.long_name || fallbackCity;
-          setDetectedCity(city);
-          setLocationQuery(city || "Mi ubicación");
-        } else {
-          throw new Error(data.status || "Google Maps API returned non-OK status");
+        if (!response.ok) {
+          throw new Error("No se pudo determinar la ubicación");
         }
-      } catch (error) {
+        const data = await response.json();
+        const address = data.address || {};
+        const city = address.city || address.town || address.village || address.municipality || address.county || fallbackCity;
+        setDetectedCity(city);
+        setLocationQuery(city || "Mi ubicación");
+      } catch {
         if (!controller.signal.aborted) {
-          try {
-
-            const osmResponse = await fetch(
-              `/api/geocode?lat=${userLocation.latitude}&lng=${userLocation.longitude}`,
-              { signal: controller.signal }
-            );
-            const osmData = await osmResponse.json();
-            const address = osmData.address || {};
-            const city = address.city || address.town || address.village || address.municipality || address.county || fallbackCity;
-            setDetectedCity(city);
-            setLocationQuery(city || "Mi ubicación");
-          } catch (osmError) {
-            setDetectedCity(fallbackCity);
-            setLocationQuery(fallbackCity || "Mi ubicación");
-          }
+          setDetectedCity(fallbackCity);
+          setLocationQuery(fallbackCity || "Mi ubicación");
         }
       }
     };
@@ -419,7 +392,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     reverseGeocode();
 
     return () => controller.abort();
-  }, [googleMapsApiKey, userLocation, mergedCenters]);
+  }, [userLocation, mergedCenters]);
 
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
@@ -521,19 +494,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .filter(Boolean)
       .join(", ")
     : `${selectedLocationLabel}, Nicaragua`;
-  const selectedCenterMapQuery =
-    selectedCenter?.latitude && selectedCenter?.longitude
-      ? `${selectedCenter.latitude},${selectedCenter.longitude}`
-      : userLocation
-        ? `${userLocation.latitude},${userLocation.longitude}`
-        : selectedCenterSearch;
-  const googleMapsEmbedUrl = googleMapsApiKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey)}&q=${encodeURIComponent(selectedCenterMapQuery)}&zoom=15`
-    : "";
-  const googleMapsSearchUrl =
+  const openStreetMapRouteUrl =
     userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${selectedCenter.latitude},${selectedCenter.longitude}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedCenterMapQuery)}`;
+      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${userLocation.latitude}%2C${userLocation.longitude}%3B${selectedCenter.latitude}%2C${selectedCenter.longitude}`
+      : `https://www.openstreetmap.org/search?query=${encodeURIComponent(selectedCenterSearch)}`;
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const getMapCategory = (type: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
@@ -620,47 +584,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
   }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
-  const mapHtml = useMemo(() => {
-    if (googleMapsApiKey) {
-      const darkStyle = [
-        { "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
-        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#1e293b" }] },
-        { "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
-        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
-        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
-        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
-        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
-        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#0f172a" }] },
-        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
-        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
-        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#334155" }] },
-        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1e293b" }] },
-        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f1f5f9" }] },
-        { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#1e293b" }] },
-        { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#cbd5e1" }] },
-        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#020617" }] },
-        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] }
-      ];
-
-      const lightStyle = [
-        { "elementType": "geometry", "stylers": [{ "color": "#f8fafc" }] },
-        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#ffffff" }, { "weight": 2 }] },
-        { "elementType": "labels.text.fill", "stylers": [{ "color": "#475569" }] },
-        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
-        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
-        { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
-        { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] },
-        { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#ffffff" }] },
-        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#f1f5f9" }] },
-        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#64748b" }] },
-        { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#f1f5f9" }] },
-        { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#e2e8f0" }] },
-        { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#1e293b" }] },
-        { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e2e8f0" }] },
-        { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#94a3b8" }] }
-      ];
-
-      return `
+  const mapHtml = useMemo(() => `
         <!DOCTYPE html>
         <html>
         <head>
@@ -947,7 +871,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </body>
       </html>
     `;
-  }, [googleMapsApiKey, googleMapsMapId]);
+  }, []);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full transition-colors duration-300 overflow-hidden relative">
@@ -1238,7 +1162,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             { }
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
-                                href={googleMapsSearchUrl}
+                                href={openStreetMapRouteUrl}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
@@ -1400,7 +1324,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={googleMapsSearchUrl}
+                    href={openStreetMapRouteUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"

@@ -906,7 +906,7 @@ function getRandomMeds(pharmacyIndex: number, minCount: number, maxCount: number
 
 // ═══════════════════════════════════════════════════════════════════
 // FARMACIAS REALES DE GRANADA, NICARAGUA
-// Datos obtenidos de Google Maps y directorios locales
+// Datos obtenidos de directorios locales
 // ═══════════════════════════════════════════════════════════════════
 
 export const PHARMACIES: Pharmacy[] = [

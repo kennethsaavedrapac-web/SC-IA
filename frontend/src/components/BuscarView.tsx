@@ -398,7 +398,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                         <div className="flex flex-col gap-2 w-full">
                           <button
                             id={`btn-run-route-for-${pharm.id}`}
-                            onClick={() => alert(`Iniciando navegación con Google Maps para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
+                            onClick={() => alert(`Iniciando navegación para ${pharm.name} en ${pharm.address}. Distancia aproximada de ${pharm.distance}`)}
                             className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                           >
                             <Navigation className="w-4 h-4 shrink-0" />
