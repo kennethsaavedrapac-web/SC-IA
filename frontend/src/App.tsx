@@ -712,6 +712,14 @@ export default function App() {
   const bottomNavCount = 1 + (featureFlags.healthUnitSearch ? 1 : 0) + (featureFlags.appointmentBooking ? 1 : 0) + (featureFlags.premiumFeatures ? 1 : 0);
   const gridColsClass = { 1: "grid-cols-1", 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4" }[bottomNavCount] || "grid-cols-4";
   const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
+  const viewContainerClassName =
+    currentView === "login" || currentView === "register"
+      ? "flex-1 flex flex-col"
+      : currentView === "consulta"
+        ? "flex-1 flex flex-col h-[calc(100vh-80px)]"
+        : currentView === "admin"
+          ? "flex-1 flex flex-col h-screen"
+          : "flex-1";
   return (
     <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
       <div className="health-background-motifs">
@@ -865,163 +873,88 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Suspense lives OUTSIDE AnimatePresence so the loading fallback
-            doesn't compete with exit/enter animations.  When a lazy chunk is
-            still downloading, Suspense renders the spinner while
-            AnimatePresence keeps its current child visible – preventing the
-            blank-screen race condition. */}
+        {/* AnimatePresence in wait mode must receive exactly one direct child.
+            Keeping the keyed screen wrapper stable prevents the full-screen
+            map in Buscar from blocking the next screen's mount. */}
         <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
           <AnimatePresence mode="wait">
-            {currentView === "login" && (
+            {!(currentView === "admin" && profileRole !== "admin") && (
               <motion.div
-                key="login"
+                key={currentView}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="flex-1 flex flex-col"
+                className={viewContainerClassName}
               >
-                <LazyErrorBoundary name="LoginView">
-                  <LoginView
-                    onLogin={handleLoginSuccess}
-                    onNavigateToRegister={() => setCurrentView("register")}
-                    darkMode={darkMode}
-                    onToggleDarkMode={() => setDarkMode((current) => !current)}
-                    onToast={addToast}
-                  />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "register" && (
-              <motion.div
-                key="register"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1 flex flex-col"
-              >
-                <LazyErrorBoundary name="RegisterView">
-                  <RegisterView
-                    onRegister={handleRegisterSuccess}
-                    onNavigateToLogin={() => setCurrentView("login")}
-                    darkMode={darkMode}
-                    onToggleDarkMode={() => setDarkMode((current) => !current)}
-                    onToast={addToast}
-                  />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "home" && (
-              <motion.div
-                key="home"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1"
-              >
-                <LazyErrorBoundary name="HomeView">
-                  <HomeView
-                    user={localUser}
-                    onNavigate={(tab) => setCurrentView(tab)}
-                    onOpenSettings={() => setIsSettingsOpen(true)}
-                  />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "consulta" && (
-              <motion.div
-                key="consulta"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1 flex flex-col h-[calc(100vh-80px)]"
-              >
-                <LazyErrorBoundary name="ConsultaView">
-                  <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {/* The featureFlags guard was removed from the render condition.
-                The useEffect on line ~188 already redirects to "home" when the
-                flag is disabled.  Having the guard HERE caused a blank screen
-                when globalSettings hadn't loaded yet (featureFlags defaulted
-                to true then flipped, or the Supabase query was still pending). */}
-            {currentView === "buscar" && (
-              <motion.div
-                key="buscar"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1"
-              >
-                <LazyErrorBoundary name="CentrosView">
-                  <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "premium" && (
-              <motion.div
-                key="premium"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1"
-              >
-                <LazyErrorBoundary name="PremiumView">
-                  <PremiumView
-                    user={localUser}
-                    isPremium={isPremium}
-                    onUnlockPremium={handleUnlockPremium}
-                    onNavigate={(tab) => setCurrentView(tab)}
-                  />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "perfil" && (
-              <motion.div
-                key="perfil"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1"
-              >
-                <LazyErrorBoundary name="PerfilView">
-                  <PerfilView
-                    user={localUser}
-                    isPremium={isPremium}
-                    onGoBack={() => setCurrentView("home")}
-                    onUpdateUser={handleUpdateUser}
-                    onLogout={() => setIsLogoutModalOpen(true)}
-                    onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
-                  />
-                </LazyErrorBoundary>
-              </motion.div>
-            )}
-
-            {currentView === "admin" && profileRole === "admin" && (
-              <motion.div
-                key="admin"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="flex-1 flex flex-col h-screen"
-              >
-                <LazyErrorBoundary name="AdminView">
-                  <AdminView onGoBack={() => setCurrentView("home")} />
-                </LazyErrorBoundary>
+                {currentView === "login" && (
+                  <LazyErrorBoundary name="LoginView">
+                    <LoginView
+                      onLogin={handleLoginSuccess}
+                      onNavigateToRegister={() => setCurrentView("register")}
+                      darkMode={darkMode}
+                      onToggleDarkMode={() => setDarkMode((current) => !current)}
+                      onToast={addToast}
+                    />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "register" && (
+                  <LazyErrorBoundary name="RegisterView">
+                    <RegisterView
+                      onRegister={handleRegisterSuccess}
+                      onNavigateToLogin={() => setCurrentView("login")}
+                      darkMode={darkMode}
+                      onToggleDarkMode={() => setDarkMode((current) => !current)}
+                      onToast={addToast}
+                    />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "home" && (
+                  <LazyErrorBoundary name="HomeView">
+                    <HomeView
+                      user={localUser}
+                      onNavigate={(tab) => setCurrentView(tab)}
+                      onOpenSettings={() => setIsSettingsOpen(true)}
+                    />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "consulta" && (
+                  <LazyErrorBoundary name="ConsultaView">
+                    <ConsultaView user={localUser} onNavigate={(tab) => setCurrentView(tab)} isPremium={isPremium} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "buscar" && (
+                  <LazyErrorBoundary name="CentrosView">
+                    <CentrosView onNavigate={(tab) => setCurrentView(tab)} onTriggerEmergency={() => setIsEmergencyModalOpen(true)} />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "premium" && (
+                  <LazyErrorBoundary name="PremiumView">
+                    <PremiumView
+                      user={localUser}
+                      isPremium={isPremium}
+                      onUnlockPremium={handleUnlockPremium}
+                      onNavigate={(tab) => setCurrentView(tab)}
+                    />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "perfil" && (
+                  <LazyErrorBoundary name="PerfilView">
+                    <PerfilView
+                      user={localUser}
+                      isPremium={isPremium}
+                      onGoBack={() => setCurrentView("home")}
+                      onUpdateUser={handleUpdateUser}
+                      onLogout={() => setIsLogoutModalOpen(true)}
+                      onGoToAdmin={profileRole === "admin" ? () => setCurrentView("admin") : undefined}
+                    />
+                  </LazyErrorBoundary>
+                )}
+                {currentView === "admin" && (
+                  <LazyErrorBoundary name="AdminView">
+                    <AdminView onGoBack={() => setCurrentView("home")} />
+                  </LazyErrorBoundary>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
