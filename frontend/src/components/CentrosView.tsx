@@ -584,7 +584,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
   }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
-  const mapHtml = useMemo(() => `
+  const mapHtml = useMemo(() => {
+    if (googleMapsApiKey) {
+      return `
         <!DOCTYPE html>
         <html>
         <head>
@@ -871,7 +873,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       </body>
       </html>
     `;
-  }, []);
+  }, [googleMapsApiKey, darkStyle, lightStyle, googleMapsMapId]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full transition-colors duration-300 overflow-hidden relative">
