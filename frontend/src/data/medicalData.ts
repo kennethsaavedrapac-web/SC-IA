@@ -103,6 +103,7 @@ export const ALL_MEDICATIONS: string[] = [
   "Paracetamol 500 mg",
   "Paracetamol 1 g",
   "Paracetamol 120 mg/5 ml Jarabe (Panadol)",
+  "Paracetamol 125 mg/5 ml Jarabe",
   "Paracetamol 100 mg Gotas pediátricas",
   "Paracetamol Supositorio 300 mg",
   "Aspirina 100 mg",
