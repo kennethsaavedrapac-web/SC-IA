@@ -876,7 +876,7 @@ export default function App() {
             AnimatePresence keeps its current child visible – preventing the
             blank-screen race condition. */}
         <Suspense fallback={<LoadingFallback text={t('loadingModule')} />}>
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="wait">
             {currentView === "login" && (
               <motion.div
                 key="login"
