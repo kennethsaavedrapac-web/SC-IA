@@ -797,7 +797,19 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence mode="wait">
+        {/**
+         * CentrosView owns a full-viewport map/iframe. In `wait` mode the next
+         * route cannot mount until that heavyweight view finishes its exit
+         * lifecycle. If its teardown is delayed, the router state changes but
+         * AnimatePresence has no entering child to render, which is the blank
+         * screen seen after visiting Buscar.
+         *
+         * `popLayout` removes the exiting view from layout immediately and
+         * mounts the new keyed view in the same render. The old view can still
+         * fade out and run all its normal effect cleanups without blocking the
+         * new screen.
+         */}
+        <AnimatePresence mode="popLayout" initial={false}>
           {currentView === "login" && (
             <motion.div
               key="login"
