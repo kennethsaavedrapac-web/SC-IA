@@ -287,7 +287,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
@@ -405,8 +405,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
 
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (messages.length === 0) return;
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const lastMsg = messages[messages.length - 1];
+    // Solo fijamos el scroll cuando el usuario envía su pregunta, para que
+    // quede visible justo encima del input. Cuando llega la respuesta del
+    // asistente NO se salta al fondo, evitando perder la posición de la pregunta.
+    if (lastMsg.sender === "user") {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
   }, [messages, isLoading]);
 
@@ -813,7 +820,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </AnimatePresence>
       ) : (
 
-        <div className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
+        <div ref={messagesContainerRef} className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
           <AnimatePresence>
             {messages.map((msg, idx) => (
               <motion.div
@@ -850,7 +857,6 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               </motion.div>
             )}
           </AnimatePresence>
-          <div ref={chatEndRef} />
         </div>
       )}
 
