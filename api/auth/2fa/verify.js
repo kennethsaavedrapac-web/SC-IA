@@ -5,14 +5,15 @@ import {
   verifyTOTP,
   generateBackupCodes,
   hashBackupCodes,
-  logEvent
+  logEvent,
+  requireAuth
 } from "../../_lib/security.js";
 
 const verifySchema = z.object({
   code: z.string().length(6, "El código debe tener exactamente 6 dígitos")
 });
 
-export default async function handler(req, res) {
+export default requireAuth(async function handler(req, res) {
   // CORS
   const allowedOrigin = process.env.FRONTEND_URL || "*";
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -29,15 +30,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Authenticate user using JWT
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const user = verifyJwt(token);
-
-    if (!user) {
-      logEvent("warn", "MFA_VERIFY_UNAUTHORIZED", { ip: req.socket.remoteAddress });
-      return res.status(401).json({ error: "No autorizado. Sesión inválida o expirada." });
-    }
+    const user = req.user;
 
     const result = verifySchema.safeParse(req.body);
     if (!result.success) {
@@ -101,4 +94,4 @@ export default async function handler(req, res) {
     logEvent("error", "MFA_VERIFY_ERROR", { error: error.message });
     return res.status(500).json({ error: "Error interno al verificar 2FA" });
   }
-}
+});

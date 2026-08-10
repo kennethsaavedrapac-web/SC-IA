@@ -10,7 +10,7 @@ import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
 import { useSessionTimeout } from "./hooks/useSessionTimeout";
-import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
+import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck, AlertTriangle } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 import LazyErrorBoundary from "./components/LazyErrorBoundary";
@@ -56,7 +56,7 @@ const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) =>
 );
 
 export default function App() {
-  const { user, profile, session, loading: authLoading, initialized, logout, requiresMFA, mfaFactorId, completeMFA } = useAuth();
+  const { user, profile, session, loading: authLoading, initialized, logout, requiresMFA, mfaFactorId, completeMFA, showInactivityWarning, extendSession } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
@@ -968,6 +968,43 @@ export default function App() {
               });
             }}
           />
+        )}
+
+        {/* ─── Inactivity Warning Modal ──────────────── */}
+        {showInactivityWarning && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm">
+            <div className="bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+              <div className="w-12 h-12 bg-amber-50 dark:bg-amber-950/30 rounded-full flex items-center justify-center mx-auto">
+                <AlertTriangle className="w-6 h-6 text-amber-500" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                  ¿Sigues ahí?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
+                  Tu sesión está a punto de cerrarse debido a 14 minutos de inactividad. ¿Deseas mantener tu sesión abierta?
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    logout().then(() => {
+                      window.location.reload();
+                    });
+                  }}
+                  className="flex-1 py-2.5 px-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-2xl font-bold text-xs transition-all active:scale-95"
+                >
+                  Cerrar Sesión
+                </button>
+                <button
+                  onClick={extendSession}
+                  className="flex-1 py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs transition-all shadow-md active:scale-95"
+                >
+                  Mantener Conectado
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {}

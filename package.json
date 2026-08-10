@@ -26,6 +26,21 @@
     "vite": "^5.0.8"
   },
   "dependencies": {
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.106.2",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "express-rate-limit": "^8.5.2",
+    "firebase-admin": "^12.0.0",
+    "helmet": "^8.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^6.9.9",
+    "qrcode": "^1.5.3",
+    "winston": "^3.11.0",
+    "zod": "^3.22.4"
   }
 }

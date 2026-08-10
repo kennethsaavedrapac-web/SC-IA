@@ -26,7 +26,8 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
   // Estado
   const [factors, setFactors] = useState<MFAFactor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState<'idle' | 'enrolling' | 'verifying' | 'disabling'>('idle');
+  const [step, setStep] = useState<'idle' | 'enrolling' | 'verifying' | 'disabling' | 'show-backups'>('idle');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
   // Enrolamiento
   const [qrUri, setQrUri] = useState('');
@@ -97,7 +98,12 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
 
     if (result.success) {
       await loadFactors();
-      setStep('idle');
+      if (result.backupCodes && result.backupCodes.length > 0) {
+        setBackupCodes(result.backupCodes);
+        setStep('show-backups');
+      } else {
+        setStep('idle');
+      }
       setQrUri('');
       setSecret('');
       setCode('');
@@ -346,6 +352,63 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
             >
               <ShieldOff className="w-4 h-4" />
               {t('mfaConfirmDisableBtn')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Paso: Mostrar Códigos de Recuperación */}
+      {step === 'show-backups' && (
+        <div className="space-y-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+          <div className="text-center">
+            <h5 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
+              Códigos de Recuperación de Respaldo
+            </h5>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+              Guarda estos códigos en un lugar seguro. Si pierdes acceso a tu aplicación de autenticación, podrás usarlos para iniciar sesión. <strong>Solo se mostrarán esta vez.</strong>
+            </p>
+          </div>
+
+          {/* Grid de códigos */}
+          <div className="grid grid-cols-2 gap-2 py-2">
+            {backupCodes.map((c, index) => (
+              <div key={index} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-center font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 tracking-wider">
+                {c}
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(backupCodes.join('\n'));
+                  setSecretCopied(true);
+                  setTimeout(() => setSecretCopied(false), 2000);
+                } catch {}
+              }}
+              className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+            >
+              {secretCopied ? (
+                <>
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                  Copiados
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  Copiar todos
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => {
+                setStep('idle');
+                setBackupCodes([]);
+              }}
+              className="flex-1 py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs transition-all text-center"
+            >
+              Entendido
             </button>
           </div>
         </div>

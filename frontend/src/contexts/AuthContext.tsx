@@ -22,6 +22,10 @@ interface AuthContextType {
   requiresMFA: boolean;
   mfaFactorId: string | null;
 
+  // Inactivity warning state
+  showInactivityWarning: boolean;
+  extendSession: () => void;
+
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
@@ -42,6 +46,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // MFA state
   const [requiresMFA, setRequiresMFA] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+
+  // Inactivity warning state
+  const [showInactivityWarning, setShowInactivityWarning] = useState(false);
+  const [resetCounter, setResetCounter] = useState(0);
 
   const loadProfile = useCallback(async (userId: string) => {
     const { profile: fetchedProfile } = await getUserProfile(userId);
@@ -82,34 +90,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, [user]);
 
-  // 15-Minute Inactivity Auto-Logout
+  const handleLogout = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await authSignOut();
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setRequiresMFA(false);
+      setMfaFactorId(null);
+      sessionStorage.removeItem('temp_2fa_token');
+      return result;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 15-Minute Inactivity Auto-Logout with 14-Minute Warning
   useEffect(() => {
     if (!user) return;
 
-    let inactivityTimer: NodeJS.Timeout;
+    let warningTimer: NodeJS.Timeout;
+    let logoutTimer: NodeJS.Timeout;
 
     const resetTimer = () => {
-      clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => {
+      setShowInactivityWarning(false);
+      clearTimeout(warningTimer);
+      clearTimeout(logoutTimer);
+
+      // Warning at 14 minutes of inactivity
+      warningTimer = setTimeout(() => {
+        console.log('Inactivity warning triggered (14 minutes).');
+        setShowInactivityWarning(true);
+      }, 14 * 60 * 1000);
+
+      // Auto-logout at 15 minutes of inactivity
+      logoutTimer = setTimeout(() => {
         console.log('Inactivity auto-logout triggered (15 minutes).');
-        handleLogout();
-        window.location.reload();
-      }, 15 * 60 * 1000); // 15 minutes
+        handleLogout().then(() => {
+          window.location.reload();
+        });
+      }, 15 * 60 * 1000);
     };
 
     // User activity events
     const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
-    const addListeners = () => events.forEach(event => window.addEventListener(event, resetTimer));
-    const removeListeners = () => events.forEach(event => window.removeEventListener(event, resetTimer));
+    const resetOnActivity = () => {
+      // Only reset timer if we are NOT currently showing the warning
+      setShowInactivityWarning(current => {
+        if (!current) {
+          resetTimer();
+        }
+        return current;
+      });
+    };
+
+    const addListeners = () => events.forEach(event => window.addEventListener(event, resetOnActivity));
+    const removeListeners = () => events.forEach(event => window.removeEventListener(event, resetOnActivity));
 
     addListeners();
     resetTimer();
 
     return () => {
-      clearTimeout(inactivityTimer);
+      clearTimeout(warningTimer);
+      clearTimeout(logoutTimer);
       removeListeners();
     };
-  }, [user]);
+  }, [user, handleLogout, resetCounter]);
+
+  const extendSession = useCallback(() => {
+    setShowInactivityWarning(false);
+    refreshSession().catch(() => {});
+    setResetCounter(prev => prev + 1);
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
@@ -157,22 +210,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await authSignOut();
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setRequiresMFA(false);
-      setMfaFactorId(null);
-      sessionStorage.removeItem('temp_2fa_token');
-      return result;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   const refreshProfile = useCallback(async () => {
     if (user) {
       await loadProfile(user.id);
@@ -199,12 +236,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initialized,
     requiresMFA,
     mfaFactorId,
+    showInactivityWarning,
     login,
     register,
     loginWithGoogle,
     logout: handleLogout,
     refreshProfile,
     completeMFA,
+    extendSession
   };
 
   return (
