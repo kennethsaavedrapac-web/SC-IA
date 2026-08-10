@@ -7,6 +7,7 @@ import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
 import { supabase } from "../lib/supabaseClient";
+import { getAccessToken } from "../lib/authService";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -524,9 +525,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     }
 
     try {
+      const token = getAccessToken();
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ message: userText, userProfile: user, language })
       });
 

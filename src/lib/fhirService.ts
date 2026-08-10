@@ -5,6 +5,8 @@
  * Handles errors gracefully and provides fallback to localStorage.
  */
 
+import { getAccessToken } from "./authService";
+
 // ─── Types ───────────────────────────────────────────────────────────
 
 export interface MedicalFormData {
@@ -95,9 +97,13 @@ export async function saveMedicalData(
 
   // Attempt FHIR save
   try {
+    const token = getAccessToken();
     const response = await fetchWithTimeout(FHIR_SAVE_ENDPOINT, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      },
       body: JSON.stringify({
         medicalData: data,
         userContext: {
@@ -157,9 +163,16 @@ export async function loadMedicalData(
   // Try FHIR first (if we have a cédula)
   if (cedula && cedula.trim().length >= 3) {
     try {
+      const token = getAccessToken();
       const response = await fetchWithTimeout(
         `${FHIR_GET_ENDPOINT}?cedula=${encodeURIComponent(cedula.trim())}`,
-        { method: "GET", headers: { Accept: "application/json" } },
+        {
+          method: "GET",
+          headers: {
+            "Accept": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          }
+        },
         15000 // 15s timeout for read
       );
 

@@ -12,6 +12,14 @@ import rateLimit from "express-rate-limit";
 // Import Vercel API handlers to make them work locally
 import fhirHandler from "./api/fhir.js";
 import fhirGetHandler from "./api/fhir-get.js";
+import registerHandler from "./api/auth/register.js";
+import loginHandler from "./api/auth/login.js";
+import refreshHandler from "./api/auth/refresh.js";
+import logoutHandler from "./api/auth/logout.js";
+import setup2FAHandler from "./api/auth/2fa/setup.js";
+import verify2FAHandler from "./api/auth/2fa/verify.js";
+import validate2FAHandler from "./api/auth/2fa/validate.js";
+import { verifyJwt, hasPromptInjection, sanitizeAiInput, globalErrorHandler, logEvent } from "./api/_lib/security.js";
 
 dotenv.config();
 
@@ -70,20 +78,29 @@ async function startServer() {
   
   app.use(express.json({ limit: "100kb" })); 
 
+  // Register custom auth/2fa/medical endpoints for local dev
+  app.post("/api/auth/register", registerHandler);
+  app.post("/api/auth/login", loginHandler);
+  app.post("/api/auth/refresh", refreshHandler);
+  app.post("/api/auth/logout", logoutHandler);
+  app.get("/api/auth/2fa/setup", setup2FAHandler);
+  app.post("/api/auth/2fa/verify", verify2FAHandler);
+  app.post("/api/auth/2fa/validate", validate2FAHandler);
+  app.post("/api/fhir", fhirHandler);
+  app.get("/api/fhir-get", fhirGetHandler);
   
   app.post("/api/chat", apiLimiter, async (req: Request, res: Response) => {
     try {
-      // Verify authentication - require a valid session
+      // Verify authentication - require a valid session (custom JWT check)
       const authHeader = req.headers.authorization;
       const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
       
       let authenticated = false;
+      let user = null;
       if (token) {
-        try {
-          const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(token);
-          if (!authError && authUser) authenticated = true;
-        } catch {
-          // Token validation failed silently
+        user = verifyJwt(token);
+        if (user) {
+          authenticated = true;
         }
       }
 
@@ -91,6 +108,18 @@ async function startServer() {
       if (!message) {
         return res.status(400).json({ error: "El mensaje es obligatorio" });
       }
+
+      // AI Prompt Injection Shield
+      if (hasPromptInjection(message)) {
+        logEvent("warn", "PROMPT_INJECTION_DETECTED", { ip: req.socket.remoteAddress, message });
+        return res.status(200).json({
+          text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
+          simulated: false
+        });
+      }
+
+      // Sanitise user input
+      const sanitizedMessage = sanitizeAiInput(message);
 
       
       if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
@@ -226,7 +255,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       // Send message and get response
       let responseText = "";
       try {
-        const result = await chat.sendMessage(message);
+        const result = await chat.sendMessage(sanitizedMessage);
         responseText = result.response ? result.response.text() : "";
       } catch (aiErr: any) {
         console.error("AI Generation Error:", aiErr);
@@ -316,6 +345,9 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }
+
+  // Register global centralized error handler
+  app.use(globalErrorHandler);
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Salud-Conecta IA Server running at http://0.0.0.0:${PORT}`);

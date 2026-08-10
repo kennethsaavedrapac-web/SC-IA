@@ -42,6 +42,30 @@ import {
   buildTransactionBundle,
 } from "./_lib/fhir-builders.js";
 import crypto from "crypto";
+import { z } from "zod";
+import { verifyJwt, checkBOLA, supabaseAdmin, logEvent } from "./_lib/security.js";
+
+const fhirPostSchema = z.object({
+  medicalData: z.object({
+    enfermedades: z.string().max(500).optional().default(""),
+    alergias: z.string().max(500).optional().default(""),
+    tipoSangre: z.string().max(5).optional().default(""),
+    tratamientos: z.string().max(500).optional().default(""),
+    pastillas: z.string().max(500).optional().default(""),
+    vacunas: z.string().max(500).optional().default(""),
+    peso: z.string().max(10).optional().default(""),
+    altura: z.string().max(10).optional().default(""),
+    cedula: z.string().min(3, "La cédula debe tener al menos 3 caracteres").max(30),
+    contactoEmergencia: z.string().max(30).optional().default("")
+  }),
+  userContext: z.object({
+    userId: z.string().max(100),
+    nombre: z.string().max(200).optional().default(""),
+    email: z.string().max(200).optional().default(""),
+    ciudad: z.string().max(100).optional().default(""),
+    pais: z.string().max(100).optional().default("")
+  })
+});
 
 export default async function handler(req, res) {
   // ─── CORS ────────────────────────────────────────────────────────
@@ -66,28 +90,51 @@ export default async function handler(req, res) {
   console.log(`[${requestId}] POST /api/fhir — Inicio`);
 
   try {
-    const { medicalData, userContext } = req.body;
+    // ─── Verify Authorization JWT ──────────────────────────────────
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const user = verifyJwt(token);
 
-    // ─── Validate input ──────────────────────────────────────────
-    const dataValidation = validateMedicalData(medicalData);
-    if (!dataValidation.valid) {
-      console.warn(`[${requestId}] Validation failed:`, dataValidation.errors);
+    if (!user) {
+      logEvent("warn", "FHIR_SAVE_UNAUTHORIZED", { ip: req.socket?.remoteAddress || "vercel-fn" });
+      return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
+    }
+
+    // ─── Validate input with Zod whitelisting ──────────────────────
+    const zodResult = fhirPostSchema.safeParse(req.body);
+    if (!zodResult.success) {
+      logEvent("warn", "FHIR_SAVE_VALIDATION_FAILED", { userId: user.id, errors: zodResult.error.errors });
       return res.status(400).json({
-        error: "Datos médicos inválidos.",
-        details: dataValidation.errors,
+        error: "Datos médicos o contexto inválidos.",
+        details: zodResult.error.errors.map(e => `${e.path.join(".")}: ${e.message}`)
       });
     }
 
-    const contextValidation = validateUserContext(userContext);
-    if (!contextValidation.valid) {
-      console.warn(`[${requestId}] User context invalid:`, contextValidation.error);
-      return res.status(400).json({
-        error: contextValidation.error,
+    const { medicalData, userContext } = zodResult.data;
+
+    // ─── Mitigate BOLA / IDOR ──────────────────────────────────────
+    const isAuthorized = await checkBOLA(supabaseAdmin, user, medicalData.cedula);
+    if (!isAuthorized) {
+      logEvent("warn", "FHIR_SAVE_BOLA_VIOLATION", { userId: user.id, role: user.role, attemptedCedula: medicalData.cedula });
+
+      // Save event in audit_logs
+      await supabaseAdmin.from("audit_logs").insert({
+        event_type: "BOLA_VIOLATION_ATTEMPT",
+        user_id: user.id,
+        ip_address: req.socket?.remoteAddress || "unknown",
+        endpoint: "/api/fhir (POST)",
+        severity: "WARN",
+        details: JSON.stringify({ attempted_cedula: medicalData.cedula, method: "SAVE" })
       });
+
+      return res.status(403).json({ error: "Acceso denegado. No tiene permisos para modificar la información de esta cédula." });
     }
 
-    const data = dataValidation.sanitized;
-    const ctx = contextValidation.sanitized;
+    const data = medicalData;
+    const ctx = {
+      ...userContext,
+      userId: user.id // Force the user ID to be the authenticated user's ID
+    };
 
     console.log(`[${requestId}] Validated data for user: ${ctx.userId || "unknown"}, cédula: ${data.cedula || "none"}`);
 

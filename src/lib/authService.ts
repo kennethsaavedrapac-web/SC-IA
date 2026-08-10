@@ -1,63 +1,38 @@
 import { supabase } from './supabaseClient';
-import type { AuthError, User, Session } from '@supabase/supabase-js';
-
+import type { User, Session } from '@supabase/supabase-js';
 
 export interface UserProfile {
   id: string;
   nombre: string;
   email: string | null;
-  provider: string;
+  provider?: string;
   avatar_url: string | null;
   ciudad: string;
   pais: string;
   created_at: string;
+  role?: string;
+  is_2fa_enabled?: boolean;
 }
 
 export interface AuthResult {
   success: boolean;
+  requires2FA?: boolean;
+  tempToken?: string;
   user?: User | null;
   session?: Session | null;
   error?: string;
 }
 
+let currentAccessToken: string | null = null;
+let currentUser: any | null = null;
 
-function translateAuthError(error: AuthError): string {
-  const code = error.message?.toLowerCase() || '';
-
-  if (code.includes('invalid login credentials') || code.includes('invalid_credentials')) {
-    return 'Correo electrónico o contraseña incorrectos.';
-  }
-  if (code.includes('email not confirmed')) {
-    return 'Tu correo electrónico no ha sido confirmado. Revisa tu bandeja de entrada.';
-  }
-  if (code.includes('user already registered') || code.includes('already been registered')) {
-    return 'Ya existe una cuenta con este correo electrónico.';
-  }
-  if (code.includes('signup is disabled')) {
-    return 'El registro de nuevos usuarios está temporalmente deshabilitado.';
-  }
-  if (code.includes('password') && code.includes('at least')) {
-    return 'La contraseña debe tener al menos 6 caracteres.';
-  }
-  if (code.includes('rate limit') || code.includes('too many requests')) {
-    return 'Demasiados intentos. Por favor espera un momento antes de intentar de nuevo.';
-  }
-  if (code.includes('network') || code.includes('fetch')) {
-    return 'Error de conexión. Verifica tu conexión a internet.';
-  }
-  if (code.includes('provider is not enabled') || code.includes('unsupported_provider')) {
-    return 'El inicio de sesión con Google no está habilitado aún. Contacta al administrador.';
-  }
-  if (code.includes('email_address_invalid') || code.includes('invalid email')) {
-    return 'El formato del correo electrónico no es válido.';
-  }
-
-  
-  return error.message || 'Ha ocurrido un error inesperado. Intenta de nuevo.';
+export function getAccessToken(): string | null {
+  return currentAccessToken;
 }
 
-
-
+export function setAccessToken(token: string | null) {
+  currentAccessToken = token;
+}
 
 export async function signUpWithEmail(
   email: string,
@@ -65,55 +40,64 @@ export async function signUpWithEmail(
   nombre: string
 ): Promise<AuthResult> {
   try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          nombre: nombre,
-          full_name: nombre,
-        },
-      },
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, nombre })
     });
-
-    if (error) {
-      return { success: false, error: translateAuthError(error) };
+    
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      return { success: false, error: result.error || "Error al registrarse" };
     }
-
-    return {
-      success: true,
-      user: data.user,
-      session: data.session,
-    };
-  } catch (err: any) {
+    
+    return { success: true };
+  } catch (err) {
     return {
       success: false,
       error: 'Error de conexión. Verifica tu conexión a internet.',
     };
   }
 }
-
 
 export async function signInWithEmail(
   email: string,
   password: string
 ): Promise<AuthResult> {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
     });
 
-    if (error) {
-      return { success: false, error: translateAuthError(error) };
+    const result = await response.json();
+    if (!response.ok) {
+      return { success: false, error: result.error || "Error al iniciar sesión" };
+    }
+
+    if (result.requires2FA) {
+      return {
+        success: true,
+        requires2FA: true,
+        tempToken: result.tempToken
+      };
+    }
+
+    // Set local access token
+    currentAccessToken = result.accessToken;
+    currentUser = result.user;
+
+    // Authenticate direct Supabase client
+    if (result.supabaseSession) {
+      await supabase.auth.setSession(result.supabaseSession);
     }
 
     return {
       success: true,
-      user: data.user,
-      session: data.session,
+      user: result.user
     };
-  } catch (err: any) {
+  } catch (err) {
     return {
       success: false,
       error: 'Error de conexión. Verifica tu conexión a internet.',
@@ -121,10 +105,74 @@ export async function signInWithEmail(
   }
 }
 
+export async function validate2FA(
+  tempToken: string,
+  code: string
+): Promise<AuthResult> {
+  try {
+    const response = await fetch("/api/auth/2fa/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tempToken, code })
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      return { success: false, error: result.error || "Código de verificación incorrecto." };
+    }
+
+    // Set local access token
+    currentAccessToken = result.accessToken;
+    currentUser = result.user;
+
+    // Authenticate direct Supabase client
+    if (result.supabaseSession) {
+      await supabase.auth.setSession(result.supabaseSession);
+    }
+
+    return {
+      success: true,
+      user: result.user
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: "Error al validar el código 2FA."
+    };
+  }
+}
+
+export async function refreshSession(): Promise<AuthResult> {
+  try {
+    const response = await fetch("/api/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    const result = await response.json();
+    if (response.ok && result.success) {
+      currentAccessToken = result.accessToken;
+      currentUser = result.user;
+      
+      if (result.supabaseSession) {
+        await supabase.auth.setSession(result.supabaseSession);
+      }
+      
+      return { success: true, user: result.user };
+    }
+    
+    currentAccessToken = null;
+    currentUser = null;
+    return { success: false, error: result.error || "No active session" };
+  } catch (err) {
+    currentAccessToken = null;
+    currentUser = null;
+    return { success: false, error: "Network error refreshing session" };
+  }
+}
 
 export async function signInWithGoogle(): Promise<AuthResult> {
   try {
-    
     if (!import.meta.env.VITE_SUPABASE_URL) {
       return {
         success: false,
@@ -140,10 +188,9 @@ export async function signInWithGoogle(): Promise<AuthResult> {
     });
 
     if (error) {
-      return { success: false, error: translateAuthError(error) };
+      return { success: false, error: error.message };
     }
 
-    
     return { success: true };
   } catch (err: any) {
     return {
@@ -153,35 +200,57 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   }
 }
 
-
 export async function signOut(): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      return { success: false, error: translateAuthError(error) };
-    }
+    const token = currentAccessToken;
+    // Clear local states
+    currentAccessToken = null;
+    currentUser = null;
+
+    // Call custom logout
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      }
+    });
+
+    // Sign out from Supabase client
+    await supabase.auth.signOut();
+    
     return { success: true };
   } catch (err: any) {
     return { success: false, error: 'Error al cerrar sesión.' };
   }
 }
 
-
 export async function getSession() {
-  const { data, error } = await supabase.auth.getSession();
-  return { session: data.session, error };
+  if (currentAccessToken && currentUser) {
+    return { session: { user: currentUser } as any, error: null };
+  }
+  // Try refreshing
+  const result = await refreshSession();
+  if (result.success && result.user) {
+    return { session: { user: result.user } as any, error: null };
+  }
+  return { session: null, error: new Error("No session found") };
 }
 
-
 export function onAuthStateChange(
-  callback: (event: string, session: Session | null) => void
+  callback: (event: string, session: any | null) => void
 ) {
-  const { data } = supabase.auth.onAuthStateChange((event, session) => {
-    callback(event, session);
+  // Listen to Supabase client state change for hybrid sync
+  const { data } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    // If Supabase has a session but we don't have custom access token, sync
+    if (newSession && !currentAccessToken) {
+      // Just keep them in sync, or let refreshSession run
+    }
+    
+    callback(event, newSession);
   });
   return data.subscription;
 }
-
 
 export async function getUserProfile(
   userId: string
@@ -203,7 +272,6 @@ export async function getUserProfile(
     return { profile: null, error: 'Error al cargar el perfil.' };
   }
 }
-
 
 export async function updateUserProfile(
   userId: string,

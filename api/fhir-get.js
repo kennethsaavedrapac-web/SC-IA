@@ -14,6 +14,8 @@ import {
   findPatientByIdentifier,
   getPatientResources,
 } from "./_lib/fhir-client.js";
+import { verifyJwt, checkBOLA, supabaseAdmin, logEvent } from "./_lib/security.js";
+import { z } from "zod";
 
 /**
  * Extract text values from FHIR resources into a simple comma-separated string
@@ -53,15 +55,48 @@ export default async function handler(req, res) {
   }
 
   const requestId = `fhir-get-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
-  const { cedula } = req.query;
+  
+  // ─── Verify Authorization JWT ──────────────────────────────────
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const user = verifyJwt(token);
 
-  if (!cedula || typeof cedula !== "string" || cedula.trim().length < 3) {
-    return res.status(400).json({
-      error: "Parámetro 'cedula' es requerido y debe tener al menos 3 caracteres.",
-    });
+  if (!user) {
+    logEvent("warn", "FHIR_GET_UNAUTHORIZED", { ip: req.socket?.remoteAddress || "vercel-fn" });
+    return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
   }
 
+  // ─── Validate Query Params with Zod ────────────────────────────
+  const querySchema = z.object({
+    cedula: z.string().min(3, "La cédula debe tener al menos 3 caracteres").max(30)
+  });
+
+  const parsedQuery = querySchema.safeParse(req.query);
+  if (!parsedQuery.success) {
+    logEvent("warn", "FHIR_GET_VALIDATION_FAILED", { userId: user.id, errors: parsedQuery.error.errors });
+    return res.status(400).json({ error: "Parámetro 'cedula' es requerido y debe tener al menos 3 caracteres." });
+  }
+
+  const { cedula } = parsedQuery.data;
   const sanitizedCedula = cedula.replace(/<[^>]*>/g, "").trim().substring(0, 30);
+
+  // ─── Mitigate BOLA / IDOR ──────────────────────────────────────
+  const isAuthorized = await checkBOLA(supabaseAdmin, user, sanitizedCedula);
+  if (!isAuthorized) {
+    logEvent("warn", "FHIR_GET_BOLA_VIOLATION", { userId: user.id, role: user.role, attemptedCedula: sanitizedCedula });
+
+    // Save event in audit_logs
+    await supabaseAdmin.from("audit_logs").insert({
+      event_type: "BOLA_VIOLATION_ATTEMPT",
+      user_id: user.id,
+      ip_address: req.socket?.remoteAddress || "unknown",
+      endpoint: "/api/fhir-get (GET)",
+      severity: "WARN",
+      details: JSON.stringify({ attempted_cedula: sanitizedCedula, method: "GET" })
+    });
+
+    return res.status(403).json({ error: "Acceso denegado. No tiene permisos para consultar la información de esta cédula." });
+  }
 
   console.log(`[${requestId}] GET /api/fhir-get — cédula: ${sanitizedCedula}`);
 

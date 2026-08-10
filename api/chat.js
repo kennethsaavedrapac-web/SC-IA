@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
+import { hasPromptInjection, sanitizeAiInput, logEvent } from "./_lib/security.js";
 
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -105,6 +106,17 @@ export default async function handler(req, res) {
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
+
+    // AI Prompt Injection Shield
+    if (hasPromptInjection(message)) {
+      logEvent("warn", "PROMPT_INJECTION_DETECTED", { ip: req.socket?.remoteAddress || "vercel-fn", message });
+      return res.status(200).json({
+        text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
+        simulated: false
+      });
+    }
+
+    const sanitizedMessage = sanitizeAiInput(message);
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -219,7 +231,7 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     // Generate response
     let response;
     try {
-      response = await chat.sendMessage(message);
+      response = await chat.sendMessage(sanitizedMessage);
     } catch (sendErr) {
       console.error("Gemini Send Message Error:", sendErr);
       // Si el error es por seguridad o filtros

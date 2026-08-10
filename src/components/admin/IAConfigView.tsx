@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../lib/supabaseClient";
+import { getAccessToken } from "../../lib/authService";
 import { Plus, Clock, Bot, Send, User, Loader2, Sparkles } from "lucide-react";
 
 interface AIConfiguration {
@@ -212,10 +213,13 @@ const IAConfigView: React.FC = () => {
     setIsTesting(true);
 
     try {
+      const token = getAccessToken();
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           message: newMsg.text,
           history: testMessages,

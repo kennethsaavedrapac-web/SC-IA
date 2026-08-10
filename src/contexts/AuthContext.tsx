@@ -5,15 +5,13 @@ import {
   signInWithEmail,
   signInWithGoogle,
   signOut as authSignOut,
-  onAuthStateChange,
+  refreshSession,
+  getAccessToken,
   getUserProfile,
   type UserProfile,
 } from '../lib/authService';
-import { getAssuranceLevel, getMFAFactors } from '../lib/mfaService';
-
 
 interface AuthContextType {
-  
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
@@ -24,7 +22,6 @@ interface AuthContextType {
   requiresMFA: boolean;
   mfaFactorId: string | null;
 
-  
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (email: string, password: string, nombre: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
@@ -35,19 +32,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
   // MFA state
   const [requiresMFA, setRequiresMFA] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
 
-  
   const loadProfile = useCallback(async (userId: string) => {
     const { profile: fetchedProfile } = await getUserProfile(userId);
     if (fetchedProfile) {
@@ -55,51 +50,85 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  
+  // Try auto-login on mount by rotating the Refresh Token cookie
   useEffect(() => {
-    const subscription = onAuthStateChange(async (event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-
-      if (newSession?.user) {
-        
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-          setTimeout(() => loadProfile(newSession.user.id), 300);
+    const initSession = async () => {
+      try {
+        const result = await refreshSession();
+        if (result.success && result.user) {
+          setUser(result.user);
+          setSession({ user: result.user } as any);
+          await loadProfile(result.user.id);
         }
-      } else {
-        setProfile(null);
+      } catch (err) {
+        console.warn('Auto-login failed:', err);
+      } finally {
+        setInitialized(true);
+        setLoading(false);
       }
-
-      setInitialized(true);
-    });
-
-    return () => {
-      subscription.unsubscribe();
     };
+    initSession();
   }, [loadProfile]);
 
-  
+  // Periodic Access Token Refresh (every 14 minutes since Access Token expires in 15 minutes)
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(async () => {
+      console.log('Refreshing session access token...');
+      await refreshSession();
+    }, 14 * 60 * 1000); // 14 minutes
+
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // 15-Minute Inactivity Auto-Logout
+  useEffect(() => {
+    if (!user) return;
+
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        console.log('Inactivity auto-logout triggered (15 minutes).');
+        handleLogout();
+        window.location.reload();
+      }, 15 * 60 * 1000); // 15 minutes
+    };
+
+    // User activity events
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'mousemove'];
+    const addListeners = () => events.forEach(event => window.addEventListener(event, resetTimer));
+    const removeListeners = () => events.forEach(event => window.removeEventListener(event, resetTimer));
+
+    addListeners();
+    resetTimer();
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      removeListeners();
+    };
+  }, [user]);
+
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
       const result = await signInWithEmail(email, password);
-      if (result.success && result.user) {
-        await loadProfile(result.user.id);
+      
+      if (result.success) {
+        if (result.requires2FA && result.tempToken) {
+          // Save temporary token in session storage for the verify component
+          sessionStorage.setItem('temp_2fa_token', result.tempToken);
+          setRequiresMFA(true);
+          setMfaFactorId('totp-active-factor');
+          return { success: true };
+        }
 
-        // Check if user has MFA enabled and needs verification
-        try {
-          const assurance = await getAssuranceLevel();
-          if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
-            // User has MFA factors but hasn't verified yet in this session
-            const { factors } = await getMFAFactors();
-            const verifiedFactor = factors.find(f => f.status === 'verified');
-            if (verifiedFactor) {
-              setRequiresMFA(true);
-              setMfaFactorId(verifiedFactor.id);
-            }
-          }
-        } catch {
-          // MFA check failed silently — don't block login
+        if (result.user) {
+          setUser(result.user);
+          setSession({ user: result.user } as any);
+          await loadProfile(result.user.id);
         }
       }
       return { success: result.success, error: result.error };
@@ -112,16 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const result = await signUpWithEmail(email, password, nombre);
-      if (result.success && result.user) {
-        
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        await loadProfile(result.user.id);
-      }
       return { success: result.success, error: result.error };
     } finally {
       setLoading(false);
     }
-  }, [loadProfile]);
+  }, []);
 
   const loginWithGoogle = useCallback(async () => {
     setLoading(true);
@@ -133,17 +157,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const logout = useCallback(async () => {
+  const handleLogout = useCallback(async () => {
     setLoading(true);
     try {
       const result = await authSignOut();
-      if (result.success) {
-        setUser(null);
-        setSession(null);
-        setProfile(null);
-        setRequiresMFA(false);
-        setMfaFactorId(null);
-      }
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setRequiresMFA(false);
+      setMfaFactorId(null);
+      sessionStorage.removeItem('temp_2fa_token');
       return result;
     } finally {
       setLoading(false);
@@ -156,10 +179,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loadProfile]);
 
-  const completeMFA = useCallback(() => {
+  const completeMFA = useCallback(async () => {
     setRequiresMFA(false);
     setMfaFactorId(null);
-  }, []);
+    // Reload user session state after 2FA is validated
+    const result = await refreshSession();
+    if (result.success && result.user) {
+      setUser(result.user);
+      setSession({ user: result.user } as any);
+      await loadProfile(result.user.id);
+    }
+  }, [loadProfile]);
 
   const value: AuthContextType = {
     user,
@@ -172,7 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     loginWithGoogle,
-    logout,
+    logout: handleLogout,
     refreshProfile,
     completeMFA,
   };
@@ -183,7 +213,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
