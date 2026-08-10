@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import winston from "winston";
 import { createClient } from "@supabase/supabase-js";
@@ -373,4 +374,67 @@ export function globalErrorHandler(err, req, res, next) {
     message: isProd ? "Ocurrió un error interno en el servidor" : err.message,
     code: status
   });
+}
+
+/**
+ * Envía el código de verificación 2FA por correo electrónico.
+ * Si no hay configuración SMTP en variables de entorno, simula el envío escribiendo en logs y consola.
+ */
+export async function send2FAEmail(email, code) {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpFrom = process.env.SMTP_FROM || "no-reply@saludconecta.app";
+
+  if (!smtpHost || !smtpUser || !smtpPass) {
+    // Modo simulación: imprimiendo en logs de Winston y consola
+    logEvent("warn", "EMAIL_OTP_SIMULATION", {
+      email,
+      message: "Variables SMTP no configuradas. Simulación de envío de OTP activada.",
+      details: { code }
+    });
+    console.log(`\n======================================================`);
+    console.log(`[SIMULACIÓN DE CORREO] Enviando código de seguridad 2FA`);
+    console.log(`Para: ${email}`);
+    console.log(`Código de seguridad: ${code}`);
+    console.log(`======================================================\n`);
+    return { simulated: true, success: true };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true para puerto 465, false para otros
+      auth: {
+        user: smtpUser,
+        pass: smtpPass
+      }
+    });
+
+    const info = await transporter.sendMail({
+      from: `"Salud Conecta-IA" <${smtpFrom}>`,
+      to: email,
+      subject: "Código de Verificación de Dos Pasos - Salud Conecta-IA",
+      text: `Tu código de verificación de dos pasos es: ${code}\n\nEste código expira en 5 minutos. Si no has solicitado este código, por favor ignora este correo.`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+          <h2 style="color: #0f172a; margin-top: 0; font-size: 22px; font-weight: 700; border-bottom: 2px solid #3b82f6; padding-bottom: 10px;">Salud Conecta-IA</h2>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-top: 20px;">Has solicitado iniciar sesión. Tu código de verificación de dos pasos es el siguiente:</p>
+          <div style="background-color: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 15px; text-align: center; margin: 25px 0;">
+            <span style="font-size: 32px; font-weight: 700; letter-spacing: 5px; color: #2563eb;">${code}</span>
+          </div>
+          <p style="color: #64748b; font-size: 13px; line-height: 1.5;">Este código es de un solo uso y expirará en <strong>5 minutos</strong>.</p>
+          <p style="color: #94a3b8; font-size: 11px; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px;">Si no intentaste iniciar sesión en Salud Conecta-IA, por favor ignora este correo y ponte en contacto con soporte técnico.</p>
+        </div>
+      `
+    });
+
+    logEvent("info", "EMAIL_OTP_SENT", { email, messageId: info.messageId });
+    return { simulated: false, success: true };
+  } catch (err) {
+    logEvent("error", "EMAIL_OTP_SEND_FAILED", { email, error: err.message });
+    throw new Error("No se pudo enviar el correo de verificación 2FA: " + err.message);
+  }
 }

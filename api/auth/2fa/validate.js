@@ -1,5 +1,6 @@
 import { z } from "zod";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
 import {
   supabaseAdmin,
   verifyJwt,
@@ -66,12 +67,17 @@ export default async function handler(req, res) {
     let isBackupUsed = false;
     let remainingBackupCodes = [];
 
-    // 1. Try TOTP code check (if 6 digits)
-    if (code.length === 6 && /^\d+$/.test(code) && profile.two_factor_secret) {
+    // 1. Try Email OTP check (if emailOtpHash is present in the tempToken payload)
+    if (tempPayload.emailOtpHash) {
+      codeIsValid = bcrypt.compareSync(code, tempPayload.emailOtpHash);
+    }
+
+    // 2. Try TOTP code check (if 6 digits and not validated by email OTP yet)
+    if (!codeIsValid && code.length === 6 && /^\d+$/.test(code) && profile.two_factor_secret) {
       codeIsValid = verifyTOTP(code, profile.two_factor_secret);
     }
 
-    // 2. Try Backup code check if TOTP failed or if code format is backup code
+    // 3. Try Backup code check if other checks failed
     if (!codeIsValid && profile.backup_codes) {
       let hashedCodes = [];
       try {

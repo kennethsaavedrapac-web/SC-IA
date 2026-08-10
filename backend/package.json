@@ -19,6 +19,7 @@
     "firebase-admin": "^12.0.0",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^6.9.9",
     "qrcode": "^1.5.3",
     "winston": "^3.11.0",
     "zod": "^3.22.4"
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/express": "^4.17.25",
     "@types/node": "^20.19.43",
+    "@types/nodemailer": "^6.4.14",
     "tsx": "^4.7.0",
     "typescript": "^5.2.2"
   }
