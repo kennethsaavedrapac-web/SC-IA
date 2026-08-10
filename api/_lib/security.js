@@ -32,7 +32,9 @@ setInterval(() => {
 const PII_KEYS = [
   "enfermedades", "alergias", "tratamientos", "pastillas", "vacunas",
   "contactoEmergencia", "cedula", "email", "nombre", "password",
-  "secret", "token", "twoFactorSecret", "twoFactorSecretTemp", "backupCodes"
+  "secret", "token", "twoFactorSecret", "twoFactorSecretTemp", "backupCodes",
+  "refreshToken", "phone", "telefono", "direccion", "cvv", "creditCard", 
+  "authHeader", "authorization", "cookie", "tempToken", "otpCode", "otp", "code", "emailOtpHash"
 ];
 
 /**
@@ -353,7 +355,112 @@ export async function checkBOLA(supabaseAdmin, user, patientCedula) {
   return false;
 }
 
-// ─── EXPRESS MIDDLEWARES ─────────────────────────────────────────────
+// ─── EXPRESS MIDDLEWARES & WRAPPERS ──────────────────────────────────
+
+/**
+ * Async Handler Wrapper for Express Router to catch errors and pass them to globalErrorHandler
+ */
+export function asyncHandler(fn) {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
+/**
+ * requireAuth - composition wrapper / middleware to ensure user is authenticated
+ */
+export function requireAuth(handler) {
+  return async (req, res) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const user = verifyJwt(token);
+
+    if (!user) {
+      logEvent("warn", "UNAUTHORIZED_ACCESS", { path: req.url || req.path, ip: req.socket?.remoteAddress });
+      return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
+    }
+
+    req.user = user;
+    return handler(req, res);
+  };
+}
+
+/**
+ * requireRole - composition wrapper / middleware to restrict access based on roles (Default Deny)
+ */
+export function requireRole(allowedRoles = []) {
+  const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
+  return (handler) => {
+    return async (req, res) => {
+      if (!req.user) {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+        const user = verifyJwt(token);
+        if (!user) {
+          return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
+        }
+        req.user = user;
+      }
+
+      const userRole = (req.user.role || "patient").toLowerCase();
+      if (!normalizedAllowed.includes(userRole)) {
+        logEvent("warn", "RBAC_VIOLATION", { userId: req.user.id, role: req.user.role, allowedRoles, path: req.url || req.path });
+        return res.status(403).json({ error: "Acceso denegado. Permisos insuficientes." });
+      }
+
+      return handler(req, res);
+    };
+  };
+}
+
+/**
+ * requireOwnershipOrDoctor - checks BOLA / IDOR ownership or doctor relations
+ */
+export function requireOwnershipOrDoctor(cedulaParamName = "cedula") {
+  return (handler) => {
+    return async (req, res) => {
+      if (!req.user) {
+        const authHeader = req.headers.authorization;
+        const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+        const user = verifyJwt(token);
+        if (!user) {
+          return res.status(401).json({ error: "No autorizado." });
+        }
+        req.user = user;
+      }
+
+      // Extract patient cedula from query or body
+      const cedula = req.query[cedulaParamName] || req.body[cedulaParamName] || (req.body.medicalData && req.body.medicalData[cedulaParamName]);
+
+      if (!cedula) {
+        return res.status(400).json({ error: "Identificador del paciente (cédula) faltante." });
+      }
+
+      const isAuthorized = await checkBOLA(supabaseAdmin, req.user, cedula);
+      if (!isAuthorized) {
+        logEvent("warn", "BOLA_VIOLATION_ATTEMPT", { userId: req.user.id, role: req.user.role, attemptedCedula: cedula, path: req.url || req.path });
+
+        // Save event in audit_logs
+        try {
+          await supabaseAdmin.from("audit_logs").insert({
+            event_type: "BOLA_VIOLATION_ATTEMPT",
+            user_id: req.user.id,
+            ip_address: req.socket?.remoteAddress || "unknown",
+            endpoint: req.url || req.path || "/api/fhir",
+            severity: "WARN",
+            details: JSON.stringify({ attempted_cedula: cedula, method: req.method })
+          });
+        } catch (dbErr) {
+          // fail silently
+        }
+
+        return res.status(403).json({ error: "Acceso denegado. No tiene permisos para consultar o modificar la información de esta cédula." });
+      }
+
+      return handler(req, res);
+    };
+  };
+}
 
 /**
  * Global Error Handler Middleware
@@ -365,7 +472,7 @@ export function globalErrorHandler(err, req, res, next) {
   logEvent("error", "SERVER_ERROR", {
     message: err.message,
     stack: isProd ? undefined : err.stack,
-    path: req.path,
+    path: req.path || req.url,
     method: req.method
   });
 

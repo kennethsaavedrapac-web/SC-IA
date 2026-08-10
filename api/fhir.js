@@ -43,7 +43,7 @@ import {
 } from "./_lib/fhir-builders.js";
 import crypto from "crypto";
 import { z } from "zod";
-import { verifyJwt, checkBOLA, supabaseAdmin, logEvent } from "./_lib/security.js";
+import { verifyJwt, checkBOLA, supabaseAdmin, logEvent, requireAuth, requireOwnershipOrDoctor } from "./_lib/security.js";
 
 const fhirPostSchema = z.object({
   medicalData: z.object({
@@ -67,7 +67,7 @@ const fhirPostSchema = z.object({
   })
 });
 
-export default async function handler(req, res) {
+export default requireAuth(requireOwnershipOrDoctor()(async function handler(req, res) {
   // ─── CORS ────────────────────────────────────────────────────────
   const allowedOrigin = process.env.FRONTEND_URL || "*";
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -90,15 +90,7 @@ export default async function handler(req, res) {
   console.log(`[${requestId}] POST /api/fhir — Inicio`);
 
   try {
-    // ─── Verify Authorization JWT ──────────────────────────────────
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const user = verifyJwt(token);
-
-    if (!user) {
-      logEvent("warn", "FHIR_SAVE_UNAUTHORIZED", { ip: req.socket?.remoteAddress || "vercel-fn" });
-      return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
-    }
+    const user = req.user;
 
     // ─── Validate input with Zod whitelisting ──────────────────────
     const zodResult = fhirPostSchema.safeParse(req.body);
@@ -111,24 +103,6 @@ export default async function handler(req, res) {
     }
 
     const { medicalData, userContext } = zodResult.data;
-
-    // ─── Mitigate BOLA / IDOR ──────────────────────────────────────
-    const isAuthorized = await checkBOLA(supabaseAdmin, user, medicalData.cedula);
-    if (!isAuthorized) {
-      logEvent("warn", "FHIR_SAVE_BOLA_VIOLATION", { userId: user.id, role: user.role, attemptedCedula: medicalData.cedula });
-
-      // Save event in audit_logs
-      await supabaseAdmin.from("audit_logs").insert({
-        event_type: "BOLA_VIOLATION_ATTEMPT",
-        user_id: user.id,
-        ip_address: req.socket?.remoteAddress || "unknown",
-        endpoint: "/api/fhir (POST)",
-        severity: "WARN",
-        details: JSON.stringify({ attempted_cedula: medicalData.cedula, method: "SAVE" })
-      });
-
-      return res.status(403).json({ error: "Acceso denegado. No tiene permisos para modificar la información de esta cédula." });
-    }
 
     const data = medicalData;
     const ctx = {
@@ -295,4 +269,4 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
     });
   }
-}
+}));

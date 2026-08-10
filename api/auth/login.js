@@ -66,19 +66,21 @@ export default async function handler(req, res) {
 
     // Check if 2FA is required
     if (is2FAMandatory || is2FAEnabled) {
-      // Generate a 6-digit numeric OTP code
-      const otpCode = crypto.randomInt(100000, 999999).toString();
+      let emailOtpHash = null;
+      let message = "Se requiere autenticación de dos factores. Ingrese el código de su aplicación autenticadora.";
 
-      // Send the OTP code via email
-      try {
-        await send2FAEmail(user.email, otpCode);
-      } catch (mailErr) {
-        logEvent("error", "LOGIN_MFA_EMAIL_SEND_FAILED", { email: user.email, error: mailErr.message });
-        return res.status(500).json({ error: "No se pudo enviar el correo de verificación 2FA. Por favor intente más tarde." });
+      // Fallback to email 2FA only if TOTP is not enabled
+      if (!is2FAEnabled) {
+        const otpCode = crypto.randomInt(100000, 999999).toString();
+        try {
+          await send2FAEmail(user.email, otpCode);
+        } catch (mailErr) {
+          logEvent("error", "LOGIN_MFA_EMAIL_SEND_FAILED", { email: user.email, error: mailErr.message });
+          return res.status(500).json({ error: "No se pudo enviar el correo de verificación 2FA. Por favor intente más tarde." });
+        }
+        emailOtpHash = bcrypt.hashSync(otpCode, 10);
+        message = "Se requiere autenticación de dos factores. Se ha enviado un código de verificación a tu correo electrónico.";
       }
-
-      // Hash the OTP code using bcrypt
-      const emailOtpHash = bcrypt.hashSync(otpCode, 10);
 
       // Issue a short-lived temp token for 2FA validation (5 minutes)
       const tempToken = signJwt({
@@ -89,11 +91,11 @@ export default async function handler(req, res) {
         type: "temp_2fa"
       }, 300);
       
-      logEvent("info", "LOGIN_MFA_REQUIRED", { email, userId: user.id, role });
+      logEvent("info", "LOGIN_MFA_REQUIRED", { email, userId: user.id, role, totpEnabled: is2FAEnabled });
       return res.status(200).json({
         requires2FA: true,
         tempToken,
-        message: "Se requiere autenticación de dos factores. Se ha enviado un código de verificación a tu correo."
+        message
       });
     }
 

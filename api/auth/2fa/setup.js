@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
-import { supabaseAdmin, verifyJwt, generateTOTPSecret, logEvent } from "../../_lib/security.js";
+import { supabaseAdmin, verifyJwt, generateTOTPSecret, logEvent, requireAuth } from "../../_lib/security.js";
 
-export default async function handler(req, res) {
+export default requireAuth(async function handler(req, res) {
   // CORS
   const allowedOrigin = process.env.FRONTEND_URL || "*";
   res.setHeader("Access-Control-Allow-Credentials", "true");
@@ -18,15 +18,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Authenticate user using JWT
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-    const user = verifyJwt(token);
-
-    if (!user) {
-      logEvent("warn", "MFA_SETUP_UNAUTHORIZED", { ip: req.socket.remoteAddress });
-      return res.status(401).json({ error: "No autorizado. Token de sesión inválido o expirado." });
-    }
+    const user = req.user;
 
     // Generate unique TOTP secret
     const secret = generateTOTPSecret(16);
@@ -66,4 +58,4 @@ export default async function handler(req, res) {
     logEvent("error", "MFA_SETUP_ERROR", { error: error.message });
     return res.status(500).json({ error: "Error interno al configurar 2FA" });
   }
-}
+});
