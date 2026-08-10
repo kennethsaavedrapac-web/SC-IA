@@ -669,7 +669,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={`flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
-        style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
+        style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" } as any}
       >
         { }
         <div
@@ -716,7 +716,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             style={{
               background: "#fb7185",
               boxShadow: "0 6px 20px rgba(251,113,133,0.25)",
-            }}
+            } as any}
           >
             { }
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
@@ -765,7 +765,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               { }
               <AnimatePresence>
                 {showLeftArrow && (
-                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(-220)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(-220)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" } as any}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
                   </motion.button>
                 )}
@@ -774,7 +774,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               { }
               <AnimatePresence>
                 {showRightArrow && (
-                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(220)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+                  <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(220)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" } as any}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                   </motion.button>
                 )}
@@ -791,7 +791,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" } as any}>
                       <span
                         className="flex items-center justify-center"
                         style={{
@@ -887,7 +887,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           { }
           <div className="flex justify-between items-center relative z-10 mt-1">
             { }
-            <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
+            <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" } as any}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
             </motion.button>
 
@@ -897,7 +897,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 whileTap={{ scale: 0.9 }}
                 onClick={toggleRecording}
                 className={`flex items-center justify-center transition-colors ${isRecording ? "text-rose-500 bg-rose-50 dark:bg-rose-900/20" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
-                style={{ width: "42px", height: "42px", borderRadius: "50%" }}
+                style={{ width: "42px", height: "42px", borderRadius: "50%" } as any}
               >
                 {isRecording ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
               </motion.button>
@@ -906,7 +906,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
                 className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
-                style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
+                style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" } as any}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
               </motion.button>
