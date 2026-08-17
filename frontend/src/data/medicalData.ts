@@ -7,7 +7,8 @@ export const DEFAULT_USER: UserProfile = {
   city: "Granada",
   country: "Nicaragua",
   avatarUrl: "", // Empezar vacío
-  healthConditions: ["Alergia al polen", "Presión arterial normal", "Tipo de sangre O+"]
+  healthConditions: ["Alergia al polen", "Presión arterial normal", "Tipo de sangre O+"],
+  sexo: "Masculino"
 };
 
 export const INITIAL_APPOINTMENTS: Appointment[] = [

@@ -12,6 +12,7 @@ export interface UserProfile {
   created_at: string;
   role?: string;
   is_2fa_enabled?: boolean;
+  sexo?: string | null;
 }
 
 export interface AuthResult {
@@ -275,7 +276,7 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais'>>
+  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'>>
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase
@@ -284,6 +285,18 @@ export async function updateUserProfile(
       .eq('id', userId);
 
     if (error) {
+      // Catch undefined column error (Postgres code 42703) if database profiles table does not have 'sexo'
+      if (error.code === '42703' && 'sexo' in updates) {
+        const { sexo, ...otherUpdates } = updates;
+        const { error: retryError } = await supabase
+          .from('profiles')
+          .update(otherUpdates)
+          .eq('id', userId);
+        if (retryError) {
+          return { success: false, error: retryError.message };
+        }
+        return { success: true };
+      }
       return { success: false, error: error.message };
     }
 

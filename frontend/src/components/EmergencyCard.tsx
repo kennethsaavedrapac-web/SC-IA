@@ -124,7 +124,9 @@ export default function EmergencyCard({ user, localMedicalData }: EmergencyCardP
                 </div>
                 <div>
                   <div className="text-[7px] sm:text-[10px] text-blue-700 font-bold tracking-wide">SEXO</div>
-                  <div className="text-[10px] sm:text-[13px] font-black text-slate-800">NO ESP.</div>
+                  <div className="text-[10px] sm:text-[13px] font-black text-slate-800">
+                    {user.sexo ? user.sexo.toUpperCase() : "NO ESP."}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[7px] sm:text-[10px] text-blue-700 font-bold tracking-wide">NÚMERO DE IDENTIDAD</div>
