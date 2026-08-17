@@ -34,7 +34,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
-  const [editSexo, setEditSexo] = useState(user.sexo || "Masculino");
+  const [editSexo, setEditSexo] = useState(user.sexo || "Prefiero no decirlo");
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
@@ -317,6 +317,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       return;
     }
 
+    const allowedGenders = ["Masculino", "Femenino", "Prefiero no decirlo"];
+    if (!allowedGenders.includes(editSexo)) {
+      alert(t('genderInvalid'));
+      return;
+    }
+
     // Sanitize inputs before saving
     onUpdateUser({
       ...user,
@@ -546,7 +552,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       // Info rows (4 rows, evenly spaced) — blood type included inline
       const infoRows: { label: string; val: string }[] = [
         { label: "CEDULA", val: cedulaNum },
-        { label: "FECHA / SEXO", val: `${shortDate}  |  ${user.sexo ? (user.sexo.toUpperCase().startsWith("F") ? "F" : "M") : "M"}` },
+        { label: "FECHA / SEXO", val: `${shortDate}  |  ${user.sexo ? (user.sexo.toUpperCase().startsWith("F") ? "F" : (user.sexo.toUpperCase().includes("DECIRLO") || user.sexo.toUpperCase().startsWith("P") ? "X" : "M")) : "M"}` },
         { label: "TELEFONO", val: emergencyPh },
         { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
       ];
@@ -1070,6 +1076,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   >
                                     <option value="Masculino">{t('genderMale')}</option>
                                     <option value="Femenino">{t('genderFemale')}</option>
+                                    <option value="Prefiero no decirlo">{t('genderPreferNot')}</option>
                                   </select>
                                 </div>
                               </div>
