@@ -34,6 +34,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
+  const [editSexo, setEditSexo] = useState(user.sexo || "Masculino");
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
@@ -326,6 +327,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       emergencyPhone: editPhone.trim(),
       bloodType: editBloodType,
       healthConditions: editConditions.map(c => sanitizeAndTrim(c)),
+      sexo: editSexo,
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
@@ -544,7 +546,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       // Info rows (4 rows, evenly spaced) — blood type included inline
       const infoRows: { label: string; val: string }[] = [
         { label: "CEDULA", val: cedulaNum },
-        { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
+        { label: "FECHA / SEXO", val: `${shortDate}  |  ${user.sexo ? (user.sexo.toUpperCase().startsWith("F") ? "F" : "M") : "M"}` },
         { label: "TELEFONO", val: emergencyPh },
         { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
       ];
@@ -1045,7 +1047,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     required
                                   />
                                 </div>
-                                <div className="space-y-1.5 lg:col-span-2">
+                                <div className="space-y-1.5">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
                                     <Phone className="w-3 h-3" /> {t('emergencyPhone')}
                                   </label>
@@ -1056,6 +1058,19 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     placeholder="+505 0000-0000"
                                   />
+                                </div>
+                                <div className="space-y-1.5">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <User className="w-3 h-3" /> {t('genderLabel')}
+                                  </label>
+                                  <select
+                                    value={editSexo}
+                                    onChange={(e) => setEditSexo(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
+                                  >
+                                    <option value="Masculino">{t('genderMale')}</option>
+                                    <option value="Femenino">{t('genderFemale')}</option>
+                                  </select>
                                 </div>
                               </div>
 

@@ -332,6 +332,7 @@ export default function App() {
         const cachedPhone = localStorage.getItem(`phone_${user.id}`);
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
+        const cachedSexo = localStorage.getItem(`sexo_${user.id}`);
 
         // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
         function decryptMedicalData(encoded: string): string | null {
@@ -344,7 +345,7 @@ export default function App() {
 
         const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions || cachedSexo) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
@@ -356,6 +357,7 @@ export default function App() {
             emergencyPhone: cachedPhone || prev.emergencyPhone,
             bloodType: cachedBloodType || prev.bloodType,
             healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
+            sexo: cachedSexo || prev.sexo,
           }));
         }
       } catch (err) {
@@ -372,6 +374,7 @@ export default function App() {
         const updatedName = profile.nombre || prev.name;
         const updatedCity = profile.ciudad || prev.city;
         const updatedCountry = profile.pais || prev.country;
+        const updatedSexo = profile.sexo || prev.sexo || "";
 
         if (profile.id) {
           try {
@@ -379,6 +382,7 @@ export default function App() {
             localStorage.setItem(`name_${profile.id}`, updatedName);
             localStorage.setItem(`city_${profile.id}`, updatedCity);
             localStorage.setItem(`country_${profile.id}`, updatedCountry);
+            if (updatedSexo) localStorage.setItem(`sexo_${profile.id}`, updatedSexo);
           } catch (e) {
             console.warn("Could not cache profile data:", e);
           }
@@ -392,6 +396,7 @@ export default function App() {
           city: updatedCity,
           country: updatedCountry,
           avatarUrl: updatedAvatar,
+          sexo: updatedSexo,
         };
       });
     }
@@ -596,6 +601,7 @@ export default function App() {
         localStorage.setItem(`country_${userId}`, updatedUser.country);
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
+        if (updatedUser.sexo) localStorage.setItem(`sexo_${userId}`, updatedUser.sexo);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
         if (updatedUser.healthConditions) {
           localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
@@ -615,6 +621,7 @@ export default function App() {
           nombre: updatedUser.name,
           ciudad: updatedUser.city,
           full_name: updatedUser.name,
+          sexo: updatedUser.sexo,
         } as any);
 
         if (success) {
