@@ -26,7 +26,7 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-slate-200/60 dark:border-slate-700/60"
           />
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Salud-Conecta <span className="text-brand-600 dark:text-brand-400">IA</span>
           </span>
         </div>
