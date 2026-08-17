@@ -174,6 +174,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     };
   }, [refreshNotificationHistory]);
 
+  // Keep editing state values synchronized if user prop changes
+  useEffect(() => {
+    setEditName(user.name);
+    setEditEmail(user.email);
+    setEditCity(user.city);
+    setEditCountry(user.country);
+    setEditPhone(user.emergencyPhone || "+505 8888-9999");
+    setEditBloodType(user.bloodType || "O+");
+    setEditSexo(user.sexo || "Prefiero no decirlo");
+  }, [user]);
+
   const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
 
   const handleOpenNotifications = () => {
@@ -900,6 +911,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   <MapPin className="w-5 h-5 sm:w-6 sm:h-6" />
                 </span>
                 <span>{user.city}, {user.country}</span>
+              </p>
+              <p className="text-slate-950 dark:text-slate-100 text-sm sm:text-xl font-semibold flex items-center justify-center md:justify-start gap-2.5 sm:gap-4">
+                <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-brand-100/85 dark:bg-brand-900/40 text-brand-600 flex items-center justify-center shrink-0">
+                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                </span>
+                <span>{t('genderLabel')}: {user.sexo === "Masculino" ? t('genderMale') : user.sexo === "Femenino" ? t('genderFemale') : t('genderPreferNot')}</span>
               </p>
             </div>
 
