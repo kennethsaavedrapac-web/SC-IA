@@ -10,7 +10,7 @@ const CSS_STYLES = `
   #update-notification-root {
     position: fixed;
     z-index: 99999;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
     opacity: 0;
     box-sizing: border-box;
@@ -164,7 +164,7 @@ const CSS_STYLES = `
 
   /* Tipografía y Textos */
   .un-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-weight: 700;
     font-size: 16px;
     line-height: 1.3;

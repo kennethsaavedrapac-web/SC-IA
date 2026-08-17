@@ -1507,7 +1507,7 @@ export default function App() {
                     <span className="absolute inline-flex h-full w-full rounded-full bg-rose-100 dark:bg-rose-500/20 animate-ping opacity-75" />
                     <Siren className="w-[32px] h-[32px] text-[#d32f2f] relative z-10" />
                   </div>
-                  <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <h3 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     Emergencia médica
                   </h3>
                 </div>
@@ -1543,7 +1543,7 @@ export default function App() {
               </div>
 
               {}
-              <div className="flex flex-col gap-3" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="flex flex-col gap-3" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 <motion.a
                   href="tel:128"
                   whileTap={{ scale: 0.96 }}
@@ -1597,7 +1597,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-5" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="p-6 space-y-5" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                   {t('installIosDesc')}
                 </p>

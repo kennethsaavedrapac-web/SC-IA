@@ -732,7 +732,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               alt="Logo"
               className="w-7 h-7 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
             />
-            <span className="font-bold text-[17px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <span className="font-bold text-[17px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
               Salud-Conecta <span className="text-blue-500">IA</span>
             </span>
           </div>
@@ -773,7 +773,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         { }
         <div className="px-4 py-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0 bg-slate-50/50 dark:bg-slate-900/50 space-y-3">
           <div>
-            <h1 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <h1 className="text-[22px] font-bold text-slate-900 dark:text-white tracking-[-0.03em] leading-tight" style={{ fontFamily: "'Poppins', sans-serif" }}>
               {t('centros')}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">

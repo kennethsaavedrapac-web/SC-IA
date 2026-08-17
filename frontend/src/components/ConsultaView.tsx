@@ -688,7 +688,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
           />
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
             Salud-Conecta <span className="text-brand-400">IA</span>
           </span>
         </div>
@@ -744,15 +744,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
               className="px-7 pt-10 z-10 relative w-full max-w-5xl mx-auto"
             >
-              <h1 className="text-slate-900 dark:text-white tracking-[-0.03em]" style={{ fontSize: "clamp(36px, 9vw, 44px)", lineHeight: 1.08, fontWeight: 600, fontFamily: "'Inter', sans-serif" }}>
+              <h1 className="text-slate-900 dark:text-white tracking-[-0.03em]" style={{ fontSize: "clamp(36px, 9vw, 44px)", lineHeight: 1.08, fontWeight: 600, fontFamily: "'Poppins', sans-serif" }}>
                 {t('hello')} {firstName}.
               </h1>
-              <h2 className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]" style={{ fontSize: "clamp(24px, 6.5vw, 30px)", lineHeight: 1.3, fontWeight: 400, fontFamily: "'Inter', sans-serif" }}>
+              <h2 className="text-slate-700 dark:text-slate-300 mt-3 tracking-[-0.015em]" style={{ fontSize: "clamp(24px, 6.5vw, 30px)", lineHeight: 1.3, fontWeight: 400, fontFamily: "'Poppins', sans-serif" }}>
                 {t('assistant')}<br />
                 <span className="text-brand-600 dark:text-brand-400 font-medium">virtual.</span>
               </h2>
               <div className="mt-8 mb-7 rounded-full bg-slate-200 dark:bg-slate-800" style={{ width: "36px", height: "2.5px" }} />
-              <div className="space-y-[6px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+              <div className="space-y-[6px]" style={{ fontFamily: "'Poppins', sans-serif" }}>
                 <p className="text-slate-500 dark:text-slate-400" style={{ fontSize: "clamp(15px, 4vw, 17px)", lineHeight: 1.5, fontWeight: 300, letterSpacing: "0.01em" }}>
                   {t('howFeel')}
                 </p>
@@ -798,7 +798,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" } as any}>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Poppins', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" } as any}>
                       <span
                         className="flex items-center justify-center"
                         style={{
@@ -887,7 +887,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             placeholder={isChatMode ? "Escribe tu consulta aquí..." : "Describe tus síntomas…"}
             disabled={isLoading}
             className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200 disabled:opacity-50"
-            style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
+            style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Poppins', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
           { }
@@ -930,7 +930,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: "16px", height: "16px" }}><polyline points="20 6 9 17 4 12" /></svg>
             </div>
           </div>
-          <p className="text-slate-600 dark:text-slate-400" style={{ fontSize: "13px", fontWeight: 500, lineHeight: 1.35, fontFamily: "'Inter', sans-serif", letterSpacing: "-0.01em" }}>
+          <p className="text-slate-600 dark:text-slate-400" style={{ fontSize: "13px", fontWeight: 500, lineHeight: 1.35, fontFamily: "'Poppins', sans-serif", letterSpacing: "-0.01em" }}>
             {t('internationalNorms')}<br />{t('internationalNorms2')}
           </p>
         </motion.div>
