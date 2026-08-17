@@ -185,6 +185,18 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     setEditSexo(user.sexo || "Prefiero no decirlo");
   }, [user]);
 
+  const handleToggleSexo = () => {
+    const genders = ["Masculino", "Femenino", "Prefiero no decirlo"];
+    const currentIdx = genders.indexOf(user.sexo || "Prefiero no decirlo");
+    const nextIdx = (currentIdx + 1) % genders.length;
+    const nextSexo = genders[nextIdx];
+    
+    onUpdateUser({
+      ...user,
+      sexo: nextSexo,
+    });
+  };
+
   const unreadNotifications = notificationHistory.filter((notification) => !notification.read).length;
 
   const handleOpenNotifications = () => {
@@ -916,7 +928,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 <span className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-brand-100/85 dark:bg-brand-900/40 text-brand-600 flex items-center justify-center shrink-0">
                   <User className="w-5 h-5 sm:w-6 sm:h-6" />
                 </span>
-                <span>{t('genderLabel')}: {user.sexo === "Masculino" ? t('genderMale') : user.sexo === "Femenino" ? t('genderFemale') : t('genderPreferNot')}</span>
+                <span className="flex items-center gap-2 flex-wrap">
+                  <span>{t('genderLabel')}: {user.sexo === "Masculino" ? t('genderMale') : user.sexo === "Femenino" ? t('genderFemale') : t('genderPreferNot')}</span>
+                  <button 
+                    type="button"
+                    onClick={handleToggleSexo}
+                    className="ml-2 text-[10px] sm:text-xs font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 dark:bg-brand-950 dark:hover:bg-brand-900/60 rounded-xl px-2.5 py-1 border border-brand-200 dark:border-slate-800 transition-all cursor-pointer active:scale-95 hover:scale-105 select-none"
+                  >
+                    {t('change')}
+                  </button>
+                </span>
               </p>
             </div>
 
