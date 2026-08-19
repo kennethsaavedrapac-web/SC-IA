@@ -265,6 +265,7 @@ export default function App() {
         const cachedCountry = localStorage.getItem(`country_${user.id}`);
         const cachedEmail = localStorage.getItem(`email_${user.id}`);
         const cachedPhone = localStorage.getItem(`phone_${user.id}`);
+        const cachedSex = localStorage.getItem(`sex_${user.id}`);
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
@@ -279,7 +280,7 @@ export default function App() {
 
         const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedSex || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
@@ -289,6 +290,7 @@ export default function App() {
             country: cachedCountry || prev.country,
             avatarUrl: cachedAvatar || prev.avatarUrl,
             emergencyPhone: cachedPhone || prev.emergencyPhone,
+            sex: cachedSex ?? prev.sex,
             bloodType: cachedBloodType || prev.bloodType,
             healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
           }));
@@ -307,6 +309,8 @@ export default function App() {
         const updatedName = profile.nombre || prev.name;
         const updatedCity = profile.ciudad || prev.city;
         const updatedCountry = profile.pais || prev.country;
+        const hasProfileSex = Object.prototype.hasOwnProperty.call(profile, "sexo");
+        const updatedSex = hasProfileSex ? (profile.sexo || "") : prev.sex;
 
         if (profile.id) {
           try {
@@ -314,6 +318,11 @@ export default function App() {
             localStorage.setItem(`name_${profile.id}`, updatedName);
             localStorage.setItem(`city_${profile.id}`, updatedCity);
             localStorage.setItem(`country_${profile.id}`, updatedCountry);
+            if (profile.sexo) {
+              localStorage.setItem(`sex_${profile.id}`, profile.sexo);
+            } else if (hasProfileSex) {
+              localStorage.removeItem(`sex_${profile.id}`);
+            }
           } catch (e) {
             console.warn("Could not cache profile data:", e);
           }
@@ -326,6 +335,7 @@ export default function App() {
           email: profile.email || prev.email,
           city: updatedCity,
           country: updatedCountry,
+          sex: updatedSex,
           avatarUrl: updatedAvatar,
         };
       });
@@ -527,6 +537,11 @@ export default function App() {
         localStorage.setItem(`email_${userId}`, updatedUser.email);
         localStorage.setItem(`city_${userId}`, updatedUser.city);
         localStorage.setItem(`country_${userId}`, updatedUser.country);
+        if (updatedUser.sex) {
+          localStorage.setItem(`sex_${userId}`, updatedUser.sex);
+        } else {
+          localStorage.removeItem(`sex_${userId}`);
+        }
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
@@ -547,6 +562,7 @@ export default function App() {
         const { success, error } = await updateUserProfile(user.id, {
           nombre: updatedUser.name,
           ciudad: updatedUser.city,
+          sexo: updatedUser.sex || null,
           full_name: updatedUser.name,
         } as any);
 
