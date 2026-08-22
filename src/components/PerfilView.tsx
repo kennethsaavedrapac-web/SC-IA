@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Star } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Calendar } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -35,7 +35,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
   const [editSex, setEditSex] = useState(user.sex || "");
+  const [editBirthDate, setEditBirthDate] = useState(user.birthDate || "");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
@@ -331,6 +333,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       bloodType: editBloodType,
       healthConditions: editConditions.map(c => sanitizeAndTrim(c)),
       sex: editSex,
+      birthDate: editBirthDate,
     });
     
     // Also save medical data to persist cedula if changed from personal form
@@ -952,7 +955,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
           {/* Contenedor Flip 3D */}
           <div className="group w-full max-w-[800px] aspect-[1.586/1] [perspective:1500px]">
-            <div className="relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] cursor-pointer">
+            <div 
+              className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer md:group-hover:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+              onClick={() => setIsCardFlipped(!isCardFlipped)}
+            >
               
               {/* Cara Frontal - Datos Personales */}
               <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
@@ -989,9 +995,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a]">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L14.4 8.5L21 9.5L16.2 14.5L17.5 21L12 17.8L6.5 21L7.8 14.5L3 9.5L9.6 8.5L12 2Z" />
-                      </svg>
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-10 h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
@@ -1018,7 +1022,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <div className="grid grid-cols-2 gap-y-4 gap-x-2">
                         <div>
                           <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">FECHA DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg">---</p>
+                          <p className="text-slate-800 font-bold text-sm sm:text-lg">{user.birthDate || '---'}</p>
                         </div>
                         <div>
                           <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">LUGAR DE NACIMIENTO</p>
@@ -1082,9 +1086,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a]">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L14.4 8.5L21 9.5L16.2 14.5L17.5 21L12 17.8L6.5 21L7.8 14.5L3 9.5L9.6 8.5L12 2Z" />
-                      </svg>
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-10 h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
@@ -1306,6 +1308,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     onChange={(e) => setEditCountry(e.target.value)}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     required
+                                  />
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Calendar className="w-3 h-3" /> Fecha de Nacimiento
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={editBirthDate}
+                                    onChange={(e) => setEditBirthDate(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5 lg:col-span-2">

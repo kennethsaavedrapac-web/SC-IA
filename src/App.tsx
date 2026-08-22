@@ -317,7 +317,13 @@ export default function App() {
     addToast(createToast(t('sessionExpiringSoon'), "warning", 8000));
   }, [t, addToast]);
 
-  useSessionTimeout(handleSessionTimeout, handleSessionWarning, isSessionActive);
+  useSessionTimeout({
+    onTimeout: handleSessionTimeout,
+    onWarning: handleSessionWarning,
+    enabled: isSessionActive,
+    timeoutMs: 30 * 60 * 1000,
+    warningThresholdMs: 2 * 60 * 1000
+  });
 
   
   useEffect(() => {
