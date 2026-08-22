@@ -13,14 +13,23 @@ import { ToastContainer, createToast, type ToastData } from "./components/Toast"
 import { useAuth } from "./contexts/AuthContext";
 import { updateUserProfile } from "./lib/authService";
 import { useLanguage } from "./contexts/LanguageContext";
-import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
-import { UserProfile, Appointment } from "./types";
+import { DEFAULT_USER } from "./data/medicalData";
+import type { UserProfile } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
 import { useSessionTimeout } from "./hooks/useSessionTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -35,7 +44,6 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
   const [localUser, setLocalUser] = useState<UserProfile>(DEFAULT_USER);
-  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
   const [isPremium, setIsPremium] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<"menu" | "terms" | "privacy" | "guide">("menu");
@@ -302,6 +310,7 @@ export default function App() {
         const cachedCountry = localStorage.getItem(`country_${user.id}`);
         const cachedEmail = localStorage.getItem(`email_${user.id}`);
         const cachedPhone = localStorage.getItem(`phone_${user.id}`);
+        const cachedSex = localStorage.getItem(`sex_${user.id}`);
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
@@ -320,7 +329,7 @@ export default function App() {
 
         const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedBloodType || cachedConditions) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedSex || cachedBloodType || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
@@ -330,6 +339,7 @@ export default function App() {
             country: cachedCountry || prev.country,
             avatarUrl: cachedAvatar || prev.avatarUrl,
             emergencyPhone: cachedPhone || prev.emergencyPhone,
+            sex: cachedSex ?? prev.sex,
             bloodType: cachedBloodType || prev.bloodType,
             healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
           }));
@@ -348,6 +358,8 @@ export default function App() {
         const updatedName = profile.nombre || prev.name;
         const updatedCity = profile.ciudad || prev.city;
         const updatedCountry = profile.pais || prev.country;
+        const hasProfileSex = Object.prototype.hasOwnProperty.call(profile, "sexo");
+        const updatedSex = hasProfileSex ? (profile.sexo || "") : prev.sex;
 
         if (profile.id) {
           try {
@@ -355,6 +367,11 @@ export default function App() {
             localStorage.setItem(`name_${profile.id}`, updatedName);
             localStorage.setItem(`city_${profile.id}`, updatedCity);
             localStorage.setItem(`country_${profile.id}`, updatedCountry);
+            if (profile.sexo) {
+              localStorage.setItem(`sex_${profile.id}`, profile.sexo);
+            } else if (hasProfileSex) {
+              localStorage.removeItem(`sex_${profile.id}`);
+            }
           } catch (e) {
             console.warn("Could not cache profile data:", e);
           }
@@ -367,6 +384,7 @@ export default function App() {
           email: profile.email || prev.email,
           city: updatedCity,
           country: updatedCountry,
+          sex: updatedSex,
           avatarUrl: updatedAvatar,
         };
       });
@@ -548,10 +566,6 @@ export default function App() {
     setCurrentView("home");
   };
 
-  const handleAddAppointment = (newApp: Appointment) => {
-    setAppointments((prev) => [newApp, ...prev]);
-  };
-
   const handleUpdateUser = async (updatedUser: UserProfile) => {
     setLocalUser(updatedUser);
 
@@ -563,6 +577,11 @@ export default function App() {
         localStorage.setItem(`email_${userId}`, updatedUser.email);
         localStorage.setItem(`city_${userId}`, updatedUser.city);
         localStorage.setItem(`country_${userId}`, updatedUser.country);
+        if (updatedUser.sex) {
+          localStorage.setItem(`sex_${userId}`, updatedUser.sex);
+        } else {
+          localStorage.removeItem(`sex_${userId}`);
+        }
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
@@ -583,6 +602,7 @@ export default function App() {
         const { success, error } = await updateUserProfile(user.id, {
           nombre: updatedUser.name,
           ciudad: updatedUser.city,
+          sexo: updatedUser.sex || null,
           full_name: updatedUser.name,
         } as any);
 
@@ -608,7 +628,6 @@ export default function App() {
     setIsLogoutModalOpen(false);
     if (result.success) {
       setLocalUser(DEFAULT_USER);
-      setAppointments(INITIAL_APPOINTMENTS);
       setIsPremium(false);
       setCurrentView("login");
       addToast(createToast(t('sessionClosed'), "info"));
@@ -619,7 +638,6 @@ export default function App() {
 
   const handleResetApp = () => {
     setLocalUser(DEFAULT_USER);
-    setAppointments(INITIAL_APPOINTMENTS);
     setIsPremium(false);
     setCurrentView("home");
     setIsSettingsOpen(false);
@@ -835,7 +853,19 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence mode="wait">
+        {/**
+         * CentrosView owns a full-viewport map/iframe. In `wait` mode the next
+         * route cannot mount until that heavyweight view finishes its exit
+         * lifecycle. If its teardown is delayed, the router state changes but
+         * AnimatePresence has no entering child to render, which is the blank
+         * screen seen after visiting Buscar.
+         *
+         * `popLayout` removes the exiting view from layout immediately and
+         * mounts the new keyed view in the same render. The old view can still
+         * fade out and run all its normal effect cleanups without blocking the
+         * new screen.
+         */}
+        <AnimatePresence mode="popLayout" initial={false}>
           {currentView === "login" && (
             <motion.div
               key="login"

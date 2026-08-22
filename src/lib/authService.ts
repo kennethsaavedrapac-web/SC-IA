@@ -10,6 +10,7 @@ export interface UserProfile {
   avatar_url: string | null;
   ciudad: string;
   pais: string;
+  sexo: string | null;
   created_at: string;
 }
 
@@ -207,7 +208,7 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais'>>
+  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'>>
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase

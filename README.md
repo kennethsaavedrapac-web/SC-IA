@@ -33,7 +33,7 @@ Pensando en la diversidad de la Costa Caribe nicaragüense, donde la conectivida
 * **Directorio de Farmacias de Turno:** Lista completa de establecimientos farmacéuticos activos en la región.
 * **Layout Responsivo y Especializado en Farmacias:** Cada tarjeta de farmacia utiliza una altura mínima de `280px` (`min-h-[280px]`) para apilar ordenadamente insignias de estado y botones de acción verticalmente en pantallas móviles.
 * **Acciones Directas:**
-  * **Ver Ruta (Google Maps / OpenStreetMap):** Genera rutas óptimas de asistencia.
+  * **Ver Ruta (OpenStreetMap):** Genera rutas óptimas de asistencia.
   * **Botón de WhatsApp:** Redirección directa para consultas rápidas con la farmacia seleccionada (requiere la propiedad obligatoria `phone` en la interfaz).
 
 ### 4. Tarjeta de Emergencia QR (Ficha Médica Portable)
@@ -263,10 +263,6 @@ FRONTEND_URL=http://localhost:3000
 # --- SEGURIDAD ---
 # Secreto para invocar tareas cron (notificaciones masivas automáticas)
 CRON_SECRET=tu_cron_secret_aqui
-
-# --- GOOGLE MAPS (Geocodificación y Mapas) ---
-# Clave de API de Google Maps JavaScript API
-VITE_GOOGLE_MAPS_API_KEY=tu_google_maps_api_key_aqui
 
 # --- ENTORNO ---
 # Define el modo de ejecución (development o production)
