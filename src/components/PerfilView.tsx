@@ -34,6 +34,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCity, setEditCity] = useState(user.city);
   const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
+  const [editSex, setEditSex] = useState(user.sex || "");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
@@ -1110,6 +1111,23 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     placeholder="+505 0000-0000"
                                   />
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label htmlFor="input-edit-usersex" className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <User className="w-3 h-3" /> {t('sex')}
+                                  </label>
+                                  <select
+                                    id="input-edit-usersex"
+                                    value={editSex}
+                                    onChange={(e) => setEditSex(e.target.value)}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
+                                  >
+                                    <option value="">{t('sexNotSpecified')}</option>
+                                    <option value="female">{t('sexFemale')}</option>
+                                    <option value="male">{t('sexMale')}</option>
+                                    <option value="intersex">{t('sexIntersex')}</option>
+                                    <option value="prefer_not_to_say">{t('sexPreferNotToSay')}</option>
+                                  </select>
                                 </div>
                               </div>
 

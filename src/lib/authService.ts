@@ -16,12 +16,7 @@ export interface UserProfile {
   avatar_url: string | null;
   ciudad: string;
   pais: string;
-  role?: 'paciente' | 'medico' | 'especialista' | 'admin' | 'superadmin';
-  mfa_enabled?: boolean;
-  is_premium?: boolean;
-  emergencyPhone?: string;
-  bloodType?: string;
-  healthConditions?: string[];
+  sexo: string | null;
   created_at: string;
 }
 
@@ -261,7 +256,7 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<UserProfile>
+  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'>>
 ): Promise<{ success: boolean; error?: string }> {
   const validation = validateInput(userProfileUpdateSchema, updates);
   if (!validation.success) {
