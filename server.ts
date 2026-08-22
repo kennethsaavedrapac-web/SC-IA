@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -585,13 +586,43 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     }
   );
 
-  // Mount FHIR API endpoints
-  app.post("/api/fhir", (req: Request, res: Response) => {
-    return fhirHandler(req, res);
-  });
-
-  app.get("/api/fhir-get", (req: Request, res: Response) => {
-    return fhirGetHandler(req, res);
+  // API endpoint for admin panel metrics
+  app.get("/api/admin/metrics", (req: Request, res: Response) => {
+    try {
+      const metricsPath = path.resolve(process.cwd(), "src/data/simulatedMetrics.json");
+      if (!fs.existsSync(metricsPath)) {
+        return res.status(404).json({ error: "Simulated metrics file not found" });
+      }
+      
+      const rawData = fs.readFileSync(metricsPath, "utf-8");
+      const metrics = JSON.parse(rawData);
+      
+      // Allow dynamic query param overrides for testing the weighted load calculations
+      const activeUsersQuery = req.query.activeUsers ? parseInt(req.query.activeUsers as string) : undefined;
+      const messagesQuery = req.query.messagesLastHour ? parseInt(req.query.messagesLastHour as string) : undefined;
+      
+      if (activeUsersQuery !== undefined && !isNaN(activeUsersQuery)) {
+        metrics.systemStatus.activeUsers = activeUsersQuery;
+        // L_server = (U_active / C_max) * 100
+        const serverLoad = (activeUsersQuery / metrics.systemStatus.maxConcurrentCapacity) * 100;
+        metrics.systemStatus.serverLoadPercentage = Math.min(100.0, parseFloat(serverLoad.toFixed(1)));
+      }
+      
+      if (messagesQuery !== undefined && !isNaN(messagesQuery)) {
+        metrics.systemStatus.messagesLastHour = messagesQuery;
+        // A_workload = (M_hour / M_baseline) * 100
+        const workloadPct = (messagesQuery / metrics.systemStatus.hourlyMessageBaseline) * 100;
+        metrics.systemStatus.workloadActivityPercentage = Math.min(100.0, parseFloat(workloadPct.toFixed(1)));
+      }
+      
+      return res.json(metrics);
+    } catch (error: any) {
+      console.error("Error fetching metrics:", error);
+      return res.status(500).json({
+        error: "Failed to load admin panel metrics.",
+        details: error?.message || ""
+      });
+    }
   });
 
   // Hot module reloading and client asset serving

@@ -71,13 +71,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
   const currentLabel = sections.find(s => s.id === activeSection)?.label;
 
   return (
-    <div className="flex h-dvh bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans antialiased relative">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="flex h-dvh overflow-hidden font-sans antialiased relative">
 
       {}
       <AnimatePresence>
@@ -99,7 +93,7 @@ const AdminView: React.FC<AdminViewProps> = ({ onGoBack }) => {
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/app-logo-v1.jpg" alt="Logo" className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30" />
+            <img src="/app-logo-v2.jpg" alt="Logo" className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30" />
             <h1 className="font-bold text-lg text-slate-900 dark:text-white leading-tight">
               {t('adminPanel')}
             </h1>

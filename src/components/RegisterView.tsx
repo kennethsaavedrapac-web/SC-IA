@@ -3,6 +3,7 @@ import { Eye, EyeOff, User, Mail, Lock, ArrowRight, LogIn, Moon, Sun, Loader2 } 
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
+import { sanitizeAndTrim, validateEmail, validateName, getPasswordStrength } from "../lib/security";
 
 interface RegisterViewProps {
   onRegister: (name: string) => void;
@@ -39,11 +40,6 @@ export default function RegisterView({
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [termsError, setTermsError] = useState("");
 
-  const validateEmail = (value: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || loading) return;
@@ -51,21 +47,20 @@ export default function RegisterView({
     let hasError = false;
 
     // Validate Name
-    if (!name.trim()) {
-      setNameError(t('nameRequired'));
-      hasError = true;
-    } else if (name.trim().length < 3) {
-      setNameError(t('nameMin'));
+    const nameVal = validateName(name);
+    if (!nameVal.valid) {
+      setNameError(nameVal.error === 'tooShort' ? t('nameMin') : t('nameRequired'));
       hasError = true;
     } else {
       setNameError("");
     }
 
     // Validate Email
-    if (!email.trim()) {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
       setEmailError(t('emailRequired'));
       hasError = true;
-    } else if (!validateEmail(email.trim())) {
+    } else if (!validateEmail(cleanEmail)) {
       setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
@@ -106,10 +101,11 @@ export default function RegisterView({
 
     setIsSubmitting(true);
     try {
-      const result = await register(email.trim(), password, name.trim());
+      const sanitizedName = sanitizeAndTrim(name);
+      const result = await register(cleanEmail, password, sanitizedName);
       if (result.success) {
         onToast?.(createToast(t('registerSuccess'), "success"));
-        onRegister(name.trim());
+        onRegister(sanitizedName);
       } else {
         onToast?.(createToast(result.error || t('registerError'), "error"));
       }
@@ -138,13 +134,7 @@ export default function RegisterView({
   const isLoading = isSubmitting || loading;
 
   return (
-    <div className="min-h-dvh w-full flex flex-col justify-between bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-[#0b0f19] dark:to-[#0f172a] text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="min-h-dvh w-full flex flex-col justify-between text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
 
       {}
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">
@@ -189,12 +179,12 @@ export default function RegisterView({
       </header>
 
       {}
-      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-brand-500/10 md:dark:shadow-brand-900/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
+      <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-primary/10 md:dark:shadow-primary/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
         {}
         <div className="flex flex-col items-center mb-5">
           <img
-            src="/app-logo-v1.jpg"
+            src="/app-logo-v2.jpg"
             alt="Logo"
             className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
           />
@@ -311,6 +301,32 @@ export default function RegisterView({
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
+            {password && (
+              <div className="mt-1 px-1.5 space-y-1">
+                <div className="flex gap-1 h-1">
+                  {[...Array(4)].map((_, i) => {
+                    const strength = getPasswordStrength(password);
+                    const colors = [
+                      "bg-red-500", // 1 - Weak
+                      "bg-amber-500", // 2 - Fair
+                      "bg-blue-500", // 3 - Good
+                      "bg-emerald-500", // 4 - Strong
+                    ];
+                    const active = i < strength;
+                    const colorClass = active ? colors[strength - 1] : "bg-slate-100 dark:bg-slate-800";
+                    return (
+                      <div key={i} className={`flex-1 rounded-full transition-all duration-300 ${colorClass}`} />
+                    );
+                  })}
+                </div>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                  {getPasswordStrength(password) === 1 && t('passWeak' as any)}
+                  {getPasswordStrength(password) === 2 && t('passFair' as any)}
+                  {getPasswordStrength(password) === 3 && t('passGood' as any)}
+                  {getPasswordStrength(password) === 4 && t('passStrong' as any)}
+                </p>
+              </div>
+            )}
             {passwordError && (
               <p className="text-red-500 text-[11px] font-semibold pl-1.5 mt-0.5">{passwordError}</p>
             )}

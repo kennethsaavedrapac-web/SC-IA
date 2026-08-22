@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react";
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
+import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
 import { useAuth } from "./contexts/AuthContext";
@@ -16,7 +17,8 @@ import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
-import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck, Clock } from "lucide-react";
+import { useSessionTimeout } from "./hooks/useSessionTimeout";
+import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 import { useIdleTimeout } from "./hooks/useIdleTimeout";
@@ -29,7 +31,7 @@ const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) =>
 );
 
 export default function App() {
-  const { user, profile, session, loading: authLoading, initialized, logout } = useAuth();
+  const { user, profile, session, loading: authLoading, initialized, logout, requiresMFA, mfaFactorId, completeMFA } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<"login" | "register" | "home" | "consulta" | "buscar" | "premium" | "perfil" | "admin">("login");
@@ -68,6 +70,15 @@ export default function App() {
     onTimeout: handleIdleTimeout,
     onWarning: handleIdleWarning,
   });
+
+  // ─── Toast Management ──────────────────────────────────────
+  const addToast = useCallback((toast: ToastData) => {
+    setToasts((prev) => [...prev, toast]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -158,7 +169,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(announcementsSub); };
+    return () => { supabase?.removeChannel(announcementsSub); };
   }, [dismissedAnnouncements, user?.id]);
 
   
@@ -189,7 +200,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(settingsSub); };
+    return () => { supabase?.removeChannel(settingsSub); };
   }, []);
 
   const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
@@ -211,21 +222,13 @@ export default function App() {
   });
 
   
-  const [darkMode, setDarkMode] = useState<boolean>(false);
-
-  useEffect(() => {
-    const initializeDarkMode = () => {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        setDarkMode(savedTheme === "dark");
-        return;
-      }
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        setDarkMode(true);
-      }
-    };
-    initializeDarkMode();
-  }, []);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("theme") !== "light";
+    } catch {
+      return true;
+    }
+  });
 
   
   useEffect(() => {
@@ -290,6 +293,32 @@ export default function App() {
     }
   }, [session, user, initialized]);
 
+  // ─── Admin route guard (defense in depth) ──────────────────────
+  useEffect(() => {
+    if (currentView === "admin" && profileRole !== "admin") {
+      setCurrentView("home");
+    }
+  }, [currentView, profileRole]);
+
+  // ─── Session timeout (auto-logout after 30 min inactivity) ─────
+  const isSessionActive = !!(session && user && user.id !== "guest" && !requiresMFA);
+
+  const handleSessionTimeout = useCallback(() => {
+    logout().then(() => {
+      setLocalUser(DEFAULT_USER);
+      setAppointments(INITIAL_APPOINTMENTS);
+      setIsPremium(false);
+      setCurrentView("login");
+      addToast(createToast(t('sessionExpired'), "warning", 6000));
+    });
+  }, [logout, t, addToast]);
+
+  const handleSessionWarning = useCallback(() => {
+    addToast(createToast(t('sessionExpiringSoon'), "warning", 8000));
+  }, [t, addToast]);
+
+  useSessionTimeout(handleSessionTimeout, handleSessionWarning, isSessionActive);
+
   
   useEffect(() => {
     if (initialized && user && user.id !== "guest") {
@@ -306,9 +335,13 @@ export default function App() {
         // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
         function decryptMedicalData(encoded: string): string | null {
           try {
-            return encoded ? atob(encoded) : null;
+            return encoded ? decodeURIComponent(atob(encoded)) : null;
           } catch {
-            return null;
+            try {
+              return encoded ? atob(encoded) : null;
+            } catch {
+              return null;
+            }
           }
         }
 
@@ -366,15 +399,6 @@ export default function App() {
       });
     }
   }, [profile]);
-
-  // ─── Toast Management ──────────────────────────────────────
-  const addToast = useCallback((toast: ToastData) => {
-    setToasts((prev) => [...prev, toast]);
-  }, []);
-
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   const triggerUpdateNotification = useCallback((reg: ServiceWorkerRegistration, force = false) => {
     showUpdateNotification(() => {
@@ -570,7 +594,7 @@ export default function App() {
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
         if (updatedUser.healthConditions) {
-          localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
+          localStorage.setItem(`conditions_${userId}`, btoa(encodeURIComponent(JSON.stringify(updatedUser.healthConditions))));
         }
       }
     } catch (e) {
@@ -633,19 +657,34 @@ export default function App() {
   
   if (!initialized) {
     return (
-      <div className="min-h-dvh bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] dark:from-slate-900 dark:to-slate-950 flex items-center justify-center">
+      <div className="splash-screen">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-5"
+          initial={{ opacity: 0, scale: 0.8, filter: "blur(8px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center gap-6"
         >
-          <img
-            src="/app-logo-v1.jpg"
-            alt="Logo"
-            className="w-20 h-20 rounded-[28px] shadow-2xl object-cover border-2 border-white dark:border-slate-800"
-          />
-          <Loader2 className="w-6 h-6 text-brand-600 animate-spin" />
-          <p className="text-sm text-slate-500 font-semibold">{t('verifyingSession')}</p>
+          {/* Logo con borde degradado y anillo de respiración */}
+          <div className="splash-logo-container">
+            <div className="splash-logo-ring neon-glow-subtle">
+              <img
+                src="/app-logo-v2.jpg"
+                alt="Logo Salud-Conecta IA"
+                className="splash-logo-img"
+              />
+            </div>
+          </div>
+
+          {/* Spinner neón */}
+          <Loader2 className="w-6 h-6 animate-spin" style={{ color: 'var(--color-teal-bright, #00D4AA)' }} />
+
+          {/* Texto con gradiente */}
+          <div className="flex flex-col items-center gap-1.5">
+            <h1 className="font-display font-bold text-lg tracking-tight text-slate-800 dark:text-white">
+              Salud-Conecta <span className="gradient-accent-text">IA</span>
+            </h1>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-texto-secundario)' }}>{t('verifyingSession')}</p>
+          </div>
         </motion.div>
       </div>
     );
@@ -653,7 +692,7 @@ export default function App() {
 
   if (isMaintenanceBlocked) {
     return (
-      <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+      <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center select-none font-sans">
         <ShieldAlert className="w-16 h-16 text-amber-500 mb-6" />
         <h1 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">{t('maintenanceTitle')}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-8 leading-relaxed">
@@ -671,25 +710,33 @@ export default function App() {
   const hasBottomNav = currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin";
 
   return (
-    <div className="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
+    <div className="min-h-dvh bg-white dark:bg-slate-950 flex flex-col font-sans select-none overflow-x-hidden antialiased">
+      <div className="health-background-motifs">
+        <div className="radial-lines" />
+        <div className="accent-lines" />
+      </div>
 
       {}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {}
       {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
-        <aside className="hidden md:flex flex-col w-[260px] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed inset-y-0 left-0 z-50 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-          <div className="p-6 flex items-center gap-3 cursor-pointer" onClick={() => setCurrentView("home")}>
-            <img
-              src="/app-logo-v1.jpg"
-              alt="Logo"
-              className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
-            />
+        <aside className="hidden md:flex flex-col w-[260px] fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#0A1222] border-r border-slate-200/80 dark:border-[#1A2A45]/80 shadow-[4px_0_32px_rgba(0,0,0,0.03)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.3)]">
+          {/* ── Cabecera: Logo con borde degradado ─────────── */}
+          <div className="p-6 flex items-center gap-3.5 cursor-pointer group" onClick={() => setCurrentView("home")}>
+            <div className="p-[2px] rounded-xl bg-white dark:bg-transparent" style={{ background: 'var(--gradient-accent)' }}>
+              <img
+                src="/app-logo-v2.jpg"
+                alt="Logo Salud-Conecta IA"
+                className="w-9 h-9 rounded-[10px] object-cover bg-white dark:bg-[#0D1A2F] transition-transform group-hover:scale-105"
+              />
+            </div>
             <span className="font-display font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-              Salud-Conecta <span className="text-brand-600">IA</span>
+              Salud-Conecta <span className="gradient-accent-text">IA</span>
             </span>
           </div>
 
+          {/* ── Menú principal ─────────────────────────────── */}
           <div className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto mt-2">
             <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 pl-3">{t('mainMenu')}</div>
 
@@ -703,24 +750,32 @@ export default function App() {
               <button
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id as any)}
-                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all ${currentView === tab.id
-                  ? "bg-brand-50 dark:bg-brand-900/20 text-brand-900 dark:text-brand-400 font-bold shadow-sm border border-brand-100/50 dark:border-brand-900/50"
-                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent"
+                className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all relative overflow-hidden ${currentView === tab.id
+                  ? "font-bold shadow-sm bg-sky-50/80 dark:bg-[#0D2A3A]/60 border border-sky-200/50 dark:border-[#0D5F50]/50"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#111E36]/60 hover:text-slate-900 dark:hover:text-white font-medium border border-transparent hover:text-sky-600"
                   }`}
+                style={currentView === tab.id ? { color: 'var(--color-teal-bright, #00D4AA)' } : undefined}
               >
-                <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20" : ""}`}>{tab.icon}</div>
+                {/* Borde izquierdo degradado para item activo */}
+                {currentView === tab.id && (
+                  <span
+                    className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full"
+                    style={{ background: darkMode ? 'var(--gradient-accent)' : 'var(--tw-color-sky-500)' }}
+                  />
+                )}
+                <div className={`w-5 h-5 ${currentView === tab.id ? "fill-current/20 text-sky-600 dark:text-current" : ""}`}>{tab.icon}</div>
                 <span className="text-[13.5px]">{tab.label}</span>
               </button>
             ))}
           </div>
 
-          {}
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" : "hover:bg-slate-50 dark:hover:bg-slate-800 border-transparent"} text-left`}>
+          {/* ── Perfil de usuario ──────────────────────────── */}
+          <div className="p-4 border-t border-slate-100 dark:border-[#1A2A45]/60">
+            <button onClick={() => setCurrentView("perfil")} className={`flex items-center gap-3 w-full p-2.5 rounded-2xl transition-all border ${currentView === "perfil" ? "bg-slate-50 dark:bg-[#111E36] border-slate-200 dark:border-[#1A2A45]" : "hover:bg-slate-50 dark:hover:bg-[#111E36]/60 border-transparent"} text-left`}>
               {localUser.avatarUrl ? (
-                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 shadow-sm" />
+                <img src={localUser.avatarUrl} alt={localUser.name} className="w-10 h-10 rounded-full object-cover shadow-sm" style={{ border: '2px solid var(--color-teal, #00B4A0)' }} />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-600 to-brand-600 flex items-center justify-center text-white text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-sm select-none shrink-0">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm select-none shrink-0" style={{ background: 'var(--gradient-accent)' }}>
                   {localUser.name ? localUser.name.charAt(0).toUpperCase() : "U"}
                 </div>
               )}
@@ -736,7 +791,7 @@ export default function App() {
       )}
 
       {}
-      <div className={`flex-1 w-full bg-white dark:bg-slate-950 flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
+      <div className={`flex-1 w-full flex flex-col relative ${currentView === "buscar" ? "h-[100dvh] overflow-hidden pb-0" : `min-h-screen ${hasBottomNav ? "pb-20" : "pb-0"}`} md:pb-0 ${currentView !== "login" && currentView !== "register" && currentView !== "admin" ? "md:pl-[260px]" : ""}`}>
 
         {}
         <AnimatePresence>
@@ -762,7 +817,7 @@ export default function App() {
               exit={{ opacity: 0, height: 0 }}
               className="w-full bg-gradient-to-r from-brand-900 to-brand-600 text-white shadow-sm border-b border-brand-600/20 z-40 relative px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 overflow-hidden"
             >
-              <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-3 flex-1 text-white">
                 <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
                   <Sparkles className="w-4.5 h-4.5 text-brand-200 animate-pulse" />
                 </div>
@@ -776,7 +831,7 @@ export default function App() {
                 <button
                   id="btn-instalar"
                   onClick={handleInstallPwa}
-                  className="bg-white text-brand-600 hover:bg-brand-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
+                  className="bg-white text-sky-600 hover:bg-sky-50 active:scale-95 px-3.5 py-1.5 rounded-xl font-bold text-[11px] shadow-sm transition-all flex items-center gap-1.5 w-full sm:w-auto justify-center cursor-pointer font-sans"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>{t("pwaInstallButton")}</span>
@@ -822,7 +877,7 @@ export default function App() {
                   onLogin={handleLoginSuccess}
                   onNavigateToRegister={() => setCurrentView("register")}
                   darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToggleDarkMode={() => setDarkMode((current) => !current)}
                   onToast={addToast}
                 />
               </Suspense>
@@ -843,7 +898,7 @@ export default function App() {
                   onRegister={handleRegisterSuccess}
                   onNavigateToLogin={() => setCurrentView("login")}
                   darkMode={darkMode}
-                  onToggleDarkMode={() => setDarkMode(!darkMode)}
+                  onToggleDarkMode={() => setDarkMode((current) => !current)}
                   onToast={addToast}
                 />
               </Suspense>
@@ -941,7 +996,7 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentView === "admin" && (
+          {currentView === "admin" && profileRole === "admin" && (
             <motion.div
               key="admin"
               initial={{ opacity: 0 }}
@@ -957,61 +1012,79 @@ export default function App() {
           )}
         </AnimatePresence>
 
+        {/* ─── 2FA Verification Modal (post-login) ──────────────── */}
+        {requiresMFA && mfaFactorId && (
+          <TwoFactorVerify
+            factorId={mfaFactorId}
+            onVerified={completeMFA}
+            onCancel={() => {
+              logout().then(() => {
+                setLocalUser(DEFAULT_USER);
+                setCurrentView("login");
+                addToast(createToast(t('mfaCancelledLogin'), "info"));
+              });
+            }}
+          />
+        )}
+
         {}
         {currentView !== "perfil" && currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
-          <nav className="fixed bottom-0 inset-x-0 bg-white dark:bg-slate-900 z-40 w-full border-t border-slate-100 dark:border-slate-800 shadow-[0_-8px_30px_rgba(0,0,0,0.03)] pb-safe-bottom md:hidden">
+          <nav className="fixed bottom-0 inset-x-0 z-40 w-full pb-safe-bottom md:hidden bg-white/90 dark:bg-[#0A1222]/85 backdrop-blur-xl border-t border-slate-200/60 dark:border-[#1A2A45]/50 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.3)]">
             <div className={`grid ${gridColsClass} p-2.5 pt-3 pb-5 relative font-sans`}>
 
-              {}
+              {/* ── Inicio ──────────────────────────────────── */}
               <button
                 id="btn-nav-home"
                 onClick={() => setCurrentView("home")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "home" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
+                style={currentView === "home" ? { color: darkMode ? 'var(--color-teal-bright, #00D4AA)' : 'var(--tw-color-sky-600)' } : undefined}
               >
                 <div className="p-1 mb-0.5">
-                  <svg className={`w-[25px] h-[25px] ${currentView === "home" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "home" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={`w-[25px] h-[25px] ${currentView === "home" ? "fill-sky-500/20 dark:fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "home" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "home" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight ${currentView === "home" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('home')}
                 </span>
                 {currentView === "home" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: darkMode ? 'var(--gradient-accent)' : 'var(--tw-color-sky-500)' }} />
                 )}
               </button>
 
-              {}
+              {/* ── Consulta ────────────────────────────────── */}
               <button
                 id="btn-nav-consulta"
                 onClick={() => setCurrentView("consulta")}
-                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "consulta" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                   }`}
+                style={currentView === "consulta" ? { color: darkMode ? 'var(--color-teal-bright, #00D4AA)' : 'var(--tw-color-sky-600)' } : undefined}
               >
                 <div className="p-1 mb-0.5">
-                  <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className={`w-[25px] h-[25px] ${currentView === "consulta" ? "fill-sky-500/20 dark:fill-current" : ""}`} viewBox="0 0 24 24" fill={currentView === "consulta" ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     <path d="M12 7l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" />
                     <path d="M16 10l.5 1 1 .5-1 .5-.5 1-.5-1-1-.5 1-.5.5-1z" />
                   </svg>
                 </div>
-                <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "consulta" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                <span className={`text-[11.5px] tracking-tight ${currentView === "consulta" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                   {t('consulta')}
                 </span>
                 {currentView === "consulta" && (
-                  <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                  <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: darkMode ? 'var(--gradient-accent)' : 'var(--tw-color-sky-500)' }} />
                 )}
               </button>
 
-              {}
+              {/* ── Buscar ──────────────────────────────────── */}
               {featureFlags.healthUnitSearch && (
                 <button
                   id="btn-nav-buscar"
                   onClick={() => setCurrentView("buscar")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "buscar" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
+                  style={currentView === "buscar" ? { color: darkMode ? 'var(--color-teal-bright, #00D4AA)' : 'var(--tw-color-sky-600)' } : undefined}
                 >
                   <div className="p-1 mb-0.5">
                     <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1019,33 +1092,34 @@ export default function App() {
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "buscar" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight ${currentView === "buscar" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('buscar')}
                   </span>
                   {currentView === "buscar" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: darkMode ? 'var(--gradient-accent)' : 'var(--tw-color-sky-500)' }} />
                   )}
                 </button>
               )}
 
-              {}
+              {/* ── Premium ─────────────────────────────────── */}
               {featureFlags.premiumFeatures && (
                 <button
                   id="btn-nav-premium"
                   onClick={() => setCurrentView("premium")}
-                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
+                  className={`text-center flex flex-col items-center justify-center relative transition-all active:scale-95 ${currentView === "premium" ? "" : "text-[#94a3b8] dark:text-slate-500 hover:text-[#475569] dark:hover:text-slate-300"
                     }`}
+                  style={currentView === "premium" ? { color: darkMode ? 'var(--color-teal-bright, #00D4AA)' : 'var(--tw-color-sky-600)' } : undefined}
                 >
                   <div className="p-1 mb-0.5">
                     <svg className="w-[25px] h-[25px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
                     </svg>
                   </div>
-                  <span className={`text-[11.5px] tracking-tight font-medium ${currentView === "premium" ? "font-semibold text-brand-900 dark:text-brand-400" : "text-[#94a3b8] dark:text-slate-500"}`}>
+                  <span className={`text-[11.5px] tracking-tight ${currentView === "premium" ? "font-bold" : "font-medium text-[#94a3b8] dark:text-slate-500"}`}>
                     {t('premium')}
                   </span>
                   {currentView === "premium" && (
-                    <span className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 text-brand-900 dark:text-brand-400 font-bold text-xs tracking-[1.5px] leading-none">...</span>
+                    <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full" style={{ background: darkMode ? 'var(--gradient-accent)' : 'var(--tw-color-sky-500)' }} />
                   )}
                 </button>
               )}
@@ -1081,7 +1155,7 @@ export default function App() {
                     </button>
                   )}
                   <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                    <Settings className={`w-5 h-5 text-brand-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
+                    <Settings className={`w-5 h-5 text-sky-600 dark:text-brand-600 ${settingsView === "menu" ? "animate-spin-slow" : ""}`} />
                     <span>
                       {settingsView === "menu" && t('settings')}
                       {settingsView === "terms" && t('terms')}
@@ -1119,14 +1193,14 @@ export default function App() {
                         {}
                         <div className="flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-xl ${darkMode ? "bg-brand-600/10 text-brand-400" : "bg-amber-500/10 text-amber-500"}`}>
+                            <div className={`p-2 rounded-xl ${darkMode ? "bg-brand-600/10 text-brand-400" : "bg-sky-500/10 text-sky-500"}`}>
                               {darkMode ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5" />}
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('darkMode')}</span>
                           </div>
                           <button
-                            onClick={() => setDarkMode(!darkMode)}
-                            className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-brand-600" : "bg-slate-300 dark:bg-slate-700"}`}
+                            onClick={() => setDarkMode((current) => !current)}
+                            className={`w-11 h-6 rounded-full relative transition-colors duration-300 ${darkMode ? "bg-brand-600" : "bg-sky-500"}`}
                           >
                             <motion.div
                               animate={{ x: darkMode ? 22 : 2 }}
@@ -1138,7 +1212,7 @@ export default function App() {
                         {}
                         <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-400">
+                            <div className="p-2 rounded-xl bg-sky-600/10 text-sky-500 dark:bg-brand-600/10 dark:text-brand-400">
                               <Type className="w-4.5 h-4.5" />
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('fontSize')}</span>
@@ -1148,7 +1222,7 @@ export default function App() {
                               <button
                                 key={size}
                                 onClick={() => setFontSize(size)}
-                                className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-brand-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
+                                className={`flex-1 py-1.5 text-[11px] font-bold rounded-lg transition-all ${fontSize === size ? "bg-sky-600 dark:bg-brand-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
                               >
                                 {size === "sm" && t('small')}
                                 {size === "base" && t('normal')}
@@ -1172,7 +1246,7 @@ export default function App() {
                           <select
                             value={language}
                             onChange={(e) => setLanguage(e.target.value as "es" | "en" | "mi" | "kr")}
-                            className="bg-transparent text-sm font-bold text-brand-600 outline-none cursor-pointer"
+                            className="bg-transparent text-sm font-bold text-sky-600 dark:text-brand-600 outline-none cursor-pointer"
                           >
                             <option value="es">Español</option>
                             <option value="en">English</option>
@@ -1194,13 +1268,13 @@ export default function App() {
                             <button
                               key={item.id}
                               onClick={() => setSettingsView(item.id as any)}
-                              className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group"
+                              className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-sky-200 dark:hover:border-brand-900/50 transition-all group"
                             >
                               <div className="flex items-center gap-3">
-                                <item.icon className={`w-4.5 h-4.5 ${item.color} group-hover:text-brand-400 transition-colors`} />
+                                <item.icon className={`w-4.5 h-4.5 ${item.color} group-hover:text-sky-500 dark:group-hover:text-brand-400 transition-colors`} />
                                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{item.label}</span>
                               </div>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
+                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-sky-500 dark:group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
                             </button>
                           ))}
                         </div>
@@ -1214,14 +1288,14 @@ export default function App() {
                         <button
                           onClick={handleCheckForUpdates}
                           disabled={checkingUpdates}
-                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-sky-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-400 flex items-center justify-center">
+                            <div className="p-2 rounded-xl bg-sky-600/10 dark:bg-brand-600/10 text-sky-600 dark:text-brand-400 flex items-center justify-center">
                               {checkingUpdates ? (
-                                <Loader2 className="w-4.5 h-4.5 text-brand-600 animate-spin" />
+                                <Loader2 className="w-4.5 h-4.5 text-sky-600 dark:text-brand-600 animate-spin" />
                               ) : (
-                                <RefreshCw className="w-4.5 h-4.5 text-brand-600" />
+                                <RefreshCw className="w-4.5 h-4.5 text-sky-600 dark:text-brand-600" />
                               )}
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('checkUpdates')}</span>
@@ -1241,15 +1315,15 @@ export default function App() {
                               addToast(createToast(t('updatePostponed'), "info"));
                             }, true);
                           }}
-                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
+                          className="w-full flex items-center justify-between p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-sky-200 dark:hover:border-brand-900/50 transition-all group cursor-pointer"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-xl bg-brand-600/10 text-brand-600 flex items-center justify-center">
-                              <Sparkles className="w-4.5 h-4.5 text-brand-600" />
+                            <div className="p-2 rounded-xl bg-sky-600/10 dark:bg-brand-600/10 text-sky-600 dark:text-brand-600 flex items-center justify-center">
+                              <Sparkles className="w-4.5 h-4.5 text-sky-600 dark:text-brand-600" />
                             </div>
                             <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('simulateUpdate')}</span>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
+                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-sky-500 dark:group-hover:text-brand-400 transition-all group-hover:translate-x-0.5" />
                         </button>
                       </div>
 
@@ -1320,13 +1394,13 @@ export default function App() {
                       <h4 className="font-bold text-slate-900 dark:text-white text-sm">{t('guideTitle')}</h4>
                       <div className="space-y-3">
                         {[
-                          { step: "1", title: t('aiConsultation'), desc: t('howYouFeel') },
-                          { step: "2", title: t('centros'), desc: t('findCenters') },
-                          { step: "3", title: t('myAppointments'), desc: t('manageAppointments') },
-                          { step: "4", title: t('emergencyCard'), desc: t('qrDisclaimer') },
+                          { step: "1", title: t('aiConsultation'), desc: t('howYouFeel'), color: "sky" },
+                          { step: "2", title: t('centros'), desc: t('findCenters'), color: "sky" },
+                          { step: "3", title: t('myAppointments'), desc: t('manageAppointments'), color: "sky" },
+                          { step: "4", title: t('emergencyCard'), desc: t('qrDisclaimer'), color: "sky" },
                         ].map((item) => (
                           <div key={item.step} className="flex gap-3">
-                            <div className="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-[10px] font-bold shrink-0">
+                            <div className={`w-6 h-6 rounded-full bg-${item.color}-100 dark:bg-brand-900/30 text-${item.color}-600 dark:text-brand-400 flex items-center justify-center text-[10px] font-bold shrink-0`}>
                               {item.step}
                             </div>
                             <div>
@@ -1530,7 +1604,7 @@ export default function App() {
               exit={{ scale: 0.95, y: 15 }}
               className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
             >
-              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 text-sky-600 dark:text-inherit">
                 <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-brand-600 animate-pulse" />
                   <span>{t('installIosTitle')}</span>
@@ -1550,7 +1624,7 @@ export default function App() {
 
                 <div className="space-y-4">
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-sky-50 dark:bg-brand-900/30 text-sky-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       1
                     </div>
                     <div>
@@ -1562,13 +1636,13 @@ export default function App() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-sky-50 dark:bg-brand-900/30 text-sky-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       2
                     </div>
                     <div>
                       <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                         {t('iosStep2Title')}
-                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sky-600 dark:text-brand-400">
                           <svg className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                             <polyline points="16 6 12 2 8 6" />
@@ -1583,13 +1657,13 @@ export default function App() {
                   </div>
 
                   <div className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-sky-50 dark:bg-brand-900/30 text-sky-600 dark:text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">
                       3
                     </div>
                     <div>
                       <h5 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                         {t('iosStep3Title')}
-                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                        <span className="inline-block p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sky-600 dark:text-brand-400">
                           <svg className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <line x1="12" y1="5" x2="12" y2="19" />
                             <line x1="5" y1="12" x2="19" y2="12" />
@@ -1607,7 +1681,7 @@ export default function App() {
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <button
                   onClick={() => setShowIosGuideModal(false)}
-                  className="bg-brand-600 hover:bg-brand-900 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="bg-sky-600 hover:bg-sky-700 dark:bg-brand-600 dark:hover:bg-brand-900 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
                 >
                   {t('gotIt')}
                 </button>

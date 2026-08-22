@@ -1,315 +1,324 @@
+# Salud-Conecta IA (v1.2.1)
+
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+  <img width="1200" height="475" alt="Banner Salud-Conecta IA" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
 </div>
 
-# Salud Conecta IA
-
-**Salud Conecta IA** es una plataforma digital de salud orientada a la población de Nicaragua que combina Inteligencia Actoral y estándares internacionales de interoperabilidad médica para ofrecer un sistema inteligente y adaptativo de triaje clínico, geolocalización de recursos de salud, y almacenamiento estructurado de registros médicos.
+Bienvenido a **Salud-Conecta IA**, un asistente médico virtual y asesor de triaje clínico inteligente de vanguardia diseñado para operar de manera robusta y adaptada al contexto de Nicaragua. Esta plataforma híbrida unifica la potencia de los grandes modelos de lenguaje (con Google Gemini) con almacenamiento e infraestructura segura en tiempo real mediante Supabase, y capacidades de ejecución sin conexión (Offline) orientadas a comunidades vulnerables del Caribe nicaragüense.
 
 ---
 
-## 1. Descripción del Proyecto
+## 🚀 Funciones de la Aplicación
 
-La aplicación resuelve la fragmentación y la falta de inmediatez en el acceso a la orientación médica preliminar en comunidades locales. Su enfoque tecnológico principal se basa en:
-*   **Asistencia y Triaje Clínico:** Un chat inteligente potenciado por **Google Gemini AI** que evalúa síntomas del paciente de forma contextualizada. La IA está programada para considerar la geografía nicaragüense, los perfiles de salud preexistentes del usuario y factores temporales cruciales (por ejemplo, si los centros de salud locales del MINSA están abiertos en el horario laboral actual o si se debe derivar exclusivamente a hospitales 24/7).
-*   **Localización y Mapeo de Recursos:** Un mapa interactivo híbrido (**Google Maps JS SDK** con fallback a **Leaflet**) que geolocaliza hospitales, clínicas, farmacias y médicos, permitiendo filtrados inteligentes por categoría.
-*   **Interoperabilidad en Salud:** Integración con la **API de Google Cloud Healthcare** para almacenar y recuperar la información clínica estructurada bajo el estándar global **FHIR R4** (Fast Healthcare Interoperability Resources).
-*   **Capacidades PWA:** Soporte completo de Service Worker para funcionamiento sin conexión, almacenamiento de datos locales con Supabase/LocalStorage y notificaciones Push pushManager.
+La aplicación está diseñada para solventar barreras geográficas y lingüísticas en la atención primaria, ofreciendo una experiencia rica y reactiva tanto en ordenadores de escritorio como en dispositivos móviles (como una PWA completa).
+
+### 1. Triaje Virtual Inteligente (IA)
+* **Evaluación de Síntomas en Tiempo Real:** El núcleo clínico interactúa mediante un chat conversacional inteligente impulsado por Google Gemini. Los usuarios ingresan sus malestares y la IA clasifica el caso en tres prioridades principales utilizando emojis normalizados:
+  * 🔴 **Alta urgencia**
+  * 🟡 **Moderado**
+  * 🟢 **Leve**
+* **Contextualización Geográfica y Temporal:** La IA tiene conocimiento absoluto del ecosistema nicaragüense (Nicaragua y regiones como Granada). Evalúa dinámicamente el día y la hora de la consulta:
+  * *Regla Estricta:* Si la consulta se realiza fuera de la jornada del MINSA (Lunes a Viernes, 08:00 AM a 04:00 PM), la IA reprime derivaciones a centros de salud locales (cerrados) y redirige de forma segura a hospitales públicos de referencia 24/7.
+* **Integración del Perfil del Paciente:** Si el usuario tiene registradas afecciones médicas crónicas, alergias o tipo de sangre en su perfil, estos se envían sanitizados como contexto clínico confidencial a la IA para una evaluación de riesgos personalizada.
+
+### 2. Triajes Especializados e Interculturales (Offline)
+Pensando en la diversidad de la Costa Caribe nicaragüense, donde la conectividad a Internet suele verse interrumpida, la aplicación dispone de motores de triaje preprogramados y bases de conocimiento clínico locales cargadas en la memoria del navegador.
+* **Triaje Multilingüe:**
+  * **Miskito (Miskitu):** Triaje con bases de conocimiento e interfaz localizada en lengua Miskita.
+  * **Kriol (Caribeño):** Triaje configurado en inglés criollo nicaragüense.
+* **Funcionamiento 100% Offline:** Utiliza una base de datos estática e indexada que analiza combinaciones clave de síntomas y signos vitales reportados para arrojar una evaluación de gravedad inmediata sin requerir red.
+
+### 3. Búsqueda y Navegación de Centros de Salud
+* **Buscador de Unidades de Salud:** Permite filtrar y localizar hospitales públicos, centros de salud comunitarios y clínicas privadas.
+* **Directorio de Farmacias de Turno:** Lista completa de establecimientos farmacéuticos activos en la región.
+* **Layout Responsivo y Especializado en Farmacias:** Cada tarjeta de farmacia utiliza una altura mínima de `280px` (`min-h-[280px]`) para apilar ordenadamente insignias de estado y botones de acción verticalmente en pantallas móviles.
+* **Acciones Directas:**
+  * **Ver Ruta (Google Maps / OpenStreetMap):** Genera rutas óptimas de asistencia.
+  * **Botón de WhatsApp:** Redirección directa para consultas rápidas con la farmacia seleccionada (requiere la propiedad obligatoria `phone` en la interfaz).
+
+### 4. Tarjeta de Emergencia QR (Ficha Médica Portable)
+* **Generación de QR Dinámico:** A través de la biblioteca `qrcode.react`, se consolida la información vital del paciente (tipo de sangre, contactos de emergencia, alergias, condiciones) en un código QR cifrado o estructurado para uso de paramédicos y socorristas.
+* **Branding Unificado:** Incorpora el logotipo oficial de la app (`public/app-logo-v1.jpg`) en el centro del código QR para un acabado profesional y de marca unificada.
+* **Descarga en PDF:** El usuario puede exportar su ficha médica formateada en alta calidad mediante `jspdf`.
+
+### 5. Panel de Administración Avanzado
+* **Mantenimiento Global:** Activa el "Modo Mantenimiento", bloqueando el acceso a usuarios no administradores mediante pantallas descriptivas del MINSA.
+* **Gestor de Anuncios (Banner de Anuncios Activos):** Los administradores pueden programar anuncios con rango de fechas y niveles de criticidad (informativos o alerta). Estos se sincronizan en tiempo real mediante Supabase PostgreSQL Channels y persisten su estado de descarte por el usuario en `localStorage`.
+* **Configuración Dinámica de IA:** Permite alternar en caliente el modelo de Gemini utilizado en producción (por ejemplo, de `gemini-2.5-flash-lite` a otros modelos superiores) desde la interfaz de administración.
+* **Gestión de Unidades de Salud y Usuarios:** CRUD completo para gestionar la base de datos geográfica y de cuentas de usuario.
+
+### 6. Sistema de Notificaciones de Actualización (PWA)
+* **Toast & Bottom Sheet Adaptativos:** La aplicación implementa notificaciones inteligentes al detectar una nueva versión compilada en el Service Worker.
+  * En **Móviles / Tablets**, se proyecta una hoja de ruta inferior interactiva (*Bottom Sheet*).
+  * En **Ordenadores de Escritorio (Desktop)**, se muestra un Toast compacto elegante.
+* **Supresión por 24 Horas:** Si el usuario pospone la actualización, el sistema almacena `updateNotificationDismissedAt` en `localStorage` para evitar interrumpir de nuevo su flujo de trabajo en las próximas 24 horas, a menos que realice una comprobación manual desde la configuración.
 
 ---
 
-## 2. Arquitectura del Sistema
+## 🏛️ Arquitectura de la Aplicación
 
-El sistema implementa una **Arquitectura Híbrida Desacoplada** optimizada para despliegues Serverless y escalabilidad horizontal:
+La aplicación sigue una arquitectura moderna de **SPA (Single Page Application)** unida a un Backend híbrido de **Funciones Serverless (Edge API)** y un servidor intermedio para desarrollo local.
 
-```mermaid
-graph TD
-    Client[Cliente: React PWA] -->|HTTP / JSON| ExpressServer[Express Local Server.ts]
-    Client -->|HTTP / JSON| VercelAPI[Vercel Serverless Functions api/*.js]
-    ExpressServer -->|Proxy / Enrutamiento| VercelAPI
-    
-    VercelAPI -->|Gemini SDK| GeminiAPI[Google Gemini AI]
-    VercelAPI -->|FHIR R4 Protocol| GCPHealthcare[Google Cloud Healthcare API]
-    VercelAPI -->|PostgREST| Supabase[Supabase DB / Auth]
-    
-    Client -->|Fallback Leaflet / Direct SDK| GoogleMaps[Google Maps / OpenStreetMap]
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                              CLIENTE (Vite + React 19)                 │
+│                                                                        │
+│   ┌────────────────────┐   ┌────────────────────┐   ┌──────────────┐   │
+│   │   i18n & Contexts  │   │  Servicios Locales │   │  PWA / Cache │   │
+│   │ (Language/Auth/Theme)│ │ (Offline Triage/QR)│   │ (sw.js /     │   │
+│   └─────────┬──────────┘   └─────────┬──────────┘   │ manifest.json)   │
+└─────────────┼────────────────────────┼──────────────┴──────┬───────┴───┘
+              │                        │                     │
+              ▼                        ▼                     ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                       CAPA DE DATOS Y SERVICIOS                        │
+│                                                                        │
+│   ┌────────────────────────────────┐   ┌───────────────────────────┐   │
+│   │    Servidor Node.js / Express  │   │     Supabase Platform     │   │
+│   │       (Vite Dev Middleware)    │   │                           │   │
+│   │   • Servidor local (Port 3000) │   │   • PostgreSQL & Realtime │   │
+│   │   • Control de tasas de API    │   │   • Autenticación (JWT)   │   │
+│   │   • Proxies de triaje Gemini   │   │   • Almacenamiento seguro │   │
+│   └───────────────┬────────────────┘   └───────────────────────────┘   │
+└───────────────────┼────────────────────────────────────────────────────┘
+                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                       PROVEEDORES EXTERNOS                             │
+│                                                                        │
+│   ┌────────────────────────────────┐   ┌───────────────────────────┐   │
+│   │    Google Gemini AI (LLM)      │   │     Web Push (Notif.)     │   │
+│   └────────────────────────────────┘   └───────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Componentes de la Arquitectura
-*   **Frontend (Capa de Presentación):** Desarrollado en **React 19 + TypeScript + Vite**. Aplica un diseño responsivo móvil-primero con micro-animaciones en Framer Motion y TailwindCSS. Interactúa con el backend consumiendo endpoints JSON y maneja mapas en capas dinámicas encapsuladas dentro de iframes para aislar el contexto de ejecución.
-*   **Backend (Servidor y API):**
-    *   **Entorno Local:** Un servidor unificado en **Express** (`server.ts`) que orquesta la carga de middleware de seguridad (Helmet, CORS con restricciones de dominio, Rate Limiters por IP) y sirve el empaquetado del frontend al igual que las rutas de la API de forma integrada.
-    *   **Entorno de Producción (Serverless):** Funciones sin servidor en **Vercel** (`api/*.js`) optimizadas para ejecución asíncrona rápida, aislando las consultas a la base de datos, la interacción con la IA y la encriptación/autenticación OAuth2 de GCP.
-*   **Capa de Servicios y Negocio (`api/_lib`):**
-    *   **FHIR Client:** Encapsula la lógica de comunicación REST con el almacén FHIR en la nube de Google, administrando tokens de Service Account temporales firmados por JWT de forma segura en el servidor.
-    *   **FHIR Builders:** Factory pattern que toma las estructuras del frontend y las mapea a recursos estándar FHIR R4 tales como `Patient`, `Observation`, `Encounter`, `AllergyIntolerance`, y `MedicationStatement`.
-    *   **Validators:** Middleware de sanitización de entradas, filtrando scripts maliciosos (XSS) y formateando documentos oficiales (como la Cédula de Identidad de Nicaragua).
+1. **Frontend (Vite + React 19 + Tailwind CSS v4):** Interfaz fluida, declarativa e hiper-responsiva que hace uso exhaustivo de la biblioteca de animaciones `motion` (Framer Motion) y el paquete de iconos unificado `lucide-react`.
+2. **Backend (Vercel Serverless Functions / Express Server):**
+   * El archivo de entrada de producción local es `server.ts` que expone los endpoints en el puerto `3000`.
+   * Hace uso de middleware de seguridad restrictivos (`helmet` con CSP rígido, `cors` restrictivo, y `express-rate-limit` para frenar ataques de denegación de servicio a las cuotas de Gemini).
+   * En producción bajo Vercel, se ejecutan las funciones serverless modulares alojadas en la carpeta `api/`.
+3. **Persistencia e Integración de Datos (Supabase):**
+   * **Base de datos relacional:** Tablas para usuarios, perfiles médicos, centros de salud, farmacias, anuncios de administración, registros de logs e historial de triajes.
+   * **Realtime Engine:** Empleo de WebSockets seguros mediante Supabase Channels para reaccionar al instante a los cambios de configuración del administrador (anuncios y modo de mantenimiento) sin recargar la app.
+4. **Capas PWA (Progressive Web App):**
+   * Un Service Worker dedicado (`public/sw.js`) gestiona el almacenamiento en caché de los activos estáticos principales.
+   * La sincronización de caché se gestiona mediante control de versiones de cadena de consulta (por ejemplo, `manifest.json?v=8`) declarado simultáneamente en `index.html` y la lista de precaché `ASSETS_TO_CACHE` del Service Worker.
+   * Captura el evento `beforeinstallprompt` para guiar al usuario mediante un banner personalizado (con soporte especial para iOS mediante tutoriales nativos).
 
 ---
 
-## 3. Estructura Modular del Proyecto
+## 📂 Estructura del Directorio (Modular)
 
-La estructura de directorios sigue un diseño modular claro que separa la lógica del cliente de la API del servidor:
+La estructura del código fuente está altamente organizada de acuerdo a responsabilidades de dominio bien definidas:
 
-```text
-SC-IA-1/
-├── .agents/                    # Reglas internas del agente y configuraciones locales
-├── api/                        # Funciones Serverless de Backend (Compatibilidad con Vercel)
-│   ├── _lib/                   # Módulos de soporte técnico del servidor (Core de Integración)
-│   │   ├── fhir-builders.js    # Transformadores de datos JSON al estándar FHIR R4
-│   │   ├── fhir-client.js      # Conector REST directo a Google Cloud Healthcare
-│   │   ├── gcp-auth.js         # Generador de Tokens OAuth2 de GCP usando JWT y llaves PEM
-│   │   └── validators.js       # Validadores de datos médicos y prevención de XSS
-│   ├── chat.js                 # Handler para triaje virtual con Gemini AI
-│   ├── cron-notifications.js   # Tarea programada para envío masivo de notificaciones Push
-│   ├── fhir-get.js             # Endpoint para leer registros FHIR del paciente
-│   ├── fhir.js                 # Endpoint para escribir/actualizar registros FHIR del paciente
-│   ├── geocode.js              # Proxy para geocodificación reversa usando OpenStreetMap
-│   └── health.js               # Endpoint de monitoreo de estado del sistema (Healthcheck)
-├── public/                     # Archivos estáticos y manifiesto PWA
-│   ├── sw.js                   # Service Worker para almacenamiento en caché y notificaciones Push
-│   └── manifest.json           # Configuración de Progressive Web App
-├── src/                        # Código Fuente de la Aplicación Frontend (React)
-│   ├── components/             # Componentes UI (Vistas de Chat, Mapas de Centros, etc.)
-│   ├── contexts/               # Proveedores de Contexto global (Idioma, Temas de Interfaz)
-│   ├── data/                   # Archivos de datos locales y catálogos estáticos
-│   ├── hooks/                  # Custom Hooks reutilizables (Geolocalización, Toasts)
-│   ├── lib/                    # Clientes de servicios externos y utilidades
-│   │   ├── supabaseClient.ts   # Conector inicial a base de datos Supabase
-│   │   ├── notificationService.ts # Gestor de notificaciones Push y permisos
-│   │   └── translations.ts     # Diccionarios de internacionalización (ES / EN)
-│   ├── types/                  # Tipados estrictos de TypeScript del frontend
-│   ├── App.tsx                 # Enrutador principal y punto central del estado del cliente
-│   ├── index.css               # Estilos globales y variables TailwindCSS
-│   └── main.tsx                # Inicializador de React y renderizado de DOM
-├── server.ts                   # Servidor de desarrollo local Express
-├── tsconfig.json               # Configuración del compilador de TypeScript
-├── vite.config.ts              # Configuración de compilación y empaquetado de Vite
-├── package.json                # Dependencias, metadatos y scripts npm
-└── README.md                   # Documentación técnica del proyecto
+```
+salud-conecta-ia/
+├── api/                             # Funciones Serverless de Backend para Vercel
+│   ├── _lib/                        # Librerías internas y utilidades de backend
+│   ├── chat.js                      # Handler para la consulta médica de IA
+│   ├── cron-notifications.js        # Envío programado de alertas push
+│   ├── fhir-get.js                  # Consultas de expedientes bajo estándar FHIR
+│   ├── fhir.js                      # Escritura de expedientes bajo estándar FHIR
+│   ├── geocode.js                   # Proxy de geocodificación de direcciones
+│   └── health.js                    # Diagnóstico de estado del backend
+├── public/                          # Recursos estáticos globales públicos
+│   ├── app-logo-v1.jpg              # Logotipo oficial (Branding, favicon, QR central)
+│   ├── app-logo-v2.jpg              # Variaciones de imagen de marca
+│   ├── manifest.json                # Configuración de PWA e iconos de instalación
+│   └── sw.js                        # Service Worker de la aplicación (Caché & Notificaciones)
+├── src/                             # Código fuente de la aplicación React
+│   ├── components/                  # Componentes de UI modulares y vistas principales
+│   │   ├── admin/                   # Submódulos del panel de administración
+│   │   │   ├── AnalyticsView.tsx           # Gráficos y logs de uso de la app
+│   │   │   ├── AnnouncementManagement.tsx  # CRUD de anuncios dinámicos
+│   │   │   ├── HealthUnitManagement.tsx    # CRUD de centros de salud y geolocalización
+│   │   │   ├── IAConfigView.tsx            # Modificación de variables de Gemini en caliente
+│   │   │   ├── LocationManagement.tsx      # Gestión de distritos y zonas de cobertura
+│   │   │   ├── SettingsManagement.tsx      # Modos globales de la app (mantenimiento, etc.)
+│   │   │   └── UserManagement.tsx          # Control de roles y perfiles
+│   │   ├── AdminView.tsx            # Contenedor del panel administrativo superior
+│   │   ├── AnnouncementModal.tsx    # Modal de avisos urgentes en tiempo real
+│   │   ├── BuscarView.tsx           # Buscador de farmacias de turno e indicador min-h
+│   │   ├── CentrosView.tsx          # Mapa interactivo y listado de unidades médicas
+│   │   ├── ConsultaView.tsx         # Vista de interacción de chat con Salud-Conecta IA
+│   │   ├── HomeView.tsx             # Pantalla de bienvenida principal (Dashboard)
+│   │   ├── LoginView.tsx            # Autenticación de usuarios regulares y gestores
+│   │   ├── MedicalCategoryCarousel.tsx # Carrusel responsivo de categorías de salud
+│   │   ├── PerfilView.tsx           # Configuración del perfil médico y diseño en grid
+│   │   ├── PremiumView.tsx          # Gestión de funcionalidades premium y pasarela simulada
+│   │   ├── RegisterView.tsx         # Formulario de alta para pacientes nuevos
+│   │   └── Toast.tsx                # Notificaciones dinámicas flotantes
+│   ├── contexts/                    # Proveedores de estado global (Context API)
+│   │   ├── AuthContext.tsx          # Estado de sesión de Supabase y roles
+│   │   └── LanguageContext.tsx      # Multiidioma (es, en, mi, kr) e inyección de textos
+│   ├── data/                        # Datos estáticos, bases de conocimiento y mocks
+│   │   ├── healthUnits/             # Coordinadas geográficas de los centros de salud
+│   │   ├── healthUnits.ts           # Definiciones de red hospitalaria nicaragüense
+│   │   ├── kriolTriageDatabase.ts   # Base de conocimiento estática para triaje Kriol
+│   │   ├── medicalData.ts           # Perfil predeterminado e inicializaciones
+│   │   ├── miskitoTriageDatabase.ts # Base de conocimiento estática para triaje Miskito
+│   │   └── triageDatabase.ts        # Reglas estándar de triaje de contingencia
+│   ├── hooks/                       # React Hooks reutilizables
+│   │   └── useGeolocation.ts        # Sensor de geolocalización del dispositivo
+│   ├── lib/                         # Clientes SDK y algoritmos centrales
+│   │   ├── authService.ts           # Funciones de lógica de negocio de autenticación
+│   │   ├── avatarService.ts         # Generador e integrador de avatares del perfil
+│   │   ├── EmergencyQR.tsx          # Renderizador del QR con logo de marca insertado
+│   │   ├── fhirService.ts           # Serializador y conector bajo el estándar HL7 FHIR
+│   │   ├── kriolTriage.ts           # Motor del triaje sin conexión en Criollo
+│   │   ├── miskitoTriage.ts         # Motor del triaje sin conexión en Miskito
+│   │   ├── notificationService.ts   # Orquestador del Service Worker para notificaciones push
+│   │   ├── offlineTriage.ts         # Motor del triaje sin conexión general
+│   │   ├── routeUtils.ts            # Calculador de distancias y rutas seguras de evacuación
+│   │   ├── supabaseClient.ts        # Inicialización del cliente de base de datos Supabase
+│   │   ├── translations.ts          # Diccionario unificado para la app en v1.2.1
+│   │   └── updateNotification.ts    # Inyección de estilos y renderizado toast/bottom sheet
+│   ├── types/                       # Definiciones de Tipos de TypeScript
+│   │   └── index.ts                 # Interfaces de dominio (UserProfile, Pharmacy, etc.)
+│   ├── App.tsx                      # Componente raíz orquestador de vistas y PWA banners
+│   ├── index.css                    # Estilos globales y capas de Tailwind
+│   ├── main.tsx                     # Punto de entrada de renderizado de React
+│   ├── theme.css                    # Variables CSS de paleta de colores oscuros/claros
+│   └── vite-env.d.ts                # Tipados para importaciones de Vite
+├── .env.example                     # Plantilla de variables de entorno del proyecto
+├── .npmrc                           # Configuración NPM (ej. legacy-peer-deps para React 19)
+├── index.html                       # HTML5 esqueleto principal
+├── server.ts                        # Servidor local de desarrollo y producción Express
+├── tsconfig.json                    # Reglas de compilación y tipado estricto TypeScript
+├── vercel.json                      # Configuración de ruteo e infraestructura en Vercel
+└── vite.config.ts                   # Orquestador de empaquetado de Vite y Plugins React
 ```
 
 ---
 
-## 4. Requisitos Previos y Dependencias
+## ⚖️ Estructura Moral y Ética Médica
 
-### Requisitos Nucleares
-*   **Node.js:** Versión `v18.0.0` o superior (se recomienda `v20.x.x` LTS).
-*   **npm:** Versión `v9.0.0` o superior.
-*   **Cuentas de Servicios Requeridas:**
-    *   Proyecto en **Google Cloud Platform** con la API Healthcare habilitada y un almacén FHIR R4 configurado.
-    *   Clave de desarrollador para la API de **Google Gemini** (Google AI Studio).
-    *   Proyecto activo en **Supabase** (Base de datos PostgreSQL y autenticación).
+**Salud-Conecta IA** opera bajo una estricta filosofía de **ética médica, protección al usuario y responsabilidad social**, fundamentada en las siguientes directrices operativas y de software:
 
-### Dependencias Principales
+### 1. Deslinde de Responsabilidad Médica Obligatoria (Disclaimer)
+Todas las evaluaciones generadas por la IA o los sistemas offline adjuntan obligatoriamente la advertencia estándar:
+> *"⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud."*
+La plataforma nunca emite recetas de medicamentos controlados ni asegura un diagnóstico médico definitivo. Su rol es puramente el de un **clasificador y derivador del nivel de prioridad clínica**.
 
-| Categoría | Dependencia | Propósito |
-| :--- | :--- | :--- |
-| **Producción** | `@google/generative-ai` | Integración y comunicación con la API de IA Gemini. |
-| **Producción** | `@supabase/supabase-js` | Cliente e interactividad con la base de datos y autenticación de Supabase. |
-| **Producción** | `express` | Servidor HTTP para la orquestación y desarrollo local. |
-| **Producción** | `web-push` | Firmado y transmisión segura de notificaciones Push a navegadores clientes. |
-| **Producción** | `react` & `react-dom` | Renderizado declarativo de componentes del frontend. |
-| **Producción** | `motion` | Animaciones de interfaz fluidas y dinámicas para el usuario. |
-| **Desarrollo** | `vite` | Entorno de ejecución rápido para el frontend y servidor HMR. |
-| **Desarrollo** | `esbuild` | Empaquetador de alta velocidad para compilar TypeScript del backend local. |
-| **Desarrollo** | `tsx` | Ejecución directa de archivos TypeScript en Node.js sin paso previo de build. |
-| **Desarrollo** | `typescript` | Verificación estática de tipos para asegurar robustez en el código. |
+### 2. Protocolo de Emergencia Real
+Cuando el triaje clasifica el caso en 🔴 **Alta urgencia**, la interfaz bloquea acciones secundarias y prioriza:
+* El despliegue visual inmediato de una alerta de color carmín con indicaciones sencillas de primeros auxilios.
+* Un enlace de llamada directa a la **Cruz Roja Nicaragüense (128)** o servicios del MINSA.
+* Consejos claros contra la automedicación en situaciones críticas.
+
+### 3. Privacidad Absoluta de Datos Sensibles (PII)
+* **Cifrado Ligero en LocalStorage:** La información médica crítica del usuario (como condiciones clínicas y alergias) se almacena en el navegador utilizando codificación en Base64 para evitar la exposición directa en texto plano en el dispositivo.
+* **Flujo Seguro en APIs:** El perfil del paciente se somete a procesos de sanitización estrictos (expresiones regulares) para evitar inyecciones de código maliciosas (*Prompt Injection*) antes de interactuar con las APIs de Gemini.
+
+### 4. Lenguaje Empático, Científico y No Alarmista
+Las respuestas de la IA están restringidas bajo directivas de sistema (*System Instructions*) para mantener un tono empático, tranquilizador, profesional y culturalmente adaptado al usuario nicaragüense, evitando a toda costa la generación de pánico o ansiedad innecesaria en el paciente.
 
 ---
 
-## 5. Variables de Entorno
+## 🛠️ Dependencias y Variables de Entorno
 
-Para ejecutar la aplicación es indispensable contar con un archivo `.env` en la raíz del proyecto. 
+### Requisitos del Sistema
+* **Node.js:** v18.0.0 o superior recomendado.
+* **NPM / Bun:** Para la gestión de paquetes.
 
-### Archivo de Ejemplo (`.env.example`)
-```env
-# --- SUPABASE ---
-VITE_SUPABASE_URL="https://tu-proyecto.supabase.co"
-VITE_SUPABASE_ANON_KEY="tu_clave_anonima_publica"
-
-# --- GEMINI AI ---
-GEMINI_API_KEY="tu_gemini_api_key"
-
-# --- WEB PUSH ---
-VITE_VAPID_PUBLIC_KEY="tu_vapid_public_key"
-VAPID_PRIVATE_KEY="tu_vapid_private_key"
-VAPID_SUBJECT="mailto:tu-correo@ejemplo.com"
-
-# --- FRONTEND (CORS) ---
-FRONTEND_URL="http://localhost:3000"
-
-# --- GOOGLE MAPS ---
-VITE_GOOGLE_MAPS_API_KEY="tu_google_maps_api_key"
-VITE_GOOGLE_MAPS_MAP_ID="tu_custom_map_id"
-
-# --- GCP HEALTHCARE API (FHIR R4 STORE) ---
-GCP_PROJECT_ID="nombre-del-proyecto-gcp"
-GCP_HEALTHCARE_LOCATION="us-central1"
-GCP_HEALTHCARE_DATASET="nombre-dataset-healthcare"
-GCP_HEALTHCARE_FHIR_STORE="nombre-fhir-store"
-GCP_SERVICE_ACCOUNT_EMAIL="servicio-conexion@nombre-del-proyecto.iam.gserviceaccount.com"
-GCP_SERVICE_ACCOUNT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n"
-```
-
-### Tabla Descriptiva de Configuración
-
-| Variable | Descripción | Valor por Defecto | Requerido |
-| :--- | :--- | :--- | :---: |
-| `VITE_SUPABASE_URL` | URL de la API del proyecto de Supabase. | *Ninguno* | **Sí** |
-| `VITE_SUPABASE_ANON_KEY` | Clave anónima pública del cliente Supabase. | *Ninguno* | **Sí** |
-| `GEMINI_API_KEY` | Token de acceso a la API de Google Gemini. | *Simulación offline* | **No** |
-| `VITE_VAPID_PUBLIC_KEY` | Clave VAPID pública para notificaciones Push web. | *Ninguno* | **Sí** |
-| `VAPID_PRIVATE_KEY` | Clave VAPID privada para firmas del lado del servidor. | *Ninguno* | **Sí** |
-| `VAPID_SUBJECT` | URI de contacto VAPID (mailto:). | *Ninguno* | **Sí** |
-| `FRONTEND_URL` | Origen de CORS permitido (producción). | `http://localhost:3000` | **No** |
-| `VITE_GOOGLE_MAPS_API_KEY` | Key de la plataforma de Google Maps. | *Fallback Leaflet* | **No** |
-| `VITE_GOOGLE_MAPS_MAP_ID` | Map ID para habilitar Advanced Markers. | `DEMO_MAP_ID` | **No** |
-| `GCP_PROJECT_ID` | ID único del proyecto de Google Cloud. | *Ninguno* | **Sí** |
-| `GCP_HEALTHCARE_LOCATION` | Zona GCP de la base de datos de Healthcare. | `us-central1` | **No** |
-| `GCP_HEALTHCARE_DATASET` | Nombre del Dataset médico en GCP. | *Ninguno* | **Sí** |
-| `GCP_HEALTHCARE_FHIR_STORE`| Nombre del almacén FHIR R4 en el Dataset. | *Ninguno* | **Sí** |
-| `GCP_SERVICE_ACCOUNT_EMAIL`| Correo de la Service Account con rol de Healthcare Admin. | *Ninguno* | **Sí** |
-| `GCP_SERVICE_ACCOUNT_PRIVATE_KEY`| Llave privada PEM de la cuenta de servicio de GCP. | *Ninguno* | **Sí** |
+### Dependencias Principales (`package.json`)
+* **`react` & `react-dom` (v19.2.7):** Motor de interfaz UI.
+* **`@google/generative-ai` (v0.24.1):** SDK oficial para conectar con la API de Gemini.
+* **`@supabase/supabase-js` (v2.106.2):** Cliente para persistencia de datos y sincronización en tiempo real.
+* **`express` (v4.21.2) & `cors` / `helmet`:** Infraestructura de servidor y directivas de seguridad.
+* **`jspdf` (v4.2.1):** Generador de PDF en lado del cliente para exportar la ficha médica QR.
+* **`qrcode.react` (v3.1.0):** Generador del código QR de emergencia.
+* **`motion` (v12.23.24):** Framework de transiciones fluidas.
+* **`lucide-react` (v0.546.0):** Catálogo de iconos vectoriales integrados.
 
 ---
 
-## 6. Scripts Disponibles
+### Variables de Entorno (`.env`)
 
-El proyecto provee los siguientes scripts configurados en el `package.json` para gestionar el ciclo de vida del desarrollo y despliegue:
+Crea un archivo `.env` en la raíz del proyecto a partir de `.env.example` y rellena las siguientes variables:
 
 ```bash
-# Instalar todas las dependencias necesarias
-npm install
+# --- SUPABASE (Plataforma e Infraestructura) ---
+# URL de la API REST de tu proyecto Supabase
+VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+# Clave pública anónima de acceso seguro para el cliente frontend
+VITE_SUPABASE_ANON_KEY=tu_clave_anonima_aqui
 
-# Iniciar la aplicación en modo de desarrollo local (Express + Vite HMR)
-npm run dev
+# --- GEMINI AI (Inteligencia Artificial) ---
+# API Key generada en Google AI Studio
+GEMINI_API_KEY=tu_gemini_api_key_aqui
 
-# Ejecutar el análisis estático y verificación de tipos (TypeScript compiler)
-npm run lint
+# --- WEB PUSH (Notificaciones Push del Navegador) ---
+# Clave pública VAPID para registro en el navegador
+VITE_VAPID_PUBLIC_KEY=tu_vapid_public_key_aqui
+# Clave privada VAPID para firma en el servidor (Mantener secreta)
+VAPID_PRIVATE_KEY=tu_vapid_private_key_aqui
+# Email de contacto para reportes de suscripción de notificaciones
+VAPID_SUBJECT=mailto:tu-email@ejemplo.com
 
-# Generar el compilado optimizado de producción para cliente y servidor local
-npm run build
+# --- CONFIGURACIÓN DE RED ---
+# URL del cliente web (CORS)
+FRONTEND_URL=http://localhost:3000
 
-# Limpiar los directorios de compilado generados
-npm run clean
+# --- SEGURIDAD ---
+# Secreto para invocar tareas cron (notificaciones masivas automáticas)
+CRON_SECRET=tu_cron_secret_aqui
 
-# Arrancar el servidor Express local utilizando el compilado de producción
-npm run start
+# --- GOOGLE MAPS (Geocodificación y Mapas) ---
+# Clave de API de Google Maps JavaScript API
+VITE_GOOGLE_MAPS_API_KEY=tu_google_maps_api_key_aqui
+
+# --- ENTORNO ---
+# Define el modo de ejecución (development o production)
+NODE_ENV=development
 ```
 
 ---
 
-## 7. Documentación de la API (Endpoints)
+## 💻 Scripts del Proyecto
 
-La comunicación cliente-servidor se realiza a través de las siguientes rutas de API.
+Puedes ejecutar las siguientes tareas desde la consola en la carpeta raíz:
 
-### `POST /api/chat`
-Envía la consulta clínica del usuario junto con el historial reciente y perfil para clasificar la urgencia y retornar el triaje médico guiado por IA.
-
-*   **Estructura del Body (JSON):**
-    ```json
-    {
-      "message": "Tengo un dolor muy fuerte en el pecho que se me extiende al brazo izquierdo y sudoración fría.",
-      "history": [
-        {
-          "sender": "user",
-          "text": "Hola, me siento un poco mal."
-        }
-      ],
-      "userProfile": {
-        "id": "87e3eb86-9c26-4aa6-ae0c-2fdd5164a97a",
-        "name": "Pedro García",
-        "city": "Granada",
-        "healthConditions": ["Hipertensión"]
-      }
-    }
-    ```
-
-*   **Ejemplo de Respuesta Exitosa (`200 OK`):**
-    ```json
-    {
-      "text": "Nivel de prioridad: 🔴 Alta urgencia\n\n🔍 EVALUACIÓN INICIAL\nLos síntomas descritos corresponden a un potencial síndrome coronario agudo (infarto agudo de miocardio). Dado el antecedente de hipertensión, este cuadro requiere evaluación clínica inmediata y especializada.\n\n✅ RECOMENDACIONES\n🔹 Llame de inmediato al número de emergencias 118 o busque traslado inmediato al hospital más cercano.\n🔹 Reposo absoluto en posición semisentada; no realice esfuerzos físicos.\n🔹 Si cuenta con tratamiento de aspirina indicado previamente por su cardiólogo y no es alérgico, mastique una tableta.\n🔹 Manténgase acompañado en todo momento.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.",
-      "simulated": false
-    }
-    ```
+| Script | Comando | Descripción |
+| :--- | :--- | :--- |
+| **`npm run dev`** | `tsx server.ts` | Inicia el servidor de desarrollo local de Express con recarga en caliente para el Frontend de Vite. Puerto por defecto: `3000`. |
+| **`npm run build`** | `vite build && esbuild server.ts ...` | Compila la aplicación de React optimizada para producción y empaqueta el servidor de Node en `dist/server.cjs`. |
+| **`npm run start`** | `node dist/server.cjs` | Ejecuta el servidor optimizado de producción desde el empaquetado distribuido en `dist/`. |
+| **`npm run preview`** | `vite preview` | Previsualiza localmente el empaquetado estático generado por Vite. |
+| **`npm run lint`** | `tsc --noEmit` | Ejecuta el análisis estático del compilador de TypeScript para validar tipos y buscar fallas potenciales. |
+| **`npm run clean`** | `rm -rf dist server.js` | Limpia los directorios temporales de compilación y empaquetados anteriores. |
 
 ---
 
-### `POST /api/fhir`
-Toma el formulario de historial médico del usuario en el frontend y lo mapea hacia múltiples recursos enlazados atómicamente dentro de un Transaction Bundle en la API de Google Cloud Healthcare.
+## ⚙️ Configuración y Despliegue Local
 
-*   **Estructura del Body (JSON):**
-    ```json
-    {
-      "medicalData": {
-        "cedula": "001-150590-0002B",
-        "enfermedades": "Hipertensión arterial",
-        "alergias": "Penicilina",
-        "tipoSangre": "O+",
-        "tratamientos": "Enalapril 20mg diarios",
-        "pastillas": "Ninguna",
-        "vacunas": "COVID-19 (3 dosis)",
-        "peso": "82",
-        "altura": "178",
-        "contactoEmergencia": "+50588888888"
-      },
-      "userContext": {
-        "userId": "usr_998122",
-        "nombre": "Pedro García",
-        "email": "pedro.garcia@email.com",
-        "ciudad": "Granada",
-        "pais": "Nicaragua"
-      }
-    }
-    ```
+1. **Instalar dependencias:**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+   *(Nota: Se emplea `--legacy-peer-deps` debido a la coexistencia de librerías como `qrcode.react` con la versión de React 19).*
 
-*   **Ejemplo de Respuesta Exitosa (`200 OK`):**
-    ```json
-    {
-      "success": true,
-      "patientId": "0e59a489-3221-4fa3-9f82-dd32e652a9ef",
-      "bundleResponse": {
-        "resourceType": "Bundle",
-        "type": "transaction-response",
-        "entry": [
-          {
-            "status": "201 Created",
-            "location": "Patient/0e59a489-3221-4fa3-9f82-dd32e652a9ef/_history/1"
-          },
-          {
-            "status": "201 Created",
-            "location": "Condition/cf1d902b-a322-4211-bc66-3d234a9ef121/_history/1"
-          }
-        ]
-      }
-    }
-    ```
+2. **Configurar el entorno:**
+   Copia el archivo modelo de configuración:
+   ```bash
+   cp .env.example .env
+   ```
+   Introduce las llaves correspondientes explicadas en el apartado anterior.
+
+3. **Ejecutar el Servidor de Desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación funcionando con recarga en caliente instantánea.
 
 ---
 
-### `GET /api/fhir-get`
-Lee los recursos de salud de un paciente basándose en su Cédula de Identidad en Nicaragua y reconstruye el formato plano consumible por el formulario frontend.
-
-*   **Query Parameters:**
-    *   `cedula` (Requerido): Documento de identidad del paciente. Ejemplo: `/api/fhir-get?cedula=001-150590-0002B`
-
-*   **Ejemplo de Respuesta Exitosa (`200 OK`):**
-    ```json
-    {
-      "found": true,
-      "patientId": "0e59a489-3221-4fa3-9f82-dd32e652a9ef",
-      "data": {
-        "cedula": "001-150590-0002B",
-        "enfermedades": "Hipertensión arterial",
-        "alergias": "Penicilina",
-        "tipoSangre": "O+",
-        "tratamientos": "Enalapril 20mg diarios",
-        "pastillas": "",
-        "vacunas": "COVID-19 (3 dosis)",
-        "peso": "82",
-        "altura": "178",
-        "contactoEmergencia": "+50588888888"
-      }
-    }
-    ```
+### 🛡️ Cumplimiento de Pruebas de Calidad (Automated Testing)
+Para mantener la integridad ante futuras actualizaciones, la aplicación utiliza identificadores estáticos de prueba (`id` o atributos) para componentes clave, por ejemplo:
+* **Acceso de Invitados:** `#btn-login-guest`
+* **Botones de Navegación Móvil:** `#btn-nav-[vista]` (p. ej., `#btn-nav-home`, `#btn-nav-consulta`)
+* **Botón de Instalación PWA:** `#btn-instalar`
+* **Filas del Directorio:** `row-pharmacy-profile-${id}`
+* **Botones de Acción en Farmacias:** `btn-run-route-for-${id}` y `btn-whatsapp-for-${id}`
+* **Secciones Desplegables de Configuración:** `btn-profile-menu-[id]`
+* **Botón de Ajustes del Sistema:** `id="btn-settings"`

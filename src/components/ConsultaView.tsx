@@ -1,11 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle } from "lucide-react";
+import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2 } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
+import { supabase } from "../lib/supabaseClient";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -151,6 +152,8 @@ const normalizeStoredMessages = (messages: ChatMessage[]) => {
     });
 };
 
+// ─── localStorage helpers (fallback para usuarios no autenticados) ───────────
+
 const loadTriageHistory = (userId?: string): ChatMessage[] => {
   try {
     const stored = localStorage.getItem(getTriageHistoryKey(userId));
@@ -198,6 +201,78 @@ const mergeMessagesById = (messages: ChatMessage[]) => {
   );
 };
 
+// ─── Supabase helpers ────────────────────────────────────────────────────────
+
+/** Carga el historial de los últimos 14 días desde Supabase, más reciente primero. */
+async function loadConsultationsFromSupabase(userId: string): Promise<ChatMessage[]> {
+  const cutoff = new Date(Date.now() - TRIAGE_HISTORY_MS).toISOString();
+  const { data, error } = await supabase
+    .from("consultations")
+    .select("id, user_message, ai_response, created_at")
+    .eq("user_id", userId)
+    .gte("created_at", cutoff)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.warn("[Supabase] Error al cargar historial:", error.message);
+    return [];
+  }
+
+  if (!data || data.length === 0) return [];
+
+  // Convierte cada fila en dos ChatMessages: user + bot
+  const result: ChatMessage[] = [];
+  for (const row of data) {
+    const date = new Date(row.created_at);
+    const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    result.push(
+      {
+        id: `${row.id}-user`,
+        text: row.user_message,
+        sender: "user",
+        timestamp: timeStr,
+        createdAt: row.created_at,
+      },
+      {
+        id: `${row.id}-bot`,
+        text: row.ai_response,
+        sender: "bot",
+        timestamp: timeStr,
+        createdAt: row.created_at,
+      }
+    );
+  }
+  return result;
+}
+
+/** Guarda un par consulta/respuesta en Supabase. */
+async function saveConsultationToSupabase(
+  userId: string,
+  userMessage: string,
+  aiResponse: string
+): Promise<void> {
+  // Verificar sesión activa antes de insertar
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData?.session) {
+    console.warn("[Supabase] No hay sesión activa — el INSERT fue bloqueado por RLS. El historial se guardó solo en localStorage.");
+    return;
+  }
+
+  console.log("[Supabase] Guardando consulta para user_id:", userId, "| auth.uid:", sessionData.session.user.id);
+
+  const { error, data } = await supabase.from("consultations").insert({
+    user_id: userId,
+    user_message: userMessage,
+    ai_response: aiResponse,
+  }).select("id");
+
+  if (error) {
+    console.error("[Supabase] Error al guardar consulta:", error.message, error.code, error.details);
+  } else {
+    console.log("[Supabase] ✅ Consulta guardada exitosamente. ID:", data?.[0]?.id);
+  }
+}
+
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
@@ -209,17 +284,21 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [storedHistory, setStoredHistory] = useState<ChatMessage[]>(() => loadTriageHistory(user.id));
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
+  // Al cambiar de usuario, reiniciar chat y cargar historial desde localStorage (fallback)
   useEffect(() => {
     setMessages([]);
     setStoredHistory(loadTriageHistory(user.id));
   }, [user.id]);
 
+  // Guardar en localStorage (fallback para usuarios no autenticados)
   const persistTriageMessages = (nextMessages: ChatMessage[]) => {
     const nextHistory = saveTriageHistory(user.id, mergeMessagesById([...storedHistory, ...nextMessages]));
     setStoredHistory(nextHistory);
@@ -229,6 +308,32 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     if (messages.length === 0) return;
     persistTriageMessages(messages);
   }, [messages]);
+
+  // Carga el historial desde Supabase cuando se abre el panel
+  const handleOpenHistory = useCallback(async () => {
+    setIsHistoryOpen(true);
+    setHistoryError(null);
+
+    // Si el usuario está autenticado, cargamos desde Supabase
+    if (user.id) {
+      setIsLoadingHistory(true);
+      try {
+        const supabaseHistory = await loadConsultationsFromSupabase(user.id);
+        if (supabaseHistory.length > 0) {
+          setStoredHistory(supabaseHistory);
+        } else {
+          // Si Supabase no tiene datos aún, usamos el localStorage como respaldo
+          setStoredHistory(loadTriageHistory(user.id));
+        }
+      } catch (err) {
+        console.warn("[Supabase] Falló la carga de historial, usando localStorage:", err);
+        setHistoryError("No se pudo cargar el historial desde la nube. Mostrando datos locales.");
+        setStoredHistory(loadTriageHistory(user.id));
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
+  }, [user.id]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -266,7 +371,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     }
   };
 
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -295,9 +400,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         window.removeEventListener("resize", checkScroll);
       };
     }
-  }, [messages.length]); 
+  }, [messages.length]);
 
-  
+
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -370,6 +475,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Guardar en Supabase si el usuario está autenticado
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, miskitoResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -386,6 +495,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Guardar en Supabase si el usuario está autenticado
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, kriolResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -402,6 +515,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);
+        // Intentar guardar en Supabase aunque sea modo offline (puede fallarcasi siempre, pero no bloquea)
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+        }
       }, 800);
       return;
     }
@@ -412,7 +529,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userText, userProfile: user, language })
       });
-      
+
       let data: any;
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
@@ -421,7 +538,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         const text = await response.text();
         data = { error: text || `Error del servidor (${response.status})` };
       }
-      
+
       if (!response.ok) {
         console.error("API Error Response:", data);
         console.error("Response status:", response.status);
@@ -434,21 +551,25 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           createdAt: new Date().toISOString()
         };
         setMessages(prev => [...prev, errorMsg]);
+        // Guardar en Supabase incluso con respuesta de fallback offline
+        if (user.id) {
+          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+        }
         return;
       }
-      
-      
+
+
       if (data.simulated) {
         console.warn("[ConsultaView] Simulated response received:", data.warning);
       }
-      
+
       let botText = data.text || "Lo siento, no pude procesar la respuesta.";
-      
-      
+
+
       if (data.simulated && data.warning) {
         botText = `📋 ${data.warning}\n\n${botText}`;
       }
-      
+
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: botText,
@@ -456,8 +577,15 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         createdAt: new Date().toISOString()
       };
-      
+
       setMessages(prev => [...prev, botMsg]);
+
+      // Guardar el par consulta/respuesta en Supabase (si el usuario está autenticado)
+      if (user.id) {
+        saveConsultationToSupabase(user.id, userText, botText).catch((err) =>
+          console.warn("[Supabase] No se guardó la consulta:", err)
+        );
+      }
     } catch (error) {
       console.error("Fetch error:", error);
       const offlineResponse = getOfflineTriageResponse(userText, user);
@@ -469,6 +597,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         createdAt: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMsg]);
+      // Guardar en Supabase incluso cuando hay error de red
+      if (user.id) {
+        saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+      }
     } finally {
       setIsLoading(false);
     }
@@ -512,7 +644,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  
+
   const formatMessageText = (text: string) => {
     const parts = text.split(/(\*\*.*?\*\*)/g);
     return parts.map((part, i) => {
@@ -524,22 +656,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   return (
-    <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-24 -left-16 w-80 h-80 rounded-full border border-brand-200/55 dark:border-brand-900/30"></div>
-        <div className="absolute top-28 -left-8 w-72 h-72 rounded-full border border-brand-200/45 dark:border-brand-900/30"></div>
-        <div className="absolute top-72 right-[-8rem] w-72 h-72 rounded-full bg-brand-100/45 dark:bg-brand-900/30 blur-3xl"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_28%,rgba(56,189,248,0.08),transparent_28%),linear-gradient(135deg,transparent_0%,transparent_60%,rgba(59,130,246,0.08)_60%,transparent_78%)]"></div>
-      </div>
+    <div className="flex flex-col min-h-dvh relative overflow-hidden font-sans transition-colors duration-300">
 
-      {}
-      <div className="absolute pointer-events-none z-0" style={{ top: "-8%", right: "-15%", width: "420px", height: "420px", background: "radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 50%, transparent 75%)", borderRadius: "55% 45% 60% 40% / 45% 55% 40% 60%", filter: "blur(40px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "5%", left: "-8%", width: "220px", height: "220px", background: "radial-gradient(ellipse at center, rgba(99,102,241,0.06) 0%, transparent 70%)", borderRadius: "40% 60% 55% 45% / 55% 45% 60% 40%", filter: "blur(35px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "35%", right: "-5%", width: "280px", height: "280px", background: "radial-gradient(ellipse at center, rgba(37,99,235,0.04) 0%, transparent 70%)", borderRadius: "50% 50% 40% 60% / 60% 40% 50% 50%", filter: "blur(50px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ bottom: "15%", left: "-12%", width: "350px", height: "350px", background: "radial-gradient(ellipse at center, rgba(147,197,253,0.07) 0%, transparent 70%)", borderRadius: "60% 40% 45% 55% / 45% 55% 50% 50%", filter: "blur(45px)" }} />
-      <div className="absolute pointer-events-none z-0" style={{ top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "500px", height: "500px", background: "radial-gradient(ellipse at center, rgba(219,234,254,0.15) 0%, transparent 60%)", borderRadius: "50%", filter: "blur(60px)" }} />
-
-      {}
+      { }
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -547,13 +666,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         className={`flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
-        {}
+        { }
         <div
           className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
           onClick={() => onNavigate && onNavigate("home")}
         >
           <img
-            src="/app-logo-v1.jpg"
+            src="/app-logo-v2.jpg"
             alt="Logo"
             className="w-9 h-9 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
           />
@@ -562,11 +681,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </span>
         </div>
 
-        {}
+        { }
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.94 }}
-            onClick={() => setIsHistoryOpen(true)}
+            onClick={handleOpenHistory}
             className="relative flex items-center justify-center w-[44px] h-[44px] rounded-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 shadow-[0_8px_24px_rgba(37,99,235,0.10)] hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             title="Historial de triaje"
           >
@@ -594,7 +713,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               boxShadow: "0 6px 20px rgba(251,113,133,0.25)",
             }}
           >
-            {}
+            { }
             <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
             <Siren className="w-5 h-5 text-white relative z-10 mb-[1px]" />
             <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
@@ -602,11 +721,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       </motion.header>
 
-      {}
+      { }
       {!isChatMode ? (
         <AnimatePresence>
           <motion.div exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
-            {}
+            { }
             <motion.main
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -631,14 +750,14 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               </div>
             </motion.main>
 
-            {}
+            { }
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.25, ease: "easeOut" }}
               className="w-full max-w-5xl mx-auto relative mt-12 mb-4 z-20 group"
             >
-              {}
+              { }
               <AnimatePresence>
                 {showLeftArrow && (
                   <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(-220)} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
@@ -647,7 +766,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 )}
               </AnimatePresence>
 
-              {}
+              { }
               <AnimatePresence>
                 {showRightArrow && (
                   <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollByAmount(220)} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-20 cursor-pointer active:scale-95" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
@@ -656,19 +775,29 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 )}
               </AnimatePresence>
 
-              {}
+              { }
               <div className="absolute left-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(90deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showLeftArrow ? 1 : 0 }} />
               <div className="absolute right-0 top-0 bottom-0 pointer-events-none z-10 transition-opacity duration-300" style={{ width: "80px", background: "linear-gradient(270deg, var(--tw-gradient-from) 0%, rgba(248,250,255,0) 100%)", opacity: showRightArrow ? 1 : 0 }} />
 
-              {}
+              { }
               <div ref={scrollRef} onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove} className="chips-scroll flex px-7 gap-3 pb-2 overflow-x-auto select-none" style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch", cursor: isDragging ? "grabbing" : "grab" }}>
                 <style>{`.chips-scroll::-webkit-scrollbar { display: none; }`}</style>
                 {SYMPTOM_CHIPS.map((chip) => {
                   const isActive = activeChip === chip.id;
                   const translatedLabel = t(chip.labelKey as any) || chip.labelKey;
                   return (
-                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-brand-600 text-white border-transparent" : "bg-white dark:bg-slate-900 text-brand-900 dark:text-brand-400 border-slate-200 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(37,99,235,0.28), 0 2px 8px rgba(37,99,235,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
-                      <span className="flex items-center justify-center" style={{ opacity: isActive ? 1 : 0.7 }}>{chip.icon}</span>
+                    <motion.button key={chip.id} whileTap={{ scale: 0.95 }} onClick={(e) => { if (dragMoved) { e.preventDefault(); return; } setActiveChip(chip.id); setInputValue(language === 'mi' ? `Yang brisna ${translatedLabel.toLowerCase()}` : `Tengo ${translatedLabel.toLowerCase()}`); }} className={`flex items-center gap-2 shrink-0 transition-all duration-300 ease-out ${isActive ? "bg-emerald-500 text-white border-transparent" : "bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-slate-800"}`} style={{ padding: "12px 22px", borderRadius: "100px", fontSize: "14px", fontWeight: 600, fontFamily: "'Inter', sans-serif", letterSpacing: "0.01em", borderWidth: "1.5px", boxShadow: isActive ? "0 8px 24px rgba(15,181,159,0.25), 0 2px 8px rgba(15,181,159,0.12)" : "0 2px 6px rgba(0,0,0,0.04)" }}>
+                      <span
+                        className="flex items-center justify-center"
+                        style={{
+                          opacity: isActive ? 1 : 0.7,
+                          color: isActive
+                            ? 'white'
+                            : 'var(--color-brand-600)',
+                        }}
+                      >
+                        {chip.icon}
+                      </span>
                       <span className="mt-[-0.5px]">{translatedLabel}</span>
                     </motion.button>
                   );
@@ -678,7 +807,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </motion.div>
         </AnimatePresence>
       ) : (
-        
+
         <div className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
           <AnimatePresence>
             {messages.map((msg, idx) => (
@@ -690,11 +819,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                 className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-[1.6] whitespace-pre-wrap ${
-                    msg.sender === "user"
-                      ? "bg-brand-600 text-white rounded-tr-sm"
-                      : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
-                  }`}
+                  className={`max-w-[85%] rounded-2xl px-5 py-3.5 shadow-sm text-[15px] leading-[1.6] whitespace-pre-wrap ${msg.sender === "user"
+                    ? "bg-brand-600 text-white rounded-tr-sm"
+                    : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
+                    }`}
                 >
                   {formatMessageText(msg.text)}
                   <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-brand-100" : "text-slate-400"}`}>
@@ -721,10 +849,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       )}
 
-      {}
+      { }
       {!isChatMode && <div className="flex-1 min-h-[40px]" />}
 
-      {}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -732,14 +860,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         className={`w-full max-w-5xl mx-auto px-5 relative z-20 ${isChatMode ? "pb-6 pt-2" : "mb-5"}`}
       >
         <div
-          className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${
-            isFocused ? "border-brand-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
-          }`}
+          className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${isFocused ? "border-brand-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
+            }`}
         >
-          {}
+          { }
           <div className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10" style={{ background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)", borderRadius: "28px" }} />
 
-          {}
+          { }
           <textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -752,28 +879,28 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
-          {}
+          { }
           <div className="flex justify-between items-center relative z-10 mt-1">
-            {}
+            { }
             <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
             </motion.button>
 
-            {}
+            { }
             <div className="flex items-center gap-2">
-              <motion.button 
-                whileTap={{ scale: 0.9 }} 
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={toggleRecording}
-                className={`flex items-center justify-center transition-colors ${isRecording ? "text-rose-500 bg-rose-50 dark:bg-rose-900/20" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`} 
+                className={`flex items-center justify-center transition-colors ${isRecording ? "text-rose-500 bg-rose-50 dark:bg-rose-900/20" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
                 style={{ width: "42px", height: "42px", borderRadius: "50%" }}
               >
                 {isRecording ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
               </motion.button>
-              <motion.button 
-                whileTap={{ scale: 0.9 }} 
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105" 
+                className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
                 style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
@@ -783,7 +910,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </div>
       </motion.div>
 
-      {}
+      { }
       {!isChatMode && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.45 }} className="flex items-center justify-center gap-3.5 mb-24 z-10 w-full max-w-5xl mx-auto relative px-6">
           <div className="relative shrink-0" style={{ width: "32px", height: "34px" }}>
@@ -839,51 +966,69 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
               <div className="px-5 sm:px-6 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[11px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/25 rounded-full px-3 py-1.5">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>{historyMessages.length} mensajes</span>
+                  {isLoadingHistory ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <MessageCircle className="w-3.5 h-3.5" />
+                  )}
+                  <span>{isLoadingHistory ? "Cargando..." : `${historyMessages.length} mensajes`}</span>
                 </div>
-                {historyMessages.length > 0 && (
-                  <button
-                    onClick={handleClearHistory}
-                    className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
-                  >
-                    Limpiar historial
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {user.id && (
+                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-full px-2.5 py-1 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                      Nube
+                    </span>
+                  )}
+                  {historyMessages.length > 0 && (
+                    <button
+                      onClick={handleClearHistory}
+                      className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
+                    >
+                      Limpiar historial
+                    </button>
+                  )}
+                </div>
               </div>
+              {historyError && (
+                <div className="px-5 sm:px-6 py-2 bg-amber-50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2 text-[11px] text-amber-700 dark:text-amber-300">
+                  <span>⚠️</span>
+                  <span>{historyError}</span>
+                </div>
+              )}
 
               <div className="max-h-[58dvh] overflow-y-auto px-4 sm:px-6 py-4 bg-slate-50/70 dark:bg-slate-950/30">
-                {historyMessages.length > 0 ? (
+                {isLoadingHistory ? (
+                  <div className="py-16 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Cargando historial desde la nube…</p>
+                  </div>
+                ) : historyMessages.length > 0 ? (
                   <div className="space-y-3">
                     {historyMessages.map((message) => (
                       <div
                         key={`history-${message.id}`}
-                        className={`rounded-2xl border p-4 shadow-sm ${
-                          message.sender === "user"
-                            ? "bg-blue-600 border-blue-500 text-white"
-                            : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
-                        }`}
+                        className={`rounded-2xl border p-4 shadow-sm ${message.sender === "user"
+                          ? "bg-blue-600 border-blue-500 text-white"
+                          : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200"
+                          }`}
                       >
-                        <div className={`flex flex-wrap items-center gap-2 mb-2 text-[10px] font-black ${
-                          message.sender === "user" ? "text-blue-100" : "text-slate-400 dark:text-slate-500"
-                        }`}>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
-                            message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
+                        <div className={`flex flex-wrap items-center gap-2 mb-2 text-[10px] font-black ${message.sender === "user" ? "text-blue-100" : "text-slate-400 dark:text-slate-500"
                           }`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
+                            }`}>
                             <CalendarDays className="w-3 h-3" />
                             {formatHistoryDate(message.createdAt)}
                           </span>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${
-                            message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
-                          }`}>
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${message.sender === "user" ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800"
+                            }`}>
                             <Clock3 className="w-3 h-3" />
                             {formatHistoryTime(message.createdAt)}
                           </span>
-                          <span className={`ml-auto rounded-full px-2 py-1 ${
-                            message.sender === "user"
-                              ? "bg-white/15 text-white"
-                              : "bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400"
-                          }`}>
+                          <span className={`ml-auto rounded-full px-2 py-1 ${message.sender === "user"
+                            ? "bg-white/15 text-white"
+                            : "bg-blue-50 dark:bg-blue-900/25 text-blue-600 dark:text-blue-400"
+                            }`}>
                             {message.sender === "user" ? "Tú" : "Salud-Conecta IA"}
                           </span>
                         </div>
