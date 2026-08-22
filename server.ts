@@ -26,7 +26,7 @@ import {
   verifyTotpToken,
   generateChallengeToken,
   type MfaSetupData
-} from "./src/lib/mfaService";
+} from "./src/lib/mfaBackend";
 
 // Import Vercel API handlers to make them work locally
 import fhirHandler from "./api/fhir.js";
