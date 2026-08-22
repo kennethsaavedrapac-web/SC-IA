@@ -1316,12 +1316,59 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
                                     <Calendar className="w-3 h-3" /> Fecha de Nacimiento
                                   </label>
-                                  <input
-                                    type="date"
-                                    value={editBirthDate}
-                                    onChange={(e) => setEditBirthDate(e.target.value)}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
-                                  />
+                                  <div className="flex gap-2">
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[2] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[2] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[28%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Día</option>
+                                      {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                        <option key={d} value={d.toString().padStart(2, '0')}>{d}</option>
+                                      ))}
+                                    </select>
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[1] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[1] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[44%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Mes</option>
+                                      <option value="01">Enero</option>
+                                      <option value="02">Febrero</option>
+                                      <option value="03">Marzo</option>
+                                      <option value="04">Abril</option>
+                                      <option value="05">Mayo</option>
+                                      <option value="06">Junio</option>
+                                      <option value="07">Julio</option>
+                                      <option value="08">Agosto</option>
+                                      <option value="09">Septiembre</option>
+                                      <option value="10">Octubre</option>
+                                      <option value="11">Noviembre</option>
+                                      <option value="12">Diciembre</option>
+                                    </select>
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[0] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[0] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[28%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Año</option>
+                                      {Array.from({ length: 110 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                      ))}
+                                    </select>
+                                  </div>
                                 </div>
                                 <div className="space-y-1.5 lg:col-span-2">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
