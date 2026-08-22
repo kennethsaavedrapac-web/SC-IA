@@ -22,14 +22,6 @@ import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Su
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
 
-const HomeView = lazy(() => import("./components/HomeView"));
-const ConsultaView = lazy(() => import("./components/ConsultaView"));
-const CentrosView = lazy(() => import("./components/CentrosView"));
-const PremiumView = lazy(() => import("./components/PremiumView"));
-const PerfilView = lazy(() => import("./components/PerfilView"));
-const LoginView = lazy(() => import("./components/LoginView"));
-const RegisterView = lazy(() => import("./components/RegisterView"));
-const AdminView = lazy(() => import("./components/AdminView"));
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
