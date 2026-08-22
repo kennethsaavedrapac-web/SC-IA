@@ -1,21 +1,84 @@
-import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import crypto from 'crypto';
 
-// Configuración de TOTP acorde a RFC 6238
-authenticator.options = {
-  step: 30, // Ventana de 30 segundos
-  window: 1, // Permite 1 paso antes o después por desincronización de reloj
-  digits: 6,
-};
-
 const APP_NAME = 'Salud-Conecta IA (MINSA)';
+const BASE32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 export interface MfaSetupData {
   secret: string;
   qrCodeUrl: string;
   otpauthUrl: string;
   backupCodes: string[];
+}
+
+/**
+ * Codifica un buffer de bytes en Base32 RFC 4648
+ */
+function base32Encode(buffer: Buffer): string {
+  let bits = 0;
+  let value = 0;
+  let output = '';
+
+  for (let i = 0; i < buffer.length; i++) {
+    value = (value << 8) | buffer[i];
+    bits += 8;
+
+    while (bits >= 5) {
+      output += BASE32_CHARS[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+
+  if (bits > 0) {
+    output += BASE32_CHARS[(value << (5 - bits)) & 31];
+  }
+
+  return output;
+}
+
+/**
+ * Decodifica una cadena Base32 en un Buffer
+ */
+function base32Decode(base32: string): Buffer {
+  const clean = base32.toUpperCase().replace(/=+$/, '').replace(/[^A-Z2-7]/g, '');
+  let bits = 0;
+  let value = 0;
+  const bytes: number[] = [];
+
+  for (let i = 0; i < clean.length; i++) {
+    const val = BASE32_CHARS.indexOf(clean[i]);
+    if (val === -1) continue;
+
+    value = (value << 5) | val;
+    bits += 5;
+
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+
+  return Buffer.from(bytes);
+}
+
+/**
+ * Calcula el código TOTP de 6 dígitos para un secreto y un contador de tiempo dados (RFC 6238 / RFC 4226)
+ */
+export function generateTotpCode(secret: string, timeStepCounter: number): string {
+  const key = base32Decode(secret);
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigInt64BE(BigInt(timeStepCounter));
+
+  const hmac = crypto.createHmac('sha1', key).update(buffer).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binary =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+
+  const otp = binary % 1000000;
+  return otp.toString().padStart(6, '0');
 }
 
 /**
@@ -34,8 +97,12 @@ export function generateBackupCodes(count = 8): string[] {
  * Genera el secreto TOTP, la URI otpauth y el código QR en base64 para enrolar la cuenta en Google Authenticator / Authy.
  */
 export async function generateMfaSecret(userEmail: string): Promise<MfaSetupData> {
-  const secret = authenticator.generateSecret();
-  const otpauthUrl = authenticator.keyuri(encodeURIComponent(userEmail), encodeURIComponent(APP_NAME), secret);
+  const secretBytes = crypto.randomBytes(20); // 160-bit secret
+  const secret = base32Encode(secretBytes);
+  
+  const encodedIssuer = encodeURIComponent(APP_NAME);
+  const encodedEmail = encodeURIComponent(userEmail);
+  const otpauthUrl = `otpauth://totp/${encodedIssuer}:${encodedEmail}?secret=${secret}&issuer=${encodedIssuer}&algorithm=SHA1&digits=6&period=30`;
   
   const qrCodeUrl = await QRCode.toDataURL(otpauthUrl, {
     errorCorrectionLevel: 'H',
@@ -58,13 +125,24 @@ export async function generateMfaSecret(userEmail: string): Promise<MfaSetupData
 }
 
 /**
- * Verifica si un código TOTP de 6 dígitos es válido para un secreto dado.
+ * Verifica si un código TOTP de 6 dígitos es válido para un secreto dado (con tolerancia de ±1 paso = ±30s).
  */
-export function verifyTotpToken(token: string, secret: string): boolean {
+export function verifyTotpToken(token: string, secret: string, windowSteps = 1): boolean {
   try {
     if (!token || !secret) return false;
     const cleanToken = token.trim().replace(/\s+/g, '');
-    return authenticator.verify({ token: cleanToken, secret });
+    if (!/^\d{6}$/.test(cleanToken)) return false;
+
+    const currentStep = Math.floor(Date.now() / 1000 / 30);
+
+    for (let offset = -windowSteps; offset <= windowSteps; offset++) {
+      const generated = generateTotpCode(secret, currentStep + offset);
+      if (crypto.timingSafeEqual(Buffer.from(cleanToken), Buffer.from(generated))) {
+        return true;
+      }
+    }
+
+    return false;
   } catch (err) {
     console.error('Error al verificar TOTP:', err);
     return false;

@@ -229,14 +229,21 @@ export const adminAnnouncementSchema = z.object({
 
 export const appSettingsSchema = z.object({
   clave: safeString(2, 100),
-  valor: z.record(z.any()),
+  valor: z.record(z.string(), z.any()),
   descripcion: optionalSafeString(500),
 });
 
 /**
+ * Tipo discriminado para resultados de validación síncrona
+ */
+export type ValidationResult<T> =
+  | { success: true; data: T; error?: never; message?: never; errors?: never }
+  | { success: false; errors: Record<string, string>; message: string; data?: never };
+
+/**
  * Función utilitaria para validación síncrona en componentes de cliente / React
  */
-export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): { success: true; data: T } | { success: false; errors: Record<string, string>; message: string } {
+export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): ValidationResult<T> {
   const result = schema.safeParse(data);
   if (result.success) {
     return { success: true, data: result.data };

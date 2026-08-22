@@ -9,6 +9,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
+import MfaEnrollmentModal from "./MfaEnrollmentModal";
+import { createToast, type ToastData } from "./Toast";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -37,6 +39,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
   const [isNotificationInboxOpen, setIsNotificationInboxOpen] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showMfaEnrollment, setShowMfaEnrollment] = useState(false);
+  const { profile } = useAuth();
 
   // Medical Data State (FHIR-backed)
   const [localMedicalData, setLocalMedicalData] = useState<MedicalFormData>(() => {
@@ -895,12 +899,49 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </form>
                           )}
 
-                          {}
+                          {/* Seguridad y 2FA */}
                           {item.id === "seguridad" && (
-                            <div className="space-y-3 text-left">
+                            <div className="space-y-4 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
                                 {t('securityConfigDesc')}
                               </p>
+
+                              {/* Tarjeta 2FA / TOTP */}
+                              <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center">
+                                      <ShieldCheck className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-sm font-bold text-slate-800 dark:text-white">
+                                        Autenticación de 2 Factores (2FA)
+                                      </h4>
+                                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                        {profile?.mfa_enabled ? 'Protección TOTP activa en tu cuenta' : 'Protege tu cuenta con Google Authenticator / Authy'}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                                    profile?.mfa_enabled 
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' 
+                                      : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                                  }`}>
+                                    {profile?.mfa_enabled ? 'Activo' : 'Inactivo'}
+                                  </span>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setShowMfaEnrollment(true)}
+                                  className="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                                >
+                                  <Key className="w-3.5 h-3.5" />
+                                  {profile?.mfa_enabled ? 'Reconfigurar Llave 2FA / Códigos' : 'Configurar 2FA (TOTP)'}
+                                </button>
+                              </div>
+
                               <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
@@ -1379,6 +1420,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modal de Enrolamiento 2FA */}
+      <MfaEnrollmentModal
+        isOpen={showMfaEnrollment}
+        onClose={() => setShowMfaEnrollment(false)}
+        onSuccess={() => {
+          refreshProfile();
+        }}
+      />
     </div>
   );
 }

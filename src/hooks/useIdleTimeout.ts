@@ -111,20 +111,22 @@ export function useIdleTimeout({
       }
     });
 
-    // Eventos globales a monitorear
-    const events: Array<keyof WindowEventMap> = [
+    // Eventos globales a monitorear en window
+    const windowEvents: Array<keyof WindowEventMap> = [
       'mousemove',
       'mousedown',
       'keydown',
       'touchstart',
       'scroll',
       'wheel',
-      'visibilitychange',
     ];
 
-    events.forEach((eventType) => {
+    windowEvents.forEach((eventType) => {
       window.addEventListener(eventType, handleUserActivity, { passive: true });
     });
+
+    // Evento de visibilidad en document
+    document.addEventListener('visibilitychange', handleUserActivity, { passive: true });
 
     // Intervalo de evaluación de tiempo transcurrido (cada 1 segundo)
     timerIntervalRef.current = window.setInterval(() => {
@@ -165,9 +167,10 @@ export function useIdleTimeout({
         window.clearTimeout(throttleTimeoutRef.current);
         throttleTimeoutRef.current = null;
       }
-      events.forEach((eventType) => {
+      windowEvents.forEach((eventType) => {
         window.removeEventListener(eventType, handleUserActivity);
       });
+      document.removeEventListener('visibilitychange', handleUserActivity);
       unsubscribeCrossTab();
     };
   }, [enabled, timeoutMs, warningThresholdMs]);

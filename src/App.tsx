@@ -16,9 +16,10 @@ import { DEFAULT_USER, INITIAL_APPOINTMENTS } from "./data/medicalData";
 import { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
-import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck } from "lucide-react";
+import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
+import { useIdleTimeout } from "./hooks/useIdleTimeout";
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
@@ -41,6 +42,32 @@ export default function App() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [toasts, setToasts] = useState<ToastData[]>([]);
+  const [showIdleWarningModal, setShowIdleWarningModal] = useState(false);
+  const [idleCountdown, setIdleCountdown] = useState(60);
+
+  // Inactividad y expiración de sesión (15 minutos)
+  const handleIdleTimeout = useCallback(async () => {
+    setShowIdleWarningModal(false);
+    await logout();
+    setCurrentView("login");
+    setToasts((prev) => [
+      ...prev,
+      createToast("Tu sesión ha expirado por inactividad de 15 minutos por motivos de seguridad médica.", "warning")
+    ]);
+  }, [logout]);
+
+  const handleIdleWarning = useCallback((seconds: number) => {
+    setIdleCountdown(seconds);
+    setShowIdleWarningModal(true);
+  }, []);
+
+  const { extendSession, remainingSeconds } = useIdleTimeout({
+    timeoutMs: 15 * 60 * 1000, // 15 minutos
+    warningThresholdMs: 60 * 1000, // 60 segundos previos
+    enabled: Boolean(user && user.id !== "guest" && (currentView !== "login" && currentView !== "register")),
+    onTimeout: handleIdleTimeout,
+    onWarning: handleIdleWarning,
+  });
 
   
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -1583,6 +1610,57 @@ export default function App() {
                   className="bg-brand-600 hover:bg-brand-900 text-white font-bold text-xs py-2.5 px-4 rounded-2xl shadow-sm transition-all cursor-pointer active:scale-95"
                 >
                   {t('gotIt')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de Advertencia de Inactividad de Sesión */}
+      <AnimatePresence>
+        {showIdleWarningModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-md z-50 flex items-center justify-center p-4 select-none"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-slate-900 rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-amber-100 dark:border-amber-900/30 text-center relative overflow-hidden"
+            >
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 flex items-center justify-center mb-3">
+                <Clock className="w-7 h-7 animate-pulse" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                ¿Sigues ahí?
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+                Por seguridad médica, tu sesión se cerrará automáticamente en:
+              </p>
+              <div className="text-3xl font-mono font-bold text-amber-600 dark:text-amber-400 mb-5 bg-amber-50/50 dark:bg-amber-950/30 py-2.5 rounded-2xl border border-amber-200/50 dark:border-amber-800/50">
+                {idleCountdown || remainingSeconds}s
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleIdleTimeout}
+                  className="flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition-colors"
+                >
+                  Cerrar ahora
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    extendSession();
+                    setShowIdleWarningModal(false);
+                  }}
+                  className="flex-1 py-2.5 px-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs transition-all shadow-md shadow-brand-600/20"
+                >
+                  Continuar sesión
                 </button>
               </div>
             </motion.div>

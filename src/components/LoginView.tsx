@@ -348,6 +348,9 @@ export default function LoginView({
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-brand-400 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>
           </svg>
+        </div>
+      </footer>
+
       <MfaChallengeModal
         isOpen={mfaModalOpen}
         tempToken={tempMfaToken}
