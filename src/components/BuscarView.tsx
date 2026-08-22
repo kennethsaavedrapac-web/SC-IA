@@ -429,18 +429,18 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 ) : (
                   <div className="bg-white dark:bg-slate-900 py-10 text-center rounded-3xl border border-dashed border-slate-300/80 dark:border-slate-700 p-6 text-slate-400">
                     <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 animate-pulse mb-3" />
-                      <p className="text-sm font-medium">{t('noMedicineFound').replace('{drug}', drugQuery).replace('{city}', pharmCityQuery)}</p>
+                    <p className="text-sm font-medium">{t('noMedicineFound').replace('{drug}', drugQuery).replace('{city}', pharmCityQuery)}</p>
                     <button
                       onClick={() => setDrugQuery("Paracetamol 500 mg")}
                       className="mt-2 text-xs text-emerald-600 font-bold hover:underline"
                     >
-                        {t('resetSearch')}
+                      {t('resetSearch')}
                     </button>
                   </div>
                 )}
               </div>
 
-              {}
+              { }
               <div className="text-center font-mono text-[10px] text-slate-400/80 py-4 border-t border-slate-100">
                 {t('pharmaciesDisclaimer')}
               </div>
@@ -449,7 +449,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
         </AnimatePresence>
       </main>
 
-      {}
+      { }
       <AnimatePresence>
         {bookingDoctor && (
           <motion.div
@@ -464,7 +464,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               exit={{ scale: 0.95, y: 15 }}
               className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100 dark:border-slate-800 relative overflow-hidden"
             >
-              {}
+              { }
               <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-600 to-brand-600"></div>
 
               {bookingSuccess ? (
@@ -493,7 +493,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </button>
                   </div>
 
-                  {}
+                  { }
                   <div className="p-3 bg-emerald-50/60 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/70 dark:border-emerald-900/30 flex items-center space-x-3 mt-1">
                     <img
                       src={bookingDoctor.photoUrl}
@@ -507,7 +507,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </div>
                   </div>
 
-                  {}
+                  { }
                   <div className="space-y-1.5 text-left">
                     <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseDate')}</label>
                     <div className="relative">
@@ -521,7 +521,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </div>
                   </div>
 
-                  {}
+                  { }
                   <div className="space-y-1.5 text-left">
                     <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('chooseTime')}</label>
                     <select
@@ -538,7 +538,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </select>
                   </div>
 
-                  {}
+                  { }
                   <button
                     id="btn-confirm-doctor-booking"
                     onClick={handleBookAppointment}

@@ -7,6 +7,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
+import { sanitizeAndTrim, validateEmail, validateName, validatePhone } from "../lib/security";
+import TwoFactorSetup from "./TwoFactorSetup";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 
@@ -24,7 +26,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const { refreshProfile } = useAuth();
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
 
-  
+
   const [editName, setEditName] = useState(user.name);
   const [editEmail, setEditEmail] = useState(user.email);
   const [editCity, setEditCity] = useState(user.city);
@@ -146,7 +148,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     const prefString = newPrefs.join(",");
     localStorage.setItem("notifPreference", prefString);
 
-    
+
     if (user.id && user.id !== "guest") {
       try {
         await supabase
@@ -160,7 +162,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const refreshNotificationHistory = useCallback(() => {
-    setNotificationHistory(getTodaysNotificationHistory(user.id));
+    setNotificationHistory(getTodaysNotificationHistory(user.id || 'guest'));
   }, [user.id]);
 
   useEffect(() => {
@@ -179,7 +181,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const handleMarkNotificationsRead = () => {
-    const updatedHistory = markTodaysNotificationsRead(user.id);
+    const updatedHistory = markTodaysNotificationsRead(user.id || 'guest');
     setNotificationHistory(
       updatedHistory.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     );
@@ -213,7 +215,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     return "bg-indigo-50 dark:bg-indigo-900/25 border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-300";
   };
 
-  
+
   const handleAddCondition = useCallback(() => {
     const trimmed = newCondition.trim();
     if (trimmed && !editConditions.includes(trimmed)) {
@@ -298,16 +300,32 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate inputs before saving
+    const nameValidation = validateName(editName);
+    if (!nameValidation.valid) {
+      alert(nameValidation.error === 'tooShort' ? t('nameMin') : t('nameRequired'));
+      return;
+    }
+    if (!validateEmail(editEmail)) {
+      alert(t('emailInvalid'));
+      return;
+    }
+    if (editPhone && !validatePhone(editPhone)) {
+      alert(t('phoneInvalid'));
+      return;
+    }
+
+    // Sanitize inputs before saving
     onUpdateUser({
       ...user,
-      name: editName,
-      email: editEmail,
-      city: editCity,
-      country: editCountry,
-      emergencyPhone: editPhone,
-      sex: editSex,
+      name: sanitizeAndTrim(editName),
+      email: editEmail.trim(),
+      city: sanitizeAndTrim(editCity),
+      country: sanitizeAndTrim(editCountry),
+      emergencyPhone: editPhone.trim(),
       bloodType: editBloodType,
-      healthConditions: editConditions,
+      healthConditions: editConditions.map(c => sanitizeAndTrim(c)),
     });
     setIsSavedAlertOpen(true);
     setTimeout(() => {
@@ -317,212 +335,424 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const downloadQRCode = () => {
-    import("jspdf").then(({ default: jsPDF }) => {
-      const doc = new jsPDF();
+    import("jspdf").then(async ({ default: jsPDF }) => {
+      // ══════════════════════════════════════════════════════════
+      //  CR80 CREDIT-CARD DIMENSIONS (85.6 × 53.98 mm)
+      // ══════════════════════════════════════════════════════════
+      const W = 85.6;
+      const H = 53.98;
+      const R = 3.2;
 
-      
-      const primaryColor = [30, 58, 138]; 
-      const secondaryColor = [13, 148, 136]; 
-      const accentColor = [56, 189, 248]; 
-      const slateDark = [15, 23, 42]; 
-      const slateLight = [100, 116, 139]; 
-      const bgPage = [255, 255, 255]; 
-      const sectionBg = [248, 250, 252]; 
+      // ── Colours ────────────────────────────────────────────
+      const WHITE     = [255, 255, 255];
+      const NAVY      = [8, 25, 48];
+      const BLUE      = [24, 84, 160];
+      const TEAL      = [0, 155, 140];
+      const GRAY      = [100, 116, 139];
+      const BG        = [238, 245, 250];
+      const PHOTO_BG  = [220, 230, 242];
+      const BORDER_C  = [170, 188, 208];
+      const LIGHT     = [232, 240, 248];
 
-      
-      const drawBackground = (pageDoc: any) => {
-        
-        pageDoc.setFillColor(bgPage[0], bgPage[1], bgPage[2]);
-        pageDoc.rect(0, 0, 210, 297, 'F');
-
-        
-        pageDoc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-        pageDoc.rect(0, 0, 210, 35, 'F');
-
-        
-        pageDoc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-        pageDoc.rect(0, 35, 210, 2, 'F');
-
-        
-        pageDoc.setFillColor(accentColor[0], accentColor[1], accentColor[2]);
-        pageDoc.rect(10, 45, 1.5, 240, 'F');
-
-        
-        pageDoc.setFillColor(241, 245, 249); 
-        pageDoc.rect(0, 285, 210, 12, 'F');
-        pageDoc.setFontSize(8);
-        pageDoc.setFont("helvetica", "italic");
-        pageDoc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-        pageDoc.text(t('pdfFooterText'), 105, 292, { align: "center" });
+      // ── Helpers ────────────────────────────────────────────
+      const sanitize = (v: string | undefined | null, fb = ""): string =>
+        (v || fb).toString().trim();
+      const clip = (v: string, max = 40) => {
+        const c = (v || "---").replace(/\s+/g, " ").trim();
+        return c.length > max ? c.slice(0, max - 2) + ".." : c;
       };
 
-      drawBackground(doc);
+      // ── Pre-load images ───────────────────────────────────
+      const [logoPng, avatarPng, qrPng] = await Promise.all([
+        toDataUrl("/app-logo-v2.jpg"),
+        user.avatarUrl ? toDataUrl(user.avatarUrl) : Promise.resolve(null),
+        qrToDataUrl(qrRef.current),
+      ]);
 
-      
-      doc.setFontSize(22);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-      doc.text(t('pdfMedicalCard'), 15, 20);
+      // ── Emergency-critical data ───────────────────────────
+      const bloodType    = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
+      const emergencyPh  = localMedicalData.contactoEmergencia || user.emergencyPhone || "---";
+      const cedulaNum    = sanitize(localMedicalData.cedula, "---");
+      const displayName  = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
+      const fullLocation = `${sanitize(user.city)}, ${sanitize(user.country)}`;
+      const diseases     = clip(sanitize(localMedicalData.enfermedades, "-"), 24);
+      const allergies    = clip(sanitize(localMedicalData.alergias, "-"), 24);
+      const treatments   = clip(sanitize(localMedicalData.tratamientos, "-"), 24);
+      const medications  = clip(sanitize(localMedicalData.pastillas, "-"), 24);
+      const vaccines     = clip(sanitize(localMedicalData.vacunas, "-"), 24);
+      const healthConds  = clip(user.healthConditions?.join(", ") || "-", 28);
+      const shortDate    = new Date().toLocaleDateString("es-NI", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+      });
 
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(200, 215, 255);
-      doc.text(t('pdfConfidential'), 15, 28);
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [W, H] });
 
-      
-      let yPos = 55;
+      // ═══════════════════════════════════════════════════════
+      //  LAYOUT GRID (all positions pre-calculated)
+      // ═══════════════════════════════════════════════════════
+      //  Margins: 0.3mm outer, 1mm internal gaps
+      //  ┌─────────────────────────────────────────────────────┐
+      //  │ BAND │  HEADER (logo + title + +)                  │
+      //  │(12mm)│─────────────────────────────────────────────│
+      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR     │
+      //  │      │(17mm) │                            │(20mm)  │
+      //  │      │─────────────────────────────────────────────│
+      //  │      │  MEDICAL DATA PANEL (2 cols, more flexible) │
+      //  │      │─────────────────────────────────────────────│
+      //  │      │  notice                                     │
+      //  └─────────────────────────────────────────────────────┘
 
-      
-      doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
-      doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'F');
-      doc.setDrawColor(226, 232, 240); 
-      doc.roundedRect(15, yPos - 8, 180, 40, 3, 3, 'S');
+      // ── Background ────────────────────────────────────────
+      doc.setFillColor(BG[0], BG[1], BG[2]);
+      doc.roundedRect(0, 0, W, H, R, R, "F");
+      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, R, R, "S");
 
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(t('pdfPersonalInfo'), 20, yPos);
-      yPos += 8;
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 1 — LEFT VERTICAL BAND (12mm × full height)
+      // ═══════════════════════════════════════════════════════
+      const bandX = 0.3;
+      const bandW = 12;
+      const bandR = 3;
 
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text(t('pdfPatient'), 20, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${user.name}`, 40, yPos);
+      // Blue band (top 55%)
+      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
+      doc.roundedRect(bandX, 0.3, bandW, H * 0.55, bandR, bandR, "F");
+      doc.rect(bandX, 2, bandW, H * 0.55 - 2, "F");
 
-      doc.setFont("helvetica", "bold");
-      doc.text(t('idCard').replace(" de Identidad", "") + ":", 110, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.cedula || t('pdfNotRegistered')}`, 130, yPos);
-      yPos += 7;
+      // Teal band (bottom 45%)
+      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.rect(bandX, H * 0.55, bandW, H * 0.45 - 0.3, "F");
 
-      doc.setFont("helvetica", "bold");
-      doc.text(t('pdfBlood'), 20, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(225, 29, 72); 
-      doc.text(`${localMedicalData.tipoSangre || editBloodType || user.bloodType || t('pdfNotSpecified')}`, 40, yPos);
-
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-      doc.text(t('pdfEmergContact'), 110, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.contactoEmergencia || user.emergencyPhone || "+505 8888-9999"}`, 140, yPos);
-      yPos += 7;
-
-      doc.setFont("helvetica", "bold");
-      doc.text(t('pdfWeight'), 20, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.peso ? localMedicalData.peso + ' kg' : t('pdfNotRegistered')}`, 40, yPos);
-
-      doc.setFont("helvetica", "bold");
-      doc.text(t('pdfHeight'), 110, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(`${localMedicalData.altura ? localMedicalData.altura + ' cm' : t('pdfNotRegistered')}`, 130, yPos);
-      yPos += 18;
-
-      
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
-      doc.text(t('pdfSpecializedData'), 15, yPos);
-      yPos += 8;
-
-      doc.setFontSize(10);
-
-      const renderMedicalItem = (label: string, value: string) => {
-        
-        doc.setFillColor(255, 255, 255);
-        doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'F');
-        doc.setDrawColor(226, 232, 240);
-        doc.roundedRect(15, yPos - 5, 180, 12, 2, 2, 'S');
-
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(slateDark[0], slateDark[1], slateDark[2]);
-        doc.text(`${label}:`, 20, yPos + 2);
-
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-
-        
-        const splitText = doc.splitTextToSize(value || t('pdfNoneRegistered'), 120);
-        doc.text(splitText, 60, yPos + 2);
-        yPos += (splitText.length * 5) + 8;
-      };
-
-      renderMedicalItem(t('pdfDiseases'), localMedicalData.enfermedades);
-      renderMedicalItem(t('pdfAllergies'), localMedicalData.alergias);
-      renderMedicalItem(t('pdfTreatments'), localMedicalData.tratamientos);
-      renderMedicalItem(t('pdfPills'), localMedicalData.pastillas);
-      renderMedicalItem(t('pdfVaccines'), localMedicalData.vacunas);
-
-      
-      if (user.healthConditions && user.healthConditions.length > 0) {
-        renderMedicalItem(t('pdfOtherCond'), user.healthConditions.join(", "));
+      // Decorative ellipses
+      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.setLineWidth(0.08);
+      for (let i = 0; i < 5; i++) {
+        doc.ellipse(bandX + bandW / 2, H * 0.33, 5 - i * 0.4, 2 + i * 0.5, "S");
+        doc.ellipse(bandX + bandW / 2, H * 0.66, 5.5 - i * 0.5, 2.5 + i * 0.6, "S");
       }
 
-      
-      yPos += 5;
-      if (yPos > 210) {
-        doc.addPage();
-        drawBackground(doc);
-        yPos = 55;
+      // Medical cross symbol
+      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.setLineWidth(0.15);
+      doc.circle(bandX + bandW / 2, H * 0.44, 3.5, "S");
+
+      // Rotated text
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(2.5);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("REPUBLICA", bandX + bandW / 2, H * 0.30, { align: "center", angle: 90 });
+      doc.text("NICARAGUA", bandX + bandW / 2, H * 0.38, { align: "center", angle: 90 });
+      doc.text("AMERICA", bandX + bandW / 2, H * 0.74, { align: "center", angle: 90 });
+      doc.text("CENTRAL", bandX + bandW / 2, H * 0.81, { align: "center", angle: 90 });
+
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 2 — HEADER (band right edge → right edge, 12mm tall)
+      // ═══════════════════════════════════════════════════════
+      const hX = bandX + bandW + 0.5;
+      const hY = 0.3;
+      const hW = W - hX - 0.3;
+      const hH = 12;
+
+      // Header background
+      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+      doc.roundedRect(hX, hY, hW, hH, bandR, bandR, "F");
+      doc.rect(hX, 2, hW, hH - 2, "F");
+
+      // Logo (8×8mm)
+      if (logoPng) {
+        doc.addImage(logoPng, "PNG", hX + 1.5, hY + 1.5, 8, 8);
       }
 
-      
-      doc.setFillColor(sectionBg[0], sectionBg[1], sectionBg[2]);
-      doc.roundedRect(15, yPos, 180, 50, 3, 3, 'F');
-      doc.setDrawColor(226, 232, 240);
-      doc.roundedRect(15, yPos, 180, 50, 3, 3, 'S');
-
-      doc.setFontSize(12);
+      // Brand text
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-      doc.text(t('pdfQrTitle'), 85, yPos + 15);
+      doc.setFontSize(6.5);
+      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
+      doc.text("SALUD", hX + 11, hY + 5.5);
+      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.text("CONECTA", hX + 11, hY + 10);
 
+      // Vertical divider
+      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
+      doc.setLineWidth(0.15);
+      doc.line(hX + 25, hY + 2, hX + 25, hY + hH - 2);
+
+      // Document title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(4.5);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.text("DOCUMENTO DE EMERGENCIA", hX + 30, hY + 5);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(3.2);
+      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", hX + 30, hY + 9);
+
+      // Plus symbol
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(slateLight[0], slateLight[1], slateLight[2]);
-      doc.text(t('pdfQrDesc'), 85, yPos + 22);
+      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
+      doc.text("+", W - 3.5, hY + 8.5, { align: "right" });
 
-      doc.setFontSize(8);
-      doc.setTextColor(225, 29, 72); 
-      doc.text(t('pdfQrFooter'), 85, yPos + 38);
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 3 — PHOTO (left, below header)
+      // ═══════════════════════════════════════════════════════
+      const phX = bandX + bandW + 2;
+      const phY = hY + hH + 2;
+      const phS = 16;
 
-      const svg = qrRef.current?.querySelector("svg");
-      if (svg) {
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
+      // Photo white card
+      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.roundedRect(phX - 0.3, phY - 0.3, phS + 0.6, phS + 0.6, 1.5, 1.5, "F");
+      doc.setFillColor(PHOTO_BG[0], PHOTO_BG[1], PHOTO_BG[2]);
+      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "F");
+      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
+      doc.setLineWidth(0.15);
+      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "S");
 
-        img.onload = () => {
-          canvas.width = 512;
-          canvas.height = 512;
-          if (ctx) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, 512, 512);
-            ctx.drawImage(img, 0, 0, 512, 512);
-          }
-          const pngData = canvas.toDataURL("image/png");
-          
-          doc.addImage(pngData, 'PNG', 25, yPos + 5, 40, 40);
-
-          doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
-        };
-        img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+      if (avatarPng) {
+        doc.addImage(avatarPng, "PNG", phX, phY, phS, phS);
       } else {
-        doc.save(`${t('pdfFileName')}-${user.name}.pdf`);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+        doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 2.5, { align: "center" });
       }
+
+      // Blood type — subtle text label next to photo info
+      // (no badge on photo, cleaner look)
+
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 4 — PATIENT INFO (center, between photo & QR)
+      // ═══════════════════════════════════════════════════════
+      const iX = phX + phS + 3;
+      const iW = W - iX - 24; // leave 24mm for QR zone
+
+      // Name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(5.5);
+      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+      const nameP = doc.splitTextToSize(displayName.toUpperCase(), iW);
+      doc.text(nameP.slice(0, 2), iX, phY + 4.5);
+
+      // Separator
+      doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.setLineWidth(0.15);
+      doc.line(iX, phY + 7, iX + iW, phY + 7);
+
+      // Info rows (4 rows, evenly spaced) — blood type included inline
+      const infoRows: { label: string; val: string }[] = [
+        { label: "CEDULA", val: cedulaNum },
+        { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
+        { label: "TELEFONO", val: emergencyPh },
+        { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
+      ];
+
+      const rowStartY = phY + 9.5;
+      const rowGap = 6;
+
+      infoRows.forEach((r, i) => {
+        const y = rowStartY + i * rowGap;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(2.3);
+        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
+        doc.text(r.label, iX, y);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(3.8);
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        doc.text(r.val, iX, y + 3);
+      });
+
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 5 — QR CODE (right side, aligned with photo top)
+      // ═══════════════════════════════════════════════════════
+      const qS = 17;
+      const qX = W - qS - 3;
+      const qY = phY;
+
+      // QR container
+      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "F");
+      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
+      doc.setLineWidth(0.15);
+      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "S");
+
+      if (qrPng) {
+        doc.addImage(qrPng, "PNG", qX, qY, qS, qS);
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(3.5);
+        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+        doc.text("QR", qX + qS / 2, qY + qS / 2 + 1.5, { align: "center" });
+      }
+
+      // QR label bar (blue + teal split)
+      const qLabelY = qY + qS + 0.5;
+      const qLabelH = 4;
+      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
+      doc.roundedRect(qX - 0.8, qLabelY, qS + 1.6, qLabelH, 1, 1, "F");
+      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
+      doc.rect(qX + (qS + 1.6) / 2, qLabelY, (qS + 1.6) / 2, qLabelH, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(2.5);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("ESCANEAR", qX + (qS + 1.6) / 2, qLabelY + 2.8, { align: "center" });
+
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 6 — MEDICAL DATA PANEL (bottom area)
+      // ═══════════════════════════════════════════════════════
+      const medX = bandX + bandW + 1;
+      const medY = phY + phS + 2.5;
+      const medW = W - medX - 1;
+      const medH = H - medY - 3.5;
+
+      // Panel background
+      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+      doc.roundedRect(medX, medY, medW, medH, 2, 2, "F");
+
+      // Panel header
+      const medHeaderH = 5;
+      doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+      doc.roundedRect(medX + 0.4, medY + 0.4, medW - 0.8, medHeaderH, 1.5, 1.5, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(3);
+      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+      doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 3.8, { align: "center" });
+      
+      // Medical fields grid (2 cols)
+      const medFields: { label: string; val: string }[] = [
+        { label: "ENFERMEDADES", val: diseases },
+        { label: "ALERGIAS", val: allergies },
+        { label: "TRATAMIENTOS", val: treatments },
+        { label: "MEDICAMENTOS", val: medications },
+        { label: "VACUNAS", val: vaccines },
+        { label: "OTRAS COND.", val: healthConds },
+      ];
+
+      const gridX = medX + 0.8;
+      const gridY = medY + medHeaderH + 1.2;
+      const gridW = medW - 1.6;
+      const gridH = medH - medHeaderH - 2;
+      const gCols = 2;
+      const gRows = 3;
+      const gCellW = gridW / gCols;
+      const gCellH = gridH / gRows;
+
+      medFields.forEach((f, idx) => {
+        const col = idx % gCols;
+        const row = Math.floor(idx / gCols);
+        const cx = gridX + col * gCellW + 1;
+        const cy = gridY + row * gCellH + 1;
+
+        // Label
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(2);
+        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
+        doc.text(f.label, cx, cy + 1.5);
+
+        // Value
+        doc.setFont("helvetica", "normal"); // Use normal font for value
+        doc.setFontSize(2.2); // Slightly smaller font for better fit
+        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
+        const vl = doc.splitTextToSize(f.val, gCellW - 2);
+        // Allow up to 3 lines for more text
+        doc.text(vl.slice(0, 3), cx, cy + 3.5);
+
+        // Row separator
+        if (row < gRows - 1) {
+          doc.setDrawColor(212, 220, 232);
+          doc.setLineWidth(0.06);
+          doc.line(gridX, cy + gCellH - 0.1, gridX + gridW, cy + gCellH - 0.1);
+        }
+        // Column separator
+        if (col < gCols - 1) {
+          doc.setDrawColor(212, 220, 232);
+          doc.setLineWidth(0.08);
+          doc.line(cx + gCellW, cy, cx + gCellW, cy + gCellH);
+        }
+      });
+
+      // ═══════════════════════════════════════════════════════
+      //  ZONE 7 — BOTTOM NOTICE
+      // ═══════════════════════════════════════════════════════
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(1.8);
+      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
+      doc.text("Este documento no sustituye la cedula de identidad. Solo para uso en emergencias.", medX + 1.5, H - 1.5);
+
+      // ═══════════════════════════════════════════════════════
+      //  SAVE
+      // ═══════════════════════════════════════════════════════
+      doc.save(`${t('pdfFileName')}-${user.name || "perfil"}.pdf`);
     }).catch(err => {
       console.error("Error cargando jsPDF", err);
     });
   };
 
+  // ═══════════════════════════════════════════════════════════
+  //  Helper functions for converting DOM elements/URLs to PNG
+  // ═══════════════════════════════════════════════════════════
+
+  const toDataUrl = (src?: string): Promise<string | null> => new Promise((resolve) => {
+    if (!src) {
+      resolve(null);
+      return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth || 512;
+      canvas.height = img.naturalHeight || 512;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(null);
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      try {
+        resolve(canvas.toDataURL("image/png"));
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+
+  const qrToDataUrl = (qrElement: HTMLDivElement | null): Promise<string | null> => new Promise((resolve) => {
+    const svg = qrElement?.querySelector("svg");
+    if (!svg) {
+      resolve(null);
+      return;
+    }
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(null);
+        return;
+      }
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(null);
+    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+  });
+
   return (
     <div className="flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
 
-      {}
+      { }
       <header className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-6 pb-1 sm:pb-2">
         <div className="flex justify-between items-start w-full max-w-5xl mx-auto">
           <button
@@ -564,13 +794,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         </div>
       </header>
 
-      {}
+      { }
       <main className="relative z-10 px-4 sm:px-8 pt-4 sm:pt-8 flex-1 space-y-5 sm:space-y-7 max-w-5xl mx-auto w-full">
 
-        {}
+        { }
         <section className="grid grid-cols-1 md:grid-cols-[minmax(220px,0.9fr)_minmax(280px,1.1fr)] items-center gap-5 sm:gap-8 md:gap-12 md:min-h-[330px]">
 
-          {}
+          { }
           <div className="flex justify-center md:justify-end">
             <div className="relative group shrink-0 select-none">
               <div className="absolute inset-[-1.75rem] sm:inset-[-3rem] rounded-full border border-brand-200/60 dark:border-brand-900/40"></div>
@@ -596,14 +826,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   </div>
                 )}
 
-                {}
+                { }
                 {isUploading && (
                   <div className="absolute inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center rounded-full">
                     <Loader2 className="w-7 h-7 sm:w-9 sm:h-9 text-white animate-spin" />
                   </div>
                 )}
 
-                {}
+                { }
                 {user.id !== "guest" && !isUploading && (
                   <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-full">
                     <Camera className="w-7 h-7 sm:w-9 sm:h-9 text-white drop-shadow-md" />
@@ -611,7 +841,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 )}
               </div>
 
-              {}
+              { }
               {user.id !== "guest" && (
                 <input
                   type="file"
@@ -624,7 +854,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
               <span className="absolute bottom-2.5 right-2 sm:bottom-6 sm:right-4 w-7 h-7 sm:w-11 sm:h-11 bg-emerald-400 border-[5px] sm:border-[7px] border-white dark:border-slate-950 rounded-full shadow-lg"></span>
 
-              {}
+              { }
               {user.id !== "guest" && (
                 <button
                   type="button"
@@ -665,7 +895,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {}
+            { }
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1">
               {user.emergencyPhone && (
                 <span className="inline-flex items-center gap-1.5 bg-slate-100/80 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200/60 dark:border-slate-700">
@@ -689,10 +919,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {}
+        { }
         <section className="bg-white/95 dark:bg-slate-900/95 rounded-[1.5rem] sm:rounded-[2.75rem] p-3.5 sm:p-8 border border-white/80 dark:border-slate-800 shadow-[0_18px_46px_rgba(37,99,235,0.1)] sm:shadow-[0_24px_70px_rgba(37,99,235,0.12)]">
           <div className="flex flex-row items-center gap-3 sm:gap-8 justify-between">
-            {}
+            { }
             <div className="flex flex-col gap-2 flex-1 min-w-0 text-left">
               <div className="flex items-center gap-2 sm:gap-5">
                 <h4 className="font-display font-bold text-slate-950 dark:text-white text-base sm:text-3xl leading-tight truncate">
@@ -704,7 +934,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </p>
             </div>
 
-            {}
+            { }
             <div className="flex flex-col items-center gap-2 sm:gap-5 shrink-0">
               <div
                 ref={qrRef}
@@ -742,12 +972,12 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </section>
 
-        {}
+        { }
         <div className="space-y-3">
           <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('accountManagement')}</h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start md:max-h-[50vh] md:overflow-y-auto md:pr-2">
-            {}
+            { }
             {[
               {
                 id: "personal",
@@ -800,7 +1030,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     <ChevronRight className={`w-5 h-5 text-slate-400 transform transition-transform ${isOpen ? "rotate-90 text-brand-600" : ""}`} />
                   </button>
 
-                  {}
+                  { }
                   <AnimatePresence>
                     {isOpen && (
                       <motion.div
@@ -811,7 +1041,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       >
                         <div className="p-5 text-xs text-slate-600 space-y-4">
 
-                          {}
+                          { }
                           {item.id === "personal" && (
                             <form onSubmit={handleUpdateProfile} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -908,12 +1138,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </form>
                           )}
 
-                          {}
+                          { }
                           {item.id === "seguridad" && (
-                            <div className="space-y-3 text-left">
+                            <div className="space-y-4 text-left">
                               <p className="text-slate-500 dark:text-slate-400 leading-normal text-[13px]">
                                 {t('securityConfigDesc')}
                               </p>
+
+                              {/* 2FA Setup */}
+                              <TwoFactorSetup userId={user.id || 'guest'} />
+
+                              {/* Google Account info */}
                               <div className="flex flex-col gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
                                 <div className="flex items-center gap-3">
                                   <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center p-2">
@@ -933,7 +1168,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {}
+                          { }
                           {item.id === "notificaciones" && (
                             <div className="space-y-2.5 text-left">
                               <p className="text-[11px] text-slate-500 mb-2">{t('notifSelectDesc')}</p>
@@ -968,7 +1203,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                             </div>
                           )}
 
-                          {}
+                          { }
                           {item.id === "datos_medicos" && (
                             <form onSubmit={handleUpdateMedicalData} className="space-y-4 text-left">
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
@@ -1104,11 +1339,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                               {/* Sync status indicator */}
                               {medicalSyncSource !== "none" && (
-                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${
-                                  medicalSyncSource === "fhir"
+                                <div className={`flex items-center gap-2 text-[10px] font-semibold py-1.5 px-3 rounded-lg mb-1 ${medicalSyncSource === "fhir"
                                     ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40"
                                     : "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/40"
-                                }`}>
+                                  }`}>
                                   {medicalSyncSource === "fhir" ? (
                                     <><Cloud className="w-3 h-3" /> Sincronizado con Google Cloud FHIR</>
                                   ) : (
@@ -1151,7 +1385,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-slate-100/50 dark:bg-slate-900/50 rounded-2xl p-4.5 border border-slate-200/50 dark:border-slate-800 flex items-center space-x-3.5 mt-4">
           <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-900/50">
             <Shield className="w-5 h-5 text-brand-600" />
@@ -1166,7 +1400,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
         </div>
 
-        {}
+        { }
         {onGoToAdmin && (
           <button
             onClick={onGoToAdmin}
@@ -1177,7 +1411,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </button>
         )}
 
-        {}
+        { }
         {onLogout && (
           <button
             id="btn-profile-logout"
@@ -1191,7 +1425,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
       </main>
 
-      {}
+      { }
       <AnimatePresence>
         {isSavedAlertOpen && (
           <motion.div
@@ -1207,7 +1441,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {}
+      { }
       <AnimatePresence>
         {isNotificationInboxOpen && (
           <motion.div
@@ -1271,11 +1505,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
                       return (
                         <div key={notification.id} className="p-4 flex items-start gap-3">
-                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${
-                            notification.read
+                          <div className={`mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border ${notification.read
                               ? "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300"
                               : getNotificationTone(notification)
-                          }`}>
+                            }`}>
                             <TypeIcon className="w-4.5 h-4.5" />
                           </div>
                           <div className="min-w-0 flex-1">
@@ -1286,11 +1519,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </span>
                                 <h5 className="text-xs font-black text-slate-800 dark:text-white leading-snug">{notification.title}</h5>
                               </div>
-                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${
-                                notification.read
+                              <span className={`text-[9px] font-black rounded-full px-2 py-1 shrink-0 ${notification.read
                                   ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
                                   : "bg-blue-600 text-white"
-                              }`}>
+                                }`}>
                                 {notification.read ? t('read') : t('unread')}
                               </span>
                             </div>
@@ -1319,7 +1551,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         )}
       </AnimatePresence>
 
-      {}
+      { }
       <AnimatePresence>
         {showQRModal && (
           <motion.div
@@ -1336,7 +1568,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 max-w-2xl w-full shadow-2xl"
             >
-              {}
+              { }
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display font-bold text-2xl sm:text-3xl text-slate-950 dark:text-white">
                   {t('shareProfile')}
@@ -1349,9 +1581,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </button>
               </div>
 
-              {}
+              { }
               <div className="flex flex-col items-center space-y-6">
-                {}
+                { }
                 <div
                   ref={qrRef}
                   className="w-72 h-72 sm:w-96 sm:h-96 border-4 border-brand-200 dark:border-brand-900 p-6 sm:p-8 bg-white dark:bg-slate-800 rounded-3xl flex items-center justify-center shadow-lg"
@@ -1364,14 +1596,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   />
                 </div>
 
-                {}
+                { }
                 <div className="w-full space-y-3 text-center">
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                     {t('emergencyDesc')}
                   </p>
                 </div>
 
-                {}
+                { }
                 <div className="flex gap-3 w-full pt-4 border-t border-slate-200 dark:border-slate-700">
                   <button
                     onClick={downloadQRCode}

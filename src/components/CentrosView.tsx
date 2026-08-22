@@ -795,8 +795,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                   requestCurrentLocation();
                 }}
                 className={`rounded-full px-2.5 py-1 text-[10px] font-bold transition-all ${locationMode === "nearby"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-700 border border-blue-100 dark:bg-slate-950 dark:text-blue-300 dark:border-blue-900/40"
                   }`}
               >
                 {geoStatus === "loading" ? "Ubicando..." : t('nearYou')}
@@ -806,8 +806,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <button
                 onClick={() => setActiveFilter(activeFilter === "hospital" ? "todos" : "hospital")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${activeFilter === "hospital"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                   }`}
               >
                 {t('hospitals')}
@@ -815,8 +815,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <button
                 onClick={() => setActiveFilter(activeFilter === "centro" ? "todos" : "centro")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${activeFilter === "centro"
-                    ? "bg-emerald-600 text-white"
-                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                   }`}
               >
                 {t('centers')}
@@ -824,8 +824,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <button
                 onClick={() => setActiveFilter(activeFilter === "farmacia" ? "todos" : "farmacia")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${activeFilter === "farmacia"
-                    ? "bg-emerald-600 text-white"
-                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                   }`}
               >
                 {t('pharmacies')}
@@ -833,8 +833,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <button
                 onClick={() => setActiveFilter(activeFilter === "medico" ? "todos" : "medico")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${activeFilter === "medico"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800"
                   }`}
               >
                 {t('doctors')}
@@ -888,8 +888,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                     key={hc.id}
                     layout
                     className={`rounded-2xl p-3.5 transition-all bg-white dark:bg-slate-950 border ${isSelected
-                        ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]"
-                        : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
+                      ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]"
+                      : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
                       }`}
                   >
                     <div
@@ -905,8 +905,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                         { }
                         <div
                           className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${isHospital
-                              ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
-                              : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
+                            ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
+                            : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
                             }`}
                         >
                           {isHospital ? (
@@ -952,8 +952,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             { }
                             <div className="flex items-center gap-2">
                               <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded ${operatingStatus.isOpen
-                                  ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
-                                  : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                                ? (operatingStatus.is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                                : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                                 }`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${operatingStatus.isOpen ? (operatingStatus.is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
                                 {operatingStatus.text}
@@ -1103,8 +1103,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <div className="flex items-center gap-3 min-w-0">
                 <div
                   className={`w-[38px] h-[38px] rounded-xl flex items-center justify-center shrink-0 border ${selectedCenter.type.toLowerCase().includes("hospital")
-                      ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
-                      : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
+                    ? "bg-blue-50 dark:bg-blue-900/30 border-blue-100 dark:border-blue-800/50 text-blue-600 dark:text-white"
+                    : "bg-emerald-50 dark:bg-emerald-900/30 border-emerald-100 dark:border-emerald-800/50 text-emerald-600 dark:text-white"
                     }`}
                 >
                   {selectedCenter.type.toLowerCase().includes("hospital") ? (
@@ -1138,8 +1138,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className={`inline-flex items-center gap-1 text-[9.5px] font-bold px-1.5 py-0.5 rounded ${getCenterOperatingStatus(selectedCenter.type).isOpen
-                      ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
-                      : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                    ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400")
+                    : "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                     }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${getCenterOperatingStatus(selectedCenter.type).isOpen ? (getCenterOperatingStatus(selectedCenter.type).is24h ? "bg-blue-500" : "bg-emerald-500") : "bg-red-500"}`} />
                     {getCenterOperatingStatus(selectedCenter.type).text}

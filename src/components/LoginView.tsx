@@ -3,6 +3,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight, UserPlus, Moon, Sun, Loader2 } fro
 import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
+import { validateEmail } from "../lib/security";
 
 interface LoginViewProps {
   onLogin: (name: string) => void;
@@ -31,21 +32,17 @@ export default function LoginView({
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const validateEmail = (value: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || loading) return;
 
     let hasError = false;
+    const cleanEmail = email.trim();
 
-    if (!email.trim()) {
+    if (!cleanEmail) {
       setEmailError(t('emailRequired'));
       hasError = true;
-    } else if (!validateEmail(email.trim())) {
+    } else if (!validateEmail(cleanEmail)) {
       setEmailError(t('emailInvalid'));
       hasError = true;
     } else {
@@ -66,10 +63,10 @@ export default function LoginView({
 
     setIsSubmitting(true);
     try {
-      const result = await login(email.trim(), password);
+      const result = await login(cleanEmail, password);
       if (result.success) {
         onToast?.(createToast(t('welcomeBack'), "success"));
-        onLogin(email.trim());
+        onLogin(cleanEmail);
       } else {
         onToast?.(createToast(result.error || t('loginError'), "error"));
       }
@@ -88,7 +85,7 @@ export default function LoginView({
       if (!result.success) {
         onToast?.(createToast(result.error || t('googleError'), "error"));
       }
-      
+
     } catch {
       onToast?.(createToast(t('googleConnError'), "error"));
     } finally {
@@ -105,7 +102,7 @@ export default function LoginView({
   return (
     <div className="min-h-dvh w-full flex flex-col justify-between text-slate-800 dark:text-slate-100 relative overflow-hidden transition-colors duration-300">
 
-      {}
+      { }
       <div className="absolute top-[6%] right-[-12%] w-64 h-64 pointer-events-none opacity-25 dark:opacity-35 animate-float-slow z-0">
         <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full transform rotate-12">
           <circle cx="100" cy="100" r="70" stroke="url(#ringGrad1)" strokeWidth="18" strokeLinecap="round" filter="url(#glow)" />
@@ -135,7 +132,7 @@ export default function LoginView({
         </svg>
       </div>
 
-      {}
+      { }
       <header className="w-full px-6 pt-6 flex justify-end items-center z-10">
         <button
           id="btn-toggle-darkmode"
@@ -147,10 +144,10 @@ export default function LoginView({
         </button>
       </header>
 
-      {}
+      { }
       <main className="flex-1 w-full max-w-md md:max-w-lg mx-auto px-6 md:px-10 py-8 md:my-auto md:bg-white md:dark:bg-slate-900/80 md:backdrop-blur-xl md:shadow-2xl md:shadow-primary/10 md:dark:shadow-primary/20 md:rounded-[32px] md:border md:border-slate-100 md:dark:border-slate-800 flex flex-col justify-center z-10">
 
-        {}
+        { }
         <div className="flex flex-col items-center mb-7">
           <img
             src="/app-logo-v2.jpg"
@@ -162,7 +159,7 @@ export default function LoginView({
           </h1>
         </div>
 
-        {}
+        { }
         <div className="mb-7 text-left">
           <h2 className="text-[38px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
             {t('loginTitle')}<span className="text-brand-600 dark:text-brand-400">.</span>
@@ -172,9 +169,9 @@ export default function LoginView({
           </p>
         </div>
 
-        {}
+        { }
         <form onSubmit={handleSubmit} className="space-y-5">
-          {}
+          { }
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-450 dark:text-slate-500 tracking-wider">
               {t('emailLabel')}
@@ -195,8 +192,8 @@ export default function LoginView({
                 disabled={isLoading}
                 autoComplete="email"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-4.5 py-4 rounded-[20px] border ${emailError
-                    ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
+                  ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
+                  : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14.5px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
             </div>
@@ -205,7 +202,7 @@ export default function LoginView({
             )}
           </div>
 
-          {}
+          { }
           <div className="space-y-1.5">
             <label className="text-[11.5px] uppercase font-bold text-slate-455 dark:text-slate-500 tracking-wider">
               {t('passwordLabel')}
@@ -226,8 +223,8 @@ export default function LoginView({
                 disabled={isLoading}
                 autoComplete="current-password"
                 className={`w-full bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 pl-12 pr-12 py-4 rounded-[20px] border ${passwordError
-                    ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
-                    : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
+                  ? "border-red-500 dark:border-red-500/70 focus:ring-red-500"
+                  : "border-slate-100 dark:border-slate-800/80 focus:border-brand-600 focus:ring-brand-100/50 dark:focus:ring-brand-600/30"
                   } focus:outline-none focus:ring-[4px] shadow-[0_4px_16px_rgba(0,0,0,0.015)] dark:shadow-none transition-all duration-200 text-[14.5px] font-medium disabled:opacity-60 disabled:cursor-not-allowed`}
               />
               <button
@@ -244,7 +241,7 @@ export default function LoginView({
             )}
           </div>
 
-          {}
+          { }
           <button
             id="btn-login-submit"
             type="submit"
@@ -265,7 +262,7 @@ export default function LoginView({
           </button>
         </form>
 
-        {}
+        { }
         <div className="relative my-7">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-150 dark:border-slate-800/80"></div>
@@ -277,9 +274,9 @@ export default function LoginView({
           </div>
         </div>
 
-        {}
+        { }
         <div className="space-y-3.5">
-          {}
+          { }
           <button
             id="btn-login-google"
             type="button"
@@ -300,7 +297,7 @@ export default function LoginView({
             <span>{t('continueWithGoogle')}</span>
           </button>
 
-          {}
+          { }
           <button
             id="btn-login-guest"
             type="button"
@@ -315,7 +312,7 @@ export default function LoginView({
 
       </main>
 
-      {}
+      { }
       <footer className="w-full pb-8 pt-4 flex flex-col items-center justify-center z-10 relative">
         <p className="text-xs text-slate-500 dark:text-slate-450 font-medium">
           {t('noAccount')}{" "}
@@ -328,7 +325,7 @@ export default function LoginView({
           </button>
         </p>
 
-        {}
+        { }
         <div className="absolute bottom-0 inset-x-0 w-full overflow-hidden leading-none pointer-events-none opacity-40 dark:opacity-20 -z-10">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="relative block w-full h-[55px] text-brand-400 fill-current">
             <path d="M0,0 C300,90 900,10 1200,80 L1200,120 L0,120 Z"></path>

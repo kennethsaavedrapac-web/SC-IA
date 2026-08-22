@@ -62,7 +62,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
       <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-400/10 dark:bg-cyan-500/10 blur-[100px] pointer-events-none"></div>
       <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-amber-500/5 dark:bg-amber-500/5 blur-[100px] pointer-events-none"></div>
 
-      {}
+      { }
       <header className="flex justify-between items-center px-6 py-4 bg-white/40 dark:bg-slate-950/40 backdrop-blur-xl sticky top-0 z-30 border-b border-white/20 dark:border-slate-800/50">
         <div className="flex justify-between items-center w-full max-w-5xl mx-auto">
           <div
@@ -106,7 +106,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
         </div>
       </header>
 
-      {}
+      { }
       <div className="px-6 pt-8 pb-4 max-w-5xl mx-auto w-full relative z-10">
         <h2 className="font-display font-bold text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-slate-400 tracking-tight leading-tight pb-1">
           {t('premiumTitle')}
@@ -131,11 +131,11 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
         </h3>
       </div>
 
-      {}
+      { }
       <main className="px-6 flex-1 space-y-8 max-w-5xl mx-auto w-full relative z-10">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-center max-w-5xl mx-auto">
-          {}
+          { }
           <div className="bg-gradient-to-br from-white to-cyan-50/50 dark:from-slate-900 dark:to-cyan-950/20 rounded-[2rem] p-8 border border-cyan-100 dark:border-cyan-900/50 shadow-xl shadow-cyan-500/5 relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all duration-300 group ring-1 ring-white/50 dark:ring-white/5">
             <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-200/40 dark:bg-cyan-800/30 rounded-full blur-3xl pointer-events-none group-hover:scale-125 group-hover:bg-cyan-300/40 dark:group-hover:bg-cyan-700/40 transition-all duration-700"></div>
 
@@ -165,7 +165,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
               </button>
             </div>
 
-            {}
+            { }
             <div className="bg-white/60 dark:bg-slate-950/60 backdrop-blur-md p-5 rounded-2xl border border-cyan-100/50 dark:border-cyan-900/30 shrink-0 select-none md:w-72 relative z-10 shadow-inner">
               <ul className="space-y-3.5">
                 {[
@@ -184,14 +184,14 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
             </div>
           </div>
 
-          {}
+          { }
           <div className="bg-gradient-to-br from-slate-900 via-[#0a192f] to-slate-900 dark:from-slate-950 dark:via-brand-600 dark:to-slate-950 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden flex flex-col gap-6 justify-between transform hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(251,191,36,0.15)] transition-all duration-500 border border-amber-500/30 ring-1 ring-amber-400/20 scale-100 md:scale-[1.05] z-10 group">
-            {}
+            { }
             <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-colors duration-700"></div>
             <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-brand-600/20 rounded-full blur-2xl pointer-events-none group-hover:bg-brand-400/20 transition-colors duration-700"></div>
             <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-            {}
+            { }
             <div className="absolute top-6 right-6 text-[11px] font-extrabold text-amber-900 bg-gradient-to-r from-amber-200 to-yellow-400 px-3.5 py-1.5 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.3)] flex items-center space-x-1 uppercase tracking-widest border border-amber-300">
               <Sparkles className="w-3.5 h-3.5" />
               <span>VIP PRO</span>
@@ -201,7 +201,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-200 to-amber-500 p-[1px] shadow-lg">
                   <div className="w-full h-full bg-slate-900 rounded-2xl flex items-center justify-center">
-                     <Building className="w-6 h-6 text-amber-400" />
+                    <Building className="w-6 h-6 text-amber-400" />
                   </div>
                 </div>
                 <h4 className="font-display font-bold text-2xl bg-clip-text text-transparent bg-gradient-to-r from-amber-100 to-amber-400">{t('institutionPlan')}</h4>
@@ -225,7 +225,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
               </button>
             </div>
 
-            {}
+            { }
             <div className="bg-slate-900/40 backdrop-blur-xl p-5 rounded-2xl border border-amber-500/20 shrink-0 select-none md:w-72 relative z-10 shadow-inner">
               <ul className="space-y-3.5">
                 {[
@@ -246,7 +246,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-[1.5rem] p-5 border border-white/50 dark:border-slate-800/50 flex items-center space-x-4 relative overflow-hidden shadow-lg shadow-slate-200/20 dark:shadow-none">
           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-600/10 dark:bg-brand-600/5 rounded-full blur-2xl"></div>
           <div className="w-12 h-12 rounded-full bg-brand-50/80 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0 border border-brand-100/50 dark:border-brand-900/50 shadow-sm backdrop-blur-sm">
@@ -262,10 +262,10 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
           </div>
         </div>
 
-        {}
+        { }
         <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-[1.5rem] p-5 border border-white/50 dark:border-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-5 mt-4 shadow-lg shadow-slate-200/20 dark:shadow-none relative overflow-hidden">
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-2xl"></div>
-          
+
           <div className="flex items-center space-x-3 relative z-10">
             <div className="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/80 flex items-center justify-center border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
               <Ticket className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" />
@@ -300,7 +300,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
 
       </main>
 
-      {}
+      { }
       <AnimatePresence>
         {checkoutPlan && (
           <motion.div
@@ -342,13 +342,13 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                     </button>
                   </div>
 
-                  {}
+                  { }
                   <div className="p-3.5 bg-brand-50/50 dark:bg-brand-900/20 rounded-2xl border border-brand-100 dark:border-brand-900/40 flex justify-between items-center text-xs font-bold leading-none mt-1">
                     <span className="text-slate-600 dark:text-slate-300">{checkoutPlan.name}</span>
                     <span className="text-brand-900 font-mono">{checkoutPlan.price}</span>
                   </div>
 
-                  {}
+                  { }
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('cardNumber')}</label>
                     <div className="relative">
@@ -365,7 +365,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                     </div>
                   </div>
 
-                  {}
+                  { }
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{t('expiry')}</label>
@@ -393,7 +393,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
                     </div>
                   </div>
 
-                  {}
+                  { }
                   <button
                     id="btn-confirm-checkout-payment"
                     type="submit"

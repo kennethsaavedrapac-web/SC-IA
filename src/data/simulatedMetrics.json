@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-07-17T09:59:00-06:00",
+  "systemStatus": {
+    "activeUsers": 45,
+    "messagesLastHour": 120,
+    "maxConcurrentCapacity": 250,
+    "hourlyMessageBaseline": 500,
+    "serverLoadPercentage": 18.0,
+    "workloadActivityPercentage": 24.0,
+    "status": "healthy"
+  },
+  "severityDistribution": [
+    {
+      "category": "Crítico (Rojo)",
+      "count": 6,
+      "percentage": 13.3,
+      "description": "Emergencia médica inmediata. Derivación al 128 o traslado de urgencia."
+    },
+    {
+      "category": "Urgente (Naranja)",
+      "count": 14,
+      "percentage": 31.1,
+      "description": "Casos prioritarios que requieren evaluación clínica presencial inmediata (dentro de 30-60 min)."
+    },
+    {
+      "category": "Menor (Amarillo)",
+      "count": 18,
+      "percentage": 40.0,
+      "description": "Casos moderados con sintomatología controlada. Recomendaciones generales y cita regular."
+    },
+    {
+      "category": "No Urgente (Verde)",
+      "count": 7,
+      "percentage": 15.6,
+      "description": "Consultas básicas de salud, dosificaciones o triaje no agudo."
+    }
+  ],
+  "performance": {
+    "averageResponseTimeSeconds": 1.84,
+    "p95ResponseTimeSeconds": 2.95,
+    "p99ResponseTimeSeconds": 3.42,
+    "apiSuccessRatePercentage": 99.83,
+    "activeConnections": 45
+  },
+  "conversionFunnel": {
+    "sessionsStarted": 58,
+    "triageCompleted": 43,
+    "triageAbandoned": 15,
+    "conversionRatePercentage": 74.14,
+    "dropoutRatePercentage": 25.86,
+    "dropoutDetails": {
+      "abandonedAtFirstMessage": 8,
+      "abandonedDuringInteraction": 7
+    }
+  },
+  "interactionAnalytics": {
+    "averageMessagesPerSession": 5.4,
+    "totalMessagesProcessedToday": 2684,
+    "commonSymptoms": [
+      { "symptom": "Fiebre", "count": 15, "percentage": 33.3 },
+      { "symptom": "Dolor de cabeza", "count": 12, "percentage": 26.7 },
+      { "symptom": "Tos", "count": 8, "percentage": 17.8 },
+      { "symptom": "Falta de aire", "count": 6, "percentage": 13.3 },
+      { "symptom": "Otros", "count": 4, "percentage": 8.9 }
+    ]
+  },
+  "historicalTrendLast6Hours": [
+    {
+      "hour": "04:00",
+      "activeUsers": 12,
+      "messages": 35,
+      "serverLoadPercentage": 4.8,
+      "workloadActivityPercentage": 7.0
+    },
+    {
+      "hour": "05:00",
+      "activeUsers": 18,
+      "messages": 48,
+      "serverLoadPercentage": 7.2,
+      "workloadActivityPercentage": 9.6
+    },
+    {
+      "hour": "06:00",
+      "activeUsers": 25,
+      "messages": 62,
+      "serverLoadPercentage": 10.0,
+      "workloadActivityPercentage": 12.4
+    },
+    {
+      "hour": "07:00",
+      "activeUsers": 38,
+      "messages": 95,
+      "serverLoadPercentage": 15.2,
+      "workloadActivityPercentage": 19.0
+    },
+    {
+      "hour": "08:00",
+      "activeUsers": 50,
+      "messages": 138,
+      "serverLoadPercentage": 20.0,
+      "workloadActivityPercentage": 27.6
+    },
+    {
+      "hour": "09:00",
+      "activeUsers": 45,
+      "messages": 120,
+      "serverLoadPercentage": 18.0,
+      "workloadActivityPercentage": 24.0
+    }
+  ]
+}
