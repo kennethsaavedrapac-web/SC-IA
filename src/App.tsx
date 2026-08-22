@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback, Suspense } from "react";
-import HomeView from "./components/HomeView";
-import ConsultaView from "./components/ConsultaView";
-import CentrosView from "./components/CentrosView";
-import PremiumView from "./components/PremiumView";
-import PerfilView from "./components/PerfilView";
-import LoginView from "./components/LoginView";
-import RegisterView from "./components/RegisterView";
-import AdminView from "./components/AdminView";
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react";
+const HomeView = lazy(() => import("./components/HomeView"));
+const ConsultaView = lazy(() => import("./components/ConsultaView"));
+const CentrosView = lazy(() => import("./components/CentrosView"));
+const PremiumView = lazy(() => import("./components/PremiumView"));
+const PerfilView = lazy(() => import("./components/PerfilView"));
+const LoginView = lazy(() => import("./components/LoginView"));
+const RegisterView = lazy(() => import("./components/RegisterView"));
+const AdminView = lazy(() => import("./components/AdminView"));
 import TwoFactorVerify from "./components/TwoFactorVerify";
 import AnnouncementModal from "./components/AnnouncementModal";
 import { ToastContainer, createToast, type ToastData } from "./components/Toast";
@@ -150,7 +150,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(announcementsSub); };
+    return () => { supabase?.removeChannel(announcementsSub); };
   }, [dismissedAnnouncements, user?.id]);
 
   
@@ -181,7 +181,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(settingsSub); };
+    return () => { supabase?.removeChannel(settingsSub); };
   }, []);
 
   const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
@@ -317,9 +317,13 @@ export default function App() {
         // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
         function decryptMedicalData(encoded: string): string | null {
           try {
-            return encoded ? atob(encoded) : null;
+            return encoded ? decodeURIComponent(atob(encoded)) : null;
           } catch {
-            return null;
+            try {
+              return encoded ? atob(encoded) : null;
+            } catch {
+              return null;
+            }
           }
         }
 
@@ -582,7 +586,7 @@ export default function App() {
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
         if (updatedUser.healthConditions) {
-          localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
+          localStorage.setItem(`conditions_${userId}`, btoa(encodeURIComponent(JSON.stringify(updatedUser.healthConditions))));
         }
       }
     } catch (e) {
