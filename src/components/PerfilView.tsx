@@ -11,6 +11,8 @@ import { sanitizeAndTrim, validateEmail, validateName, validatePhone } from "../
 import TwoFactorSetup from "./TwoFactorSetup";
 import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
+import MfaEnrollmentModal from "./MfaEnrollmentModal";
+import { createToast, type ToastData } from "./Toast";
 
 interface PerfilViewProps {
   user: UserProfile;
@@ -40,6 +42,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [notificationHistory, setNotificationHistory] = useState<AppNotificationRecord[]>([]);
   const [isNotificationInboxOpen, setIsNotificationInboxOpen] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showMfaEnrollment, setShowMfaEnrollment] = useState(false);
+  const { profile } = useAuth();
 
   // Medical Data State (FHIR-backed)
   const [localMedicalData, setLocalMedicalData] = useState<MedicalFormData>(() => {
@@ -1820,6 +1824,15 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modal de Enrolamiento 2FA */}
+      <MfaEnrollmentModal
+        isOpen={showMfaEnrollment}
+        onClose={() => setShowMfaEnrollment(false)}
+        onSuccess={() => {
+          refreshProfile();
+        }}
+      />
     </div>
   );
 }
