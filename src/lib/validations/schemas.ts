@@ -112,7 +112,7 @@ export const userProfileUpdateSchema = z.object({
     .max(30, { message: 'El teléfono no puede exceder 30 caracteres' })
     .optional()
     .nullable()
-    .transform((val) => (val ? sanitizeString(val) : '')),
+    .transform((val) => (val ? sanitizeString(val) : undefined)),
   bloodType: z
     .string()
     .regex(REGEX.BLOOD_TYPE, { message: 'Tipo de sangre inválido (Ej: O+, A+, B-, AB+)' })

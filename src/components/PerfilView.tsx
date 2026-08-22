@@ -954,7 +954,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           {/* Contenedor Flip 3D */}
-          <div className="group w-full max-w-[800px] aspect-[1.586/1] [perspective:1500px]">
+          <div className="group w-full max-w-[800px] aspect-[1.35/1] sm:aspect-[1.586/1] [perspective:1500px]">
             <div 
               className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer md:group-hover:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}
               onClick={() => setIsCardFlipped(!isCardFlipped)}
@@ -986,13 +986,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest hidden sm:block">
+                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
                     <div className="text-center sm:text-right flex-1">
                       <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                      <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
                       <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
@@ -1079,13 +1079,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest hidden sm:block">
+                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
                     <div className="text-center sm:text-right flex-1">
                       <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                      <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
                       <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
