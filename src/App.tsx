@@ -21,7 +21,7 @@ import { useSessionTimeout } from "./hooks/useSessionTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
-import { useIdleTimeout } from "./hooks/useIdleTimeout";
+
 
 const LoadingFallback = ({ text = "Cargando módulo..." }: { text?: string }) => (
   <div className="flex-1 min-h-[50vh] flex flex-col items-center justify-center">
