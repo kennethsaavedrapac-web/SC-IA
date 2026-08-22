@@ -954,7 +954,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           {/* Contenedor Flip 3D */}
-          <div className="group w-full max-w-[800px] aspect-[1.586/1] [perspective:1500px]">
+          <div className="group w-full max-w-[800px] aspect-[3/4] sm:aspect-[1.586/1] [perspective:1500px] min-h-[500px] sm:min-h-0">
             <div 
               className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer md:group-hover:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}
               onClick={() => setIsCardFlipped(!isCardFlipped)}
@@ -981,42 +981,42 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl">
+                  <div className="flex justify-between items-start mb-4 sm:mb-6 gap-1">
+                    <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xs sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-sm leading-tight tracking-widest">
+                      <div className="text-blue-900 font-bold text-[8px] sm:text-sm leading-tight tracking-widest hidden sm:block">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-right">
-                      <h2 className="text-[#1e3a8a] font-bold text-lg sm:text-2xl tracking-wider">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    <div className="text-center sm:text-right flex-1">
+                      <h2 className="text-[#1e3a8a] font-bold text-[14px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
+                      <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
-                    <div className="text-[#1e3a8a]">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-10 h-10 rounded-full shadow-sm" />
+                    <div className="text-[#1e3a8a] shrink-0">
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
                   {/* Body */}
-                  <div className="flex gap-6 flex-1">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 flex-1 items-center sm:items-start">
                     {/* Foto */}
-                    <div className="w-[120px] sm:w-[150px] shrink-0">
+                    <div className="w-[90px] sm:w-[150px] shrink-0">
                       {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-xl shadow-md border-4 border-white" />
+                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-xl shadow-md border-2 sm:border-4 border-white" />
                       ) : (
-                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-xl shadow-md border-4 border-white flex items-center justify-center text-5xl text-slate-400 font-bold">
+                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-xl shadow-md border-2 sm:border-4 border-white flex items-center justify-center text-3xl sm:text-5xl text-slate-400 font-bold">
                           {getInitials(user.name)}
                         </div>
                       )}
                     </div>
                     
                     {/* Info */}
-                    <div className="flex-1 flex flex-col justify-center">
-                      <div className="mb-4">
-                        <p className="text-[#1e3a8a] font-bold text-xs mb-1">NOMBRE COMPLETO</p>
-                        <h3 className="text-[#0f172a] font-bold text-xl sm:text-3xl tracking-wide uppercase">{displayName}</h3>
+                    <div className="flex-1 flex flex-col justify-center w-full text-center sm:text-left">
+                      <div className="mb-3 sm:mb-4">
+                        <p className="text-[#1e3a8a] font-bold text-[9px] sm:text-xs mb-0.5 sm:mb-1">NOMBRE COMPLETO</p>
+                        <h3 className="text-[#0f172a] font-bold text-lg sm:text-3xl tracking-wide uppercase leading-tight">{displayName}</h3>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-y-4 gap-x-2">
@@ -1072,26 +1072,26 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl">
+                  <div className="flex justify-between items-start mb-4 sm:mb-6 gap-1">
+                    <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xs sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-sm leading-tight tracking-widest">
+                      <div className="text-blue-900 font-bold text-[8px] sm:text-sm leading-tight tracking-widest hidden sm:block">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-right">
-                      <h2 className="text-[#1e3a8a] font-bold text-lg sm:text-2xl tracking-wider">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    <div className="text-center sm:text-right flex-1">
+                      <h2 className="text-[#1e3a8a] font-bold text-[14px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
+                      <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
-                    <div className="text-[#1e3a8a]">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-10 h-10 rounded-full shadow-sm" />
+                    <div className="text-[#1e3a8a] shrink-0">
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
                   {/* Body - Grid */}
-                  <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-4 pr-4">
+                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 sm:gap-y-4 pr-0 sm:pr-4">
                     
                     <div>
                       <div className="flex items-center gap-2 mb-1.5">
