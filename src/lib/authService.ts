@@ -17,6 +17,7 @@ export interface UserProfile {
   ciudad: string;
   pais: string;
   sexo: string | null;
+  fecha_nacimiento?: string | null;
   created_at: string;
 }
 
