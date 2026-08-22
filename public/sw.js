@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'salud-conecta-cache-v10';
+const CACHE_NAME = 'salud-conecta-cache-v11';
 
 
 const ASSETS_TO_CACHE = [
