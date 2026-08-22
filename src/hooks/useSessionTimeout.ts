@@ -1,62 +1,65 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
-/**
- * useSessionTimeout — Hook de expiración automática de sesión por inactividad.
- *
- * Detecta actividad del usuario (mouse, teclado, touch, scroll).
- * Tras `timeoutMs` de inactividad, ejecuta `onTimeout`.
- * Muestra un aviso previo `warningMs` milisegundos antes de expirar.
- *
- * @param onTimeout  — Callback al expirar la sesión (ej: logout + redirect)
- * @param onWarning  — Callback de advertencia previa (ej: mostrar toast)
- * @param enabled    — Si es false, el hook se desactiva (ej: usuario invitado)
- * @param timeoutMs  — Tiempo de inactividad total en ms (default: 30 min)
- * @param warningMs  — Tiempo antes de expirar para mostrar aviso (default: 2 min)
- */
-export function useSessionTimeout(
-  onTimeout: () => void,
-  onWarning: () => void,
-  enabled: boolean = true,
-  timeoutMs: number = 30 * 60 * 1000,
-  warningMs: number = 2 * 60 * 1000
-) {
+interface UseSessionTimeoutOptions {
+  timeoutMs: number;
+  warningThresholdMs: number;
+  enabled: boolean;
+  onTimeout: () => void;
+  onWarning: (remainingSeconds: number) => void;
+}
+
+export function useSessionTimeout({
+  timeoutMs,
+  warningThresholdMs,
+  enabled,
+  onTimeout,
+  onWarning
+}: UseSessionTimeoutOptions) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const warningRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const warningFiredRef = useRef(false);
-
-  // Refs estables para los callbacks
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  
+  const [remainingSeconds, setRemainingSeconds] = useState(warningThresholdMs / 1000);
+  
   const onTimeoutRef = useRef(onTimeout);
   const onWarningRef = useRef(onWarning);
+  
   onTimeoutRef.current = onTimeout;
   onWarningRef.current = onWarning;
 
   const clearTimers = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    if (warningRef.current) {
-      clearTimeout(warningRef.current);
-      warningRef.current = null;
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    if (warningRef.current) clearTimeout(warningRef.current);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    timeoutRef.current = null;
+    warningRef.current = null;
+    intervalRef.current = null;
   }, []);
 
-  const resetTimers = useCallback(() => {
+  const extendSession = useCallback(() => {
     clearTimers();
-    warningFiredRef.current = false;
+    setRemainingSeconds(warningThresholdMs / 1000);
 
-    // Timer de advertencia: se dispara (timeoutMs - warningMs) después de la última actividad
-    const warningDelay = Math.max(timeoutMs - warningMs, 0);
+    const warningDelay = Math.max(timeoutMs - warningThresholdMs, 0);
     warningRef.current = setTimeout(() => {
-      warningFiredRef.current = true;
-      onWarningRef.current();
+      onWarningRef.current(warningThresholdMs / 1000);
+      
+      let secondsLeft = warningThresholdMs / 1000;
+      setRemainingSeconds(secondsLeft);
+      intervalRef.current = setInterval(() => {
+        secondsLeft -= 1;
+        setRemainingSeconds(secondsLeft > 0 ? secondsLeft : 0);
+        if (secondsLeft <= 0 && intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      }, 1000);
+      
     }, warningDelay);
 
-    // Timer de expiración: se dispara después de timeoutMs de inactividad
     timeoutRef.current = setTimeout(() => {
       onTimeoutRef.current();
     }, timeoutMs);
-  }, [clearTimers, timeoutMs, warningMs]);
+  }, [clearTimers, timeoutMs, warningThresholdMs]);
 
   useEffect(() => {
     if (!enabled) {
@@ -64,27 +67,26 @@ export function useSessionTimeout(
       return;
     }
 
-    // Eventos de actividad del usuario
     const activityEvents: (keyof WindowEventMap)[] = [
-      'mousedown',
-      'mousemove',
-      'keydown',
-      'scroll',
-      'touchstart',
-      'click',
+      'mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'
     ];
 
     const handleActivity = () => {
-      resetTimers();
+      // Only extend if we aren't already in warning phase.
+      // Wait, extending during warning phase should dismiss it! 
+      // But App.tsx manually calls extendSession when dismissing.
+      // Let's just always extend on activity if we want, or throttle it.
+      // We will throttle activity updates to avoid calling setTimeout constantly.
+      if (!intervalRef.current) {
+         extendSession();
+      }
     };
 
-    // Registrar listeners con passive para no bloquear scroll
     activityEvents.forEach((event) => {
       window.addEventListener(event, handleActivity, { passive: true });
     });
 
-    // Iniciar timers al montar
-    resetTimers();
+    extendSession();
 
     return () => {
       clearTimers();
@@ -92,5 +94,7 @@ export function useSessionTimeout(
         window.removeEventListener(event, handleActivity);
       });
     };
-  }, [enabled, resetTimers, clearTimers]);
+  }, [enabled, extendSession, clearTimers]);
+
+  return { extendSession, remainingSeconds };
 }
