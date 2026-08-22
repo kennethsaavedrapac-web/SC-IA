@@ -63,7 +63,7 @@ export default function App() {
     setShowIdleWarningModal(true);
   }, []);
 
-  const { extendSession, remainingSeconds } = useIdleTimeout({
+  const { extendSession, remainingSeconds } = useSessionTimeout({
     timeoutMs: 15 * 60 * 1000, // 15 minutos
     warningThresholdMs: 60 * 1000, // 60 segundos previos
     enabled: Boolean(user && user.id !== "guest" && (currentView !== "login" && currentView !== "register")),
