@@ -142,7 +142,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(announcementsSub); };
+    return () => { supabase?.removeChannel(announcementsSub); };
   }, [dismissedAnnouncements, user?.id]);
 
   
@@ -173,7 +173,7 @@ export default function App() {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(settingsSub); };
+    return () => { supabase?.removeChannel(settingsSub); };
   }, []);
 
   const featureFlags = globalSettings?.featureFlags || { premiumFeatures: true, healthUnitSearch: true, appointmentBooking: true, emergencyCard: true };
@@ -308,9 +308,13 @@ export default function App() {
         // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
         function decryptMedicalData(encoded: string): string | null {
           try {
-            return encoded ? atob(encoded) : null;
+            return encoded ? decodeURIComponent(atob(encoded)) : null;
           } catch {
-            return null;
+            try {
+              return encoded ? atob(encoded) : null;
+            } catch {
+              return null;
+            }
           }
         }
 
@@ -563,7 +567,7 @@ export default function App() {
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
         if (updatedUser.healthConditions) {
-          localStorage.setItem(`conditions_${userId}`, btoa(JSON.stringify(updatedUser.healthConditions)));
+          localStorage.setItem(`conditions_${userId}`, btoa(encodeURIComponent(JSON.stringify(updatedUser.healthConditions))));
         }
       }
     } catch (e) {
