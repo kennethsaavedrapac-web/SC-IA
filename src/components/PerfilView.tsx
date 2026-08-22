@@ -954,7 +954,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           {/* Contenedor Flip 3D */}
-          <div className="group w-full max-w-[800px] aspect-[3/4] sm:aspect-[1.586/1] [perspective:1500px] min-h-[500px] sm:min-h-0">
+          <div className="group w-full max-w-[800px] aspect-[1.586/1] [perspective:1500px]">
             <div 
               className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer md:group-hover:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}
               onClick={() => setIsCardFlipped(!isCardFlipped)}
@@ -976,77 +976,79 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </div>
 
                 {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-4 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
+                <div className="w-[88%] h-full p-3 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
                   {/* Decoración de fondo */}
                   <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-4 sm:mb-6 gap-1">
-                    <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xs sm:text-xl">
+                  <div className="flex justify-between items-start mb-2 sm:mb-6 gap-1">
+                    <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+                      <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-[8px] sm:text-sm leading-tight tracking-widest hidden sm:block">
+                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest hidden sm:block">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
                     <div className="text-center sm:text-right flex-1">
-                      <h2 className="text-[#1e3a8a] font-bold text-[14px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
+                      <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
                       <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
                   {/* Body */}
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-6 flex-1 items-center sm:items-start">
+                  <div className="flex flex-row gap-2 sm:gap-6 flex-1 items-center sm:items-start">
                     {/* Foto */}
-                    <div className="w-[90px] sm:w-[150px] shrink-0">
+                    <div className="w-[70px] sm:w-[150px] shrink-0">
                       {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-xl shadow-md border-2 sm:border-4 border-white" />
+                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-md sm:rounded-xl shadow-md border-2 sm:border-4 border-white" />
                       ) : (
-                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-xl shadow-md border-2 sm:border-4 border-white flex items-center justify-center text-3xl sm:text-5xl text-slate-400 font-bold">
+                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-md sm:rounded-xl shadow-md border-2 sm:border-4 border-white flex items-center justify-center text-xl sm:text-5xl text-slate-400 font-bold">
                           {getInitials(user.name)}
                         </div>
                       )}
                     </div>
                     
                     {/* Info */}
-                    <div className="flex-1 flex flex-col justify-center w-full text-center sm:text-left">
-                      <div className="mb-3 sm:mb-4">
-                        <p className="text-[#1e3a8a] font-bold text-[9px] sm:text-xs mb-0.5 sm:mb-1">NOMBRE COMPLETO</p>
-                        <h3 className="text-[#0f172a] font-bold text-lg sm:text-3xl tracking-wide uppercase leading-tight">{displayName}</h3>
+                    <div className="flex-1 flex flex-col justify-center w-full text-left">
+                      <div className="mb-1.5 sm:mb-4">
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs mb-0 sm:mb-1">NOMBRE COMPLETO</p>
+                        <h3 className="text-[#0f172a] font-bold text-[11px] sm:text-3xl tracking-wide uppercase leading-tight">{displayName}</h3>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+                      <div className="grid grid-cols-2 gap-y-1.5 sm:gap-y-4 gap-x-2">
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">FECHA DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg">{user.birthDate || '---'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">FECHA DE NACIMIENTO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg">
+                            {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
+                          </p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">LUGAR DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg uppercase">{user.city || '---'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">LUGAR DE NACIMIENTO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg uppercase">{user.city || '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">SEXO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg uppercase">{user.sex === 'male' ? 'MASCULINO' : user.sex === 'female' ? 'FEMENINO' : 'NO ESP.'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">SEXO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg uppercase">{user.sex === 'male' ? 'MASCULINO' : user.sex === 'female' ? 'FEMENINO' : 'NO ESP.'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">NÚMERO DE IDENTIDAD</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg">{localMedicalData.cedula || '---'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">NÚMERO DE IDENTIDAD</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg">{localMedicalData.cedula || '---'}</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-auto flex justify-between items-end pb-2">
-                    <p className="text-[#0f172a] font-bold text-[8px] sm:text-[10px] tracking-widest uppercase">
+                  <div className="mt-auto flex justify-between items-end pb-0 sm:pb-2 gap-2">
+                    <p className="text-[#0f172a] font-bold text-[5px] sm:text-[10px] tracking-widest uppercase">
                       Uso exclusivo en situaciones de emergencia
                     </p>
-                    <p className="text-[#1e3a8a] font-bold text-[8px] sm:text-[10px] tracking-wider">
-                      SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
+                    <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[10px] tracking-wider text-right">
+                      SALUD QUE TE CONECTA,<br className="sm:hidden" /> VIDA QUE TE ACOMPAÑA
                     </p>
                   </div>
                 </div>
@@ -1068,99 +1070,99 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 </div>
 
                 {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-4 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
+                <div className="w-[88%] h-full p-3 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
                   <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-4 sm:mb-6 gap-1">
-                    <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                      <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xs sm:text-xl">
+                  <div className="flex justify-between items-start mb-2 sm:mb-6 gap-1">
+                    <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+                      <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
                         SC
                       </div>
-                      <div className="text-blue-900 font-bold text-[8px] sm:text-sm leading-tight tracking-widest hidden sm:block">
+                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest hidden sm:block">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
                     <div className="text-center sm:text-right flex-1">
-                      <h2 className="text-[#1e3a8a] font-bold text-[14px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
+                      <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
                       <p className="hidden sm:block text-slate-500 text-xs sm:text-sm font-semibold tracking-wide mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
                   {/* Body - Grid */}
-                  <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 sm:gap-y-4 pr-0 sm:pr-4">
+                  <div className="flex-1 grid grid-cols-2 gap-x-2 sm:gap-x-6 gap-y-1.5 sm:gap-y-4 pr-0 sm:pr-4">
                     
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Heart className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Heart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ENFERMEDADES QUE PADECE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ENFERMEDADES QUE PADECE</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
                         {localMedicalData.enfermedades || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ALERGIAS</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ALERGIAS</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
                         {localMedicalData.alergias || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Droplets className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Droplets className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">TIPO DE SANGRE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">TIPO DE SANGRE</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
                         {localMedicalData.tipoSangre || user.bloodType || 'O+'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-3.5 h-3.5" /> {/* TODO: pill icon */}
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">TRATAMIENTOS ACTUALES</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">TRATAMIENTOS ACTUALES</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold line-clamp-2">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold line-clamp-2 leading-tight">
                         {localMedicalData.tratamientos || localMedicalData.pastillas || 'Ninguno'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-xs">KG</span>
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <span className="font-bold text-[6px] sm:text-xs">KG</span>
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">PESO</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">PESO</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
                         {localMedicalData.peso ? `${localMedicalData.peso} kg` : '---'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-xs">CM</span>
+                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <span className="font-bold text-[6px] sm:text-xs">CM</span>
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ALTURA</p>
+                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ALTURA</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
                         {localMedicalData.altura ? `${localMedicalData.altura} m` : '---'}
                       </div>
                     </div>
@@ -1168,14 +1170,14 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                   </div>
 
                   {/* Contacto de Emergencia */}
-                  <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                        <User className="w-3.5 h-3.5" />
+                  <div className="mt-1 sm:mt-4">
+                    <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
+                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                        <User className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                       </div>
-                      <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">CONTACTO DE EMERGENCIA</p>
+                      <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">CONTACTO DE EMERGENCIA</p>
                     </div>
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 text-slate-700 text-xs sm:text-sm">
+                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-3 text-slate-700 text-[8px] sm:text-sm">
                       <p><span className="font-bold">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}</p>
                     </div>
                   </div>

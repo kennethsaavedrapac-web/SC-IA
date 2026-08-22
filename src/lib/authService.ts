@@ -256,7 +256,7 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'>>
+  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'> & { fecha_nacimiento: string }>
 ): Promise<{ success: boolean; error?: string }> {
   const validation = validateInput(userProfileUpdateSchema, updates);
   if (!validation.success) {

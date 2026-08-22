@@ -104,6 +104,8 @@ export const userProfileUpdateSchema = z.object({
     .nullable(),
   ciudad: safeString(2, 100).optional(),
   pais: safeString(2, 100).optional(),
+  sexo: z.string().optional().nullable(),
+  fecha_nacimiento: z.string().optional().nullable(),
   emergencyPhone: z
     .string()
     .trim()

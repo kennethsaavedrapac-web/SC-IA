@@ -337,6 +337,7 @@ export default function App() {
         const cachedPhone = localStorage.getItem(`phone_${user.id}`);
         const cachedSex = localStorage.getItem(`sex_${user.id}`);
         const cachedBloodType = localStorage.getItem(`bloodType_${user.id}`);
+        const cachedBirthDate = localStorage.getItem(`birthDate_${user.id}`);
         const cachedConditions = localStorage.getItem(`conditions_${user.id}`);
 
         // Decrypt medical data from localStorage (simple base64 encoding to avoid plaintext storage)
@@ -354,7 +355,7 @@ export default function App() {
 
         const decryptedConditions = cachedConditions ? decryptMedicalData(cachedConditions) : null;
 
-        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedSex || cachedBloodType || cachedConditions) {
+        if (cachedAvatar || cachedName || cachedCity || cachedCountry || cachedEmail || cachedPhone || cachedSex || cachedBloodType || cachedBirthDate || cachedConditions) {
           setLocalUser((prev) => ({
             ...prev,
             id: user.id,
@@ -365,6 +366,7 @@ export default function App() {
             avatarUrl: cachedAvatar || prev.avatarUrl,
             emergencyPhone: cachedPhone || prev.emergencyPhone,
             sex: cachedSex ?? prev.sex,
+            birthDate: cachedBirthDate || prev.birthDate,
             bloodType: cachedBloodType || prev.bloodType,
             healthConditions: decryptedConditions ? JSON.parse(decryptedConditions) : prev.healthConditions,
           }));
@@ -385,6 +387,8 @@ export default function App() {
         const updatedCountry = profile.pais || prev.country;
         const hasProfileSex = Object.prototype.hasOwnProperty.call(profile, "sexo");
         const updatedSex = hasProfileSex ? (profile.sexo || "") : prev.sex;
+        const hasProfileBirth = Object.prototype.hasOwnProperty.call(profile, "fecha_nacimiento");
+        const updatedBirthDate = hasProfileBirth ? (profile.fecha_nacimiento || "") : prev.birthDate;
 
         if (profile.id) {
           try {
@@ -392,10 +396,17 @@ export default function App() {
             localStorage.setItem(`name_${profile.id}`, updatedName);
             localStorage.setItem(`city_${profile.id}`, updatedCity);
             localStorage.setItem(`country_${profile.id}`, updatedCountry);
+            
             if (profile.sexo) {
               localStorage.setItem(`sex_${profile.id}`, profile.sexo);
             } else if (hasProfileSex) {
               localStorage.removeItem(`sex_${profile.id}`);
+            }
+
+            if (profile.fecha_nacimiento) {
+              localStorage.setItem(`birthDate_${profile.id}`, profile.fecha_nacimiento);
+            } else if (hasProfileBirth) {
+              localStorage.removeItem(`birthDate_${profile.id}`);
             }
           } catch (e) {
             console.warn("Could not cache profile data:", e);
@@ -410,6 +421,7 @@ export default function App() {
           city: updatedCity,
           country: updatedCountry,
           sex: updatedSex,
+          birthDate: updatedBirthDate,
           avatarUrl: updatedAvatar,
         };
       });
@@ -607,6 +619,11 @@ export default function App() {
         } else {
           localStorage.removeItem(`sex_${userId}`);
         }
+        if (updatedUser.birthDate) {
+          localStorage.setItem(`birthDate_${userId}`, updatedUser.birthDate);
+        } else {
+          localStorage.removeItem(`birthDate_${userId}`);
+        }
         if (updatedUser.emergencyPhone) localStorage.setItem(`phone_${userId}`, updatedUser.emergencyPhone);
         if (updatedUser.bloodType) localStorage.setItem(`bloodType_${userId}`, updatedUser.bloodType);
         // Store health conditions with basic encoding to avoid plaintext PII in localStorage
@@ -628,6 +645,7 @@ export default function App() {
           nombre: updatedUser.name,
           ciudad: updatedUser.city,
           sexo: updatedUser.sex || null,
+          fecha_nacimiento: updatedUser.birthDate || null,
           full_name: updatedUser.name,
         } as any);
 
