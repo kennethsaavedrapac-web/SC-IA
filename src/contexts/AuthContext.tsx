@@ -30,6 +30,7 @@ interface AuthContextType {
   logout: () => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
   completeMFA: () => void;
+  completeMfaLogin: (userId?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -86,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const assurance = await getAssuranceLevel();
           if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
             // User has MFA factors but hasn't verified yet in this session
-            const { factors } = await getMFAFactors();
+            const factors = await getMFAFactors();
             const verifiedFactor = factors.find(f => f.status === 'verified');
             if (verifiedFactor) {
               setRequiresMFA(true);
@@ -101,10 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [loadProfile]);
-
-  const completeMfaLogin = useCallback(async (userId: string) => {
-    await loadProfile(userId);
   }, [loadProfile]);
 
   const register = useCallback(async (email: string, password: string, nombre: string): Promise<AuthResult> => {
@@ -159,6 +156,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMfaFactorId(null);
   }, []);
 
+  const completeMfaLogin = useCallback(async (userId?: string) => {
+    setRequiresMFA(false);
+    setMfaFactorId(null);
+    if (userId) {
+      await loadProfile(userId);
+    } else if (user) {
+      await loadProfile(user.id);
+    }
+  }, [user, loadProfile]);
+
   const value: AuthContextType = {
     user,
     session,
@@ -173,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     refreshProfile,
     completeMFA,
+    completeMfaLogin,
   };
 
   return (

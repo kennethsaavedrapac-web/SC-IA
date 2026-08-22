@@ -47,8 +47,8 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
   const loadFactors = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await getMFAFactors();
-      setFactors(result.factors);
+      const factorsList = await getMFAFactors();
+      setFactors(Array.isArray(factorsList) ? factorsList : []);
     } catch {
       // Silently fail — UI will show empty state
     } finally {

@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { createToast, type ToastData } from "./Toast";
 import { useLanguage } from "../contexts/LanguageContext";
 import { validateEmail } from "../lib/security";
+import MfaChallengeModal from "./MfaChallengeModal";
 
 interface LoginViewProps {
   onLogin: (name: string) => void;
@@ -21,12 +22,14 @@ export default function LoginView({
   onToast
 }: LoginViewProps) {
   const { t } = useLanguage();
-  const { login, loginWithGoogle, loading } = useAuth();
+  const { login, loginWithGoogle, loading, completeMfaLogin } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mfaModalOpen, setMfaModalOpen] = useState(false);
+  const [tempMfaToken, setTempMfaToken] = useState("");
 
   // Validation states
   const [emailError, setEmailError] = useState("");

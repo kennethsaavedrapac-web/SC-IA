@@ -1,23 +1,29 @@
 /**
- * mfaService.ts — Servicio de autenticación de dos factores (2FA/MFA)
- * 
- * Utiliza la API nativa de Supabase MFA (TOTP) para:
- * - Enrolar un factor TOTP (genera QR)
- * - Verificar y activar el factor
- * - Desactivar el factor
- * - Crear y verificar challenges post-login
- * - Consultar nivel de aseguramiento (AAL)
+ * mfaService.ts — Servicio completo de autenticación de dos factores (2FA / MFA / TOTP)
+ * Soporta tanto Supabase Auth MFA nativo como RFC 6238 TOTP local con Google Authenticator / Authy.
  */
 
 import { supabase } from './supabaseClient';
+import QRCode from 'qrcode';
+import crypto from 'crypto';
+
+const APP_NAME = 'Salud-Conecta IA (MINSA)';
+const BASE32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 // ─── Tipos ─────────────────────────────────────────────────────────
+
+export interface MfaSetupData {
+  secret: string;
+  qrCodeUrl: string;
+  otpauthUrl: string;
+  backupCodes: string[];
+}
 
 export interface MFAEnrollResult {
   success: boolean;
   factorId?: string;
-  qrUri?: string; // otpauth:// URI para generar QR
-  secret?: string; // clave secreta para entrada manual
+  qrUri?: string;
+  secret?: string;
   error?: string;
 }
 
@@ -40,12 +46,134 @@ export interface MFAAssuranceLevel {
   currentAuthenticationMethods: any[];
 }
 
-// ─── Enrolamiento ──────────────────────────────────────────────────
+// ─── RFC 6238 TOTP Helpers ──────────────────────────────────────────
 
-/**
- * Inicia el enrolamiento de un nuevo factor TOTP.
- * Retorna el QR URI y el factor ID para su verificación.
- */
+function base32Encode(buffer: Buffer): string {
+  let bits = 0;
+  let value = 0;
+  let output = '';
+
+  for (let i = 0; i < buffer.length; i++) {
+    value = (value << 8) | buffer[i];
+    bits += 8;
+
+    while (bits >= 5) {
+      output += BASE32_CHARS[(value >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+
+  if (bits > 0) {
+    output += BASE32_CHARS[(value << (5 - bits)) & 31];
+  }
+
+  return output;
+}
+
+function base32Decode(base32: string): Buffer {
+  const clean = base32.toUpperCase().replace(/=+$/, '').replace(/[^A-Z2-7]/g, '');
+  let bits = 0;
+  let value = 0;
+  const bytes: number[] = [];
+
+  for (let i = 0; i < clean.length; i++) {
+    const val = BASE32_CHARS.indexOf(clean[i]);
+    if (val === -1) continue;
+
+    value = (value << 5) | val;
+    bits += 5;
+
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 255);
+      bits -= 8;
+    }
+  }
+
+  return Buffer.from(bytes);
+}
+
+export function generateTotpCode(secret: string, timeStepCounter: number): string {
+  const key = base32Decode(secret);
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigInt64BE(BigInt(timeStepCounter));
+
+  const hmac = crypto.createHmac('sha1', key).update(buffer).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binary =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+
+  const otp = binary % 1000000;
+  return otp.toString().padStart(6, '0');
+}
+
+export function generateBackupCodes(count = 8): string[] {
+  const codes: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const code = crypto.randomBytes(4).toString('hex').toUpperCase();
+    codes.push(`${code.slice(0, 4)}-${code.slice(4)}`);
+  }
+  return codes;
+}
+
+export async function generateMfaSecret(userEmail: string): Promise<MfaSetupData> {
+  const secretBytes = crypto.randomBytes(20);
+  const secret = base32Encode(secretBytes);
+
+  const encodedIssuer = encodeURIComponent(APP_NAME);
+  const encodedEmail = encodeURIComponent(userEmail);
+  const otpauthUrl = `otpauth://totp/${encodedIssuer}:${encodedEmail}?secret=${secret}&issuer=${encodedIssuer}&algorithm=SHA1&digits=6&period=30`;
+
+  const qrCodeUrl = await QRCode.toDataURL(otpauthUrl, {
+    errorCorrectionLevel: 'H',
+    margin: 2,
+    width: 256,
+    color: {
+      dark: '#0f172a',
+      light: '#ffffff',
+    },
+  });
+
+  const backupCodes = generateBackupCodes();
+
+  return {
+    secret,
+    qrCodeUrl,
+    otpauthUrl,
+    backupCodes,
+  };
+}
+
+export function verifyTotpToken(token: string, secret: string, windowSteps = 1): boolean {
+  try {
+    if (!token || !secret) return false;
+    const cleanToken = token.trim().replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(cleanToken)) return false;
+
+    const currentStep = Math.floor(Date.now() / 1000 / 30);
+
+    for (let offset = -windowSteps; offset <= windowSteps; offset++) {
+      const generated = generateTotpCode(secret, currentStep + offset);
+      if (crypto.timingSafeEqual(Buffer.from(cleanToken), Buffer.from(generated))) {
+        return true;
+      }
+    }
+
+    return false;
+  } catch (err) {
+    console.error('Error al verificar TOTP:', err);
+    return false;
+  }
+}
+
+export function generateChallengeToken(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+// ─── Enrolamiento Supabase MFA ──────────────────────────────────────
+
 export async function enrollMFA(friendlyName?: string): Promise<MFAEnrollResult> {
   try {
     const { data, error } = await supabase.auth.mfa.enroll({
@@ -74,18 +202,11 @@ export async function enrollMFA(friendlyName?: string): Promise<MFAEnrollResult>
   }
 }
 
-// ─── Verificación y activación ─────────────────────────────────────
-
-/**
- * Verifica un código TOTP y activa el factor MFA.
- * Se usa durante el enrolamiento inicial.
- */
 export async function verifyAndActivateMFA(
   factorId: string,
   code: string
 ): Promise<MFAVerifyResult> {
   try {
-    // Crear un challenge para verificar
     const { data: challengeData, error: challengeError } =
       await supabase.auth.mfa.challenge({ factorId });
 
@@ -96,7 +217,6 @@ export async function verifyAndActivateMFA(
       };
     }
 
-    // Verificar el código TOTP contra el challenge
     const { error: verifyError } = await supabase.auth.mfa.verify({
       factorId,
       challengeId: challengeData.id,
@@ -119,94 +239,53 @@ export async function verifyAndActivateMFA(
   }
 }
 
-// ─── Consultar factores ────────────────────────────────────────────
-
-/**
- * Obtiene los factores MFA registrados del usuario actual.
- */
-export async function getMFAFactors(): Promise<{
-  factors: MFAFactor[];
-  error?: string;
-}> {
+export async function listMFAFactors(): Promise<MFAFactor[]> {
   try {
     const { data, error } = await supabase.auth.mfa.listFactors();
-
-    if (error) {
-      return { factors: [], error: error.message };
-    }
-
-    const factors: MFAFactor[] = (data.totp || []).map((f: any) => ({
+    if (error) return [];
+    return (data.totp || []).map((f: any) => ({
       id: f.id,
       type: f.factor_type || 'totp',
       status: f.status,
       friendlyName: f.friendly_name,
       createdAt: f.created_at,
     }));
-
-    return { factors };
-  } catch (err: any) {
-    return { factors: [], error: 'Error al obtener factores MFA.' };
+  } catch {
+    return [];
   }
 }
 
-/**
- * Verifica si el usuario tiene al menos un factor MFA verificado.
- */
-export async function hasMFAEnabled(): Promise<boolean> {
-  const { factors } = await getMFAFactors();
-  return factors.some((f) => f.status === 'verified');
-}
+export const getMFAFactors = listMFAFactors;
 
-// ─── Desactivar MFA ────────────────────────────────────────────────
-
-/**
- * Desactiva (desenrola) un factor MFA específico.
- */
 export async function unenrollMFA(factorId: string): Promise<MFAVerifyResult> {
   try {
     const { error } = await supabase.auth.mfa.unenroll({ factorId });
-
     if (error) {
       return {
         success: false,
         error: translateMFAError(error.message),
       };
     }
-
     return { success: true };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: 'Error al desactivar 2FA.',
-    };
+  } catch {
+    return { success: false, error: 'Error al desactivar 2FA.' };
   }
 }
 
-// ─── Challenge post-login ──────────────────────────────────────────
-
-/**
- * Crea un challenge MFA para verificación post-login.
- */
 export async function createMFAChallenge(
   factorId: string
 ): Promise<{ success: boolean; challengeId?: string; error?: string }> {
   try {
     const { data, error } = await supabase.auth.mfa.challenge({ factorId });
-
     if (error) {
       return { success: false, error: translateMFAError(error.message) };
     }
-
     return { success: true, challengeId: data.id };
-  } catch (err: any) {
-    return { success: false, error: 'Error al crear el desafío 2FA.' };
+  } catch {
+    return { success: false, error: 'Error al iniciar desafío 2FA.' };
   }
 }
 
-/**
- * Verifica un challenge MFA con el código TOTP del usuario.
- * Se usa post-login para elevar de AAL1 a AAL2.
- */
 export async function verifyMFAChallenge(
   factorId: string,
   challengeId: string,
@@ -218,45 +297,56 @@ export async function verifyMFAChallenge(
       challengeId,
       code,
     });
-
     if (error) {
       return { success: false, error: translateMFAError(error.message) };
     }
-
     return { success: true };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: 'Error al verificar el código. Intenta de nuevo.',
-    };
+  } catch {
+    return { success: false, error: 'Error al verificar el código 2FA.' };
   }
 }
 
-// ─── Nivel de aseguramiento ────────────────────────────────────────
+export async function challengeAndVerifyMFA(
+  factorId: string,
+  code: string
+): Promise<MFAVerifyResult> {
+  try {
+    const { data: challengeData, error: challengeError } =
+      await supabase.auth.mfa.challenge({ factorId });
 
-/**
- * Obtiene el nivel de aseguramiento actual (AAL1 = password only, AAL2 = password + MFA).
- */
+    if (challengeError) {
+      return { success: false, error: translateMFAError(challengeError.message) };
+    }
+
+    const { error: verifyError } = await supabase.auth.mfa.verify({
+      factorId,
+      challengeId: challengeData.id,
+      code,
+    });
+
+    if (verifyError) {
+      return { success: false, error: translateMFAError(verifyError.message) };
+    }
+
+    return { success: true };
+  } catch {
+    return { success: false, error: 'Error al validar el código 2FA.' };
+  }
+}
+
 export async function getAssuranceLevel(): Promise<MFAAssuranceLevel | null> {
   try {
     const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-    if (error) {
-      console.warn('Error getting assurance level:', error.message);
-      return null;
-    }
-
+    if (error) return null;
     return {
       currentLevel: data.currentLevel as 'aal1' | 'aal2',
       nextLevel: data.nextLevel as 'aal1' | 'aal2' | null,
       currentAuthenticationMethods: data.currentAuthenticationMethods,
     };
-  } catch (err: any) {
+  } catch {
     return null;
   }
 }
-
-// ─── Traducción de errores MFA ─────────────────────────────────────
 
 function translateMFAError(message: string): string {
   const lower = message.toLowerCase();

@@ -25,7 +25,7 @@ import {
   generateMfaSecret,
   verifyTotpToken,
   generateChallengeToken,
-  MfaSetupData
+  type MfaSetupData
 } from "./src/lib/mfaService";
 
 // Import Vercel API handlers to make them work locally
