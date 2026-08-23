@@ -376,8 +376,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         tempContainer.style.padding = "20px";
         
         // Clonar
-        const frontClone = frontEl.cloneNode(true);
-        const backClone = backEl.cloneNode(true);
+        const frontClone = frontEl.cloneNode(true) as HTMLElement;
+        const backClone = backEl.cloneNode(true) as HTMLElement;
         
         // Quitar estilos 3D
         frontClone.style.backfaceVisibility = "visible";
