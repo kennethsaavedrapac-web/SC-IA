@@ -745,7 +745,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                         <div>
                           <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">FECHA DE NACIMIENTO</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-lg">
-                            {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '---'}
+                            {user.birthDate ? user.birthDate.split('-').reverse().join('/') : '---'}
                           </p>
                         </div>
                         <div>
