@@ -361,13 +361,19 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       try {
         const frontEl = document.getElementById("card-front-face");
         const backEl = document.getElementById("card-back-face");
-        if (!frontEl || !backEl) return;
+        if (!frontEl || !backEl) {
+          alert("Error: No se encontraron los elementos de la tarjeta en la pantalla.");
+          return;
+        }
 
-        // Crear contenedor temporal fuera de pantalla
+        // Crear contenedor temporal invisible pero dentro del DOM válido
         const tempContainer = document.createElement("div");
         tempContainer.style.position = "absolute";
-        tempContainer.style.top = "-9999px";
-        tempContainer.style.left = "-9999px";
+        tempContainer.style.top = "0";
+        tempContainer.style.left = "0";
+        tempContainer.style.opacity = "0";
+        tempContainer.style.pointerEvents = "none";
+        tempContainer.style.zIndex = "-9999";
         tempContainer.style.width = "840px";
         tempContainer.style.display = "flex";
         tempContainer.style.flexDirection = "column";
@@ -402,7 +408,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const canvas = await html2canvas(tempContainer, {
           scale: 2,
           useCORS: true,
-          allowTaint: true,
           backgroundColor: "#ffffff",
         });
 
@@ -425,9 +430,16 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         pdf.save(`Documento-Emergencia-${user.name || "perfil"}.pdf`);
       } catch (err) {
         console.error("Error generando PDF", err);
+        alert("Ocurrió un error al generar el PDF: " + (err as Error).message);
+        // Si falló, intentar limpiar el DOM por si acaso
+        const temp = document.body.lastChild as HTMLElement;
+        if (temp && temp.style.opacity === "0") {
+            document.body.removeChild(temp);
+        }
       }
     }).catch(err => {
       console.error("Error cargando módulos PDF", err);
+      alert("Error cargando los módulos necesarios para generar el PDF.");
     });
   };
 
