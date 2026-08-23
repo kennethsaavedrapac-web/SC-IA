@@ -354,358 +354,80 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const downloadQRCode = () => {
-    import("jspdf").then(async ({ default: jsPDF }) => {
-      // ══════════════════════════════════════════════════════════
-      //  CR80 CREDIT-CARD DIMENSIONS (85.6 × 53.98 mm)
-      // ══════════════════════════════════════════════════════════
-      const W = 85.6;
-      const H = 53.98;
-      const R = 3.2;
+    Promise.all([
+      import("jspdf"),
+      import("html2canvas")
+    ]).then(async ([{ default: jsPDF }, { default: html2canvas }]) => {
+      try {
+        const frontEl = document.getElementById("card-front-face");
+        const backEl = document.getElementById("card-back-face");
+        if (!frontEl || !backEl) return;
 
-      // ── Colours ────────────────────────────────────────────
-      const WHITE     = [255, 255, 255];
-      const NAVY      = [8, 25, 48];
-      const BLUE      = [24, 84, 160];
-      const TEAL      = [0, 155, 140];
-      const GRAY      = [100, 116, 139];
-      const BG        = [238, 245, 250];
-      const PHOTO_BG  = [220, 230, 242];
-      const BORDER_C  = [170, 188, 208];
-      const LIGHT     = [232, 240, 248];
+        // Crear contenedor temporal fuera de pantalla
+        const tempContainer = document.createElement("div");
+        tempContainer.style.position = "absolute";
+        tempContainer.style.top = "-9999px";
+        tempContainer.style.left = "-9999px";
+        tempContainer.style.width = "840px";
+        tempContainer.style.display = "flex";
+        tempContainer.style.flexDirection = "column";
+        tempContainer.style.gap = "40px";
+        tempContainer.style.backgroundColor = "#ffffff";
+        tempContainer.style.padding = "20px";
+        
+        // Clonar
+        const frontClone = frontEl.cloneNode(true);
+        const backClone = backEl.cloneNode(true);
+        
+        // Quitar estilos 3D
+        frontClone.style.backfaceVisibility = "visible";
+        frontClone.style.transform = "none";
+        frontClone.style.position = "relative";
+        frontClone.style.inset = "auto";
+        frontClone.style.width = "800px";
+        frontClone.style.height = "504px";
+        
+        backClone.style.backfaceVisibility = "visible";
+        backClone.style.transform = "none";
+        backClone.style.position = "relative";
+        backClone.style.inset = "auto";
+        backClone.style.width = "800px";
+        backClone.style.height = "504px";
 
-      // ── Helpers ────────────────────────────────────────────
-      const sanitize = (v: string | undefined | null, fb = ""): string =>
-        (v || fb).toString().trim();
-      const clip = (v: string, max = 40) => {
-        const c = (v || "---").replace(/\s+/g, " ").trim();
-        return c.length > max ? c.slice(0, max - 2) + ".." : c;
-      };
+        tempContainer.appendChild(frontClone);
+        tempContainer.appendChild(backClone);
+        document.body.appendChild(tempContainer);
 
-      // ── Pre-load images ───────────────────────────────────
-      const [logoPng, avatarPng, qrPng] = await Promise.all([
-        toDataUrl("/app-logo-v2.jpg"),
-        user.avatarUrl ? toDataUrl(user.avatarUrl) : Promise.resolve(null),
-        qrToDataUrl(qrRef.current),
-      ]);
+        // Renderizar con html2canvas
+        const canvas = await html2canvas(tempContainer, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+        });
 
-      // ── Emergency-critical data ───────────────────────────
-      const bloodType    = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
-      const emergencyPh  = localMedicalData.contactoEmergencia || user.emergencyPhone || "---";
-      const cedulaNum    = sanitize(localMedicalData.cedula, "---");
-      const displayName  = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
-      const fullLocation = `${sanitize(user.city)}, ${sanitize(user.country)}`;
-      const diseases     = clip(sanitize(localMedicalData.enfermedades, "-"), 24);
-      const allergies    = clip(sanitize(localMedicalData.alergias, "-"), 24);
-      const treatments   = clip(sanitize(localMedicalData.tratamientos, "-"), 24);
-      const medications  = clip(sanitize(localMedicalData.pastillas, "-"), 24);
-      const vaccines     = clip(sanitize(localMedicalData.vacunas, "-"), 24);
-      const healthConds  = clip(user.healthConditions?.join(", ") || "-", 28);
-      const shortDate    = new Date().toLocaleDateString("es-NI", {
-        day: "2-digit", month: "2-digit", year: "numeric",
-      });
+        document.body.removeChild(tempContainer);
+        const imgData = canvas.toDataURL("image/png");
+        
+        // Crear PDF
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
 
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [W, H] });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const marginX = 10;
+        const printWidth = pdfWidth - (marginX * 2);
+        const printHeight = (canvas.height * printWidth) / canvas.width;
 
-      // ═══════════════════════════════════════════════════════
-      //  LAYOUT GRID (all positions pre-calculated)
-      // ═══════════════════════════════════════════════════════
-      //  Margins: 0.3mm outer, 1mm internal gaps
-      //  ┌─────────────────────────────────────────────────────┐
-      //  │ BAND │  HEADER (logo + title + +)                  │
-      //  │(12mm)│─────────────────────────────────────────────│
-      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR     │
-      //  │      │(17mm) │                            │(20mm)  │
-      //  │      │─────────────────────────────────────────────│
-      //  │      │  MEDICAL DATA PANEL (2 cols, more flexible) │
-      //  │      │─────────────────────────────────────────────│
-      //  │      │  notice                                     │
-      //  └─────────────────────────────────────────────────────┘
-
-      // ── Background ────────────────────────────────────────
-      doc.setFillColor(BG[0], BG[1], BG[2]);
-      doc.roundedRect(0, 0, W, H, R, R, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.2);
-      doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, R, R, "S");
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 1 — LEFT VERTICAL BAND (12mm × full height)
-      // ═══════════════════════════════════════════════════════
-      const bandX = 0.3;
-      const bandW = 12;
-      const bandR = 3;
-
-      // Blue band (top 55%)
-      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(bandX, 0.3, bandW, H * 0.55, bandR, bandR, "F");
-      doc.rect(bandX, 2, bandW, H * 0.55 - 2, "F");
-
-      // Teal band (bottom 45%)
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(bandX, H * 0.55, bandW, H * 0.45 - 0.3, "F");
-
-      // Decorative ellipses
-      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.08);
-      for (let i = 0; i < 5; i++) {
-        doc.ellipse(bandX + bandW / 2, H * 0.33, 5 - i * 0.4, 2 + i * 0.5, "S");
-        doc.ellipse(bandX + bandW / 2, H * 0.66, 5.5 - i * 0.5, 2.5 + i * 0.6, "S");
+        pdf.addImage(imgData, "PNG", marginX, 15, printWidth, printHeight);
+        pdf.save(`Documento-Emergencia-${user.name || "perfil"}.pdf`);
+      } catch (err) {
+        console.error("Error generando PDF", err);
       }
-
-      // Medical cross symbol
-      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.15);
-      doc.circle(bandX + bandW / 2, H * 0.44, 3.5, "S");
-
-      // Rotated text
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.5);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("REPUBLICA", bandX + bandW / 2, H * 0.30, { align: "center", angle: 90 });
-      doc.text("NICARAGUA", bandX + bandW / 2, H * 0.38, { align: "center", angle: 90 });
-      doc.text("AMERICA", bandX + bandW / 2, H * 0.74, { align: "center", angle: 90 });
-      doc.text("CENTRAL", bandX + bandW / 2, H * 0.81, { align: "center", angle: 90 });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 2 — HEADER (band right edge → right edge, 12mm tall)
-      // ═══════════════════════════════════════════════════════
-      const hX = bandX + bandW + 0.5;
-      const hY = 0.3;
-      const hW = W - hX - 0.3;
-      const hH = 12;
-
-      // Header background
-      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-      doc.roundedRect(hX, hY, hW, hH, bandR, bandR, "F");
-      doc.rect(hX, 2, hW, hH - 2, "F");
-
-      // Logo (8×8mm)
-      if (logoPng) {
-        doc.addImage(logoPng, "PNG", hX + 1.5, hY + 1.5, 8, 8);
-      }
-
-      // Brand text
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("SALUD", hX + 11, hY + 5.5);
-      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("CONECTA", hX + 11, hY + 10);
-
-      // Vertical divider
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.line(hX + 25, hY + 2, hX + 25, hY + hH - 2);
-
-      // Document title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.5);
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.text("DOCUMENTO DE EMERGENCIA", hX + 30, hY + 5);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(3.2);
-      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", hX + 30, hY + 9);
-
-      // Plus symbol
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("+", W - 3.5, hY + 8.5, { align: "right" });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 3 — PHOTO (left, below header)
-      // ═══════════════════════════════════════════════════════
-      const phX = bandX + bandW + 2;
-      const phY = hY + hH + 2;
-      const phS = 16;
-
-      // Photo white card
-      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(phX - 0.3, phY - 0.3, phS + 0.6, phS + 0.6, 1.5, 1.5, "F");
-      doc.setFillColor(PHOTO_BG[0], PHOTO_BG[1], PHOTO_BG[2]);
-      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "S");
-
-      if (avatarPng) {
-        doc.addImage(avatarPng, "PNG", phX, phY, phS, phS);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
-        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-        doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 2.5, { align: "center" });
-      }
-
-      // Blood type — subtle text label next to photo info
-      // (no badge on photo, cleaner look)
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 4 — PATIENT INFO (center, between photo & QR)
-      // ═══════════════════════════════════════════════════════
-      const iX = phX + phS + 3;
-      const iW = W - iX - 24; // leave 24mm for QR zone
-
-      // Name
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(5.5);
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      const nameP = doc.splitTextToSize(displayName.toUpperCase(), iW);
-      doc.text(nameP.slice(0, 2), iX, phY + 4.5);
-
-      // Separator
-      doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.setLineWidth(0.15);
-      doc.line(iX, phY + 7, iX + iW, phY + 7);
-
-      // Info rows (4 rows, evenly spaced) — blood type included inline
-      const infoRows: { label: string; val: string }[] = [
-        { label: "CEDULA", val: cedulaNum },
-        { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
-        { label: "TELEFONO", val: emergencyPh },
-        { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
-      ];
-
-      const rowStartY = phY + 9.5;
-      const rowGap = 6;
-
-      infoRows.forEach((r, i) => {
-        const y = rowStartY + i * rowGap;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(2.3);
-        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(r.label, iX, y);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(3.8);
-        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        doc.text(r.val, iX, y + 3);
-      });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 5 — QR CODE (right side, aligned with photo top)
-      // ═══════════════════════════════════════════════════════
-      const qS = 17;
-      const qX = W - qS - 3;
-      const qY = phY;
-
-      // QR container
-      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "S");
-
-      if (qrPng) {
-        doc.addImage(qrPng, "PNG", qX, qY, qS, qS);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(3.5);
-        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-        doc.text("QR", qX + qS / 2, qY + qS / 2 + 1.5, { align: "center" });
-      }
-
-      // QR label bar (blue + teal split)
-      const qLabelY = qY + qS + 0.5;
-      const qLabelH = 4;
-      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(qX - 0.8, qLabelY, qS + 1.6, qLabelH, 1, 1, "F");
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(qX + (qS + 1.6) / 2, qLabelY, (qS + 1.6) / 2, qLabelH, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.5);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("ESCANEAR", qX + (qS + 1.6) / 2, qLabelY + 2.8, { align: "center" });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 6 — MEDICAL DATA PANEL (bottom area)
-      // ═══════════════════════════════════════════════════════
-      const medX = bandX + bandW + 1;
-      const medY = phY + phS + 2.5;
-      const medW = W - medX - 1;
-      const medH = H - medY - 3.5;
-
-      // Panel background
-      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-      doc.roundedRect(medX, medY, medW, medH, 2, 2, "F");
-
-      // Panel header
-      const medHeaderH = 5;
-      doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.roundedRect(medX + 0.4, medY + 0.4, medW - 0.8, medHeaderH, 1.5, 1.5, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(3);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 3.8, { align: "center" });
-      
-      // Medical fields grid (2 cols)
-      const medFields: { label: string; val: string }[] = [
-        { label: "ENFERMEDADES", val: diseases },
-        { label: "ALERGIAS", val: allergies },
-        { label: "TRATAMIENTOS", val: treatments },
-        { label: "MEDICAMENTOS", val: medications },
-        { label: "VACUNAS", val: vaccines },
-        { label: "OTRAS COND.", val: healthConds },
-      ];
-
-      const gridX = medX + 0.8;
-      const gridY = medY + medHeaderH + 1.2;
-      const gridW = medW - 1.6;
-      const gridH = medH - medHeaderH - 2;
-      const gCols = 2;
-      const gRows = 3;
-      const gCellW = gridW / gCols;
-      const gCellH = gridH / gRows;
-
-      medFields.forEach((f, idx) => {
-        const col = idx % gCols;
-        const row = Math.floor(idx / gCols);
-        const cx = gridX + col * gCellW + 1;
-        const cy = gridY + row * gCellH + 1;
-
-        // Label
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(2);
-        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(f.label, cx, cy + 1.5);
-
-        // Value
-        doc.setFont("helvetica", "normal"); // Use normal font for value
-        doc.setFontSize(2.2); // Slightly smaller font for better fit
-        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        const vl = doc.splitTextToSize(f.val, gCellW - 2);
-        // Allow up to 3 lines for more text
-        doc.text(vl.slice(0, 3), cx, cy + 3.5);
-
-        // Row separator
-        if (row < gRows - 1) {
-          doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.06);
-          doc.line(gridX, cy + gCellH - 0.1, gridX + gridW, cy + gCellH - 0.1);
-        }
-        // Column separator
-        if (col < gCols - 1) {
-          doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.08);
-          doc.line(cx + gCellW, cy, cx + gCellW, cy + gCellH);
-        }
-      });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 7 — BOTTOM NOTICE
-      // ═══════════════════════════════════════════════════════
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(1.8);
-      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-      doc.text("Este documento no sustituye la cedula de identidad. Solo para uso en emergencias.", medX + 1.5, H - 1.5);
-
-      // ═══════════════════════════════════════════════════════
-      //  SAVE
-      // ═══════════════════════════════════════════════════════
-      doc.save(`${t('pdfFileName')}-${user.name || "perfil"}.pdf`);
     }).catch(err => {
-      console.error("Error cargando jsPDF", err);
+      console.error("Error cargando módulos PDF", err);
     });
   };
 
@@ -961,7 +683,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
             >
               
               {/* Cara Frontal - Datos Personales */}
-              <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
+              <div id="card-front-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
                 
                 {/* Banda Lateral */}
                 <div className="w-[12%] h-full flex flex-col">
@@ -1055,7 +777,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               </div>
 
               {/* Cara Trasera - Datos Médicos */}
-              <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
+              <div id="card-back-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
                 
                 {/* Banda Lateral */}
                 <div className="w-[12%] h-full flex flex-col">
