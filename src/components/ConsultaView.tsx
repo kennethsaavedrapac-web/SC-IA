@@ -674,14 +674,6 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
         { }
-        <div
-          className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
-          onClick={() => onNavigate && onNavigate("home")}
-        >
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Salud-Conecta <span className="text-brand-400">IA</span>
-          </span>
-        </div>
 
         { }
         <div className="flex items-center gap-3">
