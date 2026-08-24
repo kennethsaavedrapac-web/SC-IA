@@ -21,7 +21,8 @@ import {
   verifyAndActivateMFA,
   getMFAFactors,
   unenrollMFA,
-  challengeAndVerifyMFA,
+  unenrollMFAWithVerification,
+  cleanUnverifiedFactors,
   type MFAFactor,
 } from '../lib/mfaService';
 import { validateTOTPCode } from '../lib/security';
@@ -99,7 +100,7 @@ export default function TwoFactorSetup({
     return factors.find((f) => f.status === 'verified');
   }, [factors]);
 
-  const is2FAEnabled = !!verifiedFactor;
+  const is2FAEnabled = Boolean(verifiedFactor);
 
   // Helper para feedback unificado
   const notify = useCallback((text: string, type: 'success' | 'error' | 'info' | 'warning') => {
@@ -107,10 +108,14 @@ export default function TwoFactorSetup({
     onShowToast?.(text, type);
   }, [onShowToast]);
 
-  // ─── Cargar factores al montar ─────────────────────────────────────────────
+  // ─── Cargar factores al montar y limpiar huérfanos ──────────────────────────
   const loadFactors = useCallback(async () => {
     setIsInitialLoading(true);
     try {
+      // 1. Limpieza preventiva de factores huérfanos/no verificados
+      await cleanUnverifiedFactors();
+
+      // 2. Consulta de factores registrados
       const factorsList = await getMFAFactors();
       setFactors(Array.isArray(factorsList) ? factorsList : []);
     } catch {
@@ -177,6 +182,8 @@ export default function TwoFactorSetup({
         const errorText = result.error || t('mfaEnrollError') || 'Error al iniciar la configuración de 2FA.';
         setCodeError(errorText);
         notify(errorText, 'error');
+        // Si el error indica que ya existe un factor, refrescar la lista para sincronizar la UI
+        await loadFactors();
         setStep('idle');
       }
     } catch (err: any) {
@@ -233,37 +240,26 @@ export default function TwoFactorSetup({
   };
 
   // ─── Confirmar Desactivación de 2FA ────────────────────────────────────────
-  const handleDisable = async () => {
-    if (!verifiedFactor) return;
-
-    if (!validateTOTPCode(code)) {
-      setCodeError(t('mfaCodeInvalid') || 'Ingresa el código de 6 dígitos para confirmar.');
-      return;
-    }
+  const handleDisable = async (codeToVerify?: string) => {
+    const targetFactor = verifiedFactor || factors[0];
+    if (!targetFactor) return;
 
     setIsActionLoading(true);
     setCodeError('');
 
     try {
-      // 1. Elevar sesión verificando el código TOTP
-      const verifyResult = await challengeAndVerifyMFA(verifiedFactor.id, code);
-      if (!verifyResult.success) {
-        setCodeError(verifyResult.error || t('mfaVerifyError') || 'Código incorrecto.');
-        notify(verifyResult.error || 'Código incorrecto al verificar desactivación.', 'error');
-        setIsActionLoading(false);
-        return;
-      }
+      // Desactivar factor elevando la sesión con código TOTP si se ingresó
+      const result = await unenrollMFAWithVerification(targetFactor.id, codeToVerify || code);
 
-      // 2. Con la sesión verificada, desvincular el factor
-      const unenrollResult = await unenrollMFA(verifiedFactor.id);
-      if (unenrollResult.success) {
+      if (result.success) {
         await loadFactors();
         setStep('idle');
         setCode('');
         onStatusChange?.(false);
         notify('2FA desactivado correctamente.', 'info');
       } else {
-        const errorMsg = unenrollResult.error || t('mfaDisableError') || 'Error al desactivar el factor.';
+        // Si falló y no se había ingresado código, solicitar código de confirmación
+        const errorMsg = result.error || t('mfaDisableError') || 'Error al desactivar el factor.';
         setCodeError(errorMsg);
         notify(errorMsg, 'error');
       }
@@ -528,7 +524,7 @@ export default function TwoFactorSetup({
         </div>
       )}
 
-      {/* Paso: Confirmación de desactivación con código AAL2 */}
+      {/* Paso: Confirmación de desactivación con código AAL2 o desvinculación directa */}
       {step === 'disabling' && (
         <div className="space-y-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-800 animate-in fade-in zoom-in-95 duration-150">
           <div className="flex items-start gap-3">
@@ -597,7 +593,7 @@ export default function TwoFactorSetup({
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && code.length === 6 && !isActionLoading) {
-                  handleDisable();
+                  handleDisable(code);
                 }
               }}
               placeholder="0 0 0 0 0 0"
@@ -628,8 +624,8 @@ export default function TwoFactorSetup({
             </button>
             <button
               type="button"
-              onClick={handleDisable}
-              disabled={code.length !== 6 || isActionLoading}
+              onClick={() => handleDisable(code)}
+              disabled={isActionLoading}
               className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isActionLoading ? (
