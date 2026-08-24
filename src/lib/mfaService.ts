@@ -48,17 +48,49 @@ export interface MFAAssuranceLevel {
 
 // ─── Enrolamiento Supabase MFA ──────────────────────────────────────
 
+export async function cleanUnverifiedFactors(): Promise<void> {
+  try {
+    const { data } = await supabase.auth.mfa.listFactors();
+    const factors = Array.isArray(data?.all) ? data.all : (Array.isArray(data?.totp) ? data.totp : []);
+    const unverified = factors.filter((f: any) => f.status === 'unverified');
+    for (const factor of unverified) {
+      await supabase.auth.mfa.unenroll({ factorId: factor.id });
+    }
+  } catch {
+    // Ignorar fallos silenciosos de limpieza
+  }
+}
+
 export async function enrollMFA(friendlyName?: string): Promise<MFAEnrollResult> {
   try {
-    const { data, error } = await supabase.auth.mfa.enroll({
+    // 1. Limpiar preventivamente factores huérfanos / no verificados previos
+    await cleanUnverifiedFactors();
+
+    // 2. Intentar enrolamiento
+    let { data, error } = await supabase.auth.mfa.enroll({
       factorType: 'totp',
       friendlyName: friendlyName || 'Salud-Conecta IA',
     });
 
-    if (error) {
+    // 3. Si falla porque ya existe un factor no verificado, limpiarlo forzosamente y reintentar
+    if (error && (error.message.toLowerCase().includes('already') || error.message.toLowerCase().includes('exists'))) {
+      const factors = await listMFAFactors();
+      const unverified = factors.find((f) => f.status === 'unverified');
+      if (unverified) {
+        await unenrollMFA(unverified.id);
+        const retry = await supabase.auth.mfa.enroll({
+          factorType: 'totp',
+          friendlyName: friendlyName || 'Salud-Conecta IA',
+        });
+        data = retry.data;
+        error = retry.error;
+      }
+    }
+
+    if (error || !data) {
       return {
         success: false,
-        error: translateMFAError(error.message),
+        error: translateMFAError(error?.message || 'Error al iniciar enrolamiento.'),
       };
     }
 
@@ -68,7 +100,7 @@ export async function enrollMFA(friendlyName?: string): Promise<MFAEnrollResult>
       qrUri: data.totp.uri,
       secret: data.totp.secret,
     };
-  } catch (err: any) {
+  } catch {
     return {
       success: false,
       error: 'Error de conexión al configurar 2FA.',
@@ -105,7 +137,7 @@ export async function verifyAndActivateMFA(
     }
 
     return { success: true };
-  } catch (err: any) {
+  } catch {
     return {
       success: false,
       error: 'Error al verificar el código. Intenta de nuevo.',
@@ -116,13 +148,19 @@ export async function verifyAndActivateMFA(
 export async function listMFAFactors(): Promise<MFAFactor[]> {
   try {
     const { data, error } = await supabase.auth.mfa.listFactors();
-    if (error) return [];
-    return (data.totp || []).map((f: any) => ({
+    if (error || !data) return [];
+    
+    // Unir factores de data.all y data.totp para no perder ningún factor
+    const rawList = Array.isArray(data.all) && data.all.length > 0
+      ? data.all
+      : (Array.isArray(data.totp) ? data.totp : []);
+
+    return rawList.map((f: any) => ({
       id: f.id,
-      type: f.factor_type || 'totp',
-      status: f.status,
-      friendlyName: f.friendly_name,
-      createdAt: f.created_at,
+      type: f.factor_type || f.type || 'totp',
+      status: (f.status || 'unverified') as 'verified' | 'unverified',
+      friendlyName: f.friendly_name || f.friendlyName,
+      createdAt: f.created_at || f.createdAt || new Date().toISOString(),
     }));
   } catch {
     return [];
@@ -143,6 +181,36 @@ export async function unenrollMFA(factorId: string): Promise<MFAVerifyResult> {
     return { success: true };
   } catch {
     return { success: false, error: 'Error al desactivar 2FA.' };
+  }
+}
+
+export async function unenrollMFAWithVerification(
+  factorId: string,
+  code?: string
+): Promise<MFAVerifyResult> {
+  try {
+    // Si se provee código TOTP, elevar la sesión primero con challenge y verify
+    if (code && code.trim().length === 6) {
+      const challengeRes = await challengeAndVerifyMFA(factorId, code);
+      if (!challengeRes.success) {
+        return challengeRes;
+      }
+    }
+
+    // Desvincular el factor
+    const { error } = await supabase.auth.mfa.unenroll({ factorId });
+    if (error) {
+      return {
+        success: false,
+        error: translateMFAError(error.message),
+      };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err.message || 'Error al desactivar el factor 2FA.',
+    };
   }
 }
 
