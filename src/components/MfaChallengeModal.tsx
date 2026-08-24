@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, Lock, AlertTriangle, ArrowRight, Loader2, X } from 'lucide-react';
+import { ShieldCheck, Lock, AlertTriangle, ArrowRight, Loader2, X, Mail, Smartphone, CheckCircle, RefreshCw } from 'lucide-react';
 import { createToast, type ToastData } from './Toast';
 
 interface MfaChallengeModalProps {
@@ -20,7 +20,47 @@ export default function MfaChallengeModal({
 }: MfaChallengeModalProps) {
   const [totpCode, setTotpCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    let timer: any;
+    if (cooldownTimer > 0) {
+      timer = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldownTimer]);
+
+  const handleSendEmailCode = async () => {
+    if (cooldownTimer > 0 || sendingEmail) return;
+
+    setSendingEmail(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/auth/2fa/send-email-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al enviar código');
+      }
+
+      setEmailSent(true);
+      setCooldownTimer(60);
+      onToast?.(createToast(data.message || 'Código enviado a tu correo', 'success'));
+    } catch (err: any) {
+      setErrorMsg(err.message || 'No se pudo enviar el correo. Intenta de nuevo.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,10 +128,39 @@ export default function MfaChallengeModal({
           </div>
 
           <form onSubmit={handleSubmit} className="py-4 space-y-4">
-            <div className="text-center space-y-1">
-              <p className="text-xs text-slate-600 dark:text-slate-300">
-                Introduce el código de 6 dígitos generado por tu aplicación autenticadora (Google Authenticator / Authy).
-              </p>
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-100 dark:border-slate-700 space-y-2">
+              <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <Smartphone className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
+                <p>
+                  <strong>Google Authenticator / App:</strong> Abre tu app en el teléfono para ver tu código de 6 dígitos (cambia cada 30 seg).
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 dark:border-slate-700">
+                <span className="text-[11px] text-slate-500">
+                  {cooldownTimer > 0 ? `Reenviar en ${cooldownTimer}s` : '¿No tienes acceso a la app?'}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSendEmailCode}
+                  disabled={sendingEmail || cooldownTimer > 0}
+                  className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:no-underline"
+                >
+                  {sendingEmail ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : cooldownTimer > 0 ? (
+                    <RefreshCw className="w-3 h-3 text-slate-400 animate-pulse" />
+                  ) : emailSent ? (
+                    <CheckCircle className="w-3 h-3 text-emerald-500" />
+                  ) : (
+                    <Mail className="w-3 h-3" />
+                  )}
+                  {cooldownTimer > 0
+                    ? `Reenviar código (${cooldownTimer}s)`
+                    : emailSent
+                    ? 'Reenviar a mi correo'
+                    : 'Enviar a mi correo'}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1">
@@ -100,7 +169,7 @@ export default function MfaChallengeModal({
                 maxLength={6}
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="• • • • • •"
+                placeholder="0 0 0 0 0 0"
                 className="w-full py-3 px-4 text-center font-mono text-2xl tracking-[0.3em] font-bold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-brand-500 text-slate-900 dark:text-white"
                 autoFocus
               />

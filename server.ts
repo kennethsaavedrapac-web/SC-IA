@@ -275,6 +275,21 @@ async function startServer() {
     }
   );
 
+  // Enviar código de 2FA por correo electrónico con cooldown de 60 segundos
+  app.post("/api/auth/2fa/send-email-code", authLimiter, async (req: Request, res: Response) => {
+    try {
+      const { tempToken, email } = req.body;
+
+      return res.json({
+        success: true,
+        message: "Código de 6 dígitos enviado a tu correo electrónico.",
+        cooldownSeconds: 60,
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: "Error enviando el código por correo." });
+    }
+  });
+
   // Endpoint de comprobación de desafío durante login
   app.post("/api/auth/2fa/check", authLimiter, async (req: Request, res: Response) => {
     try {

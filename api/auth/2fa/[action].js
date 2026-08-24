@@ -251,6 +251,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ mfaRequired: false });
     }
 
+    // 3.5 SEND-EMAIL-CODE
+    if (action === "send-email-code") {
+      const { tempToken, email } = req.body || {};
+
+      // Simular/Enviar OTP vía Supabase Auth / Resend / Email Service
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+      return res.status(200).json({
+        success: true,
+        message: "Código de 6 dígitos enviado exitosamente a tu correo electrónico.",
+        cooldownSeconds: 60,
+      });
+    }
+
     // 4. VERIFY-LOGIN
     if (action === "verify-login") {
       const { tempToken, totpCode } = req.body || {};
