@@ -55,18 +55,38 @@ export async function enrollMFA(friendlyName?: string): Promise<MFAEnrollResult>
       friendlyName: friendlyName || 'Salud-Conecta IA',
     });
 
-    if (error) {
+    if (!error && data?.totp) {
       return {
-        success: false,
-        error: translateMFAError(error.message),
+        success: true,
+        factorId: data.id,
+        qrUri: data.totp.uri,
+        secret: data.totp.secret,
+      };
+    }
+
+    // Fallback a API local si Supabase Auth MFA no está habilitado en el proyecto
+    const session = (await supabase.auth.getSession())?.data?.session;
+    const res = await fetch('/api/auth/2fa/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
+    });
+
+    const apiData = await res.json();
+    if (res.ok && apiData.qrCodeUrl) {
+      return {
+        success: true,
+        factorId: 'totp-local',
+        qrUri: apiData.otpauthUrl || apiData.qrCodeUrl,
+        secret: apiData.secret,
       };
     }
 
     return {
-      success: true,
-      factorId: data.id,
-      qrUri: data.totp.uri,
-      secret: data.totp.secret,
+      success: false,
+      error: translateMFAError(error?.message || apiData.error || 'No se pudo generar el código QR'),
     };
   } catch (err: any) {
     return {

@@ -140,13 +140,14 @@ export async function signInWithEmail(
       if (checkRes.ok) {
         const checkData = await checkRes.json();
         if (checkData.mfaRequired && checkData.tempToken) {
-          // Requiere verificar 2FA antes de conceder acceso completo (OWASP Paso 3)
+          // Si requiere 2FA, cerramos la sesión temporal en el SDK del cliente para evitar fuga de sesión en localStorage (OWASP Paso 3)
+          await supabase.auth.signOut();
           return {
             success: false,
             mfaRequired: true,
             tempToken: checkData.tempToken,
             user: data.user,
-            session: data.session,
+            session: null,
           };
         }
       }

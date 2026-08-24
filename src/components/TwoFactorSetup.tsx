@@ -259,6 +259,12 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
       {/* Acción: Activar o Desactivar */}
       {step === 'idle' && (
         <>
+          {codeError && (
+            <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1 p-2 bg-red-50 dark:bg-red-900/20 rounded-xl">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+              {codeError}
+            </p>
+          )}
           {isEnabled ? (
             <button
               onClick={handleStartDisable}
@@ -277,6 +283,16 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
             </button>
           )}
         </>
+      )}
+
+      {/* Carga durante la generación de QR */}
+      {step === 'enrolling' && (
+        <div className="flex flex-col items-center justify-center py-6 space-y-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+          <Loader2 className="w-6 h-6 text-brand-600 animate-spin" />
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+            Generando código QR y clave secreta...
+          </p>
+        </div>
       )}
 
       {/* Paso: Verificación del QR */}
