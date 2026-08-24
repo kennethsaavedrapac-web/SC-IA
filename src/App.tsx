@@ -18,6 +18,7 @@ import type { UserProfile, Appointment } from "./types";
 import { requestNotificationPermission, showDailyNotification, saveAdminAnnouncementRecords } from "./lib/notificationService";
 import { showUpdateNotification, checkForUpdates, APP_VERSION } from "./lib/updateNotification";
 import { useSessionTimeout } from "./hooks/useSessionTimeout";
+import { useIdleTimeout } from "./hooks/useIdleTimeout";
 import { Sparkles, Siren, X, Settings, RefreshCw, ShieldAlert, Loader2, Moon, Sun, Type, Languages, FileText, Shield, BookOpen, ChevronRight, ArrowLeft, Download, WifiOff, LogOut, ShieldCheck, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "./lib/supabaseClient";
