@@ -356,8 +356,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const downloadQRCode = () => {
     Promise.all([
       import("jspdf"),
-      import("html2canvas")
-    ]).then(async ([{ default: jsPDF }, { default: html2canvas }]) => {
+      import("html-to-image")
+    ]).then(async ([{ default: jsPDF }, htmlToImage]) => {
       try {
         const frontEl = document.getElementById("card-front-face");
         const backEl = document.getElementById("card-back-face");
@@ -366,22 +366,42 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           return;
         }
 
-        // Crear contenedor temporal invisible pero dentro del DOM válido
+        // Crear un overlay oscuro de carga
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.inset = "0";
+        overlay.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+        overlay.style.zIndex = "999998";
+        overlay.style.display = "flex";
+        overlay.style.flexDirection = "column";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        
+        const loaderText = document.createElement("h2");
+        loaderText.innerText = "Generando documento PDF...";
+        loaderText.style.color = "#1e3a8a";
+        loaderText.style.fontFamily = "system-ui, sans-serif";
+        loaderText.style.fontSize = "24px";
+        loaderText.style.fontWeight = "bold";
+        loaderText.style.marginBottom = "30px";
+        overlay.appendChild(loaderText);
+        document.body.appendChild(overlay);
+
+        // Crear contenedor temporal 100% visible pero sobre el overlay
         const tempContainer = document.createElement("div");
-        tempContainer.style.position = "absolute";
-        tempContainer.style.top = "0";
-        tempContainer.style.left = "0";
-        tempContainer.style.opacity = "0";
-        tempContainer.style.pointerEvents = "none";
-        tempContainer.style.zIndex = "-9999";
+        tempContainer.style.position = "fixed";
+        tempContainer.style.top = "50%";
+        tempContainer.style.left = "50%";
+        tempContainer.style.transform = "translate(-50%, -50%) scale(0.6)";
+        tempContainer.style.zIndex = "999999";
         tempContainer.style.width = "840px";
         tempContainer.style.display = "flex";
         tempContainer.style.flexDirection = "column";
         tempContainer.style.gap = "40px";
-        tempContainer.style.backgroundColor = "#ffffff";
+        tempContainer.style.backgroundColor = "transparent";
         tempContainer.style.padding = "20px";
         
-        // Clonar
+        // Clonar nodos
         const frontClone = frontEl.cloneNode(true) as HTMLElement;
         const backClone = backEl.cloneNode(true) as HTMLElement;
         
@@ -404,15 +424,24 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         tempContainer.appendChild(backClone);
         document.body.appendChild(tempContainer);
 
-        // Renderizar con html2canvas
-        const canvas = await html2canvas(tempContainer, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
+        // Renderizar con html-to-image (soporta oklch nativamente via SVG)
+        // Damos un timeout pequeñito para asegurar que los clones se montaron y cargaron imgs
+        await new Promise(r => setTimeout(r, 300));
+
+        const imgData = await htmlToImage.toPng(tempContainer, {
+          pixelRatio: 2,
+          backgroundColor: "rgba(255,255,255,1)",
+          cacheBust: true,
         });
 
+        // Limpieza de UI
         document.body.removeChild(tempContainer);
-        const imgData = canvas.toDataURL("image/png");
+        document.body.removeChild(overlay);
+        
+        // Obtener dimensiones reales de la imagen
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve) => { img.onload = resolve; });
         
         // Crear PDF
         const pdf = new jsPDF({
@@ -424,18 +453,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const marginX = 10;
         const printWidth = pdfWidth - (marginX * 2);
-        const printHeight = (canvas.height * printWidth) / canvas.width;
+        const printHeight = (img.height * printWidth) / img.width;
 
         pdf.addImage(imgData, "PNG", marginX, 15, printWidth, printHeight);
         pdf.save(`Documento-Emergencia-${user.name || "perfil"}.pdf`);
       } catch (err) {
         console.error("Error generando PDF", err);
         alert("Ocurrió un error al generar el PDF: " + (err as Error).message);
-        // Si falló, intentar limpiar el DOM por si acaso
+        
+        // Limpieza de emergencia
         const temp = document.body.lastChild as HTMLElement;
-        if (temp && temp.style.opacity === "0") {
-            document.body.removeChild(temp);
-        }
+        if (temp) document.body.removeChild(temp);
       }
     }).catch(err => {
       console.error("Error cargando módulos PDF", err);
