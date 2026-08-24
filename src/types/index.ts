@@ -72,4 +72,5 @@ export interface UserProfile {
   emergencyPhone?: string;
   bloodType?: string;
   birthDate?: string;
+  provider?: string;
 }
