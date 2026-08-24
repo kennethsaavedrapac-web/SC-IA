@@ -366,22 +366,42 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           return;
         }
 
-        // Crear contenedor temporal invisible pero dentro del DOM válido
+        // Crear un overlay oscuro de carga
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.inset = "0";
+        overlay.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+        overlay.style.zIndex = "999998";
+        overlay.style.display = "flex";
+        overlay.style.flexDirection = "column";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        
+        const loaderText = document.createElement("h2");
+        loaderText.innerText = "Generando documento...";
+        loaderText.style.color = "#1e3a8a";
+        loaderText.style.fontFamily = "system-ui, sans-serif";
+        loaderText.style.fontSize = "24px";
+        loaderText.style.fontWeight = "bold";
+        loaderText.style.marginBottom = "30px";
+        overlay.appendChild(loaderText);
+        document.body.appendChild(overlay);
+
+        // Crear contenedor temporal 100% visible pero sobre el overlay
         const tempContainer = document.createElement("div");
-        tempContainer.style.position = "absolute";
-        tempContainer.style.top = "0";
-        tempContainer.style.left = "-9999px";
-        tempContainer.style.opacity = "1";
-        tempContainer.style.pointerEvents = "none";
-        tempContainer.style.zIndex = "-9999";
+        tempContainer.style.position = "fixed";
+        tempContainer.style.top = "50%";
+        tempContainer.style.left = "50%";
+        tempContainer.style.transform = "translate(-50%, -50%) scale(0.6)";
+        tempContainer.style.zIndex = "999999";
         tempContainer.style.width = "840px";
         tempContainer.style.display = "flex";
         tempContainer.style.flexDirection = "column";
         tempContainer.style.gap = "40px";
-        tempContainer.style.backgroundColor = "#ffffff";
+        tempContainer.style.backgroundColor = "transparent";
         tempContainer.style.padding = "20px";
         
-        // Clonar
+        // Clonar nodos
         const frontClone = frontEl.cloneNode(true) as HTMLElement;
         const backClone = backEl.cloneNode(true) as HTMLElement;
         
@@ -405,17 +425,18 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         document.body.appendChild(tempContainer);
 
         // Renderizar con html-to-image (soporta oklch nativamente via SVG)
+        // Damos un timeout pequeñito para asegurar que los clones se montaron y cargaron imgs
+        await new Promise(r => setTimeout(r, 200));
+
         const imgData = await htmlToImage.toPng(tempContainer, {
           pixelRatio: 2,
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(255,255,255,1)",
           cacheBust: true,
-          style: {
-            transform: 'scale(1)',
-            transformOrigin: 'top left'
-          }
         });
 
+        // Limpieza de UI
         document.body.removeChild(tempContainer);
+        document.body.removeChild(overlay);
         
         // Obtener dimensiones reales de la imagen
         const img = new Image();
@@ -439,11 +460,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       } catch (err) {
         console.error("Error generando PDF", err);
         alert("Ocurrió un error al generar el PDF: " + (err as Error).message);
-        // Si falló, intentar limpiar el DOM por si acaso
+        
+        // Limpieza de emergencia
         const temp = document.body.lastChild as HTMLElement;
-        if (temp && temp.style.opacity === "0") {
-            document.body.removeChild(temp);
-        }
+        if (temp) document.body.removeChild(temp);
       }
     }).catch(err => {
       console.error("Error cargando módulos PDF", err);
@@ -697,225 +717,265 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               onClick={() => setIsCardFlipped(!isCardFlipped)}
             >
               
+
               {/* Cara Frontal - Datos Personales */}
-              <div id="card-front-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
+              <div id="card-front-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-[12px] sm:rounded-[20px] overflow-hidden shadow-2xl flex border border-slate-200">
                 
+                {/* Fondo Decorativo */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                   {/* Ondas (Círculos concéntricos) */}
+                   <div className="absolute top-[-30%] left-[10%] w-[150%] h-[150%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-20%] left-[20%] w-[130%] h-[130%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-10%] left-[30%] w-[110%] h-[110%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[0%] left-[40%] w-[90%] h-[90%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   
+                   {/* Volcanes (SVG) */}
+                   <svg className="absolute bottom-6 w-full h-24 opacity-30" viewBox="0 0 100 30" preserveAspectRatio="none">
+                     <path d="M0,30 L25,10 L45,30 Z" fill="#1e3a8a" />
+                     <path d="M30,30 L60,5 L85,30 Z" fill="#1e3a8a" />
+                     <path d="M65,30 L85,15 L100,30 Z" fill="#1e3a8a" />
+                     <rect x="0" y="28" width="100" height="2" fill="#0D9488" />
+                   </svg>
+                </div>
+
                 {/* Banda Lateral */}
-                <div className="w-[12%] h-full flex flex-col">
-                  <div className="h-[60%] bg-[#082f49] w-full rounded-tl-3xl"></div>
-                  <div className="h-[40%] bg-[#0d9488] w-full rounded-bl-3xl relative">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center">
-                        <div className="w-8 h-8 bg-white/20 rounded-full"></div>
-                      </div>
-                    </div>
+                <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
+                  <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
+                  <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
                   </div>
                 </div>
 
-                {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-3 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
-                  {/* Decoración de fondo */}
-                  <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
+                {/* Contenido */}
+                <div className="w-[82%] sm:w-[78%] h-full p-3 sm:p-5 flex flex-col z-10 relative bg-white/70 backdrop-blur-[2px]">
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-2 sm:mb-6 gap-1">
-                    <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-                      <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
-                        SC
+                  <div className="flex justify-between items-start mb-2 sm:mb-4 w-full">
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
+                         <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest">
+                      <div className="text-[#0D9488] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-center sm:text-right flex-1">
-                      <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    
+                    <div className="text-center flex-1 mx-1 sm:mx-4">
+                      <h2 className="text-[#1e3a8a] font-bold text-[9px] sm:text-[16px] tracking-wider uppercase leading-tight whitespace-nowrap">DOCUMENTO DE EMERGENCIA</h2>
+                      <p className="text-slate-600 text-[5px] sm:text-[8px] font-semibold tracking-wide uppercase mt-0.5">Acceso inmediato a información médica</p>
                     </div>
-                    <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/IconoOficial.png" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                    
+                    <div className="shrink-0 flex items-start">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
                     </div>
                   </div>
 
                   {/* Body */}
-                  <div className="flex flex-row gap-2 sm:gap-6 flex-1 items-center sm:items-start">
+                  <div className="flex flex-row gap-2 sm:gap-5 flex-1 items-start mt-1 sm:mt-2 w-full">
+                    
                     {/* Foto */}
-                    <div className="w-[70px] sm:w-[150px] shrink-0">
+                    <div className="w-[60px] sm:w-[100px] shrink-0">
                       {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-md sm:rounded-xl shadow-md border-2 sm:border-4 border-white" />
+                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover bg-slate-200 rounded-sm shadow-sm" />
                       ) : (
-                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-md sm:rounded-xl shadow-md border-2 sm:border-4 border-white flex items-center justify-center text-xl sm:text-5xl text-slate-400 font-bold">
+                        <div className="w-full aspect-[3/4] bg-slate-200 flex items-center justify-center text-xl sm:text-3xl text-slate-400 font-bold rounded-sm shadow-sm">
                           {getInitials(user.name)}
                         </div>
                       )}
                     </div>
                     
                     {/* Info */}
-                    <div className="flex-1 flex flex-col justify-center w-full text-left">
-                      <div className="mb-1.5 sm:mb-4">
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs mb-0 sm:mb-1">NOMBRE COMPLETO</p>
-                        <h3 className="text-[#0f172a] font-bold text-[11px] sm:text-3xl tracking-wide uppercase leading-tight">{displayName}</h3>
+                    <div className="flex-1 flex flex-col justify-start text-left pl-1 sm:pl-2">
+                      <div className="mb-2 sm:mb-4 border-b border-slate-200/50 pb-1 sm:pb-2">
+                        <p className="text-slate-500 font-bold text-[5px] sm:text-[8px] mb-0 sm:mb-1 uppercase tracking-wide">Nombre Completo</p>
+                        <h3 className="text-[#1e3a8a] font-bold text-[11px] sm:text-[20px] tracking-wide leading-tight">{displayName}</h3>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-y-1.5 sm:gap-y-4 gap-x-2">
+                      <div className="grid grid-cols-2 gap-y-2 sm:gap-y-4 gap-x-2 sm:gap-x-4">
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">FECHA DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg">
-                            {user.birthDate ? user.birthDate.split('-').reverse().join('/') : '---'}
+                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">FECHA DE NACIMIENTO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-[13px]">
+                            {user.birthDate ? user.birthDate.split('-').reverse().join('-') : '---'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">LUGAR DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg uppercase">{user.city || '---'}</p>
+                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">LUGAR DE NACIMIENTO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{user.city || '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">SEXO</p>
-                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg uppercase">{user.sex === 'male' ? 'MASCULINO' : user.sex === 'female' ? 'FEMENINO' : 'NO ESP.'}</p>
+                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">SEXO</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{user.sex === 'male' ? 'M' : user.sex === 'female' ? 'F' : '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">NÚMERO DE IDENTIDAD</p>
-                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg">{localMedicalData.cedula || '---'}</p>
+                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">NÚMERO DE IDENTIDAD</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{localMedicalData.cedula || '---'}</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-auto flex justify-between items-end pb-0 sm:pb-2 gap-2">
-                    <p className="text-[#0f172a] font-bold text-[5px] sm:text-[10px] tracking-widest uppercase">
-                      Uso exclusivo en situaciones de emergencia
-                    </p>
-                    <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[10px] tracking-wider text-right">
-                      SALUD QUE TE CONECTA,<br className="sm:hidden" /> VIDA QUE TE ACOMPAÑA
-                    </p>
+                  <div className="mt-auto flex justify-between items-end pb-0 sm:pb-1 pt-2 w-full">
+                    <div className="flex items-center gap-1.5 sm:gap-3">
+                      <div className="w-4 h-4 sm:w-7 sm:h-7 border-[1.5px] sm:border-2 border-[#1e3a8a] rounded-sm sm:rounded-md flex items-center justify-center text-[#1e3a8a]">
+                        <span className="font-bold text-[10px] sm:text-[16px] leading-none mb-[1px]">+</span>
+                      </div>
+                      <div>
+                        <p className="text-[#0f172a] font-bold text-[4px] sm:text-[7px] tracking-widest uppercase">
+                          Uso exclusivo en situaciones de emergencia
+                        </p>
+                        <p className="text-slate-600 text-[4px] sm:text-[6px] mt-[1px]">
+                          Este documento no sustituye la cédula de identidad.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right flex flex-col items-end">
+                      <p className="text-[#1e3a8a] font-bold text-[4px] sm:text-[6px] tracking-wider mb-[2px]">
+                        SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
+                      </p>
+                      <div className="h-[1px] w-full bg-slate-300 relative my-[2px]">
+                         <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[5px] bg-white px-1 sm:px-2">
+                           <p className="text-[#0D9488] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                             SALUD CONECTA
+                           </p>
+                         </div>
+                      </div>
+                    </div>
                   </div>
+                  
                 </div>
               </div>
 
               {/* Cara Trasera - Datos Médicos */}
-              <div id="card-back-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
+              <div id="card-back-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-[12px] sm:rounded-[20px] overflow-hidden shadow-2xl flex border border-slate-200">
                 
+                {/* Fondo Decorativo */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                   {/* Ondas (Círculos concéntricos) */}
+                   <div className="absolute top-[-30%] left-[10%] w-[150%] h-[150%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-20%] left-[20%] w-[130%] h-[130%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-10%] left-[30%] w-[110%] h-[110%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   
+                   {/* Volcanes (SVG) */}
+                   <svg className="absolute bottom-6 w-full h-24 opacity-30" viewBox="0 0 100 30" preserveAspectRatio="none">
+                     <path d="M0,30 L25,10 L45,30 Z" fill="#1e3a8a" />
+                     <path d="M30,30 L60,5 L85,30 Z" fill="#1e3a8a" />
+                     <path d="M65,30 L85,15 L100,30 Z" fill="#1e3a8a" />
+                     <rect x="0" y="28" width="100" height="2" fill="#0D9488" />
+                   </svg>
+                </div>
+
                 {/* Banda Lateral */}
-                <div className="w-[12%] h-full flex flex-col">
-                  <div className="h-[60%] bg-[#082f49] w-full rounded-tl-3xl"></div>
-                  <div className="h-[40%] bg-[#0d9488] w-full rounded-bl-3xl relative">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center">
-                        <div className="w-8 h-8 bg-white/20 rounded-full"></div>
-                      </div>
-                    </div>
+                <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
+                  <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
+                  <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
                   </div>
                 </div>
 
                 {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-3 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
-                  <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
+                <div className="w-[82%] sm:w-[78%] h-full p-3 sm:p-5 flex flex-col z-10 relative bg-white/70 backdrop-blur-[2px]">
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-2 sm:mb-6 gap-1">
-                    <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-                      <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-[10px] sm:text-xl">
-                        SC
+                  <div className="flex justify-between items-start mb-2 sm:mb-4 w-full">
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
+                         <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-blue-900 font-bold text-[6px] sm:text-sm leading-tight tracking-widest">
+                      <div className="text-[#0D9488] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-center sm:text-right flex-1">
-                      <h2 className="text-[#1e3a8a] font-bold text-[10px] sm:text-2xl tracking-wider leading-tight">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    
+                    <div className="text-center flex-1 mx-1 sm:mx-4">
+                      <h2 className="text-[#1e3a8a] font-bold text-[9px] sm:text-[16px] tracking-wider uppercase leading-tight whitespace-nowrap">DATOS MÉDICOS DE EMERGENCIA</h2>
+                      <p className="text-slate-600 text-[5px] sm:text-[8px] font-semibold tracking-wide uppercase mt-0.5">Atención: {displayName}</p>
                     </div>
-                    <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/IconoOficial.png" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                    
+                    <div className="shrink-0 flex items-start">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
                     </div>
                   </div>
 
                   {/* Body - Grid */}
-                  <div className="flex-1 grid grid-cols-2 gap-x-2 sm:gap-x-6 gap-y-1.5 sm:gap-y-4 pr-0 sm:pr-4">
+                  <div className="flex-1 grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-1.5 sm:gap-y-3 w-full">
                     
                     <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Heart className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Heart className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ENFERMEDADES QUE PADECE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Enfermedades</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.enfermedades || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ALERGIAS</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Alergias</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.alergias || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Droplets className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Droplets className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">TIPO DE SANGRE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Tipo de Sangre</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.tipoSangre || user.bloodType || 'O+'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">TRATAMIENTOS ACTUALES</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Tratamientos</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold line-clamp-2 leading-tight">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold line-clamp-2 leading-tight">
                         {localMedicalData.tratamientos || localMedicalData.pastillas || 'Ninguno'}
                       </div>
                     </div>
-
-                    <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-[6px] sm:text-xs">KG</span>
-                        </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">PESO</p>
-                      </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
-                        {localMedicalData.peso ? `${localMedicalData.peso} kg` : '---'}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                        <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-[6px] sm:text-xs">CM</span>
-                        </div>
-                        <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">ALTURA</p>
-                      </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-2 min-h-6 sm:min-h-10 text-slate-700 text-[8px] sm:text-sm font-semibold leading-tight">
-                        {localMedicalData.altura ? `${localMedicalData.altura} m` : '---'}
-                      </div>
-                    </div>
-
                   </div>
 
                   {/* Contacto de Emergencia */}
-                  <div className="mt-1 sm:mt-4">
-                    <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-1.5">
-                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                        <User className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                  <div className="mt-1 sm:mt-2 w-full">
+                    <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                      <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                        <User className="w-2 h-2 sm:w-3 sm:h-3" />
                       </div>
-                      <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">CONTACTO DE EMERGENCIA</p>
+                      <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">CONTACTO DE EMERGENCIA</p>
                     </div>
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-1 sm:p-3 text-slate-700 text-[8px] sm:text-sm">
-                      <p><span className="font-bold">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}</p>
+                    <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 text-slate-800 text-[7px] sm:text-[11px] font-semibold flex items-center">
+                      <span className="font-bold mr-2 text-[#0D9488]">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}
+                    </div>
+                  </div>
+                  
+                  {/* Footer */}
+                  <div className="mt-auto flex justify-end items-end pb-0 sm:pb-1 pt-1 w-full">
+                    <div className="text-right flex flex-col items-end w-full">
+                      <p className="text-[#1e3a8a] font-bold text-[4px] sm:text-[6px] tracking-wider mb-[2px]">
+                        SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
+                      </p>
+                      <div className="h-[1px] w-full bg-slate-300 relative my-[2px]">
+                         <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[5px] bg-white px-1 sm:px-2">
+                           <p className="text-[#0D9488] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                             SALUD CONECTA
+                           </p>
+                         </div>
+                      </div>
                     </div>
                   </div>
 
