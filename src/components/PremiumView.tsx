@@ -65,19 +65,7 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
       { }
       <header className="flex justify-between items-center px-6 py-4 bg-white/40 dark:bg-slate-950/40 backdrop-blur-xl sticky top-0 z-30 border-b border-white/20 dark:border-slate-800/50">
         <div className="flex justify-between items-center w-full max-w-5xl mx-auto">
-          <div
-            onClick={() => onNavigate && onNavigate("home")}
-            className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
-          >
-            <img
-              src="/app-logo-v2.jpg"
-              alt="Logo"
-              className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
-            />
-            <span className="font-display font-bold text-lg text-slate-800 dark:text-white">
-              Salud-Conecta <span className="text-brand-600">IA</span>
-            </span>
-          </div>
+          { }
 
           <div className="relative flex flex-col items-end">
             <button

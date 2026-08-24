@@ -1,13 +1,12 @@
 
-const CACHE_NAME = 'salud-conecta-cache-v10';
+const CACHE_NAME = 'salud-conecta-cache-v11';
 
 
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/IconoOficial.png'
 ];
 
 
@@ -62,8 +61,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/app-logo-v1.jpg',
-    badge: '/app-logo-v1.jpg',
+    icon: '/IconoOficial.png',
+    badge: '/IconoOficial.png',
     vibrate: [200, 100, 200],
     data: {
       url: data.url || '/'

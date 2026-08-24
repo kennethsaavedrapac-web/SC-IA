@@ -71,5 +71,5 @@ export interface UserProfile {
   sex?: string;
   emergencyPhone?: string;
   bloodType?: string;
-  provider?: string;
+  birthDate?: string;
 }

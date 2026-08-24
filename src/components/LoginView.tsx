@@ -70,6 +70,9 @@ export default function LoginView({
       if (result.success) {
         onToast?.(createToast(t('welcomeBack'), "success"));
         onLogin(cleanEmail);
+      } else if (result.mfaRequired && result.tempToken) {
+        setTempMfaToken(result.tempToken);
+        setMfaModalOpen(true);
       } else {
         onToast?.(createToast(result.error || t('loginError'), "error"));
       }
@@ -153,7 +156,7 @@ export default function LoginView({
         { }
         <div className="flex flex-col items-center mb-7">
           <img
-            src="/app-logo-v2.jpg"
+            src="/IconoOficial.png"
             alt="Logo"
             className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
           />

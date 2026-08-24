@@ -1,18 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import {
-  Shield,
-  ShieldCheck,
-  ShieldOff,
-  Loader2,
-  Copy,
-  CheckCircle,
-  AlertTriangle,
-  ExternalLink,
-  UserCheck,
-  ArrowRight,
-  Info,
-} from 'lucide-react';
+import { Shield, ShieldCheck, ShieldOff, Loader2, Copy, CheckCircle, AlertTriangle, X, Mail, Smartphone, RefreshCw } from 'lucide-react';
+import { createToast } from './Toast';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -20,6 +9,7 @@ import {
   verifyAndActivateMFA,
   getMFAFactors,
   unenrollMFA,
+  challengeAndVerifyMFA,
   type MFAFactor,
 } from '../lib/mfaService';
 import { validateTOTPCode } from '../lib/security';
@@ -70,21 +60,53 @@ export default function TwoFactorSetup({
   const [factorId, setFactorId] = useState('');
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   const [secretCopied, setSecretCopied] = useState(false);
   const [showMissingInfoWarning, setShowMissingInfoWarning] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
 
-  // ─── Detección del Proveedor de Autenticación ──────────────────────────────
-  const isGoogleProvider = useMemo(() => {
-    // 1. Verificación por prop
-    if (userProfile?.provider === 'google' || userProfile?.provider === 'google.com') {
-      return true;
+  useEffect(() => {
+    let timer: any;
+    if (cooldownTimer > 0) {
+      timer = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
     }
+    return () => clearInterval(timer);
+  }, [cooldownTimer]);
 
-    // 2. Verificación por usuario de Supabase / Firebase en AuthContext
-    const appMetadata = (authUser as any)?.app_metadata;
-    const providerData = (authUser as any)?.providerData;
-    const identities = (authUser as any)?.identities;
+  const handleSendEmailCode = async () => {
+    if (cooldownTimer > 0 || sendingEmail) return;
+
+    setSendingEmail(true);
+    setCodeError('');
+    try {
+      const res = await fetch('/api/auth/2fa/send-email-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al enviar código');
+      }
+
+      setEmailSent(true);
+      setCooldownTimer(60);
+    } catch (err: any) {
+      setCodeError(err.message || 'No se pudo enviar el correo.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  // Estado derivado
+  const verifiedFactor = factors.find((f) => f.status === 'verified');
+  const isEnabled = !!verifiedFactor;
 
     if (appMetadata?.provider === 'google' || appMetadata?.providers?.includes('google')) {
       return true;
@@ -220,33 +242,42 @@ export default function TwoFactorSetup({
     }
   };
 
-  // ─── Desactivar 2FA ────────────────────────────────────────────────────────
+  // ─── Desactivar MFA (Requiere elevación a AAL2) ───────────────
+  const handleStartDisable = () => {
+    setStep('disabling');
+    setCode('');
+    setCodeError('');
+  };
+
   const handleDisable = async () => {
     if (!verifiedFactor) return;
+    if (!validateTOTPCode(code)) {
+      setCodeError(t('mfaCodeInvalid'));
+      return;
+    }
 
-    setIsActionLoading(true);
+    setIsVerifying(true);
     setCodeError('');
 
-    try {
-      const result = await unenrollMFA(verifiedFactor.id);
-      if (result.success) {
-        await loadFactors();
-        setStep('idle');
-        onStatusChange?.(false);
-        notify('2FA desactivado correctamente.', 'info');
-      } else {
-        const errorMsg = result.error || t('mfaDisableError') || 'Error al desactivar el factor 2FA.';
-        setCodeError(errorMsg);
-        notify(errorMsg, 'error');
-        setStep('idle');
-      }
-    } catch (err: any) {
-      const errorMsg = err.message || 'Error al comunicarse con el servidor.';
-      setCodeError(errorMsg);
-      notify(errorMsg, 'error');
+    // 1. Elevar sesión a AAL2 verificando el código TOTP actual
+    const verifyResult = await challengeAndVerifyMFA(verifiedFactor.id, code);
+    if (!verifyResult.success) {
+      setIsVerifying(false);
+      setCodeError(verifyResult.error || t('mfaVerifyError'));
+      return;
+    }
+
+    // 2. Con la sesión en AAL2, proceder a desvincular (unenroll) el factor
+    const unenrollResult = await unenrollMFA(verifiedFactor.id);
+    setIsVerifying(false);
+
+    if (unenrollResult.success) {
+      await loadFactors();
       setStep('idle');
-    } finally {
-      setIsActionLoading(false);
+      setCode('');
+      onStatusChange?.(false);
+    } else {
+      setCodeError(unenrollResult.error || t('mfaDisableError'));
     }
   };
 
@@ -434,10 +465,8 @@ export default function TwoFactorSetup({
         <>
           {is2FAEnabled ? (
             <button
-              type="button"
-              onClick={() => { setStep('disabling'); setCodeError(''); }}
-              disabled={isActionLoading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-800 font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleStartDisable}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-800 font-bold text-xs transition-all active:scale-[0.98]"
             >
               <ShieldOff className="w-4 h-4" />
               {t('mfaDeactivate')}
@@ -570,7 +599,7 @@ export default function TwoFactorSetup({
         </div>
       )}
 
-      {/* Paso: Confirmación de desactivación */}
+      {/* Paso: Confirmación de desactivación con código AAL2 */}
       {step === 'disabling' && (
         <div className="space-y-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-800 animate-in fade-in zoom-in-95 duration-150">
           <div className="flex items-start gap-3">
@@ -585,15 +614,82 @@ export default function TwoFactorSetup({
             </div>
           </div>
 
+          {/* Guía de fuentes del código */}
+          <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-red-100 dark:border-slate-700 space-y-2">
+            <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+              <Smartphone className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
+              <p>
+                <strong>Google Authenticator:</strong> Abre la app en tu teléfono celular. El código de 6 dígitos se genera ahí automáticamente cada 30 segundos.
+              </p>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700">
+              <span className="text-[11px] text-slate-500">
+                {cooldownTimer > 0 ? `Reenviar correo en ${cooldownTimer}s` : '¿No tienes la app en tu teléfono?'}
+              </span>
+              <button
+                type="button"
+                onClick={handleSendEmailCode}
+                disabled={sendingEmail || cooldownTimer > 0}
+                className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:no-underline"
+              >
+                {sendingEmail ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : cooldownTimer > 0 ? (
+                  <RefreshCw className="w-3 h-3 text-slate-400 animate-pulse" />
+                ) : emailSent ? (
+                  <CheckCircle className="w-3 h-3 text-emerald-500" />
+                ) : (
+                  <Mail className="w-3 h-3" />
+                )}
+                {cooldownTimer > 0
+                  ? `Reenviar en ${cooldownTimer}s`
+                  : emailSent
+                  ? 'Reenviar a mi correo'
+                  : 'Enviar a mi correo'}
+              </button>
+            </div>
+          </div>
+
+          {/* Input de código 2FA para elevar a AAL2 */}
+          <div className="space-y-1 pt-1">
+            <label className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 tracking-wider">
+              {t('mfaEnterCode')}
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={code}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                setCode(val);
+                if (val) setCodeError('');
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && code.length === 6) {
+                  handleDisable();
+                }
+              }}
+              placeholder="0 0 0 0 0 0"
+              className={`w-full text-center text-xl font-mono tracking-[0.4em] py-2 px-3 rounded-xl border ${
+                codeError
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-red-200 dark:border-red-800 focus:border-red-500 focus:ring-red-200'
+              } bg-white dark:bg-slate-900 text-slate-800 dark:text-white outline-none focus:ring-[3px] transition-all`}
+              autoFocus
+            />
+          </div>
+
           {codeError && (
-            <p className="text-red-500 text-[11px] font-semibold">{codeError}</p>
+            <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              {codeError}
+            </p>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <button
-              type="button"
-              onClick={() => { setStep('idle'); setCodeError(''); }}
-              disabled={isActionLoading}
+              onClick={() => { setStep('idle'); setCode(''); setCodeError(''); }}
               className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-600 transition-all"
             >
               {t('cancel')}
@@ -601,10 +697,10 @@ export default function TwoFactorSetup({
             <button
               type="button"
               onClick={handleDisable}
-              disabled={isActionLoading}
-              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
+              disabled={code.length !== 6 || isVerifying}
+              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isActionLoading ? (
+              {isVerifying ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <ShieldOff className="w-4 h-4" />

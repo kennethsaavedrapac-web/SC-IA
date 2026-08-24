@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Star } from "lucide-react";
+import { ArrowLeft, Bell, User, Shield, Key, BellRing, Heart, ChevronRight, CheckCircle, LogOut, Camera, Loader2, Mail, MapPin, QrCode, Lock, ShieldCheck, Download, X, Maximize2, Phone, Globe, Droplets, Plus, Trash2, Save, Activity, Cloud, CloudOff, AlertTriangle, Clock, Megaphone, Calendar, Star } from "lucide-react";
 import { UserProfile } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -35,7 +35,9 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const [editCountry, setEditCountry] = useState(user.country);
   const [editPhone, setEditPhone] = useState(user.emergencyPhone || "+505 8888-9999");
   const [editSex, setEditSex] = useState(user.sex || "");
+  const [editBirthDate, setEditBirthDate] = useState(user.birthDate || "");
   const [editBloodType, setEditBloodType] = useState(user.bloodType || "O+");
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [editConditions, setEditConditions] = useState<string[]>(user.healthConditions);
   const [newCondition, setNewCondition] = useState("");
   const [isSavedAlertOpen, setIsSavedAlertOpen] = useState(false);
@@ -330,7 +332,20 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       emergencyPhone: editPhone.trim(),
       bloodType: editBloodType,
       healthConditions: editConditions.map(c => sanitizeAndTrim(c)),
+      sex: editSex,
+      birthDate: editBirthDate,
     });
+    
+    // Also save medical data to persist cedula if changed from personal form
+    saveMedicalData(localMedicalData, user.id || 'guest', {
+      nombre: sanitizeAndTrim(editName),
+      email: editEmail.trim(),
+      ciudad: sanitizeAndTrim(editCity),
+      pais: sanitizeAndTrim(editCountry),
+    }).then((result) => {
+      setMedicalSyncSource(result.source);
+    }).catch(console.error);
+
     setIsSavedAlertOpen(true);
     setTimeout(() => {
       setIsSavedAlertOpen(false);
@@ -339,358 +354,120 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   };
 
   const downloadQRCode = () => {
-    import("jspdf").then(async ({ default: jsPDF }) => {
-      // ══════════════════════════════════════════════════════════
-      //  CR80 CREDIT-CARD DIMENSIONS (85.6 × 53.98 mm)
-      // ══════════════════════════════════════════════════════════
-      const W = 85.6;
-      const H = 53.98;
-      const R = 3.2;
-
-      // ── Colours ────────────────────────────────────────────
-      const WHITE     = [255, 255, 255];
-      const NAVY      = [8, 25, 48];
-      const BLUE      = [24, 84, 160];
-      const TEAL      = [0, 155, 140];
-      const GRAY      = [100, 116, 139];
-      const BG        = [238, 245, 250];
-      const PHOTO_BG  = [220, 230, 242];
-      const BORDER_C  = [170, 188, 208];
-      const LIGHT     = [232, 240, 248];
-
-      // ── Helpers ────────────────────────────────────────────
-      const sanitize = (v: string | undefined | null, fb = ""): string =>
-        (v || fb).toString().trim();
-      const clip = (v: string, max = 40) => {
-        const c = (v || "---").replace(/\s+/g, " ").trim();
-        return c.length > max ? c.slice(0, max - 2) + ".." : c;
-      };
-
-      // ── Pre-load images ───────────────────────────────────
-      const [logoPng, avatarPng, qrPng] = await Promise.all([
-        toDataUrl("/app-logo-v2.jpg"),
-        user.avatarUrl ? toDataUrl(user.avatarUrl) : Promise.resolve(null),
-        qrToDataUrl(qrRef.current),
-      ]);
-
-      // ── Emergency-critical data ───────────────────────────
-      const bloodType    = localMedicalData.tipoSangre || editBloodType || user.bloodType || "O+";
-      const emergencyPh  = localMedicalData.contactoEmergencia || user.emergencyPhone || "---";
-      const cedulaNum    = sanitize(localMedicalData.cedula, "---");
-      const displayName  = (user.id === "guest" || user.name === "Invitado") ? t('guest') : user.name;
-      const fullLocation = `${sanitize(user.city)}, ${sanitize(user.country)}`;
-      const diseases     = clip(sanitize(localMedicalData.enfermedades, "-"), 24);
-      const allergies    = clip(sanitize(localMedicalData.alergias, "-"), 24);
-      const treatments   = clip(sanitize(localMedicalData.tratamientos, "-"), 24);
-      const medications  = clip(sanitize(localMedicalData.pastillas, "-"), 24);
-      const vaccines     = clip(sanitize(localMedicalData.vacunas, "-"), 24);
-      const healthConds  = clip(user.healthConditions?.join(", ") || "-", 28);
-      const shortDate    = new Date().toLocaleDateString("es-NI", {
-        day: "2-digit", month: "2-digit", year: "numeric",
-      });
-
-      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [W, H] });
-
-      // ═══════════════════════════════════════════════════════
-      //  LAYOUT GRID (all positions pre-calculated)
-      // ═══════════════════════════════════════════════════════
-      //  Margins: 0.3mm outer, 1mm internal gaps
-      //  ┌─────────────────────────────────────────────────────┐
-      //  │ BAND │  HEADER (logo + title + +)                  │
-      //  │(12mm)│─────────────────────────────────────────────│
-      //  │      │ PHOTO │  INFO (name, cedula, etc)  │ QR     │
-      //  │      │(17mm) │                            │(20mm)  │
-      //  │      │─────────────────────────────────────────────│
-      //  │      │  MEDICAL DATA PANEL (2 cols, more flexible) │
-      //  │      │─────────────────────────────────────────────│
-      //  │      │  notice                                     │
-      //  └─────────────────────────────────────────────────────┘
-
-      // ── Background ────────────────────────────────────────
-      doc.setFillColor(BG[0], BG[1], BG[2]);
-      doc.roundedRect(0, 0, W, H, R, R, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.2);
-      doc.roundedRect(0.3, 0.3, W - 0.6, H - 0.6, R, R, "S");
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 1 — LEFT VERTICAL BAND (12mm × full height)
-      // ═══════════════════════════════════════════════════════
-      const bandX = 0.3;
-      const bandW = 12;
-      const bandR = 3;
-
-      // Blue band (top 55%)
-      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(bandX, 0.3, bandW, H * 0.55, bandR, bandR, "F");
-      doc.rect(bandX, 2, bandW, H * 0.55 - 2, "F");
-
-      // Teal band (bottom 45%)
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(bandX, H * 0.55, bandW, H * 0.45 - 0.3, "F");
-
-      // Decorative ellipses
-      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.08);
-      for (let i = 0; i < 5; i++) {
-        doc.ellipse(bandX + bandW / 2, H * 0.33, 5 - i * 0.4, 2 + i * 0.5, "S");
-        doc.ellipse(bandX + bandW / 2, H * 0.66, 5.5 - i * 0.5, 2.5 + i * 0.6, "S");
-      }
-
-      // Medical cross symbol
-      doc.setDrawColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.setLineWidth(0.15);
-      doc.circle(bandX + bandW / 2, H * 0.44, 3.5, "S");
-
-      // Rotated text
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.5);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("REPUBLICA", bandX + bandW / 2, H * 0.30, { align: "center", angle: 90 });
-      doc.text("NICARAGUA", bandX + bandW / 2, H * 0.38, { align: "center", angle: 90 });
-      doc.text("AMERICA", bandX + bandW / 2, H * 0.74, { align: "center", angle: 90 });
-      doc.text("CENTRAL", bandX + bandW / 2, H * 0.81, { align: "center", angle: 90 });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 2 — HEADER (band right edge → right edge, 12mm tall)
-      // ═══════════════════════════════════════════════════════
-      const hX = bandX + bandW + 0.5;
-      const hY = 0.3;
-      const hW = W - hX - 0.3;
-      const hH = 12;
-
-      // Header background
-      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-      doc.roundedRect(hX, hY, hW, hH, bandR, bandR, "F");
-      doc.rect(hX, 2, hW, hH - 2, "F");
-
-      // Logo (8×8mm)
-      if (logoPng) {
-        doc.addImage(logoPng, "PNG", hX + 1.5, hY + 1.5, 8, 8);
-      }
-
-      // Brand text
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(6.5);
-      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("SALUD", hX + 11, hY + 5.5);
-      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("CONECTA", hX + 11, hY + 10);
-
-      // Vertical divider
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.line(hX + 25, hY + 2, hX + 25, hY + hH - 2);
-
-      // Document title
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.5);
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.text("DOCUMENTO DE EMERGENCIA", hX + 30, hY + 5);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(3.2);
-      doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.text("ACCESO INMEDIATO A INFORMACION MEDICA", hX + 30, hY + 9);
-
-      // Plus symbol
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.text("+", W - 3.5, hY + 8.5, { align: "right" });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 3 — PHOTO (left, below header)
-      // ═══════════════════════════════════════════════════════
-      const phX = bandX + bandW + 2;
-      const phY = hY + hH + 2;
-      const phS = 16;
-
-      // Photo white card
-      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(phX - 0.3, phY - 0.3, phS + 0.6, phS + 0.6, 1.5, 1.5, "F");
-      doc.setFillColor(PHOTO_BG[0], PHOTO_BG[1], PHOTO_BG[2]);
-      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.roundedRect(phX, phY, phS, phS, 1.2, 1.2, "S");
-
-      if (avatarPng) {
-        doc.addImage(avatarPng, "PNG", phX, phY, phS, phS);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(8);
-        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-        doc.text(getInitials(user.name), phX + phS / 2, phY + phS / 2 + 2.5, { align: "center" });
-      }
-
-      // Blood type — subtle text label next to photo info
-      // (no badge on photo, cleaner look)
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 4 — PATIENT INFO (center, between photo & QR)
-      // ═══════════════════════════════════════════════════════
-      const iX = phX + phS + 3;
-      const iW = W - iX - 24; // leave 24mm for QR zone
-
-      // Name
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(5.5);
-      doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-      const nameP = doc.splitTextToSize(displayName.toUpperCase(), iW);
-      doc.text(nameP.slice(0, 2), iX, phY + 4.5);
-
-      // Separator
-      doc.setDrawColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.setLineWidth(0.15);
-      doc.line(iX, phY + 7, iX + iW, phY + 7);
-
-      // Info rows (4 rows, evenly spaced) — blood type included inline
-      const infoRows: { label: string; val: string }[] = [
-        { label: "CEDULA", val: cedulaNum },
-        { label: "FECHA / SEXO", val: `${shortDate}  |  M` },
-        { label: "TELEFONO", val: emergencyPh },
-        { label: "TIPO SANGRE / DIR", val: `${bloodType}  |  ${clip(fullLocation, 14)}` },
-      ];
-
-      const rowStartY = phY + 9.5;
-      const rowGap = 6;
-
-      infoRows.forEach((r, i) => {
-        const y = rowStartY + i * rowGap;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(2.3);
-        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(r.label, iX, y);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(3.8);
-        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        doc.text(r.val, iX, y + 3);
-      });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 5 — QR CODE (right side, aligned with photo top)
-      // ═══════════════════════════════════════════════════════
-      const qS = 17;
-      const qX = W - qS - 3;
-      const qY = phY;
-
-      // QR container
-      doc.setFillColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "F");
-      doc.setDrawColor(BORDER_C[0], BORDER_C[1], BORDER_C[2]);
-      doc.setLineWidth(0.15);
-      doc.roundedRect(qX - 0.8, qY - 0.3, qS + 1.6, qS + 12, 2, 2, "S");
-
-      if (qrPng) {
-        doc.addImage(qrPng, "PNG", qX, qY, qS, qS);
-      } else {
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(3.5);
-        doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-        doc.text("QR", qX + qS / 2, qY + qS / 2 + 1.5, { align: "center" });
-      }
-
-      // QR label bar (blue + teal split)
-      const qLabelY = qY + qS + 0.5;
-      const qLabelH = 4;
-      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2]);
-      doc.roundedRect(qX - 0.8, qLabelY, qS + 1.6, qLabelH, 1, 1, "F");
-      doc.setFillColor(TEAL[0], TEAL[1], TEAL[2]);
-      doc.rect(qX + (qS + 1.6) / 2, qLabelY, (qS + 1.6) / 2, qLabelH, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(2.5);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("ESCANEAR", qX + (qS + 1.6) / 2, qLabelY + 2.8, { align: "center" });
-
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 6 — MEDICAL DATA PANEL (bottom area)
-      // ═══════════════════════════════════════════════════════
-      const medX = bandX + bandW + 1;
-      const medY = phY + phS + 2.5;
-      const medW = W - medX - 1;
-      const medH = H - medY - 3.5;
-
-      // Panel background
-      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]);
-      doc.roundedRect(medX, medY, medW, medH, 2, 2, "F");
-
-      // Panel header
-      const medHeaderH = 5;
-      doc.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
-      doc.roundedRect(medX + 0.4, medY + 0.4, medW - 0.8, medHeaderH, 1.5, 1.5, "F");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(3);
-      doc.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
-      doc.text("INFORMACION MEDICA DE EMERGENCIA", medX + medW / 2, medY + 3.8, { align: "center" });
-      
-      // Medical fields grid (2 cols)
-      const medFields: { label: string; val: string }[] = [
-        { label: "ENFERMEDADES", val: diseases },
-        { label: "ALERGIAS", val: allergies },
-        { label: "TRATAMIENTOS", val: treatments },
-        { label: "MEDICAMENTOS", val: medications },
-        { label: "VACUNAS", val: vaccines },
-        { label: "OTRAS COND.", val: healthConds },
-      ];
-
-      const gridX = medX + 0.8;
-      const gridY = medY + medHeaderH + 1.2;
-      const gridW = medW - 1.6;
-      const gridH = medH - medHeaderH - 2;
-      const gCols = 2;
-      const gRows = 3;
-      const gCellW = gridW / gCols;
-      const gCellH = gridH / gRows;
-
-      medFields.forEach((f, idx) => {
-        const col = idx % gCols;
-        const row = Math.floor(idx / gCols);
-        const cx = gridX + col * gCellW + 1;
-        const cy = gridY + row * gCellH + 1;
-
-        // Label
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(2);
-        doc.setTextColor(TEAL[0], TEAL[1], TEAL[2]);
-        doc.text(f.label, cx, cy + 1.5);
-
-        // Value
-        doc.setFont("helvetica", "normal"); // Use normal font for value
-        doc.setFontSize(2.2); // Slightly smaller font for better fit
-        doc.setTextColor(NAVY[0], NAVY[1], NAVY[2]);
-        const vl = doc.splitTextToSize(f.val, gCellW - 2);
-        // Allow up to 3 lines for more text
-        doc.text(vl.slice(0, 3), cx, cy + 3.5);
-
-        // Row separator
-        if (row < gRows - 1) {
-          doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.06);
-          doc.line(gridX, cy + gCellH - 0.1, gridX + gridW, cy + gCellH - 0.1);
+    Promise.all([
+      import("jspdf"),
+      import("html-to-image")
+    ]).then(async ([{ default: jsPDF }, htmlToImage]) => {
+      try {
+        const frontEl = document.getElementById("card-front-face");
+        const backEl = document.getElementById("card-back-face");
+        if (!frontEl || !backEl) {
+          alert("Error: No se encontraron los elementos de la tarjeta en la pantalla.");
+          return;
         }
-        // Column separator
-        if (col < gCols - 1) {
-          doc.setDrawColor(212, 220, 232);
-          doc.setLineWidth(0.08);
-          doc.line(cx + gCellW, cy, cx + gCellW, cy + gCellH);
-        }
-      });
 
-      // ═══════════════════════════════════════════════════════
-      //  ZONE 7 — BOTTOM NOTICE
-      // ═══════════════════════════════════════════════════════
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(1.8);
-      doc.setTextColor(GRAY[0], GRAY[1], GRAY[2]);
-      doc.text("Este documento no sustituye la cedula de identidad. Solo para uso en emergencias.", medX + 1.5, H - 1.5);
+        // Crear un overlay oscuro de carga
+        const overlay = document.createElement("div");
+        overlay.style.position = "fixed";
+        overlay.style.inset = "0";
+        overlay.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+        overlay.style.zIndex = "999998";
+        overlay.style.display = "flex";
+        overlay.style.flexDirection = "column";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        
+        const loaderText = document.createElement("h2");
+        loaderText.innerText = "Generando documento...";
+        loaderText.style.color = "#1e3a8a";
+        loaderText.style.fontFamily = "system-ui, sans-serif";
+        loaderText.style.fontSize = "24px";
+        loaderText.style.fontWeight = "bold";
+        loaderText.style.marginBottom = "30px";
+        overlay.appendChild(loaderText);
+        document.body.appendChild(overlay);
 
-      // ═══════════════════════════════════════════════════════
-      //  SAVE
-      // ═══════════════════════════════════════════════════════
-      doc.save(`${t('pdfFileName')}-${user.name || "perfil"}.pdf`);
+        // Crear contenedor temporal 100% visible pero sobre el overlay
+        const tempContainer = document.createElement("div");
+        tempContainer.style.position = "fixed";
+        tempContainer.style.top = "50%";
+        tempContainer.style.left = "50%";
+        tempContainer.style.transform = "translate(-50%, -50%) scale(0.6)";
+        tempContainer.style.zIndex = "999999";
+        tempContainer.style.width = "840px";
+        tempContainer.style.display = "flex";
+        tempContainer.style.flexDirection = "column";
+        tempContainer.style.gap = "40px";
+        tempContainer.style.backgroundColor = "transparent";
+        tempContainer.style.padding = "20px";
+        
+        // Clonar nodos
+        const frontClone = frontEl.cloneNode(true) as HTMLElement;
+        const backClone = backEl.cloneNode(true) as HTMLElement;
+        
+        // Quitar estilos 3D
+        frontClone.style.backfaceVisibility = "visible";
+        frontClone.style.transform = "none";
+        frontClone.style.position = "relative";
+        frontClone.style.inset = "auto";
+        frontClone.style.width = "800px";
+        frontClone.style.height = "504px";
+        
+        backClone.style.backfaceVisibility = "visible";
+        backClone.style.transform = "none";
+        backClone.style.position = "relative";
+        backClone.style.inset = "auto";
+        backClone.style.width = "800px";
+        backClone.style.height = "504px";
+
+        tempContainer.appendChild(frontClone);
+        tempContainer.appendChild(backClone);
+        document.body.appendChild(tempContainer);
+
+        // Renderizar con html-to-image (soporta oklch nativamente via SVG)
+        // Damos un timeout pequeñito para asegurar que los clones se montaron y cargaron imgs
+        await new Promise(r => setTimeout(r, 200));
+
+        const imgData = await htmlToImage.toPng(tempContainer, {
+          pixelRatio: 2,
+          backgroundColor: "rgba(255,255,255,1)",
+          cacheBust: true,
+        });
+
+        // Limpieza de UI
+        document.body.removeChild(tempContainer);
+        document.body.removeChild(overlay);
+        
+        // Obtener dimensiones reales de la imagen
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve) => { img.onload = resolve; });
+        
+        // Crear PDF
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const marginX = 10;
+        const printWidth = pdfWidth - (marginX * 2);
+        const printHeight = (img.height * printWidth) / img.width;
+
+        pdf.addImage(imgData, "PNG", marginX, 15, printWidth, printHeight);
+        pdf.save(`Documento-Emergencia-${user.name || "perfil"}.pdf`);
+      } catch (err) {
+        console.error("Error generando PDF", err);
+        alert("Ocurrió un error al generar el PDF: " + (err as Error).message);
+        
+        // Limpieza de emergencia
+        const temp = document.body.lastChild as HTMLElement;
+        if (temp) document.body.removeChild(temp);
+      }
     }).catch(err => {
-      console.error("Error cargando jsPDF", err);
+      console.error("Error cargando módulos PDF", err);
+      alert("Error cargando los módulos necesarios para generar el PDF.");
     });
   };
 
@@ -773,11 +550,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               {t('perfil')}
             </h2>
             <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
-              <img
-                src="/app-logo-v2.jpg"
-                alt="Logo"
-                className="w-4 h-4 sm:w-6 sm:h-6 rounded shadow-sm object-cover"
-              />
               <span>Salud-Conecta <span className="text-brand-600">IA</span></span>
             </span>
           </div>
@@ -939,230 +711,298 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
           </div>
 
           {/* Contenedor Flip 3D */}
-          <div className="group w-full max-w-[800px] aspect-[1.586/1] [perspective:1500px]">
-            <div className="relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] cursor-pointer">
+          <div className="group w-full max-w-[800px] aspect-[1.35/1] sm:aspect-[1.586/1] [perspective:1500px]">
+            <div 
+              className={`relative w-full h-full transition-transform duration-700 [transform-style:preserve-3d] cursor-pointer md:group-hover:[transform:rotateY(180deg)] ${isCardFlipped ? '[transform:rotateY(180deg)]' : ''}`}
+              onClick={() => setIsCardFlipped(!isCardFlipped)}
+            >
               
+
+
               {/* Cara Frontal - Datos Personales */}
-              <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
+              <div id="card-front-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-slate-50 rounded-[12px] sm:rounded-[20px] overflow-hidden shadow-2xl flex border border-slate-200">
                 
+                {/* Fondo Decorativo */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                   {/* Ondas (Círculos concéntricos) */}
+                   <div className="absolute top-[-40%] left-[5%] w-[160%] h-[160%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-30%] left-[15%] w-[140%] h-[140%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-20%] left-[25%] w-[120%] h-[120%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-10%] left-[35%] w-[100%] h-[100%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   
+                   {/* Volcanes (SVG) */}
+                   <svg className="absolute bottom-4 sm:bottom-6 w-[120%] left-[-10%] h-32 sm:h-48 opacity-[0.12]" viewBox="0 0 100 40" preserveAspectRatio="none">
+                     <path d="M-10,40 L15,20 L40,40 Z" fill="#1e3a8a" />
+                     <path d="M10,40 L40,5 L70,40 Z" fill="#1e3a8a" />
+                     <path d="M50,40 L80,15 L110,40 Z" fill="#1e3a8a" />
+                     <rect x="0" y="38" width="100" height="2" fill="#0D9488" />
+                   </svg>
+                </div>
+
                 {/* Banda Lateral */}
-                <div className="w-[12%] h-full flex flex-col">
-                  <div className="h-[60%] bg-[#082f49] w-full rounded-tl-3xl"></div>
-                  <div className="h-[40%] bg-[#0d9488] w-full rounded-bl-3xl relative">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center">
-                        <div className="w-8 h-8 bg-white/20 rounded-full"></div>
-                      </div>
+                <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
+                  <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
+                  <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="relative w-[85%] max-w-[120px] aspect-square flex items-center justify-center">
+                      <svg viewBox="0 0 120 120" className="absolute inset-0 w-full h-full hidden sm:block" aria-hidden="true">
+                        <defs>
+                          <path id="scNicArcTop" d="M60,60 m-48,0 a48,48 0 1,1 96,0 a48,48 0 1,1 -96,0" fill="none" />
+                          <path id="scNicArcBottom" d="M12,60 a48,48 0 0,0 96,0" fill="none" />
+                        </defs>
+                        <text fill="#ffffff" fontSize="9" fontWeight="700" letterSpacing="1.5" style={{ fontFamily: "system-ui, sans-serif" }}>
+                          <textPath href="#scNicArcTop" startOffset="3%">REPÚBLICA DE NICARAGUA</textPath>
+                        </text>
+                        <text fill="#ffffff" fontSize="9" fontWeight="700" letterSpacing="1.5" style={{ fontFamily: "system-ui, sans-serif" }}>
+                          <textPath href="#scNicArcBottom" startOffset="10%">AMÉRICA CENTRAL</textPath>
+                        </text>
+                      </svg>
+                      <img src="/escudo.svg" className="w-[45%] sm:w-[50%] aspect-square -rotate-90 opacity-100 brightness-0 invert filter relative z-10" alt="Escudo Nicaragua" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                     </div>
                   </div>
                 </div>
 
-                {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-4 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
-                  {/* Decoración de fondo */}
-                  <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
+                {/* Contenido */}
+                <div className="w-[82%] sm:w-[78%] h-full p-3 sm:p-5 flex flex-col z-10 relative bg-white/60 backdrop-blur-[1px]">
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl">
-                        SC
+                  <div className="flex justify-between items-start mb-1 sm:mb-2 w-full">
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
+                         <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-blue-900 font-bold text-sm leading-tight tracking-widest">
+                      <div className="text-[#0D9488] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-right">
-                      <h2 className="text-[#1e3a8a] font-bold text-lg sm:text-2xl tracking-wider">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    
+                    <div className="text-center flex-1 mx-1 sm:mx-4 mt-0.5 sm:mt-1">
+                      <h2 className="text-[#0f172a] font-bold text-[10px] sm:text-[18px] tracking-wider uppercase leading-tight whitespace-nowrap">DOCUMENTO DE EMERGENCIA</h2>
+                      <p className="text-slate-600 text-[5px] sm:text-[8px] font-semibold tracking-wide uppercase mt-[2px] sm:mt-1">Acceso inmediato a información médica</p>
                     </div>
-                    <div className="text-[#1e3a8a]">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L14.4 8.5L21 9.5L16.2 14.5L17.5 21L12 17.8L6.5 21L7.8 14.5L3 9.5L9.6 8.5L12 2Z" />
-                      </svg>
+                    
+                    <div className="shrink-0 flex items-start">
+                      <img src="/star-of-life.svg" className="w-6 h-6 sm:w-10 sm:h-10 opacity-90" alt="Star of Life" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                     </div>
                   </div>
 
                   {/* Body */}
-                  <div className="flex gap-6 flex-1">
+                  <div className="flex flex-row gap-2 sm:gap-4 flex-1 items-start mt-2 sm:mt-4 w-full relative">
+                    
                     {/* Foto */}
-                    <div className="w-[120px] sm:w-[150px] shrink-0">
+                    <div className="w-[60px] sm:w-[100px] shrink-0 self-start">
                       {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover rounded-xl shadow-md border-4 border-white" />
+                        <img src={user.avatarUrl} alt="Foto" className="w-full aspect-[3/4] object-cover bg-slate-200 rounded-sm shadow-md" />
                       ) : (
-                        <div className="w-full aspect-[3/4] bg-slate-200 rounded-xl shadow-md border-4 border-white flex items-center justify-center text-5xl text-slate-400 font-bold">
+                        <div className="w-full aspect-[3/4] bg-slate-200 flex items-center justify-center text-xl sm:text-3xl text-slate-400 font-bold rounded-sm shadow-md">
                           {getInitials(user.name)}
                         </div>
                       )}
                     </div>
                     
                     {/* Info */}
-                    <div className="flex-1 flex flex-col justify-center">
-                      <div className="mb-4">
-                        <p className="text-[#1e3a8a] font-bold text-xs mb-1">NOMBRE COMPLETO</p>
-                        <h3 className="text-[#0f172a] font-bold text-xl sm:text-3xl tracking-wide uppercase">{displayName}</h3>
+                    <div className="flex-1 flex flex-col justify-start text-left pl-1 sm:pl-2">
+                      <div className="mb-2 sm:mb-5 pb-1">
+                        <p className="text-[#0f172a] font-bold text-[5px] sm:text-[8px] mb-0 sm:mb-1 uppercase tracking-wide">NOMBRE COMPLETO</p>
+                        <h3 className="text-[#0f172a] font-bold text-[12px] sm:text-[22px] tracking-wide leading-tight">{displayName}</h3>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+                      <div className="grid grid-cols-2 gap-y-2 sm:gap-y-5 gap-x-2 sm:gap-x-4 max-w-[80%]">
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">FECHA DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg">---</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide uppercase">FECHA DE NACIMIENTO</p>
+                          <p className="text-[#0f172a] font-bold text-[8px] sm:text-[13px]">
+                            {user.birthDate ? user.birthDate.split('-').reverse().join('-') : '---'}
+                          </p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">LUGAR DE NACIMIENTO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg uppercase">{user.city || '---'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide uppercase">LUGAR DE NACIMIENTO</p>
+                          <p className="text-[#0f172a] font-bold text-[8px] sm:text-[13px] uppercase">{user.city || '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">SEXO</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg uppercase">{user.sex === 'male' ? 'MASCULINO' : user.sex === 'female' ? 'FEMENINO' : 'NO ESP.'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide uppercase">SEXO</p>
+                          <p className="text-[#0f172a] font-bold text-[8px] sm:text-[13px] uppercase">{user.sex === 'male' ? 'M' : user.sex === 'female' ? 'F' : '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">NÚMERO DE IDENTIDAD</p>
-                          <p className="text-slate-800 font-bold text-sm sm:text-lg">{localMedicalData.cedula || '---'}</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide uppercase">NÚMERO DE IDENTIDAD</p>
+                          <p className="text-[#0f172a] font-bold text-[8px] sm:text-[13px] uppercase">{localMedicalData.cedula || '---'}</p>
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Caja País de Residencia */}
+                    <div className="absolute right-0 bottom-6 sm:bottom-12 flex flex-col items-center">
+                       <div className="bg-[#0f3b73] rounded sm:rounded-lg px-2 py-1.5 sm:px-4 sm:py-3 text-center shadow-lg w-[70px] sm:w-[130px]">
+                         <p className="text-white/90 font-semibold text-[4px] sm:text-[7px] tracking-widest uppercase mb-0.5 sm:mb-1">PAÍS DE RESIDENCIA</p>
+                         <p className="text-white font-bold text-[6px] sm:text-[12px] tracking-wider uppercase">NICARAGUA</p>
+                       </div>
+                    </div>
+                    
                   </div>
 
                   {/* Footer */}
-                  <div className="mt-auto flex justify-between items-end pb-2">
-                    <p className="text-[#0f172a] font-bold text-[8px] sm:text-[10px] tracking-widest uppercase">
-                      Uso exclusivo en situaciones de emergencia
-                    </p>
-                    <p className="text-[#1e3a8a] font-bold text-[8px] sm:text-[10px] tracking-wider">
-                      SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cara Trasera - Datos Médicos */}
-              <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl flex border border-slate-200">
-                
-                {/* Banda Lateral */}
-                <div className="w-[12%] h-full flex flex-col">
-                  <div className="h-[60%] bg-[#082f49] w-full rounded-tl-3xl"></div>
-                  <div className="h-[40%] bg-[#0d9488] w-full rounded-bl-3xl relative">
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center">
-                        <div className="w-8 h-8 bg-white/20 rounded-full"></div>
+                  <div className="mt-auto flex justify-between items-end pb-0 sm:pb-1 pt-2 w-full">
+                    <div className="flex items-center gap-1.5 sm:gap-3">
+                      <div className="w-5 h-5 sm:w-8 sm:h-8 flex items-center justify-center text-[#1e3a8a] shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-full h-full">
+                           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeWidth="1.5" />
+                           <path d="M12 8v8" strokeWidth="2.5" strokeLinecap="round" />
+                           <path d="M8 12h8" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-[#0f172a] font-bold text-[4px] sm:text-[7px] tracking-widest uppercase leading-[1.2]">
+                          Uso exclusivo en<br/>situaciones de emergencia
+                        </p>
+                        <p className="text-slate-600 text-[4px] sm:text-[6px] mt-[2px] leading-[1.2]">
+                          Este documento no sustituye<br/>la cédula de identidad.
+                        </p>
                       </div>
                     </div>
+                    
+                    <div className="text-right flex flex-col items-end">
+                      <p className="text-[#0f172a] font-bold text-[4px] sm:text-[6px] tracking-wider mb-[2px]">
+                        SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
+                      </p>
+                      <div className="h-[1.5px] w-full bg-slate-400 relative my-[2px]">
+                         <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[4px] bg-white px-1 sm:px-2">
+                           <p className="text-[#0D9488] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                             SALUD CONECTA
+                           </p>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+              {/* Cara Trasera - Datos Médicos */}
+              <div id="card-back-face" className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-50 rounded-[12px] sm:rounded-[20px] overflow-hidden shadow-2xl flex border border-slate-200">
+                
+                {/* Fondo Decorativo */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                   {/* Ondas (Círculos concéntricos) */}
+                   <div className="absolute top-[-30%] left-[10%] w-[150%] h-[150%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-20%] left-[20%] w-[130%] h-[130%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   <div className="absolute top-[-10%] left-[30%] w-[110%] h-[110%] rounded-full border-[0.5px] border-[#1e3a8a]/10" />
+                   
+                   {/* Volcanes (SVG) */}
+                   <svg className="absolute bottom-6 w-full h-24 opacity-30" viewBox="0 0 100 30" preserveAspectRatio="none">
+                     <path d="M0,30 L25,10 L45,30 Z" fill="#1e3a8a" />
+                     <path d="M30,30 L60,5 L85,30 Z" fill="#1e3a8a" />
+                     <path d="M65,30 L85,15 L100,30 Z" fill="#1e3a8a" />
+                     <rect x="0" y="28" width="100" height="2" fill="#0D9488" />
+                   </svg>
+                </div>
+
+                {/* Banda Lateral */}
+                <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
+                  <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
+                  <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
                   </div>
                 </div>
 
                 {/* Contenido Principal */}
-                <div className="w-[88%] h-full p-4 sm:p-8 flex flex-col relative bg-gradient-to-br from-white to-blue-50/50">
-                  <div className="absolute right-0 bottom-0 w-full h-32 bg-blue-100/50 rounded-tl-[100%] rounded-br-3xl -z-10"></div>
+                <div className="w-[82%] sm:w-[78%] h-full p-3 sm:p-5 flex flex-col z-10 relative bg-white/70 backdrop-blur-[2px]">
                   
                   {/* Header */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-900 font-bold text-xl">
-                        SC
+                  <div className="flex justify-between items-start mb-2 sm:mb-4 w-full">
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
+                         <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-blue-900 font-bold text-sm leading-tight tracking-widest">
+                      <div className="text-[#1e3a8a] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
-                    <div className="text-right">
-                      <h2 className="text-[#1e3a8a] font-bold text-lg sm:text-2xl tracking-wider">DOCUMENTO DE<br/>EMERGENCIA</h2>
-                      <p className="text-slate-500 text-xs sm:text-sm font-semibold tracking-wide">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
+                    
+                    <div className="text-center flex-1 mx-1 sm:mx-4">
+                      <h2 className="text-[#1e3a8a] font-bold text-[9px] sm:text-[16px] tracking-wider uppercase leading-tight whitespace-nowrap">DATOS MÉDICOS DE EMERGENCIA</h2>
+                      <p className="text-slate-600 text-[5px] sm:text-[8px] font-semibold tracking-wide uppercase mt-0.5">Atención: {displayName}</p>
                     </div>
-                    <div className="text-[#1e3a8a]">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L14.4 8.5L21 9.5L16.2 14.5L17.5 21L12 17.8L6.5 21L7.8 14.5L3 9.5L9.6 8.5L12 2Z" />
-                      </svg>
+                    
+                    <div className="shrink-0 flex items-start">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
                     </div>
                   </div>
 
                   {/* Body - Grid */}
-                  <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-4 pr-4">
+                  <div className="flex-1 grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-1.5 sm:gap-y-3 w-full">
                     
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Heart className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Heart className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ENFERMEDADES QUE PADECE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Enfermedades</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.enfermedades || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ALERGIAS</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Alergias</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.alergias || 'Ninguna'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Droplets className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Droplets className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">TIPO DE SANGRE</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Tipo de Sangre</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold leading-tight">
                         {localMedicalData.tipoSangre || user.bloodType || 'O+'}
                       </div>
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <Activity className="w-3.5 h-3.5" /> {/* TODO: pill icon */}
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                        <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                          <Activity className="w-2 h-2 sm:w-3 sm:h-3" />
                         </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">TRATAMIENTOS ACTUALES</p>
+                        <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">Tratamientos</p>
                       </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold line-clamp-2">
+                      <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 min-h-[16px] sm:min-h-[28px] text-slate-800 text-[7px] sm:text-[11px] font-semibold line-clamp-2 leading-tight">
                         {localMedicalData.tratamientos || localMedicalData.pastillas || 'Ninguno'}
                       </div>
                     </div>
-
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-xs">KG</span>
-                        </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">PESO</p>
-                      </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
-                        {localMedicalData.peso ? `${localMedicalData.peso} kg` : '---'}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                          <span className="font-bold text-xs">CM</span>
-                        </div>
-                        <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">ALTURA</p>
-                      </div>
-                      <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2 min-h-10 text-slate-700 text-sm font-semibold">
-                        {localMedicalData.altura ? `${localMedicalData.altura} m` : '---'}
-                      </div>
-                    </div>
-
                   </div>
 
                   {/* Contacto de Emergencia */}
-                  <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
-                        <User className="w-3.5 h-3.5" />
+                  <div className="mt-1 sm:mt-2 w-full">
+                    <div className="flex items-center gap-1 sm:gap-1.5 mb-[1px] sm:mb-1">
+                      <div className="w-3 h-3 sm:w-5 sm:h-5 rounded-full bg-blue-100 flex items-center justify-center text-[#1e3a8a]">
+                        <User className="w-2 h-2 sm:w-3 sm:h-3" />
                       </div>
-                      <p className="text-[#1e3a8a] font-bold text-[10px] sm:text-xs">CONTACTO DE EMERGENCIA</p>
+                      <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">CONTACTO DE EMERGENCIA</p>
                     </div>
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 text-slate-700 text-xs sm:text-sm">
-                      <p><span className="font-bold">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}</p>
+                    <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 text-slate-800 text-[7px] sm:text-[11px] font-semibold flex items-center">
+                      <span className="font-bold mr-2 text-[#1e3a8a]">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}
+                    </div>
+                  </div>
+                  
+                  {/* Footer */}
+                  <div className="mt-auto flex justify-end items-end pb-0 sm:pb-1 pt-1 w-full">
+                    <div className="text-right flex flex-col items-end w-full">
+                      <p className="text-[#1e3a8a] font-bold text-[4px] sm:text-[6px] tracking-wider mb-[2px]">
+                        SALUD QUE TE CONECTA, VIDA QUE TE ACOMPAÑA
+                      </p>
+                      <div className="h-[1px] w-full bg-slate-300 relative my-[2px]">
+                         <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[5px] bg-white px-1 sm:px-2">
+                           <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                             SALUD CONECTA
+                           </p>
+                         </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1298,6 +1138,64 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                 </div>
                                 <div className="space-y-1.5 lg:col-span-2">
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Calendar className="w-3 h-3" /> Fecha de Nacimiento
+                                  </label>
+                                  <div className="flex gap-2">
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[2] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[2] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[28%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Día</option>
+                                      {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                        <option key={d} value={d.toString().padStart(2, '0')}>{d}</option>
+                                      ))}
+                                    </select>
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[1] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[1] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[44%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Mes</option>
+                                      <option value="01">Enero</option>
+                                      <option value="02">Febrero</option>
+                                      <option value="03">Marzo</option>
+                                      <option value="04">Abril</option>
+                                      <option value="05">Mayo</option>
+                                      <option value="06">Junio</option>
+                                      <option value="07">Julio</option>
+                                      <option value="08">Agosto</option>
+                                      <option value="09">Septiembre</option>
+                                      <option value="10">Octubre</option>
+                                      <option value="11">Noviembre</option>
+                                      <option value="12">Diciembre</option>
+                                    </select>
+                                    <select
+                                      value={editBirthDate ? editBirthDate.split('-')[0] : ''}
+                                      onChange={(e) => {
+                                        const parts = (editBirthDate || `${new Date().getFullYear()}-01-01`).split('-');
+                                        parts[0] = e.target.value;
+                                        setEditBirthDate(parts.join('-'));
+                                      }}
+                                      className="w-[28%] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-2 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold appearance-none"
+                                    >
+                                      <option value="">Año</option>
+                                      {Array.from({ length: 110 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
                                     <Phone className="w-3 h-3" /> {t('emergencyPhone')}
                                   </label>
                                   <input
@@ -1306,6 +1204,18 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     onChange={(e) => setEditPhone(e.target.value)}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     placeholder="+505 0000-0000"
+                                  />
+                                </div>
+                                <div className="space-y-1.5 lg:col-span-2">
+                                  <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <ShieldCheck className="w-3 h-3" /> {t('idCard')}
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={localMedicalData.cedula}
+                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value })}
+                                    placeholder={t('idCardPlaceholder')}
+                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
                                 <div className="space-y-1.5 lg:col-span-2">
@@ -1499,30 +1409,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     value={localMedicalData.altura}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, altura: e.target.value })}
                                     placeholder={t('heightPlaceholder')}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
-                                  />
-                                </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    {t('idCard')}
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={localMedicalData.cedula}
-                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value })}
-                                    placeholder={t('idCardPlaceholder')}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
-                                  />
-                                </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                                    {t('emergencyPhone')}
-                                  </label>
-                                  <input
-                                    type="tel"
-                                    value={localMedicalData.contactoEmergencia}
-                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, contactoEmergencia: e.target.value })}
-                                    placeholder="+505 0000-0000"
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
                                 </div>
