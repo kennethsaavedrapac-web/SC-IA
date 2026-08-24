@@ -370,8 +370,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const tempContainer = document.createElement("div");
         tempContainer.style.position = "absolute";
         tempContainer.style.top = "0";
-        tempContainer.style.left = "0";
-        tempContainer.style.opacity = "0";
+        tempContainer.style.left = "-9999px";
+        tempContainer.style.opacity = "1";
         tempContainer.style.pointerEvents = "none";
         tempContainer.style.zIndex = "-9999";
         tempContainer.style.width = "840px";
