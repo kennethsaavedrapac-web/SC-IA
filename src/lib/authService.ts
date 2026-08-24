@@ -119,7 +119,18 @@ export async function signInWithEmail(
   }
 
   try {
-    // Verificar si el usuario requiere desafío de 2 Factores (2FA/TOTP)
+    // 1. Validar primero las credenciales (correo + contraseña) con el servidor
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: validation.data.email,
+      password: validation.data.password,
+    });
+
+    // Si la contraseña o correo son incorrectos, denegar acceso de inmediato (OWASP Paso 2)
+    if (error) {
+      return { success: false, error: translateAuthError(error) };
+    }
+
+    // 2. Si la contraseña es CORRECTA, verificar si el usuario requiere 2FA
     try {
       const checkRes = await fetch('/api/auth/2fa/check', {
         method: 'POST',
@@ -129,25 +140,18 @@ export async function signInWithEmail(
       if (checkRes.ok) {
         const checkData = await checkRes.json();
         if (checkData.mfaRequired && checkData.tempToken) {
-          // Requiere verificar 2FA antes de entregar la sesión completa
+          // Requiere verificar 2FA antes de conceder acceso completo (OWASP Paso 3)
           return {
             success: false,
             mfaRequired: true,
             tempToken: checkData.tempToken,
+            user: data.user,
+            session: data.session,
           };
         }
       }
     } catch {
-      // Si el endpoint 2FA no responde, continúa con el flujo estándar de Supabase
-    }
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: validation.data.email,
-      password: validation.data.password,
-    });
-
-    if (error) {
-      return { success: false, error: translateAuthError(error) };
+      // Si el endpoint 2FA no responde, continúa con el flujo estándar
     }
 
     // Sincronizar token en cookies seguras HttpOnly del servidor
