@@ -257,20 +257,56 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   userId: string,
-  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'> & { fecha_nacimiento: string }>
-): Promise<{ success: boolean; error?: string }> {
+  updates: Partial<Pick<UserProfile, 'nombre' | 'avatar_url' | 'ciudad' | 'pais' | 'sexo'> & { fecha_nacimiento: string; full_name?: string }>
+): Promise<{ success: boolean; error?: string; warning?: string }> {
   const validation = validateInput(userProfileUpdateSchema, updates);
   if (!validation.success) {
     return { success: false, error: validation.message };
   }
 
   try {
+    const payload = { ...validation.data };
     const { error } = await supabase
       .from('profiles')
-      .update(validation.data)
+      .update(payload)
       .eq('id', userId);
 
     if (error) {
+      const errMsg = error.message || '';
+      const isMissingColumn =
+        errMsg.toLowerCase().includes('column') ||
+        errMsg.toLowerCase().includes('schema cache') ||
+        error.code === 'PGRST204' ||
+        errMsg.includes('fecha_nacimiento') ||
+        errMsg.includes('sexo');
+
+      // Si falla por una columna no existente aún en Supabase, reintentamos omitiendo los campos conflictivos
+      if (isMissingColumn) {
+        console.warn('Advertencia de esquema Supabase (columna faltante):', errMsg);
+        const fallbackPayload: Record<string, any> = { ...payload };
+
+        if (errMsg.includes('fecha_nacimiento') || errMsg.toLowerCase().includes('column')) {
+          delete fallbackPayload.fecha_nacimiento;
+        }
+        if (errMsg.includes('sexo')) {
+          delete fallbackPayload.sexo;
+        }
+
+        if (Object.keys(fallbackPayload).length > 0) {
+          const { error: retryError } = await supabase
+            .from('profiles')
+            .update(fallbackPayload)
+            .eq('id', userId);
+
+          if (!retryError) {
+            return {
+              success: true,
+              warning: 'Perfil sincronizado parcialmente. Agrega la columna fecha_nacimiento en Supabase para sincronizarla en la nube.',
+            };
+          }
+        }
+      }
+
       return { success: false, error: error.message };
     }
 

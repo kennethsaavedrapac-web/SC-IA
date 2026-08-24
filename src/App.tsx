@@ -641,7 +641,7 @@ export default function App() {
     
     if (user && user.id !== "guest") {
       try {
-        const { success, error } = await updateUserProfile(user.id, {
+        const { success, error, warning } = await updateUserProfile(user.id, {
           nombre: updatedUser.name,
           ciudad: updatedUser.city,
           sexo: updatedUser.sex || null,
@@ -650,6 +650,9 @@ export default function App() {
         } as any);
 
         if (success) {
+          if (warning) {
+            addToast(createToast(warning, "info"));
+          }
         } else {
           addToast(createToast(error || t('profileSaveError'), "error"));
         }
