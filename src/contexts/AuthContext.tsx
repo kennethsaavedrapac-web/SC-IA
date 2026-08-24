@@ -54,6 +54,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const checkMFAStatus = useCallback(async (): Promise<boolean> => {
+    try {
+      const assurance = await getAssuranceLevel();
+      if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
+        const factors = await getMFAFactors();
+        const verifiedFactor = factors.find(f => f.status === 'verified');
+        if (verifiedFactor) {
+          setRequiresMFA(true);
+          setMfaFactorId(verifiedFactor.id);
+          return true;
+        }
+      }
+    } catch {
+      // MFA check failed silently — don't block login
+    }
+    return false;
+  }, []);
+
   useEffect(() => {
     const subscription = onAuthStateChange(async (event, newSession) => {
       setSession(newSession);
@@ -62,9 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (newSession?.user) {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
           setTimeout(() => loadProfile(newSession.user.id), 300);
+          await checkMFAStatus();
         }
       } else {
         setProfile(null);
+        setRequiresMFA(false);
+        setMfaFactorId(null);
       }
 
       setInitialized(true);
@@ -73,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [loadProfile]);
+  }, [loadProfile, checkMFAStatus]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     setLoading(true);
@@ -81,28 +102,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithEmail(email, password);
       if (result.success && result.user) {
         await loadProfile(result.user.id);
-
-        // Check if user has MFA enabled and needs verification
-        try {
-          const assurance = await getAssuranceLevel();
-          if (assurance && assurance.nextLevel === 'aal2' && assurance.currentLevel === 'aal1') {
-            // User has MFA factors but hasn't verified yet in this session
-            const factors = await getMFAFactors();
-            const verifiedFactor = factors.find(f => f.status === 'verified');
-            if (verifiedFactor) {
-              setRequiresMFA(true);
-              setMfaFactorId(verifiedFactor.id);
-            }
-          }
-        } catch {
-          // MFA check failed silently — don't block login
-        }
+        await checkMFAStatus();
       }
       return result;
     } finally {
       setLoading(false);
     }
-  }, [loadProfile]);
+  }, [loadProfile, checkMFAStatus]);
 
   const register = useCallback(async (email: string, password: string, nombre: string): Promise<AuthResult> => {
     setLoading(true);

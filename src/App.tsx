@@ -754,10 +754,25 @@ export default function App() {
         <div className="accent-lines" />
       </div>
 
-      {}
+      {/* Interceptación de Verificación 2FA (Google OAuth y Email/Password) */}
+      {requiresMFA && mfaFactorId && (
+        <TwoFactorVerify
+          factorId={mfaFactorId}
+          onVerified={() => {
+            completeMFA();
+            addToast(createToast("Verificación en dos pasos completada con éxito.", "success"));
+          }}
+          onCancel={async () => {
+            await logout();
+            setCurrentView("login");
+            addToast(createToast("Inicio de sesión cancelado por seguridad.", "info"));
+          }}
+        />
+      )}
+
+      {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {}
       {currentView !== "login" && currentView !== "register" && currentView !== "admin" && (
         <aside className="hidden md:flex flex-col w-[260px] fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#0A1222] border-r border-slate-200/80 dark:border-[#1A2A45]/80 shadow-[4px_0_32px_rgba(0,0,0,0.03)] dark:shadow-[4px_0_32px_rgba(0,0,0,0.3)]">
           {/* ── Cabecera: Logo con borde degradado ─────────── */}
