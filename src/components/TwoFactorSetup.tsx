@@ -7,6 +7,7 @@ import {
   verifyAndActivateMFA,
   getMFAFactors,
   unenrollMFA,
+  challengeAndVerifyMFA,
   type MFAFactor,
 } from '../lib/mfaService';
 import { validateTOTPCode } from '../lib/security';
@@ -107,19 +108,42 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
     }
   };
 
-  // ─── Desactivar MFA ────────────────────────────────────────────
+  // ─── Desactivar MFA (Requiere elevación a AAL2) ───────────────
+  const handleStartDisable = () => {
+    setStep('disabling');
+    setCode('');
+    setCodeError('');
+  };
+
   const handleDisable = async () => {
     if (!verifiedFactor) return;
-    setStep('disabling');
+    if (!validateTOTPCode(code)) {
+      setCodeError(t('mfaCodeInvalid'));
+      return;
+    }
 
-    const result = await unenrollMFA(verifiedFactor.id);
-    if (result.success) {
+    setIsVerifying(true);
+    setCodeError('');
+
+    // 1. Elevar sesión a AAL2 verificando el código TOTP actual
+    const verifyResult = await challengeAndVerifyMFA(verifiedFactor.id, code);
+    if (!verifyResult.success) {
+      setIsVerifying(false);
+      setCodeError(verifyResult.error || t('mfaVerifyError'));
+      return;
+    }
+
+    // 2. Con la sesión en AAL2, proceder a desvincular (unenroll) el factor
+    const unenrollResult = await unenrollMFA(verifiedFactor.id);
+    setIsVerifying(false);
+
+    if (unenrollResult.success) {
       await loadFactors();
       setStep('idle');
+      setCode('');
       onStatusChange?.(false);
     } else {
-      setCodeError(result.error || t('mfaDisableError'));
-      setStep('idle');
+      setCodeError(unenrollResult.error || t('mfaDisableError'));
     }
   };
 
@@ -197,7 +221,7 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
         <>
           {isEnabled ? (
             <button
-              onClick={() => setStep('disabling')}
+              onClick={handleStartDisable}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-800 font-bold text-xs transition-all active:scale-[0.98]"
             >
               <ShieldOff className="w-4 h-4" />
@@ -314,7 +338,7 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
         </div>
       )}
 
-      {/* Paso: Confirmación de desactivación */}
+      {/* Paso: Confirmación de desactivación con código AAL2 */}
       {step === 'disabling' && (
         <div className="space-y-3 p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-800">
           <div className="flex items-start gap-3">
@@ -329,22 +353,60 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
             </div>
           </div>
 
+          {/* Input de código 2FA para elevar a AAL2 */}
+          <div className="space-y-1 pt-1">
+            <label className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 tracking-wider">
+              {t('mfaEnterCode')}
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={code}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                setCode(val);
+                if (val) setCodeError('');
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && code.length === 6) {
+                  handleDisable();
+                }
+              }}
+              placeholder="000000"
+              className={`w-full text-center text-xl font-mono tracking-[0.4em] py-2 px-3 rounded-xl border ${
+                codeError
+                  ? 'border-red-500 focus:ring-red-500'
+                  : 'border-red-200 dark:border-red-800 focus:border-red-500 focus:ring-red-200'
+              } bg-white dark:bg-slate-900 text-slate-800 dark:text-white outline-none focus:ring-[3px] transition-all`}
+              autoFocus
+            />
+          </div>
+
           {codeError && (
-            <p className="text-red-500 text-[11px] font-semibold">{codeError}</p>
+            <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              {codeError}
+            </p>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <button
-              onClick={() => { setStep('idle'); setCodeError(''); }}
+              onClick={() => { setStep('idle'); setCode(''); setCodeError(''); }}
               className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-600 transition-all"
             >
               {t('cancel')}
             </button>
             <button
               onClick={handleDisable}
-              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              disabled={code.length !== 6 || isVerifying}
+              className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <ShieldOff className="w-4 h-4" />
+              {isVerifying ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ShieldOff className="w-4 h-4" />
+              )}
               {t('mfaConfirmDisableBtn')}
             </button>
           </div>
