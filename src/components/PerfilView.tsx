@@ -522,11 +522,6 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
               {t('perfil')}
             </h2>
             <span className="mt-1.5 sm:mt-3 inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-lg font-bold text-slate-950 dark:text-slate-100">
-              <img
-                src="/app-logo-v2.jpg"
-                alt="Logo"
-                className="w-4 h-4 sm:w-6 sm:h-6 rounded shadow-sm object-cover"
-              />
               <span>Salud-Conecta <span className="text-brand-600">IA</span></span>
             </span>
           </div>
@@ -729,7 +724,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                      <img src="/IconoOficial.png" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 
@@ -822,7 +817,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <p className="text-slate-500 text-[6px] sm:text-sm font-semibold tracking-wide mt-0.5 sm:mt-1">ACCESO INMEDIATO A<br/>INFORMACIÓN MÉDICA</p>
                     </div>
                     <div className="text-[#1e3a8a] shrink-0">
-                      <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
+                      <img src="/IconoOficial.png" alt="Salud Conecta" className="w-6 h-6 sm:w-10 sm:h-10 rounded-full shadow-sm" />
                     </div>
                   </div>
 

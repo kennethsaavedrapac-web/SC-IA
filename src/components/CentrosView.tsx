@@ -710,11 +710,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center gap-2.5 cursor-pointer active:opacity-70 transition-opacity"
           >
-            <img
-              src="/app-logo-v2.jpg"
-              alt="Logo"
-              className="w-7 h-7 rounded-lg shadow-sm object-cover border border-blue-100 dark:border-blue-900/30"
-            />
             <span className="font-bold text-[17px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
               Salud-Conecta <span className="text-blue-500">IA</span>
             </span>

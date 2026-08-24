@@ -21,14 +21,8 @@ export default function HomeView({ user, onNavigate, onOpenSettings }: HomeViewP
       { }
       <header className="flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-4 z-30 relative bg-transparent w-full max-w-6xl mx-auto">
         <div className="flex items-center gap-2.5">
-          <img
-            src="/app-logo-v2.jpg"
-            alt="Logo"
-            className="w-9 h-9 rounded-lg shadow-sm object-cover border border-slate-200/60 dark:border-slate-700/60"
-          />
-          <span className="font-bold text-[19px] tracking-[-0.02em] text-slate-900 dark:text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Salud-Conecta <span className="text-brand-600 dark:text-brand-400">IA</span>
-          </span>
+          <img src="/Imagotipo.svg" alt="Salud-Conecta IA" className="h-9 object-contain dark:hidden" />
+          <img src="/ImagotipoDark.svg" alt="Salud-Conecta IA" className="h-9 object-contain hidden dark:block" />
         </div>
 
         <button

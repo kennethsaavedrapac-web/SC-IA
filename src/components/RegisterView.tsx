@@ -184,7 +184,7 @@ export default function RegisterView({
         {}
         <div className="flex flex-col items-center mb-5">
           <img
-            src="/app-logo-v2.jpg"
+            src="/IconoOficial.png"
             alt="Logo"
             className="w-16 h-16 rounded-2xl shadow-lg object-cover border-2 border-brand-100 dark:border-brand-900/30"
           />

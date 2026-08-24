@@ -69,11 +69,6 @@ export default function PremiumView({ user, onUnlockPremium, isPremium, onNaviga
             onClick={() => onNavigate && onNavigate("home")}
             className="flex items-center space-x-2 cursor-pointer active:opacity-75 transition-opacity"
           >
-            <img
-              src="/app-logo-v2.jpg"
-              alt="Logo"
-              className="w-8 h-8 rounded-lg shadow-sm object-cover border border-brand-100 dark:border-brand-900/30"
-            />
             <span className="font-display font-bold text-lg text-slate-800 dark:text-white">
               Salud-Conecta <span className="text-brand-600">IA</span>
             </span>
