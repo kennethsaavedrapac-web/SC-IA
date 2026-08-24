@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Shield, ShieldCheck, ShieldOff, Loader2, Copy, CheckCircle, AlertTriangle, X } from 'lucide-react';
+import { Shield, ShieldCheck, ShieldOff, Loader2, Copy, CheckCircle, AlertTriangle, X, Mail, Smartphone, RefreshCw } from 'lucide-react';
+import { createToast } from './Toast';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
   enrollMFA,
@@ -38,7 +39,46 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   const [secretCopied, setSecretCopied] = useState(false);
+
+  useEffect(() => {
+    let timer: any;
+    if (cooldownTimer > 0) {
+      timer = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldownTimer]);
+
+  const handleSendEmailCode = async () => {
+    if (cooldownTimer > 0 || sendingEmail) return;
+
+    setSendingEmail(true);
+    setCodeError('');
+    try {
+      const res = await fetch('/api/auth/2fa/send-email-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al enviar código');
+      }
+
+      setEmailSent(true);
+      setCooldownTimer(60);
+    } catch (err: any) {
+      setCodeError(err.message || 'No se pudo enviar el correo.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   // Estado derivado
   const verifiedFactor = factors.find((f) => f.status === 'verified');
@@ -353,6 +393,42 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
             </div>
           </div>
 
+          {/* Guía de fuentes del código */}
+          <div className="p-3 bg-white dark:bg-slate-800/90 rounded-xl border border-red-100 dark:border-slate-700 space-y-2">
+            <div className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+              <Smartphone className="w-4 h-4 text-brand-500 shrink-0 mt-0.5" />
+              <p>
+                <strong>Google Authenticator:</strong> Abre la app en tu teléfono celular. El código de 6 dígitos se genera ahí automáticamente cada 30 segundos.
+              </p>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700">
+              <span className="text-[11px] text-slate-500">
+                {cooldownTimer > 0 ? `Reenviar correo en ${cooldownTimer}s` : '¿No tienes la app en tu teléfono?'}
+              </span>
+              <button
+                type="button"
+                onClick={handleSendEmailCode}
+                disabled={sendingEmail || cooldownTimer > 0}
+                className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:no-underline"
+              >
+                {sendingEmail ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : cooldownTimer > 0 ? (
+                  <RefreshCw className="w-3 h-3 text-slate-400 animate-pulse" />
+                ) : emailSent ? (
+                  <CheckCircle className="w-3 h-3 text-emerald-500" />
+                ) : (
+                  <Mail className="w-3 h-3" />
+                )}
+                {cooldownTimer > 0
+                  ? `Reenviar en ${cooldownTimer}s`
+                  : emailSent
+                  ? 'Reenviar a mi correo'
+                  : 'Enviar a mi correo'}
+              </button>
+            </div>
+          </div>
+
           {/* Input de código 2FA para elevar a AAL2 */}
           <div className="space-y-1 pt-1">
             <label className="text-[10px] uppercase font-bold text-red-700 dark:text-red-400 tracking-wider">
@@ -373,7 +449,7 @@ export default function TwoFactorSetup({ userId, onStatusChange }: TwoFactorSetu
                   handleDisable();
                 }
               }}
-              placeholder="000000"
+              placeholder="0 0 0 0 0 0"
               className={`w-full text-center text-xl font-mono tracking-[0.4em] py-2 px-3 rounded-xl border ${
                 codeError
                   ? 'border-red-500 focus:ring-red-500'
