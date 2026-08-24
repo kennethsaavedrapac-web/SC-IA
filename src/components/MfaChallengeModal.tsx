@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShieldCheck, Lock, AlertTriangle, ArrowRight, Loader2, X, Mail, Smartphone, CheckCircle } from 'lucide-react';
+import { ShieldCheck, Lock, AlertTriangle, ArrowRight, Loader2, X, Mail, Smartphone, CheckCircle, RefreshCw } from 'lucide-react';
 import { createToast, type ToastData } from './Toast';
 
 interface MfaChallengeModalProps {
@@ -22,19 +22,41 @@ export default function MfaChallengeModal({
   const [loading, setLoading] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [cooldownTimer, setCooldownTimer] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    let timer: any;
+    if (cooldownTimer > 0) {
+      timer = setInterval(() => {
+        setCooldownTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldownTimer]);
+
   const handleSendEmailCode = async () => {
+    if (cooldownTimer > 0 || sendingEmail) return;
+
     setSendingEmail(true);
     setErrorMsg('');
     try {
-      // Invocación mock / API para enviar código a correo
-      await new Promise((res) => setTimeout(res, 800));
+      const res = await fetch('/api/auth/2fa/send-email-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tempToken }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al enviar código');
+      }
+
       setEmailSent(true);
-      onToast?.(createToast('Código de verificación enviado a tu correo electrónico', 'success'));
-      setTimeout(() => setEmailSent(false), 5000);
-    } catch {
-      setErrorMsg('No se pudo enviar el correo. Intenta de nuevo.');
+      setCooldownTimer(60);
+      onToast?.(createToast(data.message || 'Código enviado a tu correo', 'success'));
+    } catch (err: any) {
+      setErrorMsg(err.message || 'No se pudo enviar el correo. Intenta de nuevo.');
     } finally {
       setSendingEmail(false);
     }
@@ -114,21 +136,29 @@ export default function MfaChallengeModal({
                 </p>
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 dark:border-slate-700">
-                <span className="text-[11px] text-slate-500">¿No tienes acceso a la app?</span>
+                <span className="text-[11px] text-slate-500">
+                  {cooldownTimer > 0 ? `Reenviar en ${cooldownTimer}s` : '¿No tienes acceso a la app?'}
+                </span>
                 <button
                   type="button"
                   onClick={handleSendEmailCode}
-                  disabled={sendingEmail}
-                  className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 disabled:opacity-50"
+                  disabled={sendingEmail || cooldownTimer > 0}
+                  className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1 disabled:opacity-50 disabled:no-underline"
                 >
                   {sendingEmail ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : cooldownTimer > 0 ? (
+                    <RefreshCw className="w-3 h-3 text-slate-400 animate-pulse" />
                   ) : emailSent ? (
                     <CheckCircle className="w-3 h-3 text-emerald-500" />
                   ) : (
                     <Mail className="w-3 h-3" />
                   )}
-                  {emailSent ? '¡Código Enviado!' : 'Enviar a mi correo'}
+                  {cooldownTimer > 0
+                    ? `Reenviar código (${cooldownTimer}s)`
+                    : emailSent
+                    ? 'Reenviar a mi correo'
+                    : 'Enviar a mi correo'}
                 </button>
               </div>
             </div>
