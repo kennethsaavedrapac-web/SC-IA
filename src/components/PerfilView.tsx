@@ -742,7 +742,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
                   <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
                   <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
+                    <div className="relative w-[78%] max-w-[120px] aspect-square flex items-center justify-center">
+                      <svg viewBox="0 0 120 120" className="absolute inset-0 w-full h-full hidden sm:block" aria-hidden="true">
+                        <defs>
+                          <path id="scNicArcTop" d="M60,60 m-48,0 a48,48 0 1,1 96,0 a48,48 0 1,1 -96,0" fill="none" />
+                          <path id="scNicArcBottom" d="M12,60 a48,48 0 0,0 96,0" fill="none" />
+                        </defs>
+                        <text fill="#ffffff" fontSize="10" fontWeight="700" letterSpacing="2" style={{ fontFamily: "system-ui, sans-serif" }}>
+                          <textPath href="#scNicArcTop" startOffset="1%">REPÚBLICA DE NICARAGUA</textPath>
+                        </text>
+                        <text fill="#ffffff" fontSize="10" fontWeight="700" letterSpacing="2" style={{ fontFamily: "system-ui, sans-serif" }}>
+                          <textPath href="#scNicArcBottom" startOffset="6%">AMÉRICA CENTRAL</textPath>
+                        </text>
+                      </svg>
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Coat_of_arms_of_Nicaragua.svg" className="w-[52%] aspect-square -rotate-90 opacity-90 brightness-0 invert filter relative z-10" alt="Escudo Nicaragua" />
+                    </div>
                   </div>
                 </div>
 
@@ -788,7 +802,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     <div className="flex-1 flex flex-col justify-start text-left pl-1 sm:pl-2">
                       <div className="mb-2 sm:mb-4 border-b border-slate-200/50 pb-1 sm:pb-2">
                         <p className="text-slate-500 font-bold text-[5px] sm:text-[8px] mb-0 sm:mb-1 uppercase tracking-wide">Nombre Completo</p>
-                        <h3 className="text-[#1e3a8a] font-bold text-[11px] sm:text-[20px] tracking-wide leading-tight">{displayName}</h3>
+                        <h3 className="text-slate-900 font-bold text-[13px] sm:text-[23px] tracking-wide leading-[1.15]">{displayName}</h3>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-y-2 sm:gap-y-4 gap-x-2 sm:gap-x-4">
@@ -812,14 +826,33 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                         </div>
                       </div>
                     </div>
+
+                    {/* Panel QR - Escanear para datos medicos */}
+                    <div className="w-[27%] sm:w-[26%] shrink-0 self-stretch bg-white rounded-md sm:rounded-2xl border border-slate-200 shadow-[0_4px_16px_rgba(30,58,138,0.18)] flex flex-col overflow-hidden">
+                      <div className="flex-1 min-h-0 flex items-center justify-center p-1 sm:p-2.5 bg-white">
+                        <QRCodeSVG value={qrTelemetryText} size={120} level="H" bgColor="#ffffff" fgColor="#0f172a" className="w-full h-auto" />
+                      </div>
+                      <div className="shrink-0 bg-gradient-to-r from-[#1e3a8a] via-[#1d4ed8] to-[#0D9488] flex items-center gap-1 sm:gap-2 px-1 sm:px-2.5 py-[3px] sm:py-2">
+                        <div className="w-2.5 h-2.5 sm:w-6 sm:h-6 rounded-full bg-white flex items-center justify-center shrink-0">
+                          <svg viewBox="0 0 24 24" className="w-1.5 h-1.5 sm:w-3.5 sm:h-3.5" fill="none" stroke="#1e3a8a" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="7" y="2" width="10" height="20" rx="2.5" />
+                            <path d="M11 18h2" />
+                          </svg>
+                        </div>
+                        <p className="text-white font-bold text-[4.5px] sm:text-[8px] uppercase leading-[1.3] tracking-wide">
+                          Escanear para<br />datos médicos
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Footer */}
                   <div className="mt-auto flex justify-between items-end pb-0 sm:pb-1 pt-2 w-full">
                     <div className="flex items-center gap-1.5 sm:gap-3">
-                      <div className="w-4 h-4 sm:w-7 sm:h-7 border-[1.5px] sm:border-2 border-[#1e3a8a] rounded-sm sm:rounded-md flex items-center justify-center text-[#1e3a8a]">
-                        <span className="font-bold text-[10px] sm:text-[16px] leading-none mb-[1px]">+</span>
-                      </div>
+                      <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-8 sm:h-8 shrink-0" fill="none" aria-hidden="true">
+                        <path d="M12 2.2c2.6 1.7 5.4 2.5 8.3 2.7v6.3c0 4.8-3.3 8.7-8.3 10.6-5-1.9-8.3-5.8-8.3-10.6V4.9C6.6 4.7 9.4 3.9 12 2.2z" fill="#ffffff" stroke="#1e3a8a" strokeWidth="1.6" strokeLinejoin="round" />
+                        <path d="M12 7.8v6.9M8.6 11.2h6.8" stroke="#1e3a8a" strokeWidth="2.1" strokeLinecap="round" />
+                      </svg>
                       <div>
                         <p className="text-[#0f172a] font-bold text-[4px] sm:text-[7px] tracking-widest uppercase">
                           Uso exclusivo en situaciones de emergencia
