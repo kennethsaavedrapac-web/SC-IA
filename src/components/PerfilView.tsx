@@ -742,7 +742,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
                   <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
                   <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
                   </div>
                 </div>
 
@@ -755,7 +755,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
                          <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-[#0D9488] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
+                      <div className="text-[#1e3a8a] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
@@ -766,7 +766,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     </div>
                     
                     <div className="shrink-0 flex items-start">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
                     </div>
                   </div>
 
@@ -793,21 +793,21 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       
                       <div className="grid grid-cols-2 gap-y-2 sm:gap-y-4 gap-x-2 sm:gap-x-4">
                         <div>
-                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">FECHA DE NACIMIENTO</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide">FECHA DE NACIMIENTO</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-[13px]">
                             {user.birthDate ? user.birthDate.split('-').reverse().join('-') : '---'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">LUGAR DE NACIMIENTO</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide">LUGAR DE NACIMIENTO</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{user.city || '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">SEXO</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide">SEXO</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{user.sex === 'male' ? 'M' : user.sex === 'female' ? 'F' : '---'}</p>
                         </div>
                         <div>
-                          <p className="text-[#0D9488] font-bold text-[5px] sm:text-[8px] tracking-wide">NÚMERO DE IDENTIDAD</p>
+                          <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] tracking-wide">NÚMERO DE IDENTIDAD</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-[13px] uppercase">{localMedicalData.cedula || '---'}</p>
                         </div>
                       </div>
@@ -836,7 +836,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       </p>
                       <div className="h-[1px] w-full bg-slate-300 relative my-[2px]">
                          <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[5px] bg-white px-1 sm:px-2">
-                           <p className="text-[#0D9488] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                           <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[7px] tracking-widest">
                              SALUD CONECTA
                            </p>
                          </div>
@@ -870,7 +870,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                 <div className="w-[18%] sm:w-[22%] h-full flex z-10 relative">
                   <div className="w-[20%] h-full bg-[#1e3a8a]"></div>
                   <div className="w-[80%] h-full bg-gradient-to-b from-[#1e3a8a] via-[#1e40af] to-[#0D9488] rounded-r-[30px] sm:rounded-r-[50px] shadow-[2px_0_15px_rgba(0,0,0,0.15)] flex flex-col items-center justify-center relative overflow-hidden">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Coat_of_arms_of_Nicaragua.svg" className="w-12 h-12 sm:w-20 sm:h-20 -rotate-90 opacity-90 brightness-0 invert filter" alt="Escudo Nicaragua" />
                   </div>
                 </div>
 
@@ -883,7 +883,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-transparent shrink-0">
                          <img src="/app-logo-v2.jpg" alt="Salud Conecta" className="w-full h-full rounded-full object-cover" />
                       </div>
-                      <div className="text-[#0D9488] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
+                      <div className="text-[#1e3a8a] font-bold text-[6px] sm:text-[10px] leading-[1.1] tracking-widest shrink-0">
                         SALUD<br/>CONECTA
                       </div>
                     </div>
@@ -894,7 +894,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                     </div>
                     
                     <div className="shrink-0 flex items-start">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5b/Star_of_life2.svg" className="w-6 h-6 sm:w-10 sm:h-10" alt="Star of Life" />
                     </div>
                   </div>
 
@@ -959,7 +959,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[8px] uppercase tracking-wide">CONTACTO DE EMERGENCIA</p>
                     </div>
                     <div className="bg-white/80 border border-slate-200 shadow-sm rounded p-1 sm:p-2 text-slate-800 text-[7px] sm:text-[11px] font-semibold flex items-center">
-                      <span className="font-bold mr-2 text-[#0D9488]">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}
+                      <span className="font-bold mr-2 text-[#1e3a8a]">Teléfono:</span> {localMedicalData.contactoEmergencia || user.emergencyPhone || '---'}
                     </div>
                   </div>
                   
@@ -971,7 +971,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                       </p>
                       <div className="h-[1px] w-full bg-slate-300 relative my-[2px]">
                          <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] sm:-top-[5px] bg-white px-1 sm:px-2">
-                           <p className="text-[#0D9488] font-bold text-[5px] sm:text-[7px] tracking-widest">
+                           <p className="text-[#1e3a8a] font-bold text-[5px] sm:text-[7px] tracking-widest">
                              SALUD CONECTA
                            </p>
                          </div>
