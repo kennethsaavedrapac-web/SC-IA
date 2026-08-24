@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Shield, ShieldCheck, ShieldOff, Loader2, Copy, CheckCircle, AlertTriangle, X, Mail, Smartphone, RefreshCw } from 'lucide-react';
-import { createToast } from './Toast';
+import {
+  Shield,
+  ShieldCheck,
+  ShieldOff,
+  Loader2,
+  Copy,
+  CheckCircle,
+  AlertTriangle,
+  Mail,
+  Smartphone,
+  RefreshCw,
+  ExternalLink,
+  UserCheck,
+  ArrowRight,
+} from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -54,59 +67,47 @@ export default function TwoFactorSetup({
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [step, setStep] = useState<'idle' | 'enrolling' | 'verifying' | 'disabling'>('idle');
 
-  // Estados de enrolamiento
+  // Estados de enrolamiento y verificación
   const [qrUri, setQrUri] = useState('');
   const [secret, setSecret] = useState('');
   const [factorId, setFactorId] = useState('');
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [secretCopied, setSecretCopied] = useState(false);
+
+  // Estados de código por email (fallback)
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [cooldownTimer, setCooldownTimer] = useState(0);
-  const [secretCopied, setSecretCopied] = useState(false);
+
+  // Advertencias y feedback
   const [showMissingInfoWarning, setShowMissingInfoWarning] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
 
+  // Temporizador para reenvío de correo
   useEffect(() => {
-    let timer: any;
+    let timer: NodeJS.Timeout | undefined;
     if (cooldownTimer > 0) {
       timer = setInterval(() => {
         setCooldownTimer((prev) => prev - 1);
       }, 1000);
     }
-    return () => clearInterval(timer);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [cooldownTimer]);
 
-  const handleSendEmailCode = async () => {
-    if (cooldownTimer > 0 || sendingEmail) return;
-
-    setSendingEmail(true);
-    setCodeError('');
-    try {
-      const res = await fetch('/api/auth/2fa/send-email-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al enviar código');
-      }
-
-      setEmailSent(true);
-      setCooldownTimer(60);
-    } catch (err: any) {
-      setCodeError(err.message || 'No se pudo enviar el correo.');
-    } finally {
-      setSendingEmail(false);
+  // ─── Detección del Proveedor de Autenticación ──────────────────────────────
+  const isGoogleProvider = useMemo(() => {
+    // 1. Verificación por prop
+    if (userProfile?.provider === 'google' || userProfile?.provider === 'google.com') {
+      return true;
     }
-  };
 
-  // Estado derivado
-  const verifiedFactor = factors.find((f) => f.status === 'verified');
-  const isEnabled = !!verifiedFactor;
+    // 2. Verificación por usuario de Supabase / Firebase en AuthContext
+    const appMetadata = (authUser as any)?.app_metadata;
+    const providerData = (authUser as any)?.providerData;
+    const identities = (authUser as any)?.identities;
 
     if (appMetadata?.provider === 'google' || appMetadata?.providers?.includes('google')) {
       return true;
@@ -159,6 +160,36 @@ export default function TwoFactorSetup({
       setIsInitialLoading(false);
     }
   }, [userId, loadFactors]);
+
+  // ─── Enviar código por correo (Opción de Respaldo) ───────────────────────────
+  const handleSendEmailCode = async () => {
+    if (cooldownTimer > 0 || sendingEmail) return;
+
+    setSendingEmail(true);
+    setCodeError('');
+    try {
+      const res = await fetch('/api/auth/2fa/send-email-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al enviar el código por correo.');
+      }
+
+      setEmailSent(true);
+      setCooldownTimer(60);
+      notify('Código enviado a tu dirección de correo electrónico.', 'info');
+    } catch (err: any) {
+      const errorText = err.message || 'No se pudo enviar el correo de verificación.';
+      setCodeError(errorText);
+      notify(errorText, 'error');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   // ─── Validación previa de Datos de Contacto ───────────────────────────────
   const validatePrerequisites = (): boolean => {
@@ -242,42 +273,55 @@ export default function TwoFactorSetup({
     }
   };
 
-  // ─── Desactivar MFA (Requiere elevación a AAL2) ───────────────
+  // ─── Iniciar Desactivación ─────────────────────────────────────────────────
   const handleStartDisable = () => {
     setStep('disabling');
     setCode('');
     setCodeError('');
+    setFeedbackMessage(null);
   };
 
+  // ─── Confirmar Desactivación de 2FA ────────────────────────────────────────
   const handleDisable = async () => {
     if (!verifiedFactor) return;
+
     if (!validateTOTPCode(code)) {
-      setCodeError(t('mfaCodeInvalid'));
+      setCodeError(t('mfaCodeInvalid') || 'Ingresa el código de 6 dígitos para confirmar.');
       return;
     }
 
-    setIsVerifying(true);
+    setIsActionLoading(true);
     setCodeError('');
 
-    // 1. Elevar sesión a AAL2 verificando el código TOTP actual
-    const verifyResult = await challengeAndVerifyMFA(verifiedFactor.id, code);
-    if (!verifyResult.success) {
-      setIsVerifying(false);
-      setCodeError(verifyResult.error || t('mfaVerifyError'));
-      return;
-    }
+    try {
+      // 1. Elevar sesión verificando el código TOTP
+      const verifyResult = await challengeAndVerifyMFA(verifiedFactor.id, code);
+      if (!verifyResult.success) {
+        setCodeError(verifyResult.error || t('mfaVerifyError') || 'Código incorrecto.');
+        notify(verifyResult.error || 'Código incorrecto al verificar desactivación.', 'error');
+        setIsActionLoading(false);
+        return;
+      }
 
-    // 2. Con la sesión en AAL2, proceder a desvincular (unenroll) el factor
-    const unenrollResult = await unenrollMFA(verifiedFactor.id);
-    setIsVerifying(false);
-
-    if (unenrollResult.success) {
-      await loadFactors();
-      setStep('idle');
-      setCode('');
-      onStatusChange?.(false);
-    } else {
-      setCodeError(unenrollResult.error || t('mfaDisableError'));
+      // 2. Con la sesión elevada, desvincular el factor
+      const unenrollResult = await unenrollMFA(verifiedFactor.id);
+      if (unenrollResult.success) {
+        await loadFactors();
+        setStep('idle');
+        setCode('');
+        onStatusChange?.(false);
+        notify('2FA desactivado correctamente.', 'info');
+      } else {
+        const errorMsg = unenrollResult.error || t('mfaDisableError') || 'Error al desactivar el factor.';
+        setCodeError(errorMsg);
+        notify(errorMsg, 'error');
+      }
+    } catch (err: any) {
+      const errorMsg = err.message || 'Error de comunicación al desactivar 2FA.';
+      setCodeError(errorMsg);
+      notify(errorMsg, 'error');
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -465,8 +509,10 @@ export default function TwoFactorSetup({
         <>
           {is2FAEnabled ? (
             <button
+              type="button"
               onClick={handleStartDisable}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-800 font-bold text-xs transition-all active:scale-[0.98]"
+              disabled={isActionLoading}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-800 font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ShieldOff className="w-4 h-4" />
               {t('mfaDeactivate')}
@@ -660,13 +706,14 @@ export default function TwoFactorSetup({
               inputMode="numeric"
               maxLength={6}
               value={code}
+              disabled={isActionLoading}
               onChange={(e) => {
                 const val = e.target.value.replace(/\D/g, '').slice(0, 6);
                 setCode(val);
                 if (val) setCodeError('');
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && code.length === 6) {
+                if (e.key === 'Enter' && code.length === 6 && !isActionLoading) {
                   handleDisable();
                 }
               }}
@@ -682,14 +729,16 @@ export default function TwoFactorSetup({
 
           {codeError && (
             <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3" />
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
               {codeError}
             </p>
           )}
 
           <div className="flex gap-2 pt-1">
             <button
+              type="button"
               onClick={() => { setStep('idle'); setCode(''); setCodeError(''); }}
+              disabled={isActionLoading}
               className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-600 transition-all"
             >
               {t('cancel')}
@@ -697,10 +746,10 @@ export default function TwoFactorSetup({
             <button
               type="button"
               onClick={handleDisable}
-              disabled={code.length !== 6 || isVerifying}
+              disabled={code.length !== 6 || isActionLoading}
               className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-xs transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isVerifying ? (
+              {isActionLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <ShieldOff className="w-4 h-4" />
@@ -713,4 +762,3 @@ export default function TwoFactorSetup({
     </div>
   );
 }
-
