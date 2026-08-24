@@ -795,6 +795,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                           <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">NÚMERO DE IDENTIDAD</p>
                           <p className="text-slate-800 font-bold text-[8px] sm:text-lg">{localMedicalData.cedula || '---'}</p>
                         </div>
+                        <div className="col-span-2">
+                          <p className="text-[#1e3a8a] font-bold text-[6px] sm:text-xs">PAÍS DE RESIDENCIA</p>
+                          <p className="text-slate-800 font-bold text-[8px] sm:text-lg uppercase">{user.country || '---'}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
