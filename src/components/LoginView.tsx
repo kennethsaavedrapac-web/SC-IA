@@ -70,6 +70,9 @@ export default function LoginView({
       if (result.success) {
         onToast?.(createToast(t('welcomeBack'), "success"));
         onLogin(cleanEmail);
+      } else if (result.mfaRequired && result.tempToken) {
+        setTempMfaToken(result.tempToken);
+        setMfaModalOpen(true);
       } else {
         onToast?.(createToast(result.error || t('loginError'), "error"));
       }
