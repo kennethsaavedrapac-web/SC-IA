@@ -387,13 +387,13 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         overlay.appendChild(loaderText);
         document.body.appendChild(overlay);
 
-        // Crear contenedor temporal 100% visible pero sobre el overlay
+        // Crear contenedor temporal 100% visible pero detrás del overlay
         const tempContainer = document.createElement("div");
-        tempContainer.style.position = "fixed";
-        tempContainer.style.top = "50%";
-        tempContainer.style.left = "50%";
-        tempContainer.style.transform = "translate(-50%, -50%) scale(0.6)";
-        tempContainer.style.zIndex = "999999";
+        tempContainer.style.position = "absolute";
+        tempContainer.style.top = "0";
+        tempContainer.style.left = "0";
+        // Sin transform ni scale, esto arruinaba las coordenadas del lienzo
+        tempContainer.style.zIndex = "999997"; // Debajo del overlay (999998)
         tempContainer.style.width = "840px";
         tempContainer.style.display = "flex";
         tempContainer.style.flexDirection = "column";
