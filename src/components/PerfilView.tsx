@@ -356,8 +356,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
   const downloadQRCode = () => {
     Promise.all([
       import("jspdf"),
-      import("html2canvas")
-    ]).then(async ([{ default: jsPDF }, { default: html2canvas }]) => {
+      import("html-to-image")
+    ]).then(async ([{ default: jsPDF }, htmlToImage]) => {
       try {
         const frontEl = document.getElementById("card-front-face");
         const backEl = document.getElementById("card-back-face");
@@ -404,15 +404,23 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         tempContainer.appendChild(backClone);
         document.body.appendChild(tempContainer);
 
-        // Renderizar con html2canvas
-        const canvas = await html2canvas(tempContainer, {
-          scale: 2,
-          useCORS: true,
+        // Renderizar con html-to-image (soporta oklch nativamente via SVG)
+        const imgData = await htmlToImage.toPng(tempContainer, {
+          pixelRatio: 2,
           backgroundColor: "#ffffff",
+          cacheBust: true,
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left'
+          }
         });
 
         document.body.removeChild(tempContainer);
-        const imgData = canvas.toDataURL("image/png");
+        
+        // Obtener dimensiones reales de la imagen
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve) => { img.onload = resolve; });
         
         // Crear PDF
         const pdf = new jsPDF({
@@ -424,7 +432,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const marginX = 10;
         const printWidth = pdfWidth - (marginX * 2);
-        const printHeight = (canvas.height * printWidth) / canvas.width;
+        const printHeight = (img.height * printWidth) / img.width;
 
         pdf.addImage(imgData, "PNG", marginX, 15, printWidth, printHeight);
         pdf.save(`Documento-Emergencia-${user.name || "perfil"}.pdf`);
