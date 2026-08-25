@@ -103,15 +103,3 @@ export function validatePhone(phone: string): boolean {
 export function validateTOTPCode(code: string): boolean {
   return /^\d{6}$/.test(code);
 }
-
-// Re-exportar utilidades de seguridad de IA y logging seguro (OWASP LLM & PII)
-export {
-  sanitizePromptInput,
-  wrapPromptWithDelimiters,
-  sanitizeAiOutput,
-  maskPII,
-  maskEmail,
-  maskPhone,
-  maskIdNumber,
-  safeLogger,
-} from './validations/aiSecurity';
