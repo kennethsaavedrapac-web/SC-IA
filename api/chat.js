@@ -102,48 +102,16 @@ export default async function handler(req, res) {
   try {
     const { message, userProfile, language } = req.body;
 
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: "La descripción de los síntomas es obligatoria y debe ser válida." });
-    }
-
-    // Sanitización y Detección de Prompt Injection / Jailbreaks (OWASP LLM01)
-    const PROMPT_INJECTION_PATTERNS = [
-      /ignore\s+(all\s+)?(previous|prior|above)\s+(instructions|directives|prompts)/i,
-      /ignora\s+(todas\s+las\s+)?(instrucciones|directrices|órdenes)\s+(anteriores|previas)/i,
-      /disregard\s+(all\s+)?(previous|prior)\s+(instructions|directives)/i,
-      /olvida\s+(todo\s+lo\s+)?(anterior|previo)/i,
-      /system\s+(prompt|instructions|directive|override)/i,
-      /prompt\s+del\s+sistema/i,
-      /reveal\s+(your\s+)?(system\s+)?(prompt|instructions|keys|rules)/i,
-      /revela\s+(tus\s+)?(instrucciones|prompt|reglas|directrices)/i,
-      /act\s+as\s+(dan|an\s+unfiltered|jailbroken|developer\s+mode)/i,
-      /actúa\s+como\s+(un\s+modelo\s+sin\s+restricciones|modo\s+desarrollador|dan)/i,
-    ];
-
-    let cleanMessage = String(message).trim()
-      .replace(/\0/g, '')
-      .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, '')
-      .replace(/<\/?user_query>/gi, '')
-      .replace(/<\/?system>/gi, '')
-      .replace(/<\/?prompt>/gi, '');
-
-    for (const pattern of PROMPT_INJECTION_PATTERNS) {
-      cleanMessage = cleanMessage.replace(pattern, '[consulta clínica estándar]');
-    }
-
-    if (cleanMessage.length > 2000) {
-      cleanMessage = cleanMessage.substring(0, 2000).trim();
-    }
-
-    if (!cleanMessage) {
-      return res.status(400).json({ error: "El mensaje ingresado no contiene síntomas válidos." });
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey.length < 10) {
+      console.log("API key not configured, returning simulated response");
       return res.status(200).json({
-        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${cleanMessage}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
+        text: `**Estado de Prioridad:** 🟡 Urgencia\n\n🔍 **EVALUACIÓN CLÍNICA**\nLos síntomas reportados ("${message}") sugieren un cuadro que requiere atención en las próximas horas. Aunque no parece una emergencia inmediata, es crucial monitorear la evolución y seguir las recomendaciones.\n\n✅ **PROTOCOLO SUGERIDO**\n🔹 Mantener reposo y una hidratación adecuada con suero oral.\n🔹 Vigilar la aparición de signos de alarma como fiebre alta persistente, dificultad para respirar o dolor intenso.\n🔹 Considerar acudir a un centro de salud si los síntomas no mejoran en 24 horas.\n\n⚠️ Esta orientación es únicamente informativa y no reemplaza la evaluación de un profesional de salud.`,
         simulated: true,
       });
     }
@@ -151,12 +119,13 @@ export default async function handler(req, res) {
     const ai = getGeminiClient();
 
     if (!ai) {
-      console.error("[ERROR] Failed to initialize Gemini client - API key may be invalid");
+      console.error("Failed to initialize Gemini client - API key may be invalid");
       return res.status(500).json({
         error: "No se pudo inicializar el servicio de IA. Intente nuevamente más tarde.",
         timestamp: new Date().toISOString(),
       });
     }
+
 
     const now = new Date();
     const localTimeStr = now.toLocaleString("es-NI", { timeZone: "America/Managua", weekday: 'long', hour: '2-digit', minute: '2-digit' });
@@ -247,17 +216,16 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
     });
 
 
-    // Generate response con consulta delimitada
+    // Generate response
     let response;
     try {
-      const delimitedMessage = `<user_query>\n${cleanMessage}\n</user_query>`;
-      response = await chat.sendMessage(delimitedMessage);
+      response = await chat.sendMessage(message);
     } catch (sendErr) {
-      console.error("[ERROR] Gemini Send Message Error:", sendErr?.message || sendErr);
+      console.error("Gemini Send Message Error:", sendErr);
       // Si el error es por seguridad o filtros
-      if (sendErr?.message?.includes("SAFETY")) {
+      if (sendErr.message?.includes("SAFETY")) {
         return res.status(200).json({
-          text: "Lo siento, no puedo procesar esa consulta por razones de seguridad médica. Por favor, intenta describir tus síntomas de forma más directa.",
+          text: "Lo siento, no puedo procesar esa consulta por razones de seguridad. Por favor, intenta describir tus síntomas de forma más directa.",
           simulated: false
         });
       }

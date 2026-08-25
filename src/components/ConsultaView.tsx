@@ -7,7 +7,6 @@ import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
 import { supabase } from "../lib/supabaseClient";
-import { sanitizePromptInput, sanitizeAiOutput } from "../lib/security";
 interface ConsultaViewProps {
   user: UserProfile;
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -456,13 +455,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   const handleSendMessage = async () => {
-    const rawInput = inputValue.trim();
-    if (!rawInput || isLoading) return;
+    if (!inputValue.trim() || isLoading) return;
 
-    const sanitization = sanitizePromptInput(rawInput, 2000);
-    const userText = sanitization.text;
-    if (!userText) return;
-
+    const userText = inputValue.trim();
     const newUserMsg: ChatMessage = {
       id: Date.now().toString(),
       text: userText,
@@ -477,7 +472,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
     if (language === 'mi') {
       setTimeout(() => {
-        const miskitoResponse = sanitizeAiOutput(getMiskitoTriageResponse(userText, user));
+        const miskitoResponse = getMiskitoTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: miskitoResponse,
@@ -497,7 +492,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
     if (language === 'kr') {
       setTimeout(() => {
-        const kriolResponse = sanitizeAiOutput(getKriolTriageResponse(userText, user));
+        const kriolResponse = getKriolTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: kriolResponse,
@@ -517,7 +512,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
     if (!navigator.onLine) {
       setTimeout(() => {
-        const offlineResponse = sanitizeAiOutput(getOfflineTriageResponse(userText, user));
+        const offlineResponse = getOfflineTriageResponse(userText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
@@ -552,7 +547,9 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       }
 
       if (!response.ok) {
-        const offlineResponse = sanitizeAiOutput(getOfflineTriageResponse(userText, user));
+        console.error("API Error Response:", data);
+        console.error("Response status:", response.status);
+        const offlineResponse = getOfflineTriageResponse(userText, user);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
@@ -568,10 +565,16 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         return;
       }
 
-      let botText = sanitizeAiOutput(data.text || "Lo siento, no pude procesar la respuesta.");
+
+      if (data.simulated) {
+        console.warn("[ConsultaView] Simulated response received:", data.warning);
+      }
+
+      let botText = data.text || "Lo siento, no pude procesar la respuesta.";
+
 
       if (data.simulated && data.warning) {
-        botText = `📋 ${sanitizeAiOutput(data.warning)}\n\n${botText}`;
+        botText = `📋 ${data.warning}\n\n${botText}`;
       }
 
       const botMsg: ChatMessage = {
