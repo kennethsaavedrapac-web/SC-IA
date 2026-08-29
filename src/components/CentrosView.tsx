@@ -566,6 +566,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
   const mapHtml = useMemo(() => {
+    const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY || '';
+    const cartoTileUrl = cartoApiKey
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
     return `
       <!DOCTYPE html>
       <html>
@@ -593,7 +598,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
             attributionControl: false
           }).setView([12.1364, -86.2514], 9);
 
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          L.tileLayer('${cartoTileUrl}', {
             maxZoom: 19
           }).addTo(map);
 
