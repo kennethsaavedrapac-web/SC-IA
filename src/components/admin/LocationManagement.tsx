@@ -181,7 +181,8 @@ export default function LocationManagement() {
       </script>
     </body>
     </html>
-  `, []);
+    `;
+  }, []);
 
   const filteredCenters = mergedCenters.filter((c) => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
