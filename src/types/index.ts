@@ -2,11 +2,22 @@ export interface Doctor {
   id: string;
   name: string;
   specialty: string;
-  rating: number;
-  experience: number;
-  status: "Disponible" | "No disponible";
-  distance: string;
-  photoUrl: string;
+  rating?: number;
+  reviewsCount?: number;
+  experience?: number;
+  status?: "Disponible" | "No disponible" | string;
+  distance?: string;
+  photoUrl?: string;
+  address?: string;
+  schedule?: string;
+  phone?: string;
+  latitude?: number;
+  longitude?: number;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  city?: string;
 }
 
 export interface Pharmacy {
