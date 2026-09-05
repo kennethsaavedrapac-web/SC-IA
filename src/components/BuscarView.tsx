@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X, MessageCircle } from "lucide-react";
+import { Search, Pill, Stethoscope, Star, Calendar, Clock, MapPin, ChevronRight, CheckCircle, Navigation, BadgeAlert, Sparkles, Filter, X, MessageCircle, Phone } from "lucide-react";
 import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
 import { motion, AnimatePresence } from "motion/react";
@@ -14,23 +14,23 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"farmacias" | "medicos">("medicos");
 
-
   const [specQuery, setSpecQuery] = useState("");
   const [docCityQuery, setDocCityQuery] = useState("Granada");
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Cardiología");
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>("Todas");
 
-
-  const [drugQuery, setDrugQuery] = useState("Paracetamol 500 mg");
+  const [drugQuery, setDrugQuery] = useState("");
   const [pharmCityQuery, setPharmCityQuery] = useState("Granada");
-
 
   const [bookingDoctor, setBookingDoctor] = useState<Doctor | null>(null);
   const [bookingDate, setBookingDate] = useState("2026-06-05");
   const [bookingTime, setBookingTime] = useState("09:00 AM");
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-
   const POPULAR_SPECIALTIES = [
+    { id: "Todas", label: "Todas", icon: "✨" },
+    { id: "Clínica ambulatoria", label: "Clínica ambulatoria", icon: "🏥" },
+    { id: "Médico de familia", label: "Médico de familia", icon: "👨‍⚕️" },
+    { id: "Nefrólogo", label: "Nefrólogo", icon: "🩺" },
     { id: "Cardiología", label: "Cardiología", icon: "💙" },
     { id: "Dermatología", label: "Dermatología", icon: "🧴" },
     { id: "Pediatría", label: "Pediatría", icon: "👶" },
@@ -38,14 +38,15 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
     { id: "Traumatología", label: "Traumatología", icon: "🦴" },
   ];
 
-
   const filteredDoctors = DOCTORS.filter((doc) => {
     const matchesSpec = specQuery
-      ? doc.specialty.toLowerCase().includes(specQuery.toLowerCase())
-      : doc.specialty === selectedSpecialty;
-    return matchesSpec;
+      ? doc.specialty.toLowerCase().includes(specQuery.toLowerCase()) || doc.name.toLowerCase().includes(specQuery.toLowerCase())
+      : (selectedSpecialty === "Todas" || !selectedSpecialty ? true : doc.specialty.toLowerCase() === selectedSpecialty.toLowerCase());
+    const matchesCity = docCityQuery
+      ? (doc.address?.toLowerCase().includes(docCityQuery.toLowerCase()) || doc.city?.toLowerCase().includes(docCityQuery.toLowerCase()) || docCityQuery.toLowerCase() === "granada")
+      : true;
+    return matchesSpec && matchesCity;
   });
-
 
   const filteredPharmacies = PHARMACIES.filter((pharm) => {
     const matchesDrug = drugQuery
@@ -74,7 +75,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
 
   return (
     <div className="flex flex-col min-h-dvh transition-colors duration-300 relative overflow-hidden">
-      { }
+      {/* Header */}
       <header className="flex flex-col px-6 py-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md sticky top-0 z-30 border-b border-emerald-50/70 dark:border-slate-800">
         <div className="flex justify-between items-center w-full max-w-6xl mx-auto">
           <div
@@ -88,7 +89,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
           <span className="text-xs bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 rounded-full border border-emerald-100 dark:border-emerald-900/50">{t('searchTitle')}</span>
         </div>
 
-        { }
+        {/* Tabs Switcher */}
         <div className="mt-4 p-1 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center relative gap-1 md:max-w-md md:mx-auto md:w-full">
           <button
             id="tab-search-pharmacies"
@@ -111,9 +112,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
         </div>
       </header>
 
-      { }
+      {/* Main Content */}
       <main className="flex-1 px-6 pt-5 max-w-6xl mx-auto w-full">
-        { }
+        {/* DOCTORS SCREEN VIEW */}
         <AnimatePresence mode="wait">
           {activeTab === "medicos" && (
             <motion.div
@@ -123,11 +124,11 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               transition={{ duration: 0.2 }}
               className="space-y-6"
             >
-              { }
+              {/* Doctor Search Form */}
               <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
                 <h3 className="font-display font-semibold text-slate-800 dark:text-slate-200 text-sm">{t('searchDoctors')}</h3>
 
-                { }
+                {/* Specialty / Doctor Name input */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('specialty')}</label>
                   <div className="relative">
@@ -143,7 +144,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                { }
+                {/* City / Locality input */}
                 <div className="space-y-1.5">
                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{t('location')}</label>
                   <div className="relative">
@@ -159,7 +160,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                   </div>
                 </div>
 
-                { }
+                {/* Submit trigger button */}
                 <button
                   id="btn-doctor-run-search"
                   className="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 py-3.5 px-4 rounded-2xl text-white font-bold text-xs tracking-wide shadow-md shadow-emerald-500/15 flex items-center justify-center space-x-2 transition-all mt-2"
@@ -169,7 +170,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                 </button>
               </div>
 
-              { }
+              {/* Popular specialties selector */}
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">{t('popularSpecialties')}</h4>
                 <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 no-scrollbar">
@@ -177,7 +178,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     const isSelected = selectedSpecialty === spec.id && !specQuery;
                     return (
                       <button
-                        id={`btn-specialties-shortcut-${spec.id}`}
+                        id={`btn-specialties-shortcut-${spec.id.replace(/\s+/g, '-').toLowerCase()}`}
                         key={spec.id}
                         onClick={() => {
                           setSpecQuery("");
@@ -200,7 +201,15 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('featuredDoctors')}</h4>
-                  <span className="text-[11px] font-bold text-emerald-600 tracking-tight cursor-pointer hover:underline">{t('viewAll')}</span>
+                  <span
+                    onClick={() => {
+                      setSpecQuery("");
+                      setSelectedSpecialty("Todas");
+                    }}
+                    className="text-[11px] font-bold text-emerald-600 tracking-tight cursor-pointer hover:underline"
+                  >
+                    {t('viewAll')}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-3">
@@ -209,57 +218,139 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                       <div
                         id={`row-doctor-profile-${doc.id}`}
                         key={doc.id}
-                        className="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between hover:border-emerald-100 dark:hover:border-emerald-900/50 transition-all"
+                        className="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-emerald-100 dark:hover:border-emerald-900/50 transition-all group relative"
                       >
-                        <div className="flex items-center space-x-3.5">
-                          <img
-                            src={doc.photoUrl}
-                            alt={doc.name}
-                            className="w-16 h-16 rounded-2xl object-cover border border-slate-100 dark:border-slate-800 shrink-0"
-                            referrerPolicy="no-referrer"
-                          />
-                          <div>
-                            <h5 className="text-sm font-bold text-slate-800 dark:text-white">{doc.name}</h5>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{doc.specialty}</p>
+                        <div>
+                          {/* Header with avatar / image and name / specialty */}
+                          <div className="flex items-start space-x-3.5">
+                            {doc.photoUrl ? (
+                              <img
+                                src={doc.photoUrl}
+                                alt={doc.name}
+                                className="w-14 h-14 rounded-2xl object-cover border border-slate-100 dark:border-slate-800 shrink-0"
+                                referrerPolicy="no-referrer"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/30 font-bold text-xl">
+                                👨‍⚕️
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <h5 className="text-[15px] font-bold text-slate-800 dark:text-white leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                {doc.name}
+                              </h5>
+                              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mt-0.5">
+                                {doc.specialty}
+                              </p>
 
-                            {/* rating and years exp */}
-                            <div className="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                              <span className="flex items-center space-x-0.5 text-yellow-500 font-bold">
-                                <Star className="w-3 h-3 fill-yellow-500 shrink-0" />
-                                <span>{doc.rating}</span>
-                              </span>
-                              <span>•</span>
-                              <span>{doc.experience} {t('expYears')}</span>
+                              {/* Rating and Reviews or Experience */}
+                              {(doc.rating !== undefined || doc.experience !== undefined) && (
+                                <div className="flex items-center space-x-2 mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                  {doc.rating !== undefined && (
+                                    <span className="flex items-center space-x-1 text-yellow-500 font-bold">
+                                      <Star className="w-3.5 h-3.5 fill-yellow-500 shrink-0" />
+                                      <span>{doc.rating.toFixed(1)}</span>
+                                      {doc.reviewsCount !== undefined && (
+                                        <span className="text-slate-400 dark:text-slate-500 font-normal">
+                                          ({doc.reviewsCount} reseñas)
+                                        </span>
+                                      )}
+                                    </span>
+                                  )}
+                                  {doc.rating !== undefined && doc.experience !== undefined && <span>•</span>}
+                                  {doc.experience !== undefined && (
+                                    <span>{doc.experience} {t('expYears')}</span>
+                                  )}
+                                </div>
+                              )}
                             </div>
+                          </div>
+
+                          {/* Metadata list: Address, Schedule, Phone */}
+                          <div className="mt-3.5 space-y-1.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-400">
+                            {doc.address && (
+                              <div className="flex items-start space-x-2">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+                                <span className="leading-tight text-[11px]">{doc.address}</span>
+                              </div>
+                            )}
+                            {doc.schedule && (
+                              <div className="flex items-center space-x-2">
+                                <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                                <span className="text-[11px] font-medium text-slate-700 dark:text-slate-300">{doc.schedule}</span>
+                              </div>
+                            )}
+                            {doc.phone && (
+                              <div className="flex items-center space-x-2">
+                                <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                                <a
+                                  href={`tel:${doc.phone.replace(/\s+/g, '')}`}
+                                  className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                                >
+                                  {doc.phone}
+                                </a>
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* availability status badge and action button for schedule */}
-                        <div className="text-right flex flex-col items-end gap-1 shrink-0 ml-4">
-                          <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-[10px] px-2.5 py-1 rounded-full font-bold">
-                            {doc.status}
-                          </span>
-                          <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 block font-mono mt-0.5">{doc.distance}</span>
+                        {/* Actions: Navigation / Route / Book appointment / Call */}
+                        <div className="flex flex-col gap-2 pt-4 mt-3 border-t border-slate-50 dark:border-slate-800/50">
+                          <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                            {doc.distance ? <span>📍 {doc.distance}</span> : <span></span>}
+                            {doc.status && (
+                              <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+                                {doc.status}
+                              </span>
+                            )}
+                          </div>
 
-                          <button
-                            id={`btn-book-appointment-for-${doc.id}`}
-                            onClick={() => setBookingDoctor(doc)}
-                            className="mt-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 flex items-center space-x-0.5 group hover:underline"
-                          >
-                            <span>{t('bookAppointment')}</span>
-                            <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
-                          </button>
+                          <div className="grid grid-cols-2 gap-2 mt-1">
+                            {doc.latitude && doc.longitude ? (
+                              <button
+                                id={`btn-route-doctor-${doc.id}`}
+                                onClick={() => window.open(`https://www.openstreetmap.org/?mlat=${doc.latitude}&mlon=${doc.longitude}#map=17/${doc.latitude}/${doc.longitude}`, "_blank")}
+                                className="h-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                                title="Ver ubicación y ruta en mapa"
+                              >
+                                <Navigation className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                <span>{t('viewRoute')}</span>
+                              </button>
+                            ) : (
+                              <button
+                                id={`btn-contact-doctor-${doc.id}`}
+                                onClick={() => {
+                                  if (doc.phone) {
+                                    window.open(`tel:${doc.phone.replace(/\s+/g, '')}`, "_self");
+                                  }
+                                }}
+                                className="h-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
+                              >
+                                <Phone className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                <span>Llamar</span>
+                              </button>
+                            )}
+
+                            <button
+                              id={`btn-book-appointment-for-${doc.id}`}
+                              onClick={() => setBookingDoctor(doc)}
+                              className="h-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1 transition-all active:scale-95 shadow-sm"
+                            >
+                              <span>{t('bookAppointment')}</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="bg-white dark:bg-slate-900 py-10 text-center rounded-3xl border border-dashed border-slate-300/80 dark:border-slate-700 p-6 text-slate-400">
+                    <div className="bg-white dark:bg-slate-900 py-10 text-center rounded-3xl border border-dashed border-slate-300/80 dark:border-slate-700 p-6 text-slate-400 col-span-full">
                       <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 animate-pulse mb-3" />
                       <p className="text-sm font-medium">{t('noDoctorsFound').replace('{spec}', specQuery || selectedSpecialty).replace('{city}', docCityQuery)}</p>
                       <button
                         onClick={() => {
                           setSpecQuery("");
-                          setSelectedSpecialty("Cardiología");
+                          setSelectedSpecialty("Todas");
                         }}
                         className="mt-2 text-xs text-emerald-600 font-bold hover:underline"
                       >
@@ -426,7 +517,7 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     <BadgeAlert className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-700 animate-pulse mb-3" />
                     <p className="text-sm font-medium">{t('noMedicineFound').replace('{drug}', drugQuery).replace('{city}', pharmCityQuery)}</p>
                     <button
-                      onClick={() => setDrugQuery("Paracetamol 500 mg")}
+                      onClick={() => setDrugQuery("")}
                       className="mt-2 text-xs text-emerald-600 font-bold hover:underline"
                     >
                       {t('resetSearch')}
@@ -488,17 +579,25 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                     </button>
                   </div>
 
-                  { }
+                  {/* Selected Doctor Summary */}
                   <div className="p-3 bg-emerald-50/60 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/70 dark:border-emerald-900/30 flex items-center space-x-3 mt-1">
-                    <img
-                      src={bookingDoctor.photoUrl}
-                      alt={bookingDoctor.name}
-                      className="w-11 h-11 rounded-xl object-cover border border-white dark:border-slate-800 shadow-sm"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-950 dark:text-white">{bookingDoctor.name}</h4>
-                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">{bookingDoctor.specialty} • {t('distanceAway').replace('{distance}', bookingDoctor.distance)}</p>
+                    {bookingDoctor.photoUrl ? (
+                      <img
+                        src={bookingDoctor.photoUrl}
+                        alt={bookingDoctor.name}
+                        className="w-11 h-11 rounded-xl object-cover border border-white dark:border-slate-800 shadow-sm shrink-0"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-11 h-11 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-xl flex items-center justify-center font-bold text-lg shrink-0">
+                        👨‍⚕️
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-xs font-bold text-slate-950 dark:text-white truncate">{bookingDoctor.name}</h4>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                        {bookingDoctor.specialty} {bookingDoctor.distance ? `• ${t('distanceAway').replace('{distance}', bookingDoctor.distance)}` : (bookingDoctor.address ? `• ${bookingDoctor.address}` : '')}
+                      </p>
                     </div>
                   </div>
 

@@ -37,13 +37,17 @@ function getDistanceKm(from: UserLocation, to: HealthCenter): number {
   return earthRadiusKm * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
 }
 
-function getCenterOperatingStatus(type: string): { isOpen: boolean; text: string; is24h: boolean } {
-  const lowerType = type.toLowerCase();
+function getCenterOperatingStatus(type: string, schedule?: string): { isOpen: boolean; text: string; is24h: boolean } {
+  const lowerType = (type || "").toLowerCase();
+  const lowerSchedule = (schedule || "").toLowerCase();
 
-  if (lowerType.includes("hospital") || lowerType.includes("materna") || lowerType.includes("emergencia")) {
+  if (lowerType.includes("hospital") || lowerType.includes("materna") || lowerType.includes("emergencia") || lowerSchedule.includes("24") || lowerType.includes("24")) {
     return { isOpen: true, text: "Abierto 24h", is24h: true };
   }
 
+  if (lowerSchedule && (lowerSchedule.includes("cerrado") || lowerSchedule.includes("abre"))) {
+    return { isOpen: false, text: schedule || "Cerrado", is24h: false };
+  }
 
   const now = new Date();
   const day = now.getDay();
@@ -376,23 +380,40 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const filteredCenters = useMemo(() => {
     const typeFilteredCenters = mergedCenters.filter((center) => {
       const typeText = normalizeQuery(center.type);
-      const matchesType =
-        activeFilter === "hospital"
-          ? typeText.includes("hospital")
-          : activeFilter === "centro"
-            ? typeText.includes("centro") || typeText.includes("clinica") || typeText.includes("puesto")
-            : activeFilter === "farmacia"
-              ? typeText.includes("farmacia") || typeText.includes("botica")
-              : activeFilter === "medico"
-                ? typeText.includes("medico") || typeText.includes("doctor")
-                : true;
+      const centerId = center.id || "";
+
+      // Doctor IDs always start with "doctor-"
+      const isDoctorEntry = centerId.startsWith("doctor-") ||
+        typeText.includes("medico de familia") ||
+        typeText.includes("nefrologo") ||
+        typeText.includes("clinica ambulatoria");
+
+      const isHospital = typeText.includes("hospital") && !isDoctorEntry;
+      const isFarmacia = typeText.includes("farmacia") || typeText.includes("botica");
+
+      let matchesType = false;
+
+      if (activeFilter === "hospital") {
+        matchesType = isHospital;
+      } else if (activeFilter === "centro") {
+        // Centros/Puestos de salud: exclude hospitals, pharmacies, and doctors
+        matchesType = !isHospital && !isFarmacia && !isDoctorEntry &&
+          (typeText.includes("centro") || typeText.includes("puesto"));
+      } else if (activeFilter === "farmacia") {
+        matchesType = isFarmacia;
+      } else if (activeFilter === "medico") {
+        matchesType = isDoctorEntry;
+      } else {
+        // "todos" - show everything
+        matchesType = true;
+      }
 
       return matchesType;
     });
 
 
     const centersWithStatus = typeFilteredCenters.map(center => {
-      const status = getCenterOperatingStatus(center.type);
+      const status = getCenterOperatingStatus(center.type, center.schedule);
       return {
         ...center,
         distanceKm: userLocation ? getDistanceKm(userLocation, center) : undefined,
@@ -481,20 +502,32 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         : selectedCenterSearch;
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
-  const getMapCategory = (type: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
-    const t = type.toLowerCase();
+  const getMapCategory = (type: string, id?: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
+    const t = normalizeQuery(type || "");
+    const centerId = id || "";
+
+    const isDoctor = centerId.startsWith("doctor-") ||
+      t.includes("medico de familia") ||
+      t.includes("nefrologo") ||
+      t.includes("cardiologia") ||
+      t.includes("dermatologia") ||
+      t.includes("pediatria") ||
+      t.includes("ginecologia") ||
+      t.includes("traumatologia") ||
+      t.includes("medicina general") ||
+      t.includes("clinica ambulatoria");
+
+    if (isDoctor) return "medico";
     if (t.includes("hospital")) return "hospital";
-    if (t.includes("centro de salud") || t.includes("puesto de salud") || t.includes("salud")) return "centro_salud";
-    if (t.includes("farmacia")) return "farmacia";
-    if (t.includes("medico") || t.includes("médico") || t.includes("doctor") || t.includes("consultorio") || t.includes("clinica") || t.includes("clínica")) return "medico";
-    return null;
+    if (centerId.startsWith("pharmacy-") || t.includes("farmacia") || t.includes("botica")) return "farmacia";
+    return "centro_salud";
   };
 
   const mapCentersData = (centers: typeof filteredCenters) => {
     return centers
       .filter((c) => c.latitude && c.longitude)
       .map((c) => {
-        const category = getMapCategory(c.type);
+        const category = getMapCategory(c.type, c.id);
         if (!category) return null;
         return {
           id: c.id,
@@ -683,132 +716,58 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     };
   }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
 
-  const mapHtml = useMemo(() => {
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-        <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-        <style>
-          html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-          .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; border-radius: 12px !important; overflow: hidden; }
-          .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
-          .leaflet-bar a:hover { background-color: #f8fafc !important; }
-          @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
-          }
+  const mapBlobUrl = useMemo(() => {
+    const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY || '';
+    const cartoTileUrl = cartoApiKey
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
-          /* Panel de Rutas Moderno */
-          .leaflet-routing-container {
-            background: rgba(255, 255, 255, 0.96) !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.08) !important;
-            border: 1px solid rgba(226, 232, 240, 0.9) !important;
-            padding: 12px 14px !important;
-            font-family: inherit !important;
-            font-size: 11.5px !important;
-            color: #1e293b !important;
-            max-width: 320px !important;
-            max-height: 260px !important;
-            overflow-y: auto !important;
-            box-sizing: border-box !important;
-          }
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; background: #f1f5f9; }
+    .leaflet-control-zoom { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important; }
+    .leaflet-bar a { background-color: #ffffff !important; color: #1e293b !important; border-bottom: 1px solid #e2e8f0 !important; }
+    .leaflet-bar a:hover { background-color: #f8fafc !important; }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    let map = null;
+    let markersGroup = null;
+    let userLocationMarker = null;
+    let markersMap = new Map();
+    let currentSelectedId = null;
+    let pendingMessage = null;
 
-          @media (max-width: 768px) {
-            .leaflet-routing-container {
-              max-width: calc(100vw - 32px) !important;
-              max-height: 190px !important;
-              font-size: 11px !important;
-              margin: 8px !important;
-            }
-          }
+    function initLeafletMap() {
+      if (typeof L === 'undefined' || map) return;
+      try {
+        map = L.map('map', {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([12.1364, -86.2514], 9);
 
-          .leaflet-routing-container h2 {
-            font-size: 12.5px !important;
-            font-weight: 700 !important;
-            color: #0f172a !important;
-            margin: 0 0 6px 0 !important;
-          }
-
-          .leaflet-routing-container h3 {
-            font-size: 11px !important;
-            font-weight: 600 !important;
-            color: #2563eb !important;
-            margin: 4px 0 !important;
-          }
-
-          .leaflet-routing-alt {
-            max-height: 170px !important;
-            overflow-y: auto !important;
-            padding: 2px 0 !important;
-          }
-
-          .leaflet-routing-alt table {
-            width: 100% !important;
-          }
-
-          .leaflet-routing-alt tr:hover {
-            background-color: #f1f5f9 !important;
-          }
-
-          .leaflet-routing-container::-webkit-scrollbar,
-          .leaflet-routing-alt::-webkit-scrollbar {
-            width: 4px;
-          }
-          .leaflet-routing-container::-webkit-scrollbar-thumb,
-          .leaflet-routing-alt::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-          }
-
-          /* Popups de Centros en Mapa */
-          .custom-route-popup .leaflet-popup-content-wrapper {
-            border-radius: 16px !important;
-            box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.15) !important;
-            border: 1px solid #e2e8f0 !important;
-            padding: 4px !important;
-          }
-          .custom-route-popup .leaflet-popup-content {
-            margin: 8px 10px !important;
-            font-family: inherit !important;
-          }
-          .custom-route-popup .leaflet-popup-tip {
-            background: white !important;
-          }
-        </style>
-      </head>
-      <body>
-        <div id="map"></div>
-        <script>
-          const map = L.map('map', {
-            zoomControl: true,
-            attributionControl: false
-          }).setView([12.1364, -86.2514], 9);
-
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
-          }).addTo(map);
+        L.tileLayer('${cartoTileUrl}', {
+          maxZoom: 19
+        }).addTo(map);
 
           let markersGroup = L.layerGroup().addTo(map);
           let userLocationMarker = null;
           let markersMap = new Map();
           let routingControl = null;
-          let fallbackRouteLayer = null;
-          let routeTimeout = null;
 
           function clearRoute() {
-            if (routeTimeout) {
-              clearTimeout(routeTimeout);
-              routeTimeout = null;
-            }
             if (routingControl) {
               try {
                 map.removeControl(routingControl);
@@ -817,83 +776,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }
               routingControl = null;
             }
-            if (fallbackRouteLayer) {
-              try {
-                map.removeLayer(fallbackRouteLayer);
-              } catch (e) {
-                console.warn("Could not remove fallback route layer", e);
-              }
-              fallbackRouteLayer = null;
-            }
-          }
-
-          function haversineKm(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          }
-
-          function fallbackDirectRoute(origin, destination) {
-            clearRoute();
-
-            const distKm = haversineKm(origin.lat, origin.lng, destination.lat, destination.lng);
-            const timeMin = Math.max(1, Math.round((distKm / 35) * 60)); // ~35 km/h velocidad media estimada
-
-            const startMarker = L.marker([origin.lat, origin.lng], {
-              icon: L.divIcon({
-                html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(59,130,246,0.8); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
-                className: '',
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
-              })
-            }).bindPopup('<b>Tu ubicación</b>');
-
-            const endMarker = L.marker([destination.lat, destination.lng], {
-              icon: L.divIcon({
-                html: '<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">📍</div>',
-                className: '',
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-              })
-            }).bindPopup('<b>' + (destination.name || 'Destino') + '</b>');
-
-            const halo = L.polyline([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
-              color: '#1d4ed8',
-              weight: 8,
-              opacity: 0.2
-            });
-
-            const line = L.polyline([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
-              color: '#2563eb',
-              weight: 5,
-              opacity: 0.95,
-              dashArray: '8, 8'
-            });
-
-            fallbackRouteLayer = L.featureGroup([startMarker, endMarker, halo, line]).addTo(map);
-            map.fitBounds([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
-              padding: [60, 60]
-            });
-
-            window.parent.postMessage({
-              type: 'ROUTE_FOUND',
-              distance: distKm.toFixed(1),
-              time: timeMin
-            }, '*');
           }
 
           function calculateRoute(origin, destination) {
             clearRoute();
-
-            // Timeout de seguridad: Si el servidor OSRM demora más de 3.5 segundos, pasar de inmediato a ruta directa
-            routeTimeout = setTimeout(function() {
-              console.warn("OSRM timeout after 3.5s, switching to direct fallback route");
-              fallbackDirectRoute(origin, destination);
-            }, 3500);
 
             try {
               routingControl = L.Routing.control({
@@ -943,10 +829,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }).addTo(map);
 
               routingControl.on('routesfound', function(e) {
-                if (routeTimeout) {
-                  clearTimeout(routeTimeout);
-                  routeTimeout = null;
-                }
                 const routes = e.routes;
                 if (routes && routes.length > 0) {
                   const summary = routes[0].summary;
@@ -959,146 +841,148 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               });
 
               routingControl.on('routingerror', function(e) {
-                if (routeTimeout) {
-                  clearTimeout(routeTimeout);
-                  routeTimeout = null;
-                }
-                console.warn("Routing error, falling back to direct route:", e);
-                fallbackDirectRoute(origin, destination);
+                console.warn("Routing error", e);
+                window.parent.postMessage({
+                  type: 'ROUTE_ERROR',
+                  message: 'No se pudo trazar una ruta vial directa hacia este centro.'
+                }, '*');
               });
             } catch (err) {
-              if (routeTimeout) {
-                clearTimeout(routeTimeout);
-                routeTimeout = null;
-              }
               console.error("Error creating routing control:", err);
-              fallbackDirectRoute(origin, destination);
+              window.parent.postMessage({
+                type: 'ROUTE_ERROR',
+                message: 'Error al inicializar el servicio de navegación.'
+              }, '*');
             }
           }
 
-          function updateMarkers(centers, selectedId) {
-            markersGroup.clearLayers();
-            markersMap.clear();
+    function updateMarkers(centers, selectedId) {
+      if (!markersGroup) return;
+      markersGroup.clearLayers();
+      markersMap.clear();
 
-            centers.forEach(c => {
-              if (!c.lat || !c.lng) return;
-              
-              const isSelected = c.id === selectedId;
-              const size = isSelected ? 38 : 28;
-              const anchor = size / 2;
-              const borderSize = isSelected ? '3px' : '2px';
-              const borderColor = isSelected ? '#3b82f6' : '#ffffff';
-              const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
-              
-              let bgColor = '#ef4444'; // Red (centro_salud)
-              let label = '+';
-              let fontSize = isSelected ? 19 : 15;
-              
-              if (c.category === 'hospital') {
-                bgColor = '#10b981'; // Green for hospitals
-                label = 'H';
-                fontSize = isSelected ? 15 : 12;
-              } else if (c.category === 'farmacia') {
-                bgColor = '#2563eb'; // Blue for pharmacies
-                label = 'F';
-                fontSize = isSelected ? 15 : 12;
-              } else if (c.category === 'medico') {
-                bgColor = '#8b5cf6'; // Purple for doctors
-                label = 'M';
-                fontSize = isSelected ? 15 : 12;
-              }
-              
-              const htmlIcon = \`<div style="background-color: \${bgColor}; width: \${size}px; height: \${size}px; border-radius: 50%; border: \${borderSize} solid \${borderColor}; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: \${fontSize}px; box-shadow: \${shadow}; transition: all 0.2s;">\${label}</div>\`;
+      centers.forEach(c => {
+        if (!c.lat || !c.lng) return;
+        
+        const isSelected = c.id === selectedId;
+        const size = isSelected ? 38 : 28;
+        const anchor = size / 2;
+        const borderSize = isSelected ? '3px' : '2px';
+        const borderColor = isSelected ? '#3b82f6' : '#ffffff';
+        const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
+        
+        let bgColor = '#ef4444';
+        let label = '+';
+        let fontSize = isSelected ? 19 : 15;
+        
+        if (c.category === 'hospital') {
+          bgColor = '#10b981';
+          label = 'H';
+          fontSize = isSelected ? 15 : 12;
+        } else if (c.category === 'farmacia') {
+          bgColor = '#2563eb';
+          label = 'F';
+          fontSize = isSelected ? 15 : 12;
+        } else if (c.category === 'medico') {
+          bgColor = '#8b5cf6';
+          label = 'M';
+          fontSize = isSelected ? 15 : 12;
+        }
+        
+        const htmlIcon = '<div style="background-color: ' + bgColor + '; width: ' + size + 'px; height: ' + size + 'px; border-radius: 50%; border: ' + borderSize + ' solid ' + borderColor + '; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: ' + fontSize + 'px; box-shadow: ' + shadow + '; transition: all 0.2s;">' + label + '</div>';
 
-              const icon = L.divIcon({
-                html: htmlIcon,
-                className: '',
-                iconSize: [size, size],
-                iconAnchor: [anchor, anchor]
-              });
+        const icon = L.divIcon({
+          html: htmlIcon,
+          className: '',
+          iconSize: [size, size],
+          iconAnchor: [anchor, anchor]
+        });
 
-              const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
-              markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+        const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
+        markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
 
-              // Popup enriquecido con acción interna de ruta
-              const popupHtml = \`
-                <div style="min-width: 170px; max-width: 220px; font-family: system-ui, sans-serif; text-align: left;">
-                  <div style="font-weight: 700; font-size: 12.5px; color: #0f172a; line-height: 1.25; margin-bottom: 2px;">\${c.name}</div>
-                  <div style="font-size: 10px; color: #64748b; margin-bottom: 8px;">\${c.type}</div>
-                  <button onclick="window.parent.postMessage({ type: 'REQUEST_ROUTE', centerId: '\${c.id}' }, '*')" style="display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; background: #2563eb; color: white; border: none; border-radius: 10px; padding: 7px 10px; font-size: 11px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.25);">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="3 11 22 2 13 21 11 13 3 11" />
-                    </svg>
-                    <span>Cómo llegar</span>
-                  </button>
-                </div>
-              \`;
+        marker.on('click', () => {
+          window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
+        });
+      });
+    }
 
-              marker.bindPopup(popupHtml, {
-                className: 'custom-route-popup',
-                offset: [0, -size / 2]
-              });
+    function updateUserLocation(loc) {
+      if (!map) return;
+      if (userLocationMarker) {
+        map.removeLayer(userLocationMarker);
+        userLocationMarker = null;
+      }
+      if (loc && loc.latitude && loc.longitude) {
+        const userIcon = L.divIcon({
+          html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+          className: '',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        });
+        userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
+      }
+    }
 
-              marker.on('click', () => {
-                window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
-              });
-            });
-          }
+    function centerOnSelected(selectedId, zoomLevel) {
+      if (!map) return;
+      const data = markersMap.get(selectedId);
+      if (data) {
+        map.setView([data.lat, data.lng], zoomLevel || 15);
+      }
+    }
 
-          function updateUserLocation(loc) {
-            if (userLocationMarker) {
-              map.removeLayer(userLocationMarker);
-              userLocationMarker = null;
-            }
-            if (loc && loc.latitude && loc.longitude) {
-              const userIcon = L.divIcon({
-                html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
-                className: '',
-                iconSize: [14, 14],
-                iconAnchor: [7, 7]
-              });
-              userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
-            }
-          }
+    function processMessage(msg) {
+      if (!map) {
+        pendingMessage = msg;
+        return;
+      }
+      if (msg.type === 'UPDATE_DATA') {
+        updateMarkers(msg.centers, msg.selectedId);
+        updateUserLocation(msg.userLocation);
+        
+        if (msg.forceCenterOnUser && msg.userLocation) {
+          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15);
+        } else if (msg.centerOnId) {
+          currentSelectedId = msg.centerOnId;
+          centerOnSelected(msg.centerOnId, msg.zoomLevel);
+        } else if (!msg.centerOnId) {
+          currentSelectedId = null;
+        }
+      }
+    }
 
-          function centerOnSelected(selectedId, zoomLevel) {
-            const data = markersMap.get(selectedId);
-            if (data) {
-              map.setView([data.lat, data.lng], zoomLevel || 15);
-            }
-          }
+    window.addEventListener('message', (event) => {
+      processMessage(event.data);
+    });
 
-          let currentSelectedId = null;
+    if (typeof L !== 'undefined') {
+      initLeafletMap();
+    } else {
+      window.addEventListener('DOMContentLoaded', initLeafletMap);
+      window.addEventListener('load', initLeafletMap);
+      const checkTimer = setInterval(() => {
+        if (typeof L !== 'undefined') {
+          clearInterval(checkTimer);
+          initLeafletMap();
+        }
+      }, 50);
+    }
+  <\/script>
+</body>
+</html>`;
 
-          window.addEventListener('message', (event) => {
-            const msg = event.data;
-            if (!msg) return;
-
-            if (msg.type === 'UPDATE_DATA') {
-              updateMarkers(msg.centers, msg.selectedId);
-              updateUserLocation(msg.userLocation);
-              
-              if (msg.forceCenterOnUser && msg.userLocation) {
-                map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15);
-              } else if (msg.centerOnId && msg.centerOnId !== currentSelectedId) {
-                currentSelectedId = msg.centerOnId;
-                centerOnSelected(msg.centerOnId, msg.zoomLevel);
-              } else if (!msg.centerOnId) {
-                currentSelectedId = null;
-              }
-            } else if (msg.type === 'DRAW_ROUTE') {
-              if (msg.origin && msg.destination) {
-                calculateRoute(msg.origin, msg.destination);
-              }
-            } else if (msg.type === 'CLEAR_ROUTE') {
-              clearRoute();
-            }
-          });
-        </script>
-      </body>
-      </html>
-    `;
+    const blob = new Blob([html], { type: 'text/html' });
+    return URL.createObjectURL(blob);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (mapBlobUrl) {
+        URL.revokeObjectURL(mapBlobUrl);
+      }
+    };
+  }, [mapBlobUrl]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full transition-colors duration-300 overflow-hidden relative">
@@ -1438,7 +1322,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         <iframe
           ref={iframeRef}
           title={`Mapa de Centros Médicos`}
-          srcDoc={mapHtml}
+          src={mapBlobUrl}
           className="w-full h-full border-0"
           loading="lazy"
         />

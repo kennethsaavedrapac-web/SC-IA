@@ -117,7 +117,13 @@ export default function LocationManagement() {
     }
   }, [adjustedLat, adjustedLng, selectedCenter, sendCenterToMap]);
 
-  const leafletHtml = useMemo(() => `
+  const leafletHtml = useMemo(() => {
+    const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY || '';
+    const cartoTileUrl = cartoApiKey
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+    return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -136,7 +142,7 @@ export default function LocationManagement() {
       <div id="map"></div>
       <script>
         const map = L.map('map', {zoomControl: true, attributionControl: false}).setView([12.1364, -86.2514], 8);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {maxZoom: 19}).addTo(map);
+        L.tileLayer('${cartoTileUrl}', {maxZoom: 19}).addTo(map);
 
         let currentMarker = null;
 
@@ -175,7 +181,8 @@ export default function LocationManagement() {
       </script>
     </body>
     </html>
-  `, []);
+    `;
+  }, []);
 
   const filteredCenters = mergedCenters.filter((c) => 
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
