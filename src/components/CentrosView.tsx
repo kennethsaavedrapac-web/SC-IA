@@ -602,16 +602,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       );
     };
 
-    if (!("geolocation" in navigator)) {
-      if (userLocation) {
-        sendRouteToIframe(userLocation);
-      } else {
-        setIsCalculatingRoute(false);
-        setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
-      }
+    // Temporizador de seguridad en React para no dejar la UI colgada en carga
+    const safetyTimer = setTimeout(() => {
+      setIsCalculatingRoute(false);
+    }, 6000);
+
+    // OPTIMIZACIÓN CRÍTICA: Si ya tenemos la ubicación en memoria (watchPosition), enviar de inmediato (0ms de espera)
+    if (userLocation && userLocation.latitude && userLocation.longitude) {
+      sendRouteToIframe(userLocation);
       return;
     }
 
+    if (!("geolocation" in navigator)) {
+      clearTimeout(safetyTimer);
+      setIsCalculatingRoute(false);
+      setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
+      return;
+    }
+
+    // Si aún no hay ubicación, solicitar fijación rápida (máx 4s, sin bloqueo de satélites pesados)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userCoords = {
@@ -623,27 +632,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         sendRouteToIframe(userCoords);
       },
       (error) => {
-        // Fallback a ubicación previa si existe
-        if (userLocation) {
-          sendRouteToIframe(userLocation);
-          return;
-        }
-
+        clearTimeout(safetyTimer);
         setIsCalculatingRoute(false);
         let errMsg = "No se pudo obtener tu ubicación actual.";
         if (error.code === error.PERMISSION_DENIED) {
           errMsg = "Permiso de ubicación denegado. Activa el GPS para trazar la ruta.";
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errMsg = "Señal GPS no disponible. Verifica tus servicios de ubicación.";
+          errMsg = "Señal de ubicación no disponible en tu dispositivo.";
         } else if (error.code === error.TIMEOUT) {
-          errMsg = "Tiempo de espera agotado al consultar la señal GPS.";
+          errMsg = "Tiempo de espera agotado al consultar tu ubicación.";
         }
         setRouteError(errMsg);
       },
       {
-        enableHighAccuracy: true,
-        maximumAge: 15000,
-        timeout: 10000,
+        enableHighAccuracy: false, // Mucho más rápido (triangulación de red < 500ms)
+        maximumAge: 60000,        // Reutilizar caché reciente
+        timeout: 4000,            // Máximo 4 segundos
       }
     );
   }, [mobileView, userLocation]);
@@ -758,16 +762,99 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           maxZoom: 19
         }).addTo(map);
 
-        markersGroup = L.layerGroup().addTo(map);
+          let markersGroup = L.layerGroup().addTo(map);
+          let userLocationMarker = null;
+          let markersMap = new Map();
+          let routingControl = null;
 
-        if (pendingMessage) {
-          processMessage(pendingMessage);
-          pendingMessage = null;
-        }
-      } catch (err) {
-        console.error('Error initializing map:', err);
-      }
-    }
+          function clearRoute() {
+            if (routingControl) {
+              try {
+                map.removeControl(routingControl);
+              } catch (e) {
+                console.warn("Could not remove routing control", e);
+              }
+              routingControl = null;
+            }
+          }
+
+          function calculateRoute(origin, destination) {
+            clearRoute();
+
+            try {
+              routingControl = L.Routing.control({
+                waypoints: [
+                  L.latLng(origin.lat, origin.lng),
+                  L.latLng(destination.lat, destination.lng)
+                ],
+                router: L.Routing.osrmv1({
+                  serviceUrl: 'https://router.project-osrm.org/route/v1',
+                  language: 'es',
+                  profile: 'car'
+                }),
+                language: 'es',
+                collapsible: true,
+                show: true,
+                autoRoute: true,
+                routeWhileDragging: false,
+                addWaypoints: false,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                  styles: [
+                    { color: '#1d4ed8', opacity: 0.25, weight: 10 },
+                    { color: '#2563eb', opacity: 0.95, weight: 5 }
+                  ]
+                },
+                createMarker: function(i, wp) {
+                  if (i === 0) {
+                    return L.marker(wp.latLng, {
+                      icon: L.divIcon({
+                        html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(59,130,246,0.8); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+                        className: '',
+                        iconSize: [16, 16],
+                        iconAnchor: [8, 8]
+                      })
+                    }).bindPopup('<b>Tu ubicación de salida</b>');
+                  } else {
+                    return L.marker(wp.latLng, {
+                      icon: L.divIcon({
+                        html: '<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">📍</div>',
+                        className: '',
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                      })
+                    }).bindPopup('<b>' + (destination.name || 'Destino') + '</b>');
+                  }
+                }
+              }).addTo(map);
+
+              routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                if (routes && routes.length > 0) {
+                  const summary = routes[0].summary;
+                  window.parent.postMessage({
+                    type: 'ROUTE_FOUND',
+                    distance: (summary.totalDistance / 1000).toFixed(1),
+                    time: Math.round(summary.totalTime / 60)
+                  }, '*');
+                }
+              });
+
+              routingControl.on('routingerror', function(e) {
+                console.warn("Routing error", e);
+                window.parent.postMessage({
+                  type: 'ROUTE_ERROR',
+                  message: 'No se pudo trazar una ruta vial directa hacia este centro.'
+                }, '*');
+              });
+            } catch (err) {
+              console.error("Error creating routing control:", err);
+              window.parent.postMessage({
+                type: 'ROUTE_ERROR',
+                message: 'Error al inicializar el servicio de navegación.'
+              }, '*');
+            }
+          }
 
     function updateMarkers(centers, selectedId) {
       if (!markersGroup) return;
