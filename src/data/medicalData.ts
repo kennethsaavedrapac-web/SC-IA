@@ -32,6 +32,53 @@ export const INITIAL_APPOINTMENTS: Appointment[] = [
 
 export const DOCTORS: Doctor[] = [
   {
+    id: "doc-blandino",
+    name: "Dr Blandino",
+    specialty: "Clínica ambulatoria",
+    address: "W2WW+8FQ, Granada",
+    schedule: "Abierto las 24 horas",
+    phone: "8978 1214",
+    status: "Disponible",
+    latitude: 11.945867797136797,
+    longitude: -85.95375189209479,
+    coordinates: {
+      latitude: 11.945867797136797,
+      longitude: -85.95375189209479
+    }
+  },
+  {
+    id: "doc-ramirez-delagneau",
+    name: "Consultorio Médico, Dr. Ramírez Delagneau",
+    specialty: "Médico de familia",
+    rating: 5.0,
+    reviewsCount: 98,
+    address: "Frente colegio María auxiliadora primaria, Granada 43000",
+    schedule: "Cerrado · Abre a las 8 a.m. del lunes",
+    phone: "7546 4691",
+    status: "Disponible",
+    latitude: 11.935758506467625,
+    longitude: -85.9623402489296,
+    coordinates: {
+      latitude: 11.935758506467625,
+      longitude: -85.9623402489296
+    }
+  },
+  {
+    id: "doc-ericka-ortega",
+    name: "Consultorio Médico Dra. Ericka Ortega",
+    specialty: "Nefrólogo",
+    address: "Alcaldía 4 cuadras al Este, Granada",
+    schedule: "No especificado",
+    phone: "8799 9026",
+    status: "Disponible",
+    latitude: 11.928272815776879,
+    longitude: -85.94715401535156,
+    coordinates: {
+      latitude: 11.928272815776879,
+      longitude: -85.94715401535156
+    }
+  },
+  {
     id: "doc-1",
     name: "Dra. Laura Martínez",
     specialty: "Cardiología",
@@ -913,30 +960,30 @@ function getRandomMeds(pharmacyIndex: number, minCount: number, maxCount: number
 export const PHARMACIES: Pharmacy[] = [
   {
     id: "pharm-1",
-    name: "Farmacia Carcache",
-    address: "Bo. La Merced, Calle El Comercio No. 209",
-    phone: "50588888881",
-    distance: "A 350 m",
+    name: "Farmacia Ramírez",
+    address: "Granada, Nicaragua",
+    phone: "50588888908",
+    distance: "A 1.5 km",
     status: "Disponible",
     openNow: true,
     medsAvailable: getRandomMeds(0, 25, 40)
   },
   {
     id: "pharm-2",
-    name: "Farmacia La Merced",
-    address: "Mercado Municipal, 2 c. al Oeste",
-    phone: "50588888882",
-    distance: "A 500 m",
+    name: "Farmacia Guapinol",
+    address: "Granada, Nicaragua",
+    phone: "50588888917",
+    distance: "A 2.3 km",
     status: "Disponible",
     openNow: true,
     medsAvailable: getRandomMeds(1, 20, 35)
   },
   {
     id: "pharm-3",
-    name: "Farmacia Granada",
-    address: "Iglesia La Merced, 1 c. al Oeste, Calle Real Xalteva",
-    phone: "50588888883",
-    distance: "A 650 m",
+    name: "Farmacia Más Salud",
+    address: "Granada, Nicaragua",
+    phone: "50588888914",
+    distance: "A 2.2 km",
     status: "Disponible",
     openNow: true,
     medsAvailable: getRandomMeds(2, 30, 45)
@@ -953,19 +1000,19 @@ export const PHARMACIES: Pharmacy[] = [
   },
   {
     id: "pharm-5",
-    name: "Farmacia Praga - Central",
-    address: "C. Real Xalteva, Granada",
-    phone: "50588888885",
-    distance: "A 900 m",
+    name: "Farmacia La Conchita",
+    address: "Granada, Nicaragua",
+    phone: "50588888910",
+    distance: "A 1.8 km",
     status: "Disponible",
     openNow: true,
-    medsAvailable: getRandomMeds(4, 35, 50)
+    medsAvailable: getRandomMeds(4, 15, 30)
   },
   {
     id: "pharm-6",
-    name: "Farmacia Ntra. Sra. de Guadalupe",
-    address: "Calle La Libertad, Funeraria Bustamante 1½ c. al Este",
-    phone: "50588888886",
+    name: "Farmacia Divino Niño",
+    address: "Granada, Nicaragua",
+    phone: "50588888909",
     distance: "A 1.1 km",
     status: "Disponible",
     openNow: true,
@@ -973,446 +1020,42 @@ export const PHARMACIES: Pharmacy[] = [
   },
   {
     id: "pharm-7",
-    name: "Farmacia Bengoechea",
-    address: "Puente Los Dardanelos, 1 c. al Sur, frente a Datiza",
-    phone: "50588888887",
-    distance: "A 1.3 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(6, 25, 40)
-  },
-  {
-    id: "pharm-8",
-    name: "Farmacia Los Ángeles",
-    address: "Calle Santa Lucía, Puente Dardanelos, 20 vrs. al Este",
-    phone: "50588888888",
-    distance: "A 1.4 km",
-    status: "Poco stock",
-    openNow: true,
-    medsAvailable: getRandomMeds(7, 15, 25)
-  },
-  {
-    id: "pharm-9",
-    name: "Farmacia San Jorge",
-    address: "Shell Palmira, 1 c. al Este, 25 vrs. al Norte",
-    phone: "50588888889",
-    distance: "A 1.6 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(8, 25, 40)
-  },
-  {
-    id: "pharm-10",
-    name: "Farmacia La Asunción",
-    address: "De la Alcaldía, 4 c. al Este, Granada",
-    phone: "50588888890",
-    distance: "A 1.8 km",
-    status: "Disponible",
-    openNow: false,
-    closingTime: "Cierra a las 8:00 p.m.",
-    medsAvailable: getRandomMeds(9, 20, 35)
-  },
-  {
-    id: "pharm-11",
-    name: "Farmacia Value Granada",
-    address: "Calle Atravesada, frente donde fue Cine Karawala",
-    phone: "50588888891",
-    distance: "A 700 m",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(10, 40, 55)
-  },
-  {
-    id: "pharm-12",
-    name: "Farmaplus Granada",
-    address: "Bartolomé #1, Policía 2 c. al Norte",
-    phone: "50588888892",
-    distance: "A 1.0 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(11, 35, 50)
-  },
-  {
-    id: "pharm-13",
-    name: "Farmacia Del Pueblo",
-    address: "Centro de Granada, Nicaragua",
-    phone: "50588888893",
-    distance: "A 1.2 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(12, 20, 30)
-  },
-  {
-    id: "pharm-14",
-    name: "Farmacia Génesis",
-    address: "Granada Centro, Nicaragua",
-    phone: "50588888894",
-    distance: "A 1.5 km",
-    status: "Poco stock",
-    openNow: true,
-    medsAvailable: getRandomMeds(13, 15, 25)
-  },
-  {
-    id: "pharm-15",
-    name: "Farmacia San Francisco",
-    address: "Barrio San Francisco, Granada",
-    phone: "50588888895",
-    distance: "A 1.7 km",
-    status: "Disponible",
-    openNow: false,
-    closingTime: "Cierra a las 7:00 p.m.",
-    medsAvailable: getRandomMeds(14, 20, 35)
-  },
-  {
-    id: "pharm-16",
-    name: "Farmacia Bíblica",
-    address: "Calle El Caimito, Parque Central 3½ c. al Lago",
-    phone: "50588888896",
-    distance: "A 600 m",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(15, 20, 30)
-  },
-  {
-    id: "pharm-17",
-    name: "Farmacia El Socorro",
-    address: "Calle El Arsenal, costado Sur Iglesia San Francisco",
-    phone: "50588888897",
-    distance: "A 1.9 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(16, 25, 40)
-  },
-  {
-    id: "pharm-18",
-    name: "Farmacia Saba",
-    address: "C. Real Xalteva, Granada",
-    phone: "50588888898",
-    distance: "A 950 m",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(17, 30, 45)
-  },
-  {
-    id: "pharm-19",
-    name: "Farmacia Divina Misericordia",
-    address: "Granada Centro, Nicaragua",
-    phone: "50588888899",
-    distance: "A 2.0 km",
-    status: "Disponible",
-    openNow: false,
-    closingTime: "Cierra a las 9:00 p.m.",
-    medsAvailable: getRandomMeds(18, 25, 40)
-  },
-  {
-    id: "pharm-20",
-    name: "Farmacia Abi",
-    address: "Camino al Tabacal, 30 vrs. al Norte Iglesia San José",
-    phone: "50588888900",
-    distance: "A 2.3 km",
-    status: "Poco stock",
-    openNow: true,
-    medsAvailable: getRandomMeds(19, 10, 20)
-  },
-  {
-    id: "pharm-21",
-    name: "Farmacia Adriana",
-    address: "Costado Norte del Cementerio, Granada",
-    phone: "50588888901",
-    distance: "A 2.5 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(20, 20, 35)
-  },
-  {
-    id: "pharm-22",
-    name: "Farmacia Chepe Bravo",
-    address: "Bo. El Domingazo, 3½ c. al Norte Parroquia Ermita del Socorro",
-    phone: "50588888902",
-    distance: "A 2.8 km",
-    status: "Disponible",
-    openNow: false,
-    closingTime: "Cierra a las 6:00 p.m.",
-    medsAvailable: getRandomMeds(21, 15, 25)
-  },
-  {
-    id: "pharm-23",
-    name: "Farmacia Farma Todo",
-    address: "Bo. La Otra Banda, del Bombero 1 c. al Norte, ½ c. al Oeste",
-    phone: "50588888903",
-    distance: "A 3.0 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(22, 30, 45)
-  },
-  {
-    id: "pharm-24",
-    name: "Farmacia Lo Nuestro",
-    address: "Calle Miguel Ángel Ortez, Granada",
-    phone: "50588888904",
-    distance: "A 2.1 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(23, 20, 35)
-  },
-  {
-    id: "pharm-25",
-    name: "Farmacia El Rosario",
-    address: "Calle Centroamérica, Granada",
-    phone: "50588888905",
-    distance: "A 1.4 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(24, 25, 40)
-  },
-  {
-    id: "pharm-26",
-    name: "Farmacia Espíritu Santo",
-    address: "Carretera NIC-39, Granada",
-    phone: "50588888906",
-    distance: "A 3.5 km",
-    status: "Poco stock",
-    openNow: true,
-    medsAvailable: getRandomMeds(25, 15, 25)
-  },
-  {
-    id: "pharm-27",
-    name: "Farmacia Cocibolca",
-    address: "Granada, Nicaragua",
-    phone: "50588888907",
-    distance: "A 1.2 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(26, 20, 35)
-  },
-  {
-    id: "pharm-28",
-    name: "Farmacia Ramírez",
-    address: "Granada, Nicaragua",
-    phone: "50588888908",
-    distance: "A 1.5 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(27, 25, 40)
-  },
-  {
-    id: "pharm-29",
-    name: "Farmacia Divino Niño",
-    address: "Granada, Nicaragua",
-    phone: "50588888909",
-    distance: "A 1.1 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(28, 20, 35)
-  },
-  {
-    id: "pharm-30",
-    name: "Farmacia La Conchita",
-    address: "Granada, Nicaragua",
-    phone: "50588888910",
-    distance: "A 1.8 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(29, 15, 30)
-  },
-  {
-    id: "pharm-31",
-    name: "Farmacia Arena",
-    address: "Granada, Nicaragua",
-    phone: "50588888911",
-    distance: "A 2.0 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(30, 20, 35)
-  },
-  {
-    id: "pharm-32",
-    name: "Farmacia Valle del Comercio",
-    address: "Granada, Nicaragua",
-    phone: "50588888912",
-    distance: "A 1.3 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(31, 25, 40)
-  },
-  {
-    id: "pharm-33",
-    name: "Farmacia Farma Vitality",
-    address: "Granada, Nicaragua",
-    phone: "50588888913",
-    distance: "A 1.4 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(32, 30, 45)
-  },
-  {
-    id: "pharm-34",
-    name: "Farmacia Más Salud",
-    address: "Granada, Nicaragua",
-    phone: "50588888914",
-    distance: "A 2.2 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(33, 20, 35)
-  },
-  {
-    id: "pharm-35",
-    name: "Farmacia Sumedic",
-    address: "Granada, Nicaragua",
-    phone: "50588888915",
-    distance: "A 2.5 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(34, 25, 40)
-  },
-  {
-    id: "pharm-36",
     name: "Farmacia La Fe",
     address: "Granada, Nicaragua",
     phone: "50588888916",
     distance: "A 2.7 km",
     status: "Disponible",
     openNow: true,
-    medsAvailable: getRandomMeds(35, 15, 30)
+    medsAvailable: getRandomMeds(6, 15, 30)
   },
   {
-    id: "pharm-37",
-    name: "Farmacia Guapinol",
+    id: "pharm-8",
+    name: "Farmacia Espíritu Santo",
+    address: "Carretera NIC-39, Granada",
+    phone: "50588888906",
+    distance: "A 3.5 km",
+    status: "Disponible",
+    openNow: true,
+    medsAvailable: getRandomMeds(7, 15, 25)
+  },
+  {
+    id: "pharm-9",
+    name: "Farmacia Praga - Central",
+    address: "C. Real Xalteva, Granada",
+    phone: "50588888885",
+    distance: "A 900 m",
+    status: "Disponible",
+    openNow: true,
+    medsAvailable: getRandomMeds(8, 35, 50)
+  },
+  {
+    id: "pharm-10",
+    name: "Farmacia Cocibolca",
     address: "Granada, Nicaragua",
-    phone: "50588888917",
-    distance: "A 2.3 km",
+    phone: "50588888907",
+    distance: "A 1.2 km",
     status: "Disponible",
     openNow: true,
-    medsAvailable: getRandomMeds(36, 20, 35)
-  },
-  {
-    id: "pharm-38",
-    name: "Farmacia Edrox",
-    address: "Diriamba, Carazo",
-    phone: "50588888918",
-    distance: "A 12 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(37, 30, 45)
-  },
-  {
-    id: "pharm-39",
-    name: "Farmacia Harmin",
-    address: "Diriamba, Carazo",
-    phone: "50588888919",
-    distance: "A 13 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(38, 25, 40)
-  },
-  {
-    id: "pharm-40",
-    name: "Farmacia Garay",
-    address: "Diriamba, Carazo",
-    phone: "50588888920",
-    distance: "A 12.5 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(39, 20, 35)
-  },
-  {
-    id: "pharm-41",
-    name: "Farmacia Salud y Vida",
-    address: "Diriamba, Carazo",
-    phone: "50588888921",
-    distance: "A 12.2 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(40, 25, 40)
-  },
-  {
-    id: "pharm-42",
-    name: "Farmacia Lili",
-    address: "Diriamba, Carazo",
-    phone: "50588888922",
-    distance: "A 12.4 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(41, 15, 30)
-  },
-  {
-    id: "pharm-43",
-    name: "Farmacia Los Gemelos",
-    address: "Diriamba, Carazo",
-    phone: "50588888923",
-    distance: "A 12.1 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(42, 20, 35)
-  },
-  {
-    id: "pharm-44",
-    name: "Farmacia Red Farma",
-    address: "Diriamba, Carazo",
-    phone: "50588888924",
-    distance: "A 12.6 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(43, 25, 40)
-  },
-  {
-    id: "pharm-45",
-    name: "Farmacia Oasis",
-    address: "Diriamba, Carazo",
-    phone: "50588888925",
-    distance: "A 12.3 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(44, 30, 45)
-  },
-  {
-    id: "pharm-46",
-    name: "Farmacia Carazo",
-    address: "Jinotepe, Carazo",
-    phone: "50588888926",
-    distance: "A 15 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(45, 35, 50)
-  },
-  {
-    id: "pharm-47",
-    name: "Farmacia Scarlet",
-    address: "Jinotepe, Carazo",
-    phone: "50588888927",
-    distance: "A 16 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(46, 25, 40)
-  },
-  {
-    id: "pharm-48",
-    name: "Farmacia La Dolorosa",
-    address: "Jinotepe, Carazo",
-    phone: "50588888928",
-    distance: "A 15.5 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(47, 20, 35)
-  },
-  {
-    id: "pharm-49",
-    name: "Farmacia Farma Vitality 2",
-    address: "Granada, Nicaragua",
-    phone: "50588888929",
-    distance: "A 1.6 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(48, 20, 35)
-  },
-  {
-    id: "pharm-50",
-    name: "Farmacia Farma Todo Diriamba",
-    address: "Diriamba, Carazo",
-    phone: "50588888930",
-    distance: "A 12.8 km",
-    status: "Disponible",
-    openNow: true,
-    medsAvailable: getRandomMeds(49, 30, 45)
+    medsAvailable: getRandomMeds(9, 20, 35)
   }
 ];
