@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HealthCenter } from "../types";
-import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS, HEALTH_CENTER_TOTAL } from "../data/healthUnits";
+import { HEALTH_CENTERS, HEALTH_CENTER_DEPARTMENTS } from "../data/healthUnits";
 import { useLanguage } from "../contexts/LanguageContext";
-import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope, Navigation, X, Loader2 } from "lucide-react";
+import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
@@ -105,10 +105,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
-  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
-  const [activeRouteCenter, setActiveRouteCenter] = useState<HealthCenter | null>(null);
-  const [routeSummary, setRouteSummary] = useState<{ distanceKm: string; timeMinutes: number } | null>(null);
-  const [routeError, setRouteError] = useState<string | null>(null);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -500,6 +496,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       : userLocation
         ? `${userLocation.latitude},${userLocation.longitude}`
         : selectedCenterSearch;
+  const openStreetMapSearchUrl =
+    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
+      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${userLocation.latitude}%2C${userLocation.longitude}%3B${selectedCenter.latitude}%2C${selectedCenter.longitude}`
+      : `https://www.openstreetmap.org/search?query=${encodeURIComponent(selectedCenterMapQuery)}`;
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const getMapCategory = (type: string, id?: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
@@ -556,136 +556,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   };
 
 
-  const handleClearRoute = useCallback(() => {
-    setActiveRouteCenter(null);
-    setRouteSummary(null);
-    setRouteError(null);
-    setIsCalculatingRoute(false);
-    iframeRef.current?.contentWindow?.postMessage(
-      {
-        type: "CLEAR_ROUTE",
-      },
-      "*"
-    );
-  }, []);
-
-  const handleGetDirections = useCallback((center: HealthCenter) => {
-    if (!center.latitude || !center.longitude) {
-      setRouteError(`El centro "${center.name}" no dispone de coordenadas GPS exactas.`);
-      return;
-    }
-
-    setRouteError(null);
-    setIsCalculatingRoute(true);
-    setActiveRouteCenter(center);
-
-    // En móvil, conmutar directamente al mapa para visualizar la ruta
-    if (mobileView === "list") {
-      setMobileView("map");
-    }
-
-    const sendRouteToIframe = (coords: { latitude: number; longitude: number }) => {
-      iframeRef.current?.contentWindow?.postMessage(
-        {
-          type: "DRAW_ROUTE",
-          origin: {
-            lat: coords.latitude,
-            lng: coords.longitude,
-          },
-          destination: {
-            lat: center.latitude,
-            lng: center.longitude,
-            name: center.name,
-          },
-        },
-        "*"
-      );
-    };
-
-    // Temporizador de seguridad en React para no dejar la UI colgada en carga
-    const safetyTimer = setTimeout(() => {
-      setIsCalculatingRoute(false);
-    }, 6000);
-
-    // OPTIMIZACIÓN CRÍTICA: Si ya tenemos la ubicación en memoria (watchPosition), enviar de inmediato (0ms de espera)
-    if (userLocation && userLocation.latitude && userLocation.longitude) {
-      sendRouteToIframe(userLocation);
-      return;
-    }
-
-    if (!("geolocation" in navigator)) {
-      clearTimeout(safetyTimer);
-      setIsCalculatingRoute(false);
-      setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
-      return;
-    }
-
-    // Si aún no hay ubicación, solicitar fijación rápida (máx 4s, sin bloqueo de satélites pesados)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userCoords = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-        setUserLocation(userCoords);
-        sendRouteToIframe(userCoords);
-      },
-      (error) => {
-        clearTimeout(safetyTimer);
-        setIsCalculatingRoute(false);
-        let errMsg = "No se pudo obtener tu ubicación actual.";
-        if (error.code === error.PERMISSION_DENIED) {
-          errMsg = "Permiso de ubicación denegado. Activa el GPS para trazar la ruta.";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errMsg = "Señal de ubicación no disponible en tu dispositivo.";
-        } else if (error.code === error.TIMEOUT) {
-          errMsg = "Tiempo de espera agotado al consultar tu ubicación.";
-        }
-        setRouteError(errMsg);
-      },
-      {
-        enableHighAccuracy: false, // Mucho más rápido (triangulación de red < 500ms)
-        maximumAge: 60000,        // Reutilizar caché reciente
-        timeout: 4000,            // Máximo 4 segundos
-      }
-    );
-  }, [mobileView, userLocation]);
-
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
-      if (!event.data) return;
-
-      if (event.data.type === "SELECT_CENTER") {
+      if (event.data && event.data.type === "SELECT_CENTER") {
         const center = mergedCenters.find((c) => c.id === event.data.centerId);
         if (center) {
           setSelectedCenter(center);
         }
-      } else if (event.data.type === "REQUEST_ROUTE") {
-        const center = mergedCenters.find((c) => c.id === event.data.centerId);
-        if (center) {
-          setSelectedCenter(center);
-          handleGetDirections(center);
-        }
-      } else if (event.data.type === "ROUTE_FOUND") {
-        setIsCalculatingRoute(false);
-        setRouteError(null);
-        setRouteSummary({
-          distanceKm: event.data.distance,
-          timeMinutes: event.data.time,
-        });
-      } else if (event.data.type === "ROUTE_ERROR") {
-        setIsCalculatingRoute(false);
-        setRouteError(event.data.message || "No se pudo calcular la ruta vial.");
-      } else if (event.data.type === "ROUTE_CLEARED") {
-        setActiveRouteCenter(null);
-        setRouteSummary(null);
-        setIsCalculatingRoute(false);
       }
     };
     window.addEventListener("message", handleMapMessage);
     return () => window.removeEventListener("message", handleMapMessage);
-  }, [mergedCenters, handleGetDirections]);
+  }, [mergedCenters]);
 
 
   useEffect(() => {
@@ -762,99 +644,16 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           maxZoom: 19
         }).addTo(map);
 
-          let markersGroup = L.layerGroup().addTo(map);
-          let userLocationMarker = null;
-          let markersMap = new Map();
-          let routingControl = null;
+        markersGroup = L.layerGroup().addTo(map);
 
-          function clearRoute() {
-            if (routingControl) {
-              try {
-                map.removeControl(routingControl);
-              } catch (e) {
-                console.warn("Could not remove routing control", e);
-              }
-              routingControl = null;
-            }
-          }
-
-          function calculateRoute(origin, destination) {
-            clearRoute();
-
-            try {
-              routingControl = L.Routing.control({
-                waypoints: [
-                  L.latLng(origin.lat, origin.lng),
-                  L.latLng(destination.lat, destination.lng)
-                ],
-                router: L.Routing.osrmv1({
-                  serviceUrl: 'https://router.project-osrm.org/route/v1',
-                  language: 'es',
-                  profile: 'car'
-                }),
-                language: 'es',
-                collapsible: true,
-                show: true,
-                autoRoute: true,
-                routeWhileDragging: false,
-                addWaypoints: false,
-                fitSelectedRoutes: true,
-                lineOptions: {
-                  styles: [
-                    { color: '#1d4ed8', opacity: 0.25, weight: 10 },
-                    { color: '#2563eb', opacity: 0.95, weight: 5 }
-                  ]
-                },
-                createMarker: function(i, wp) {
-                  if (i === 0) {
-                    return L.marker(wp.latLng, {
-                      icon: L.divIcon({
-                        html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(59,130,246,0.8); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
-                        className: '',
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
-                      })
-                    }).bindPopup('<b>Tu ubicación de salida</b>');
-                  } else {
-                    return L.marker(wp.latLng, {
-                      icon: L.divIcon({
-                        html: '<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">📍</div>',
-                        className: '',
-                        iconSize: [28, 28],
-                        iconAnchor: [14, 14]
-                      })
-                    }).bindPopup('<b>' + (destination.name || 'Destino') + '</b>');
-                  }
-                }
-              }).addTo(map);
-
-              routingControl.on('routesfound', function(e) {
-                const routes = e.routes;
-                if (routes && routes.length > 0) {
-                  const summary = routes[0].summary;
-                  window.parent.postMessage({
-                    type: 'ROUTE_FOUND',
-                    distance: (summary.totalDistance / 1000).toFixed(1),
-                    time: Math.round(summary.totalTime / 60)
-                  }, '*');
-                }
-              });
-
-              routingControl.on('routingerror', function(e) {
-                console.warn("Routing error", e);
-                window.parent.postMessage({
-                  type: 'ROUTE_ERROR',
-                  message: 'No se pudo trazar una ruta vial directa hacia este centro.'
-                }, '*');
-              });
-            } catch (err) {
-              console.error("Error creating routing control:", err);
-              window.parent.postMessage({
-                type: 'ROUTE_ERROR',
-                message: 'Error al inicializar el servicio de navegación.'
-              }, '*');
-            }
-          }
+        if (pendingMessage) {
+          processMessage(pendingMessage);
+          pendingMessage = null;
+        }
+      } catch (err) {
+        console.error('Error initializing map:', err);
+      }
+    }
 
     function updateMarkers(centers, selectedId) {
       if (!markersGroup) return;
@@ -1267,25 +1066,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                             { }
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
-                              <button
-                                onClick={() => handleGetDirections(hc)}
-                                disabled={isCalculatingRoute && activeRouteCenter?.id === hc.id}
-                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 hover:bg-blue-700 transition-all text-center disabled:opacity-75 cursor-pointer"
+                              <a
+                                href={openStreetMapSearchUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                               >
-                                {isCalculatingRoute && activeRouteCenter?.id === hc.id ? (
-                                  <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Calculando...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                                      <polygon points="3 11 22 2 13 21 11 13 3 11" />
-                                    </svg>
-                                    <span>{activeRouteCenter?.id === hc.id ? "Ruta activa" : "Cómo llegar"}</span>
-                                  </>
-                                )}
-                              </button>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                  <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span>Cómo llegar</span>
+                              </a>
 
                               {hc.phone ? (
                                 <a
@@ -1326,78 +1118,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           className="w-full h-full border-0"
           loading="lazy"
         />
-
-        {/* Floating Active Route Information Banner */}
-        <AnimatePresence>
-          {activeRouteCenter && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-20 left-4 right-16 md:left-6 md:right-auto md:max-w-sm z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-blue-100 dark:border-blue-900/50 flex items-center justify-between gap-2.5"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 shadow-sm">
-                  <Navigation className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                      Ruta activa
-                    </span>
-                    {routeSummary && (
-                      <span className="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold px-1.5 py-0.5 rounded-full">
-                        {routeSummary.distanceKm} km • {routeSummary.timeMinutes} min
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[12px] font-bold text-slate-900 dark:text-white truncate">
-                    {activeRouteCenter.name}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleClearRoute}
-                className="shrink-0 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Cerrar ruta"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Loading Route Indicator */}
-        {isCalculatingRoute && (
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg backdrop-blur flex items-center gap-2">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
-            <span>Calculando ruta vial...</span>
-          </div>
-        )}
-
-        {/* Route Error Notification */}
-        <AnimatePresence>
-          {routeError && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-20 left-4 right-16 md:left-auto md:right-16 md:max-w-sm z-30 bg-rose-50 dark:bg-rose-950/90 border border-rose-200 dark:border-rose-900 rounded-2xl p-3 shadow-lg flex items-start gap-2.5"
-            >
-              <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-              <div className="flex-1 text-xs text-rose-800 dark:text-rose-200">
-                <p className="font-bold">Aviso de navegación</p>
-                <p className="mt-0.5 leading-snug">{routeError}</p>
-              </div>
-              <button
-                onClick={() => setRouteError(null)}
-                className="text-rose-400 hover:text-rose-600 dark:hover:text-rose-200 cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         { }
         <div
@@ -1508,25 +1228,18 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
-                  <button
-                    onClick={() => handleGetDirections(selectedCenter)}
-                    disabled={isCalculatingRoute && activeRouteCenter?.id === selectedCenter.id}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 hover:bg-blue-700 transition-all text-center disabled:opacity-75 cursor-pointer"
+                  <a
+                    href={openStreetMapSearchUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                   >
-                    {isCalculatingRoute && activeRouteCenter?.id === selectedCenter.id ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Calculando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                          <polygon points="3 11 22 2 13 21 11 13 3 11" />
-                        </svg>
-                        <span>{activeRouteCenter?.id === selectedCenter.id ? "Ruta activa" : "Cómo llegar"}</span>
-                      </>
-                    )}
-                  </button>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    <span>Cómo llegar</span>
+                  </a>
 
                   {selectedCenter.phone ? (
                     <a
