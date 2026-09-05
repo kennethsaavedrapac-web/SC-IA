@@ -569,16 +569,25 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       );
     };
 
-    if (!("geolocation" in navigator)) {
-      if (userLocation) {
-        sendRouteToIframe(userLocation);
-      } else {
-        setIsCalculatingRoute(false);
-        setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
-      }
+    // Temporizador de seguridad en React para no dejar la UI colgada en carga
+    const safetyTimer = setTimeout(() => {
+      setIsCalculatingRoute(false);
+    }, 6000);
+
+    // OPTIMIZACIÓN CRÍTICA: Si ya tenemos la ubicación en memoria (watchPosition), enviar de inmediato (0ms de espera)
+    if (userLocation && userLocation.latitude && userLocation.longitude) {
+      sendRouteToIframe(userLocation);
       return;
     }
 
+    if (!("geolocation" in navigator)) {
+      clearTimeout(safetyTimer);
+      setIsCalculatingRoute(false);
+      setRouteError("Tu navegador no soporta geolocalización para trazar la ruta.");
+      return;
+    }
+
+    // Si aún no hay ubicación, solicitar fijación rápida (máx 4s, sin bloqueo de satélites pesados)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userCoords = {
@@ -590,27 +599,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         sendRouteToIframe(userCoords);
       },
       (error) => {
-        // Fallback a ubicación previa si existe
-        if (userLocation) {
-          sendRouteToIframe(userLocation);
-          return;
-        }
-
+        clearTimeout(safetyTimer);
         setIsCalculatingRoute(false);
         let errMsg = "No se pudo obtener tu ubicación actual.";
         if (error.code === error.PERMISSION_DENIED) {
           errMsg = "Permiso de ubicación denegado. Activa el GPS para trazar la ruta.";
         } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errMsg = "Señal GPS no disponible. Verifica tus servicios de ubicación.";
+          errMsg = "Señal de ubicación no disponible en tu dispositivo.";
         } else if (error.code === error.TIMEOUT) {
-          errMsg = "Tiempo de espera agotado al consultar la señal GPS.";
+          errMsg = "Tiempo de espera agotado al consultar tu ubicación.";
         }
         setRouteError(errMsg);
       },
       {
-        enableHighAccuracy: true,
-        maximumAge: 15000,
-        timeout: 10000,
+        enableHighAccuracy: false, // Mucho más rápido (triangulación de red < 500ms)
+        maximumAge: 60000,        // Reutilizar caché reciente
+        timeout: 4000,            // Máximo 4 segundos
       }
     );
   }, [mobileView, userLocation]);
@@ -797,8 +801,14 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           let userLocationMarker = null;
           let markersMap = new Map();
           let routingControl = null;
+          let fallbackRouteLayer = null;
+          let routeTimeout = null;
 
           function clearRoute() {
+            if (routeTimeout) {
+              clearTimeout(routeTimeout);
+              routeTimeout = null;
+            }
             if (routingControl) {
               try {
                 map.removeControl(routingControl);
@@ -807,10 +817,83 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }
               routingControl = null;
             }
+            if (fallbackRouteLayer) {
+              try {
+                map.removeLayer(fallbackRouteLayer);
+              } catch (e) {
+                console.warn("Could not remove fallback route layer", e);
+              }
+              fallbackRouteLayer = null;
+            }
+          }
+
+          function haversineKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          }
+
+          function fallbackDirectRoute(origin, destination) {
+            clearRoute();
+
+            const distKm = haversineKm(origin.lat, origin.lng, destination.lat, destination.lng);
+            const timeMin = Math.max(1, Math.round((distKm / 35) * 60)); // ~35 km/h velocidad media estimada
+
+            const startMarker = L.marker([origin.lat, origin.lng], {
+              icon: L.divIcon({
+                html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 12px rgba(59,130,246,0.8); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+                className: '',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+              })
+            }).bindPopup('<b>Tu ubicación</b>');
+
+            const endMarker = L.marker([destination.lat, destination.lng], {
+              icon: L.divIcon({
+                html: '<div style="background-color: #ef4444; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px;">📍</div>',
+                className: '',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+              })
+            }).bindPopup('<b>' + (destination.name || 'Destino') + '</b>');
+
+            const halo = L.polyline([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
+              color: '#1d4ed8',
+              weight: 8,
+              opacity: 0.2
+            });
+
+            const line = L.polyline([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
+              color: '#2563eb',
+              weight: 5,
+              opacity: 0.95,
+              dashArray: '8, 8'
+            });
+
+            fallbackRouteLayer = L.featureGroup([startMarker, endMarker, halo, line]).addTo(map);
+            map.fitBounds([[origin.lat, origin.lng], [destination.lat, destination.lng]], {
+              padding: [60, 60]
+            });
+
+            window.parent.postMessage({
+              type: 'ROUTE_FOUND',
+              distance: distKm.toFixed(1),
+              time: timeMin
+            }, '*');
           }
 
           function calculateRoute(origin, destination) {
             clearRoute();
+
+            // Timeout de seguridad: Si el servidor OSRM demora más de 3.5 segundos, pasar de inmediato a ruta directa
+            routeTimeout = setTimeout(function() {
+              console.warn("OSRM timeout after 3.5s, switching to direct fallback route");
+              fallbackDirectRoute(origin, destination);
+            }, 3500);
 
             try {
               routingControl = L.Routing.control({
@@ -860,6 +943,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               }).addTo(map);
 
               routingControl.on('routesfound', function(e) {
+                if (routeTimeout) {
+                  clearTimeout(routeTimeout);
+                  routeTimeout = null;
+                }
                 const routes = e.routes;
                 if (routes && routes.length > 0) {
                   const summary = routes[0].summary;
@@ -872,18 +959,20 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               });
 
               routingControl.on('routingerror', function(e) {
-                console.warn("Routing error", e);
-                window.parent.postMessage({
-                  type: 'ROUTE_ERROR',
-                  message: 'No se pudo trazar una ruta vial directa hacia este centro.'
-                }, '*');
+                if (routeTimeout) {
+                  clearTimeout(routeTimeout);
+                  routeTimeout = null;
+                }
+                console.warn("Routing error, falling back to direct route:", e);
+                fallbackDirectRoute(origin, destination);
               });
             } catch (err) {
+              if (routeTimeout) {
+                clearTimeout(routeTimeout);
+                routeTimeout = null;
+              }
               console.error("Error creating routing control:", err);
-              window.parent.postMessage({
-                type: 'ROUTE_ERROR',
-                message: 'Error al inicializar el servicio de navegación.'
-              }, '*');
+              fallbackDirectRoute(origin, destination);
             }
           }
 
