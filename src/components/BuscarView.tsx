@@ -4,6 +4,7 @@ import { Doctor, Pharmacy, Appointment } from "../types";
 import { DOCTORS, PHARMACIES, INITIAL_APPOINTMENTS } from "../data/medicalData";
 import { motion, AnimatePresence } from "motion/react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { getGoogleMapsRouteUrl } from "../lib/routeUtils";
 interface BuscarViewProps {
   onAddAppointment: (appointment: Appointment) => void;
   appointments: Appointment[];
@@ -309,9 +310,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                             {doc.latitude && doc.longitude ? (
                               <button
                                 id={`btn-route-doctor-${doc.id}`}
-                                onClick={() => window.open(`https://www.openstreetmap.org/?mlat=${doc.latitude}&mlon=${doc.longitude}#map=17/${doc.latitude}/${doc.longitude}`, "_blank")}
+                                onClick={() => window.open(getGoogleMapsRouteUrl(doc), "_blank", "noopener,noreferrer")}
                                 className="h-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95"
-                                title="Ver ubicación y ruta en mapa"
+                                title="Trazar ruta en Google Maps"
                               >
                                 <Navigation className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                                 <span>{t('viewRoute')}</span>
@@ -484,8 +485,9 @@ export default function BuscarView({ onAddAppointment, appointments, onNavigate 
                         <div className="flex flex-col gap-2 w-full">
                           <button
                             id={`btn-run-route-for-${pharm.id}`}
-                            onClick={() => window.open(`https://www.openstreetmap.org/search?query=${encodeURIComponent(`${pharm.name}, ${pharm.address}`)}`, "_blank")}
+                            onClick={() => window.open(getGoogleMapsRouteUrl(pharm), "_blank", "noopener,noreferrer")}
                             className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                            title="Trazar ruta en Google Maps"
                           >
                             <Navigation className="w-4 h-4 shrink-0" />
                             <span>{t('viewRoute')}</span>

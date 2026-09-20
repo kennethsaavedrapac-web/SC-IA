@@ -6,6 +6,7 @@ import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } f
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
+import { getGoogleMapsRouteUrl } from "../lib/routeUtils";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -479,27 +480,6 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const selectedLocationLabel = locationMode === "nearby"
     ? detectedCity || "Mi ubicación"
     : locationQuery.trim() || "Nicaragua";
-  const selectedCenterSearch = selectedCenter
-    ? [
-      selectedCenter.name,
-      selectedCenter.locality,
-      selectedCenter.municipality,
-      selectedCenter.department,
-      "Nicaragua",
-    ]
-      .filter(Boolean)
-      .join(", ")
-    : `${selectedLocationLabel}, Nicaragua`;
-  const selectedCenterMapQuery =
-    selectedCenter?.latitude && selectedCenter?.longitude
-      ? `${selectedCenter.latitude},${selectedCenter.longitude}`
-      : userLocation
-        ? `${userLocation.latitude},${userLocation.longitude}`
-        : selectedCenterSearch;
-  const openStreetMapSearchUrl =
-    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${userLocation.latitude}%2C${userLocation.longitude}%3B${selectedCenter.latitude}%2C${selectedCenter.longitude}`
-      : `https://www.openstreetmap.org/search?query=${encodeURIComponent(selectedCenterMapQuery)}`;
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const getMapCategory = (type: string, id?: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
@@ -1067,10 +1047,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             { }
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
-                                href={openStreetMapSearchUrl}
+                                href={getGoogleMapsRouteUrl(hc, userLocation)}
                                 target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                                rel="noopener noreferrer"
+                                title="Trazar ruta en Google Maps"
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                               >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -1229,10 +1210,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={openStreetMapSearchUrl}
+                    href={selectedCenter ? getGoogleMapsRouteUrl(selectedCenter, userLocation) : "#"}
                     target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                    rel="noopener noreferrer"
+                    title="Trazar ruta en Google Maps"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
