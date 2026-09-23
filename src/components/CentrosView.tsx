@@ -482,7 +482,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return filteredCentersBase.map((c) => ({ ...c, distanceKm: undefined }));
   }, [filteredCentersBase, locationMode, userLocation, detectedCity]);
 
-  const visibleCenters = filteredCenters.slice(0, 60);
+  const visibleCenters = useMemo(() => filteredCenters.slice(0, 60), [filteredCenters]);
 
   useEffect(() => {
     if (!filteredCenters.length) {
@@ -709,15 +709,22 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           attributionControl: false,
           preferCanvas: true,
           wheelDebounceTime: 60,
-          fadeAnimation: true,
-          markerZoomAnimation: true
+          // Raster tiles are already the dominant paint cost on modest Android
+          // devices. Avoid adding a second animation/compositing pass to each
+          // tile and marker while the user is navigating the map.
+          fadeAnimation: false,
+          markerZoomAnimation: false,
+          zoomAnimation: false
         }).setView([12.1364, -86.2514], 9);
 
         L.tileLayer('${cartoTileUrl}', {
           maxZoom: 19,
           updateWhenIdle: true,
           updateWhenZooming: false,
-          keepBuffer: 3
+          // Three retained tile rings can leave roughly 3x more decoded images
+          // in memory than a phone viewport needs. One ring keeps panning
+          // seamless while substantially reducing decode and GPU composition.
+          keepBuffer: 1
         }).addTo(map);
 
         markersGroup = L.layerGroup().addTo(map);
@@ -1007,7 +1014,8 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       } else if (msg.type === 'UPDATE_USER_LOCATION') {
         updateUserLocation(msg.userLocation);
         if (msg.forceCenter && msg.userLocation) {
-          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: true });
+          const isMobile = window.innerWidth < 768;
+          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
         }
       }
     }
@@ -1239,7 +1247,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 return (
                   <motion.div
                     key={hc.id}
-                    layout
+                    // `layout` measured and animated every result card after a
+                    // selection. On mobile that forced synchronous layout work
+                    // for the whole list; only the selected detail needs motion.
                     className={`rounded-2xl p-3.5 transition-all bg-white dark:bg-slate-950 border ${isSelected
                       ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]"
                       : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
