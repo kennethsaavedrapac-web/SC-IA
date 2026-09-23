@@ -544,6 +544,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const isDarkModeRef = React.useRef(isDarkMode);
   isDarkModeRef.current = isDarkMode;
 
+  // El GPS se resuelve de forma asíncrona respecto a la carga del iframe. Al
+  // llegar, se reenvía al mapa para que pueda hacer su único encuadre inicial.
+  useEffect(() => {
+    if (!userLocation) return;
+    iframeRef.current?.contentWindow?.postMessage({
+      type: "UPDATE_USER_LOCATION",
+      userLocation,
+      initialCenter: true,
+    }, "*");
+  }, [userLocation]);
+
   const handleRecenter = () => {
     if (userLocation) {
       iframeRef.current?.contentWindow?.postMessage({
@@ -700,6 +711,17 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     let pendingMessage = null;
     let renderedMarkers = new Map();
     let renderDebounceTimer = null;
+    let hasInitialUserLocation = false;
+
+    function centerOnInitialUserLocation(loc) {
+      if (hasInitialUserLocation || !loc || !loc.latitude || !loc.longitude || !map) return false;
+      hasInitialUserLocation = true;
+      // Zoom 19 cubre aproximadamente 100–200 m en el ancho de un móvil.
+      // No se anima: evita que una selección inicial vuelva a alejar el mapa.
+      map.setView([loc.latitude, loc.longitude], 19, { animate: false });
+      scheduleRender(0);
+      return true;
+    }
 
     function initLeafletMap() {
       if (typeof L === 'undefined' || map) return;
@@ -715,7 +737,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           fadeAnimation: false,
           markerZoomAnimation: false,
           zoomAnimation: false
-        }).setView([12.1364, -86.2514], 9);
+        }).setView([12.1364, -86.2514], 19);
 
         L.tileLayer('${cartoTileUrl}', {
           maxZoom: 19,
@@ -997,13 +1019,14 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         allCenters = msg.centers || [];
         currentSelectedId = msg.selectedId || null;
         updateUserLocation(msg.userLocation);
+        const didCenterOnInitialUserLocation = centerOnInitialUserLocation(msg.userLocation);
 
         if (msg.forceCenterOnUser && msg.userLocation) {
           const isMobile = window.innerWidth < 768;
           map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
-        } else if (msg.centerOnId) {
+        } else if (!didCenterOnInitialUserLocation && msg.centerOnId) {
           selectCenter(msg.selectedId, msg.centerOnId, msg.zoomLevel);
-        } else {
+        } else if (!didCenterOnInitialUserLocation) {
           scheduleRender(50); // FIX 11 ─ debounce mínimo en UPDATE_DATA (era scheduleRender(0))
         }
       } else if (msg.type === 'UPDATE_CENTERS') {
@@ -1013,7 +1036,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         selectCenter(msg.selectedId, msg.centerOnId, msg.zoomLevel);
       } else if (msg.type === 'UPDATE_USER_LOCATION') {
         updateUserLocation(msg.userLocation);
-        if (msg.forceCenter && msg.userLocation) {
+        if (msg.initialCenter) {
+          centerOnInitialUserLocation(msg.userLocation);
+        } else if (msg.forceCenter && msg.userLocation) {
           const isMobile = window.innerWidth < 768;
           map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
         }
