@@ -31,6 +31,7 @@ import {
 // Import Vercel API handlers to make them work locally
 import fhirHandler from "./api/fhir.js";
 import fhirGetHandler from "./api/fhir-get.js";
+import analyzeDocumentHandler from "./api/analyze-document.js";
 
 dotenv.config();
 
@@ -118,7 +119,7 @@ async function startServer() {
     credentials: true,
   }));
   
-  app.use(express.json({ limit: "100kb" })); 
+  app.use(express.json({ limit: "15mb" })); 
   app.use(cookieParser());
 
   // Helper para autenticar requests mediante Bearer token o Cookie HttpOnly
@@ -601,6 +602,11 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       }
     }
   );
+
+  // API endpoint for medical document analysis with Gemini Vision
+  app.post("/api/analyze-document", apiLimiter, (req: Request, res: Response) => {
+    analyzeDocumentHandler(req, res);
+  });
 
   // API endpoint for admin panel metrics
   app.get("/api/admin/metrics", (req: Request, res: Response) => {

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2 } from "lucide-react";
+import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2, FileText, ImageIcon, XCircle } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
@@ -288,6 +288,12 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [historyError, setHistoryError] = useState<string | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
+  // --- DOCUMENT ANALYSIS ---
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [isAnalyzingDocument, setIsAnalyzingDocument] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -371,6 +377,165 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     }
   };
 
+
+  // --- DOCUMENT ANALYSIS HANDLERS ---
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      alert(language === 'en' ? 'Please select an image (JPG, PNG, WebP) or PDF file.' : 'Por favor seleccione una imagen (JPG, PNG, WebP) o archivo PDF.');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert(language === 'en' ? 'File is too large. Maximum size is 10MB.' : 'El archivo es demasiado grande. El tamaño máximo es 10MB.');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setFilePreview(ev.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
+    }
+  };
+
+  const handleClearFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAnalyzeDocument = async () => {
+    if (!selectedFile || isLoading || isAnalyzingDocument) return;
+
+    setIsAnalyzingDocument(true);
+    setIsLoading(true);
+
+    const docLabel = language === 'en' ? '📄 Analyzing medical document...' : '📄 Analizando documento médico...';
+
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      text: docLabel,
+      sender: "user",
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      createdAt: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, userMsg]);
+
+    try {
+      // Convert file to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(selectedFile);
+      });
+
+      // Clear file selection
+      handleClearFile();
+
+      if (!navigator.onLine) {
+        const offlineMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: language === 'en'
+            ? '📄 Document analysis requires an internet connection. Please try again when you are online.'
+            : '📄 El análisis de documentos requiere conexión a internet. Intente nuevamente cuando tenga conexión.',
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, offlineMsg]);
+        return;
+      }
+
+      const response = await fetch("/api/analyze-document", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64: base64,
+          mimeType: selectedFile.type,
+          language,
+          userProfile: user
+        })
+      });
+
+      let data: any;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { error: text || `Error del servidor (${response.status})` };
+      }
+
+      if (!response.ok) {
+        const errorText = data.error || (language === 'en'
+          ? 'Could not analyze the document. Please try again.'
+          : 'No se pudo analizar el documento. Intente nuevamente.');
+        const errorMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: errorText,
+          sender: "bot",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          createdAt: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, errorMsg]);
+        return;
+      }
+
+      let botText = data.text || (language === 'en'
+        ? 'Could not process the document response.'
+        : 'No se pudo procesar la respuesta del documento.');
+
+      if (data.simulated && data.warning) {
+        botText = `📋 ${data.warning}\n\n${botText}`;
+      }
+
+      const botMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: botText,
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, botMsg]);
+
+      // Save to Supabase
+      if (user.id) {
+        saveConsultationToSupabase(user.id, docLabel, botText).catch((err) =>
+          console.warn("[Supabase] No se guardó el análisis:", err)
+        );
+      }
+    } catch (error) {
+      console.error("Document analysis error:", error);
+      const errorMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: language === 'en'
+          ? '📄 An error occurred while analyzing the document. Please try again.'
+          : '📄 Ocurrió un error al analizar el documento. Intente nuevamente.',
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        createdAt: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsAnalyzingDocument(false);
+      setIsLoading(false);
+    }
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -859,6 +1024,39 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           { }
           <div className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10" style={{ background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)", borderRadius: "28px" }} />
 
+          {/* File preview strip */}
+          <AnimatePresence>
+            {selectedFile && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="relative z-10 mb-2 flex items-center gap-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/50 rounded-2xl px-4 py-3"
+              >
+                {filePreview ? (
+                  <img src={filePreview} alt="Preview" className="w-14 h-14 rounded-xl object-cover border border-blue-200 dark:border-blue-700 shadow-sm" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl bg-blue-100 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 flex items-center justify-center shadow-sm">
+                    <FileText className="w-6 h-6 text-blue-500" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">{selectedFile.name}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    {(selectedFile.size / 1024).toFixed(0)} KB · {selectedFile.type.split('/')[1]?.toUpperCase()}
+                  </p>
+                </div>
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={handleClearFile}
+                  className="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:text-rose-500 transition-colors shadow-sm"
+                >
+                  <XCircle className="w-4 h-4" />
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           { }
           <textarea
             value={inputValue}
@@ -866,16 +1064,35 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
-            placeholder={isChatMode ? "Escribe tu consulta aquí..." : "Describe tus síntomas…"}
+            placeholder={selectedFile
+              ? (language === 'en' ? 'Tap analyze to interpret the document...' : 'Toca analizar para interpretar el documento...')
+              : (isChatMode ? "Escribe tu consulta aquí..." : "Describe tus síntomas…")
+            }
             disabled={isLoading}
             className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200 disabled:opacity-50"
             style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+
           { }
           <div className="flex justify-between items-center relative z-10 mt-1">
             { }
-            <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              className="flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors disabled:opacity-50"
+              style={{ width: "42px", height: "42px", borderRadius: "50%", color: selectedFile ? "#3b82f6" : "#64748b" }}
+              title={language === 'en' ? 'Upload medical document' : 'Subir documento médico'}
+            >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
             </motion.button>
 
@@ -889,15 +1106,32 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               >
                 {isRecording ? <MicOff className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
               </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
-                style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
-              </motion.button>
+              {selectedFile ? (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleAnalyzeDocument}
+                  disabled={isLoading || isAnalyzingDocument}
+                  className="flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
+                  style={{ height: "52px", borderRadius: "26px", padding: "0 24px", background: "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)", boxShadow: "0 6px 20px rgba(16,185,129,0.32), 0 2px 6px rgba(16,185,129,0.15)", color: "#ffffff", fontSize: "14px", fontWeight: 700, fontFamily: "'Inter', sans-serif" }}
+                >
+                  {isAnalyzingDocument ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <ImageIcon className="w-5 h-5" />
+                  )}
+                  <span>{isAnalyzingDocument ? (language === 'en' ? 'Analyzing...' : 'Analizando...') : (language === 'en' ? 'Analyze' : 'Analizar')}</span>
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
+                  style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px", marginLeft: "-1px" }}><line x1="22" x2="11" y1="2" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                </motion.button>
+              )}
             </div>
           </div>
         </div>
