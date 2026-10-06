@@ -644,37 +644,62 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         if (!c.lat || !c.lng) return;
         
         const isSelected = c.id === selectedId;
-        const size = isSelected ? 38 : 28;
-        const anchor = size / 2;
-        const borderSize = isSelected ? '3px' : '2px';
-        const borderColor = isSelected ? '#3b82f6' : '#ffffff';
-        const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
-        
+
         let bgColor = '#ef4444';
-        let label = '+';
-        let fontSize = isSelected ? 19 : 15;
-        
+
+        // Símbolo blanco que se dibuja dentro del pin según la categoría.
+        let symbol =
+          '<rect x="10.5" y="3.5" width="5" height="13" rx="1" fill="#ffffff"></rect>' +
+          '<rect x="7" y="7" width="12" height="6" rx="1" fill="#ffffff"></rect>';
+
         if (c.category === 'hospital') {
+          // Cruz médica
           bgColor = '#10b981';
-          label = 'H';
-          fontSize = isSelected ? 15 : 12;
+          symbol =
+            '<rect x="10.5" y="3.5" width="5" height="13" rx="1" fill="#ffffff"></rect>' +
+            '<rect x="7" y="7" width="12" height="6" rx="1" fill="#ffffff"></rect>';
         } else if (c.category === 'farmacia') {
+          // Pastilla / cápsula
           bgColor = '#2563eb';
-          label = 'F';
-          fontSize = isSelected ? 15 : 12;
+          symbol =
+            '<rect x="8.2" y="13" width="9.6" height="5.6" rx="2.8" fill="#ffffff"></rect>' +
+            '<line x1="13" y1="13" x2="13" y2="18.6" stroke="#2563eb" stroke-width="1.4"></line>';
         } else if (c.category === 'medico') {
+          // Persona / médico
           bgColor = '#8b5cf6';
-          label = 'M';
-          fontSize = isSelected ? 15 : 12;
+          symbol =
+            '<circle cx="13" cy="8.5" r="2.8" fill="#ffffff"></circle>' +
+            '<path d="M5.5 18.5 C6.5 15.5 9 14 13 14 C17 14 19.5 15.5 20.5 18.5 Z" fill="#ffffff"></path>';
+        } else if (c.category === 'centro_salud') {
+          // Edificio de centro de salud
+          bgColor = '#ef4444';
+          symbol =
+            '<rect x="7.5" y="13.5" width="11" height="6.5" fill="#ffffff"></rect>' +
+            '<rect x="9" y="11" width="8" height="3" fill="#ffffff" rx="0.5"></rect>' +
+            '<rect x="11" y="16.5" width="4" height="3.5" fill="#ef4444"></rect>';
         }
-        
-        const htmlIcon = '<div style="background-color: ' + bgColor + '; width: ' + size + 'px; height: ' + size + 'px; border-radius: 50%; border: ' + borderSize + ' solid ' + borderColor + '; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: ' + fontSize + 'px; box-shadow: ' + shadow + '; transition: all 0.2s;">' + label + '</div>';
+
+        // Pin en forma de lágrima (viewBox 26x34, punta en x=13,y=33).
+        const pinSize = isSelected ? 42 : 32;
+        const viewW = 26;
+        const viewH = 34;
+        const scale = pinSize / viewW;
+        const renderW = pinSize;
+        const renderH = Math.round(viewH * scale);
+        const tipX = 13 * scale;
+        const tipY = renderH - 1;
+
+        const htmlIcon = '<div style="width:' + renderW + 'px;height:' + renderH + 'px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3));">' +
+          '<svg width="' + renderW + '" height="' + renderH + '" viewBox="0 0 ' + viewW + ' ' + viewH + '" style="display:block;">' +
+          '<path d="M13 1 C8 1 4.5 5 4.5 10 C4.5 16.5 13 33 13 33 C13 33 21.5 16.5 21.5 10 C21.5 5 18 1 13 1 Z" fill="' + bgColor + '" stroke="#ffffff" stroke-width="' + (isSelected ? 2.5 : 2) + '"/>' +
+          symbol +
+          '</svg></div>';
 
         const icon = L.divIcon({
           html: htmlIcon,
           className: '',
-          iconSize: [size, size],
-          iconAnchor: [anchor, anchor]
+          iconSize: [renderW, renderH],
+          iconAnchor: [tipX, tipY]
         });
 
         const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
