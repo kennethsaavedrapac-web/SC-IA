@@ -91,7 +91,7 @@ function getNearestHospital(
 
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
-  const [locationQuery, setLocationQuery] = useState("Granada");
+  const [locationQuery, setLocationQuery] = useState("");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
   );
@@ -669,20 +669,15 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
        a crear capas de compositing separadas para cada marcador y recalcular
        sus geometrías en cada frame durante el pan. En móvil esto congela la UI.
        El estado selected/unselected se aplica directamente va JS sin animación. */
-    .sc-marker-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-family: system-ui, -apple-system, sans-serif;
-      font-weight: 700;
-      border-radius: 50%;
+    .sc-marker-pin {
+      display: block;
       user-select: none;
       cursor: pointer;
       pointer-events: auto;
       will-change: auto;
+      filter: drop-shadow(0 2px 3px rgba(15,23,42,0.28));
     }
-    .sc-marker-badge:active { transform: scale(0.92); }
+    .sc-marker-pin:active { transform: scale(0.94); }
     .sc-cluster-badge {
       display: flex;
       align-items: center;
@@ -772,23 +767,24 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       const key = c.category + (isSelected ? '_sel' : '_nor');
       if (iconCache.has(key)) return iconCache.get(key);
 
-      const size = isSelected ? 38 : 28;
-      const anchor = size / 2;
-      const borderSize = isSelected ? '3px' : '2px';
-      const borderColor = isSelected ? '#3b82f6' : '#ffffff';
-      const shadow = isSelected ? '0 0 14px rgba(59,130,246,0.85)' : '0 2px 6px rgba(0,0,0,0.25)';
+      const scale = isSelected ? 1.12 : 1;
+      const width = 46;
+      const height = 58;
+      const colors = { centro_salud: '#1677e8', hospital: '#e6323e', farmacia: '#16a765', medico: '#7139df' };
+      const color = colors[c.category] || '#1677e8';
+      const glyphs = {
+        centro_salud: '<path d="M19 21V7l-7-4-7 4v14"/><path d="M9 21v-6h6v6M12 8v5M9.5 10.5h5"/>',
+        hospital: '<path d="M4 21V7h5V4h6v3h5v14M2 21h20M12 8v6M9 11h6M8 21v-3h3v3M14 18h3"/>',
+        farmacia: '<path d="m8 16 8-8a4.2 4.2 0 0 1 6 6l-8 8a4.2 4.2 0 0 1-6-6Z" transform="translate(-3 -3)"/><path d="M7 12h6M10 9v6"/>',
+        medico: '<circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2M12 15v5M9.5 17.5h5"/>'
+      };
+      const html = '<div class="sc-marker-pin" style="width:' + width + 'px;height:' + height + 'px;transform:scale(' + scale + ');transform-origin:50% 86%;">'
+        + '<svg viewBox="0 0 48 60" width="' + width + '" height="' + height + '" aria-hidden="true">'
+        + '<path d="M24 59C20 52 2 34 2 22a22 22 0 1 1 44 0c0 12-18 30-22 37Z" fill="' + color + '" stroke="' + color + '" stroke-width="2"/>'
+        + '<circle cx="24" cy="22" r="16" fill="#fff"/>'
+        + '<g fill="none" stroke="' + color + '" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + (glyphs[c.category] || glyphs.centro_salud) + '</g></svg></div>';
 
-      const CAT = { hospital: ['#10b981','H'], farmacia: ['#2563eb','F'], medico: ['#8b5cf6','M'] };
-      const [bgColor, label] = CAT[c.category] || ['#ef4444','+'];
-      const fontSize = isSelected ? (c.category === 'centro_salud' ? 19 : 16) : (c.category === 'centro_salud' ? 15 : 12);
-      const transformStyle = isSelected ? 'transform:scale(1.05);' : '';
-
-      const html = '<div class="sc-marker-badge" style="background-color:' + bgColor
-        + ';width:' + size + 'px;height:' + size + 'px;border:' + borderSize + ' solid '
-        + borderColor + ';font-size:' + fontSize + 'px;box-shadow:' + shadow + ';' + transformStyle
-        + '">' + label + '</div>';
-
-      const icon = L.divIcon({ html, className: '', iconSize: [size, size], iconAnchor: [anchor, anchor] });
+      const icon = L.divIcon({ html, className: '', iconSize: [width, height], iconAnchor: [width / 2, height - 2] });
       iconCache.set(key, icon);
       return icon;
     }
@@ -1024,7 +1020,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         if (msg.forceCenterOnUser && msg.userLocation) {
           const isMobile = window.innerWidth < 768;
           map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
-        } else if (!didCenterOnInitialUserLocation && msg.centerOnId) {
+        } else if (!didCenterOnInitialUserLocation && !hasInitialUserLocation && msg.centerOnId) {
           selectCenter(msg.selectedId, msg.centerOnId, msg.zoomLevel);
         } else if (!didCenterOnInitialUserLocation) {
           scheduleRender(50); // FIX 11 ─ debounce mínimo en UPDATE_DATA (era scheduleRender(0))
