@@ -6,7 +6,7 @@
    Mapeo de variables CSS a tokens de Tailwind v4
    ═══════════════════════════════════════════════════════════════ */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
