@@ -906,8 +906,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
               count: items.length
             });
           }
->>>>>>> fc3a80c359efb15d8613acfc0a40751597b885f2
-        });
+});
       }
 
       // 1. Remove markers no longer visible
