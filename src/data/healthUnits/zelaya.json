@@ -12,8 +12,8 @@
       "localidad": "Del Parque 3 cuadras al este, Mulukukú",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.145289,
+      "longitud": -83.490616
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Comunidad San Isidro, contiguo a la iglesia católica",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.127602,
+      "longitud": -83.367698
     },
     {
       "numero": 3,
@@ -38,8 +38,8 @@
       "localidad": "Comunidad El Zanjón, contiguo a la escuela pública",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.89688,
+      "longitud": -83.447646
     },
     {
       "numero": 4,
@@ -51,8 +51,8 @@
       "localidad": "Comunidad Nueva Esperanza, Nueva Esperanza",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.853038,
+      "longitud": -83.354296
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": "Comunidad San Pablo, contiguo a escuela primaria, San Pablo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.854739,
+      "longitud": -83.454149
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "Colonia Los Laureles, Frente al Colegio Los Laureles, Colonia Los Laureles",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.937013,
+      "longitud": -83.408597
     }
   ]
 }

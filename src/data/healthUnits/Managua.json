@@ -12,8 +12,8 @@
       "localidad": "Comunidad Nueva Vida",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.138288,
+      "longitud": -86.281103
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Comarca Las Lomas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.167462,
+      "longitud": -86.319841
     },
     {
       "numero": 3,
@@ -38,8 +38,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.022701,
+      "longitud": -86.12913
     },
     {
       "numero": 4,
@@ -51,8 +51,8 @@
       "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
       "zona": "Urbano / Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.179429,
+      "longitud": -86.225082
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": "Frente a la Iglesia Católica, Esquipulas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.046658,
+      "longitud": -86.34401
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "De la carretera a Masaya, 2 km al este, contiguo a la tienda de abarrotes 'La Cuesta'.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.088847,
+      "longitud": -86.201048
     },
     {
       "numero": 7,
@@ -90,8 +90,8 @@
       "localidad": "Comunidad Las Enramadas, contiguo a la Escuela, Las Enramadas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.252093,
+      "longitud": -86.360215
     },
     {
       "numero": 8,
@@ -103,8 +103,8 @@
       "localidad": "Barrio San Ramón, contiguo a cancha deportiva",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.050377,
+      "longitud": -86.273977
     },
     {
       "numero": 9,
@@ -116,8 +116,8 @@
       "localidad": "De la antigua capitanía, 1 cuadra al sur, 1 cuadra al oeste. Los Laureles",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.117453,
+      "longitud": -86.305254
     },
     {
       "numero": 10,
@@ -129,8 +129,8 @@
       "localidad": "Comunidad La Paz Centro 2, frente al comedor comunitario. La Paz Centro 2",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.260302,
+      "longitud": -86.361126
     },
     {
       "numero": 11,
@@ -142,8 +142,8 @@
       "localidad": "De la Casa del Pueblo, 2 cuadra al oeste, frente a la cancha deportiva. Bo. Rigoberto López Pérez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.125702,
+      "longitud": -86.371662
     },
     {
       "numero": 12,
@@ -155,8 +155,8 @@
       "localidad": "KM 21 Carretera Sur Entrada Boquete, contiguo pilas 7, Comarca las Pilas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.030558,
+      "longitud": -86.241406
     },
     {
       "numero": 13,
@@ -168,8 +168,8 @@
       "localidad": "Bo. Camilo Ortega Frente al Monumento",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.140621,
+      "longitud": -86.323035
     },
     {
       "numero": 14,
@@ -181,8 +181,8 @@
       "localidad": "Contiguo al Parque Central., San Francisco Libre",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.261526,
+      "longitud": -86.385912
     },
     {
       "numero": 15,
@@ -194,8 +194,8 @@
       "localidad": "Comunidad Las Enramadas, contiguo a Escuela pública Las Enramadas. Las Enramadas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.287976,
+      "longitud": -86.364777
     },
     {
       "numero": 16,
@@ -207,8 +207,8 @@
       "localidad": "De la carretera a Masaya, 2 km al este, contiguo a la tienda de abarrotes 'La Cuesta'.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.067104,
+      "longitud": -86.237994
     },
     {
       "numero": 17,
@@ -220,8 +220,8 @@
       "localidad": "Comunidad el Zapote, Frente a la Escuela de la Comunidad",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.205061,
+      "longitud": -86.21132
     },
     {
       "numero": 18,
@@ -233,8 +233,8 @@
       "localidad": "Primera Entrada Santa Elena 3c. al Lago.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.101559,
+      "longitud": -86.357855
     },
     {
       "numero": 19,
@@ -246,8 +246,8 @@
       "localidad": "Bo. San Sebastián Cine Blanco 4c. arriba",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.280868,
+      "longitud": -86.342045
     },
     {
       "numero": 20,
@@ -259,8 +259,8 @@
       "localidad": "Comunidad San Roque, de la fábrica de Agua Roca 1 cuadra al oeste",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.222327,
+      "longitud": -86.107115
     },
     {
       "numero": 21,
@@ -272,8 +272,8 @@
       "localidad": "Detrás del Mercado Roberto Huembes, Carlos Fonseca",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.051599,
+      "longitud": -86.397139
     },
     {
       "numero": 22,
@@ -285,8 +285,8 @@
       "localidad": "Frente a la Iglesia Católica, Esquipulas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.072418,
+      "longitud": -86.11352
     },
     {
       "numero": 23,
@@ -298,8 +298,8 @@
       "localidad": "Comunidad Las Pilas, contiguo a Escuela Pública Las Pilas. Las Pilas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.189088,
+      "longitud": -86.277226
     },
     {
       "numero": 24,
@@ -311,8 +311,8 @@
       "localidad": "Comunidad Las Pilas, contiguo a Escuela Pública Las Pilas. Las Pilas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.102554,
+      "longitud": -86.296291
     },
     {
       "numero": 25,
@@ -324,8 +324,8 @@
       "localidad": "Comunidad Los Cedros, contiguo a Escuela Pública Las Pilas. Los Cedros",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.063987,
+      "longitud": -86.192523
     },
     {
       "numero": 26,
@@ -337,8 +337,8 @@
       "localidad": "Comunidad Los Cedros, contiguo a Escuela Pública Las Pilas. Los Cedros",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.221868,
+      "longitud": -86.385764
     },
     {
       "numero": 27,
@@ -350,8 +350,8 @@
       "localidad": "Barrio Santa Adela, contiguo a Escuela pública. Santa Adela",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.076853,
+      "longitud": -86.314852
     },
     {
       "numero": 28,
@@ -363,8 +363,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.023735,
+      "longitud": -86.132684
     },
     {
       "numero": 29,
@@ -376,8 +376,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.113493,
+      "longitud": -86.324015
     },
     {
       "numero": 30,
@@ -389,8 +389,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.0038,
+      "longitud": -86.163858
     },
     {
       "numero": 31,
@@ -402,8 +402,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.280517,
+      "longitud": -86.204673
     },
     {
       "numero": 32,
@@ -415,8 +415,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.274995,
+      "longitud": -86.213359
     },
     {
       "numero": 33,
@@ -428,8 +428,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.076342,
+      "longitud": -86.17083
     },
     {
       "numero": 34,
@@ -441,8 +441,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.107399,
+      "longitud": -86.304113
     },
     {
       "numero": 35,
@@ -454,8 +454,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.017987,
+      "longitud": -86.106307
     },
     {
       "numero": 36,
@@ -467,8 +467,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.025719,
+      "longitud": -86.305446
     },
     {
       "numero": 37,
@@ -480,8 +480,8 @@
       "localidad": "Fabrica de Chocolates Momotombo 2 cuadras al Sur / Fabrica de Chocolates Momotombo 2 cuadras al Sur, Altamira",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.076484,
+      "longitud": -86.333634
     },
     {
       "numero": 38,
@@ -493,8 +493,8 @@
       "localidad": "Rotonda Plaza España 150 metros al este Frente a SINSA, Bolonia / Rotonda Plaza España 150 metros al este Frente a SINSA",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.017086,
+      "longitud": -86.388254
     },
     {
       "numero": 39,
@@ -506,8 +506,8 @@
       "localidad": "Barrio Puerto Nuevo, de la estación de Policía 50 metros al oeste / Policía Nacional 2 c abajo, Puerto Nuevo SFL",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.140884,
+      "longitud": -86.203664
     },
     {
       "numero": 40,
@@ -519,8 +519,8 @@
       "localidad": "Del porton de SERMESA 2 c abajo., Bolonia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.145411,
+      "longitud": -86.177186
     },
     {
       "numero": 41,
@@ -532,8 +532,8 @@
       "localidad": "Frente donde fue el antiguo Hospital Militar, Bolonia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.021683,
+      "longitud": -86.305599
     },
     {
       "numero": 42,
@@ -545,8 +545,8 @@
       "localidad": "Reparto Los Arcos, Managua, Reparto Los Arcos, Managua",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.219455,
+      "longitud": -86.240378
     },
     {
       "numero": 43,
@@ -558,8 +558,8 @@
       "localidad": "B. Altagracia Frente a Costado Sur Policía Nacional Distrito No. 3, Altagracia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.299447,
+      "longitud": -86.152578
     },
     {
       "numero": 44,
@@ -571,8 +571,8 @@
       "localidad": "Frente al Parque central de Mateare, Colonia San José",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.065488,
+      "longitud": -86.200607
     },
     {
       "numero": 45,
@@ -584,8 +584,8 @@
       "localidad": "De la Duya Mágica, 1c al sur, 1c abajo., Walter Ferrety",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.070597,
+      "longitud": -86.245192
     },
     {
       "numero": 46,
@@ -597,8 +597,8 @@
       "localidad": "Bo. San Judas Contiguo al Mercado , Barrio San Judas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.165497,
+      "longitud": -86.301862
     },
     {
       "numero": 47,
@@ -610,8 +610,8 @@
       "localidad": "Colonia Francisco Morazán, Colonia Morazan",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.156271,
+      "longitud": -86.255343
     },
     {
       "numero": 48,
@@ -623,8 +623,8 @@
       "localidad": "Km 69, contiguo a escuela República de Ecuador, Masachapa, Masachapa",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.286775,
+      "longitud": -86.27908
     },
     {
       "numero": 49,
@@ -636,8 +636,8 @@
       "localidad": "Villa Libertad casa comunal 1c. Al sur, Villa Libertad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.214939,
+      "longitud": -86.380333
     },
     {
       "numero": 50,
@@ -649,8 +649,8 @@
       "localidad": "Pista Principal Sabanagrande, al Tope ciudadela, Ciudadela Belén",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.235578,
+      "longitud": -86.15189
     },
     {
       "numero": 51,
@@ -662,8 +662,8 @@
       "localidad": "Entrada a la Carretera a la Hacienda el Chile, contiguo a la Policía, Luiz Alfonso Velazquez Flores",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.250173,
+      "longitud": -86.258926
     },
     {
       "numero": 52,
@@ -675,8 +675,8 @@
       "localidad": "De Transnica, 2c. al Lago, Reparto Serrato, Reparto Serrano",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.009188,
+      "longitud": -86.327816
     },
     {
       "numero": 53,
@@ -688,8 +688,8 @@
       "localidad": "Américas 2. Fte. Colegio José Benito Escobar, Villa José Benito Escobar",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.20113,
+      "longitud": -86.366187
     },
     {
       "numero": 54,
@@ -701,8 +701,8 @@
       "localidad": "km 45 carretera a Masachapa, 1 km al sur carretera San Pablo, Chorotega / Barrio La Llansa, en el Km 45, 1 c al norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.018211,
+      "longitud": -86.369756
     },
     {
       "numero": 55,
@@ -714,8 +714,8 @@
       "localidad": "Contiguo al Palacio de Justicia, Barrio Augusto C. Sandino / Carretera Norte Gasolinera uno waspan una cuadra, al Norte, una Cuadra al Este., Jorge Casaly",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.24717,
+      "longitud": -86.27248
     },
     {
       "numero": 56,
@@ -727,8 +727,8 @@
       "localidad": "Portón del Cememterio General 2c. Al Norte, Santa Ana Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.147273,
+      "longitud": -86.221897
     },
     {
       "numero": 57,
@@ -740,8 +740,8 @@
       "localidad": "Villa el Carmen, km 42 carretera a Masachapa, 2 c. arriba, Comunidad de Villa El Carmen",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.116766,
+      "longitud": -86.169139
     },
     {
       "numero": 58,
@@ -753,8 +753,8 @@
       "localidad": "Barrio Villa Libertad , Barrio Villa Libertad / Frente a los pozos de ENACAL , Villa Libertad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.229419,
+      "longitud": -86.365395
     },
     {
       "numero": 59,
@@ -766,8 +766,8 @@
       "localidad": "Contiguo a Enacal Central , Batahola Norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.109402,
+      "longitud": -86.123783
     },
     {
       "numero": 60,
@@ -779,8 +779,8 @@
       "localidad": "Bo. Ariel Darce, Distrito V, Managua, Ariel Darce",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.083401,
+      "longitud": -86.393951
     },
     {
       "numero": 61,
@@ -792,8 +792,8 @@
       "localidad": "Frente al costado norte del mercado Roberto Huembes, Isaías Gómez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.268341,
+      "longitud": -86.300759
     },
     {
       "numero": 62,
@@ -805,8 +805,8 @@
       "localidad": "Concepción Palacios ( Ministerio de Salud), 1ro de Mayo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.143977,
+      "longitud": -86.331457
     },
     {
       "numero": 63,
@@ -818,8 +818,8 @@
       "localidad": "Km 9 carretera a masaya, Comarca Santo Domingo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.117727,
+      "longitud": -86.152573
     },
     {
       "numero": 64,
@@ -831,8 +831,8 @@
       "localidad": "Simens 2c al sur, Bo. Carlos Marx, Carlos Marx",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.294858,
+      "longitud": -86.165206
     },
     {
       "numero": 65,
@@ -844,8 +844,8 @@
       "localidad": "Concepción Palacios (Ministerio de Salud), 1ro de Mayo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.277574,
+      "longitud": -86.127501
     },
     {
       "numero": 66,
@@ -857,8 +857,8 @@
       "localidad": "Estatua Monseñor Lezcano 1 al Sur 1 abajo , Monseñor Lezcano",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.025073,
+      "longitud": -86.132125
     },
     {
       "numero": 67,
@@ -870,8 +870,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.146648,
+      "longitud": -86.215985
     },
     {
       "numero": 68,
@@ -883,8 +883,8 @@
       "localidad": "Barrio Domitila Lugo, Carretera Norte de los Semaforos de Robelo 2 1/2 cuadra al oeste., Domitila Lugo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.200497,
+      "longitud": -86.300189
     },
     {
       "numero": 69,
@@ -896,8 +896,8 @@
       "localidad": "Reparto Los Arcos, Managua, Reparto Los Arcos, Managua",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.146072,
+      "longitud": -86.385167
     },
     {
       "numero": 70,
@@ -909,8 +909,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.118704,
+      "longitud": -86.11881
     },
     {
       "numero": 71,
@@ -922,8 +922,8 @@
       "localidad": "Contiguo a Enacal Central , Batahola Norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.101687,
+      "longitud": -86.315393
     },
     {
       "numero": 72,
@@ -935,8 +935,8 @@
       "localidad": "Simens 2c al sur, Bo. Carlos Marx, Carlos Marx",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.243147,
+      "longitud": -86.207313
     },
     {
       "numero": 73,
@@ -948,8 +948,8 @@
       "localidad": "Del Banco Central de Nicaragua 1 c. arriba, Tierra Prometida",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.063484,
+      "longitud": -86.196726
     },
     {
       "numero": 74,
@@ -961,8 +961,8 @@
       "localidad": "Barrio La Mascota, de la antigua fábrica Santa Cecilia 300 vrs suroeste, Santa Cecilia / Bo. Ariel Darce, Distrito V, Managua, Ariel Darce",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.151739,
+      "longitud": -86.351317
     },
     {
       "numero": 75,
@@ -974,8 +974,8 @@
       "localidad": "Frente al costado norte del mercado Roberto Huembes, Isaías Gómez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.114143,
+      "longitud": -86.384844
     },
     {
       "numero": 76,
@@ -987,8 +987,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.096002,
+      "longitud": -86.220198
     },
     {
       "numero": 77,
@@ -1000,8 +1000,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.128798,
+      "longitud": -86.260378
     },
     {
       "numero": 78,
@@ -1013,8 +1013,8 @@
       "localidad": "Frente al cementerio San Pedro, Boer",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.141398,
+      "longitud": -86.35472
     },
     {
       "numero": 79,
@@ -1026,8 +1026,8 @@
       "localidad": "Contiguo a Hospital Primario Tomás Borge Martínez, Empalme Chichigalpa 200 mts al Este Carretera a León / De donde fué el Juzgado Nacional 2½ c al sur, Tierra prometida / Bo. Nora Astorga, entrada de la cancha Nicarao 4c oste 1 cuadra al norte, Barrio Nora Astorga",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.064759,
+      "longitud": -86.179447
     },
     {
       "numero": 80,
@@ -1039,8 +1039,8 @@
       "localidad": "Alcaldía 1c. Arriba, Medardo Andino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.133378,
+      "longitud": -86.164236
     },
     {
       "numero": 81,
@@ -1052,8 +1052,8 @@
       "localidad": "Parada de buses 3c. al Norte., Barrio Roldan Paz / Puesto Nuevo San Francisco Libre de la Policía 200 mts al oeste., Casco Urbano SFL",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.053296,
+      "longitud": -86.381907
     },
     {
       "numero": 82,
@@ -1065,8 +1065,8 @@
       "localidad": "Zona # 5 Mercado 1c. sur, Francisco Alvares",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.24694,
+      "longitud": -86.380439
     },
     {
       "numero": 83,
@@ -1078,8 +1078,8 @@
       "localidad": "Frente al cuerpo de bombero, Bo. Lomas de Esquipulas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.181009,
+      "longitud": -86.255075
     },
     {
       "numero": 84,
@@ -1091,8 +1091,8 @@
       "localidad": "Enacal central 1c al sur, Batahola Norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.087606,
+      "longitud": -86.378347
     },
     {
       "numero": 85,
@@ -1104,8 +1104,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.095646,
+      "longitud": -86.257041
     },
     {
       "numero": 86,
@@ -1117,8 +1117,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.013121,
+      "longitud": -86.30316
     },
     {
       "numero": 87,
@@ -1130,8 +1130,8 @@
       "localidad": "De donde la fué la Pepsi 2c. al sur, Barrio los Angeles",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.017053,
+      "longitud": -86.369937
     },
     {
       "numero": 88,
@@ -1143,8 +1143,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.040336,
+      "longitud": -86.230179
     },
     {
       "numero": 89,
@@ -1156,8 +1156,8 @@
       "localidad": "Barrio Las Mercedes, de la entrada al Barrio José Benito Escobar 3 c al sur 1 c al oeste",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.100174,
+      "longitud": -86.375951
     },
     {
       "numero": 90,
@@ -1169,8 +1169,8 @@
       "localidad": "Barrio Lomas de Esquipula, Frente a los Bomberos, dentro de las instalaciones del Hospital Primario Yolanda Mayorga",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.074521,
+      "longitud": -86.387556
     },
     {
       "numero": 91,
@@ -1182,8 +1182,8 @@
       "localidad": "Barrio Medardo Andino ,del colegio Luxemburgo 4 c/ norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.149039,
+      "longitud": -86.110193
     },
     {
       "numero": 92,
@@ -1195,8 +1195,8 @@
       "localidad": "Barrio Carlos Fonseca, contiguo a la Alcaldía",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.295946,
+      "longitud": -86.116058
     },
     {
       "numero": 93,
@@ -1208,8 +1208,8 @@
       "localidad": "Estauta de Montoya 1 cuadra abajo 1 1/2 Sur, Altagracia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.093482,
+      "longitud": -86.196822
     },
     {
       "numero": 94,
@@ -1221,8 +1221,8 @@
       "localidad": "Terminal de buses 1c. Norte, Primero de Mayo / Costado Sur Este del CNDR, Primero de mayo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.004456,
+      "longitud": -86.124768
     },
     {
       "numero": 95,
@@ -1234,8 +1234,8 @@
       "localidad": "Bo. 4 de Abril, Contiguo a la Terminal de la Ruta 115, Barrio 4 de Abril",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.128878,
+      "longitud": -86.357318
     },
     {
       "numero": 96,
@@ -1247,8 +1247,8 @@
       "localidad": "Contiguo a Escuela los Castros, Comarca Los Castros",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.175947,
+      "longitud": -86.255011
     },
     {
       "numero": 97,
@@ -1260,8 +1260,8 @@
       "localidad": "Américas # 1 contiguo a CDI Sol de Libertad, America #1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.280395,
+      "longitud": -86.112547
     },
     {
       "numero": 98,
@@ -1273,8 +1273,8 @@
       "localidad": "De donde fué la Embajada americana 1 abajo 1 c al sur, Batahola Norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.250072,
+      "longitud": -86.214027
     },
     {
       "numero": 99,
@@ -1286,8 +1286,8 @@
       "localidad": "Antigua casa comunal del barrio, Batahola Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.05929,
+      "longitud": -86.397152
     },
     {
       "numero": 100,
@@ -1299,8 +1299,8 @@
       "localidad": "Barrio Juan Francisco Estrada, contiguo a la delegación de la Policia Nacional / Bello Amanecer primera entrada 6ta calle del puente ½ abajo., Bello Amanecer / Barrio Bello Amanecer Frente al Mausoleo de San Carlos., Bello Amanecer",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.091599,
+      "longitud": -86.130126
     },
     {
       "numero": 101,
@@ -1312,8 +1312,8 @@
       "localidad": "Bo. Benedicto Valverde de la Selecta 1c al lago 2c abajo, Bo. Benedicto Valverde",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.006885,
+      "longitud": -86.184131
     },
     {
       "numero": 102,
@@ -1325,8 +1325,8 @@
       "localidad": "Comunidad Berlín, cementerio 1/2 km al este, Comarca Berlin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.191497,
+      "longitud": -86.356549
     },
     {
       "numero": 103,
@@ -1338,8 +1338,8 @@
       "localidad": "Frente a INATEC (Centro cívico), Héroes y Máartires del Bocay / Gasolinera El Guegüense 1 cuadra al sur, 1 cuadra abajo, 1/2 cuadra al sur, 1/2 cuadra abajo, Bo. Bertha Calderón",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.096383,
+      "longitud": -86.397312
     },
     {
       "numero": 104,
@@ -1351,8 +1351,8 @@
       "localidad": "Rocargo 2c al lago 1 1/2 abajo a mano izquierda., Camilo Chamorro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.127644,
+      "longitud": -86.158374
     },
     {
       "numero": 105,
@@ -1364,8 +1364,8 @@
       "localidad": "Km 13 1/2 carretera Sur 200 metros abajo, Barrio Carlos Espinoza",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.215602,
+      "longitud": -86.141552
     },
     {
       "numero": 106,
@@ -1377,8 +1377,8 @@
       "localidad": "Delegación de la Alcadía de Managua distrito seis, 1 cuadra al este., Carlos Marks",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.030477,
+      "longitud": -86.286613
     },
     {
       "numero": 107,
@@ -1390,8 +1390,8 @@
       "localidad": "Bo. Chiquilistagua, Km 13.5 Carretera Vieja León, Colegio EMSEC, Chiquilistagua",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.219484,
+      "longitud": -86.157176
     },
     {
       "numero": 108,
@@ -1403,8 +1403,8 @@
       "localidad": "Terminal de buses San Cayetano 3 km al oste, 1 km al norte , Comarca Citalapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.274641,
+      "longitud": -86.282863
     },
     {
       "numero": 109,
@@ -1416,8 +1416,8 @@
       "localidad": "Empalme San Benito Escula Simón Bolivar 1 km al este., Colonia Agricola- San Benito / Del Puente El Carmen, 1 Km sobre carretera a Waslala, carretera a Waslala",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.060788,
+      "longitud": -86.2662
     },
     {
       "numero": 110,
@@ -1429,8 +1429,8 @@
       "localidad": "Los Brasiles Gasolinera ESSO 25 vrs arriba, Barrio Daniel Roa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.087683,
+      "longitud": -86.308017
     },
     {
       "numero": 111,
@@ -1442,8 +1442,8 @@
       "localidad": "Instalaciones de Conmema Mercado Mayoreo, Barrio Concepción de María",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.216164,
+      "longitud": -86.117749
     },
     {
       "numero": 112,
@@ -1455,8 +1455,8 @@
       "localidad": "Instalación de Conmema, Mercado El Mayoreo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.109317,
+      "longitud": -86.255629
     },
     {
       "numero": 113,
@@ -1468,8 +1468,8 @@
       "localidad": "Bo. Cristo del Rosario Valcene 1c. Al sur 1/2c Abajo , Cristo Rosario",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.274946,
+      "longitud": -86.179085
     },
     {
       "numero": 114,
@@ -1481,8 +1481,8 @@
       "localidad": "Semáforo ENEL Central 1c. Sur, 1c. Arriba y 1/2c al Sur , Edgar Munguia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.136642,
+      "longitud": -86.104278
     },
     {
       "numero": 115,
@@ -1494,8 +1494,8 @@
       "localidad": "Frente al parque del Barrio Edgard Lang., Edgar Lang",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.013691,
+      "longitud": -86.362574
     },
     {
       "numero": 116,
@@ -1507,8 +1507,8 @@
       "localidad": "Comunidad El Apante, Comunidad El Apante / Del km 44 carretera a Masachapa, 1 km sur este. , Comunidad El Apante",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.274802,
+      "longitud": -86.393081
     },
     {
       "numero": 117,
@@ -1520,8 +1520,8 @@
       "localidad": "Comunidad el Brasil, El Brasil",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.163719,
+      "longitud": -86.259648
     },
     {
       "numero": 118,
@@ -1533,8 +1533,8 @@
       "localidad": "Com. El Caimito. Del km 34 1/2 carretera vieja a León, 5 km norte y 1 km al este, Comunidad El Caimito",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.223024,
+      "longitud": -86.118755
     },
     {
       "numero": 119,
@@ -1546,8 +1546,8 @@
       "localidad": "Frente a la Escuela de Primaria, El Madroño",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.097752,
+      "longitud": -86.129136
     },
     {
       "numero": 120,
@@ -1559,8 +1559,8 @@
       "localidad": "Comarca el Mayro, El Mayro",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.243117,
+      "longitud": -86.187275
     },
     {
       "numero": 121,
@@ -1572,8 +1572,8 @@
       "localidad": "Km. 43 Carretera a Masachapa, El Salto",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.158552,
+      "longitud": -86.136625
     },
     {
       "numero": 122,
@@ -1585,8 +1585,8 @@
       "localidad": "Bo. Enrique Bermúdez Contiguo a Casa de Campaña PLC, Bo. 3-80",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.243417,
+      "longitud": -86.153271
     },
     {
       "numero": 123,
@@ -1598,8 +1598,8 @@
       "localidad": "Entrada principal una cuadra al sur media arriba , Bo. Enrique Smith",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.283631,
+      "longitud": -86.399756
     },
     {
       "numero": 124,
@@ -1611,8 +1611,8 @@
       "localidad": "Costado oeste del parque, Bo. Georgino Andrade",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.10049,
+      "longitud": -86.279536
     },
     {
       "numero": 125,
@@ -1624,8 +1624,8 @@
       "localidad": "Entrada Llansa 6 Km norte, costado sur del colegio, Gutiérrez Norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.259705,
+      "longitud": -86.282792
     },
     {
       "numero": 126,
@@ -1637,8 +1637,8 @@
       "localidad": "Frente al BANPRO Sutiaba (Antiguo BANIC Sutiaba), Laborio / Bo. Hilario Sánchez, entrada a Serrania 900mts. Abajo y 500 mts. al Lago., Bo. Hilario Sanchez / Del Edificio Armando Guido 1c. este y 1/2c al lago., Bo. Hilario Sánchez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.062298,
+      "longitud": -86.371548
     },
     {
       "numero": 127,
@@ -1650,8 +1650,8 @@
       "localidad": "Carretera Norte Entrada Principal el Arco 33 Andenes al Norte, Hugo Chavez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.043564,
+      "longitud": -86.338538
     },
     {
       "numero": 128,
@@ -1663,8 +1663,8 @@
       "localidad": "UCC 3c al lago, Isaias Gomez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.2924,
+      "longitud": -86.345409
     },
     {
       "numero": 129,
@@ -1676,8 +1676,8 @@
       "localidad": "Instalación de Conmema, Mercado Israel Lewitis, Mercado Israel Lewites",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.148936,
+      "longitud": -86.118612
     },
     {
       "numero": 130,
@@ -1689,8 +1689,8 @@
       "localidad": "Instalación de Conmema, Mercado Isrrael Lewitis",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.160367,
+      "longitud": -86.197419
     },
     {
       "numero": 131,
@@ -1702,8 +1702,8 @@
       "localidad": "Instalación de Conmema, Mercado el Iván Montenegro , Mercado Ivan Montenegro / Instalación de Conmema, Mercado Iván Montenegro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.089222,
+      "longitud": -86.208795
     },
     {
       "numero": 132,
@@ -1715,8 +1715,8 @@
       "localidad": "Esso del Guegüense, 2c. al sur, 1c. abajo. 1/2c. sur., Jonathán González",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.186848,
+      "longitud": -86.248962
     },
     {
       "numero": 133,
@@ -1728,8 +1728,8 @@
       "localidad": "Rotonda 1c. al lago 3c. al Oeste 1c. al lago., Jorge Dimitrov",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.296335,
+      "longitud": -86.218734
     },
     {
       "numero": 134,
@@ -1741,8 +1741,8 @@
       "localidad": "Carretera Norte Donde fue la Maber 5 cuadra al norte, José Dolores Estrada",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.233359,
+      "longitud": -86.16848
     },
     {
       "numero": 135,
@@ -1754,8 +1754,8 @@
       "localidad": "Km. 20 Carretera la Concepción, La Borgoña",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.104693,
+      "longitud": -86.386532
     },
     {
       "numero": 136,
@@ -1767,8 +1767,8 @@
       "localidad": "Contiguo a Farmacia Griffin., Barrio 19 de Julio / Frente a Parada de buses ó contiguo a farmacia Griffin. / Carretera Norte Donde fué la Simen 12 cuadra al lago, Anexo La Primavera",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.104132,
+      "longitud": -86.16314
     },
     {
       "numero": 137,
@@ -1780,8 +1780,8 @@
       "localidad": "Comarca las Canoas, Las Canoas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.012724,
+      "longitud": -86.112093
     },
     {
       "numero": 138,
@@ -1793,8 +1793,8 @@
       "localidad": "Del Puente 4c. al sur, Las Maderas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.231824,
+      "longitud": -86.194385
     },
     {
       "numero": 139,
@@ -1806,8 +1806,8 @@
       "localidad": "Del Edificio Armando Guido 7c. al lago 1c. abajo, Bo. Las Torres",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.164066,
+      "longitud": -86.227396
     },
     {
       "numero": 140,
@@ -1819,8 +1819,8 @@
       "localidad": "Comarca Loma Alegre, Comarca Loma Alegre",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.079082,
+      "longitud": -86.234107
     },
     {
       "numero": 141,
@@ -1832,8 +1832,8 @@
       "localidad": "Del km 28 1/2 carretera vieja leon, 3 cuadras norte, Comunidad Los Cedros",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.057767,
+      "longitud": -86.271625
     },
     {
       "numero": 142,
@@ -1845,8 +1845,8 @@
       "localidad": "Comunidad Los Chocoyos. Continguo al Parque, Comarca Los Chocoyos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.023929,
+      "longitud": -86.399616
     },
     {
       "numero": 143,
@@ -1858,8 +1858,8 @@
       "localidad": "Comarca los Ladinos entrada 600m al sur, Los Ladinos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.233664,
+      "longitud": -86.147475
     },
     {
       "numero": 144,
@@ -1871,8 +1871,8 @@
       "localidad": "Del Colegio 1/2c. arriba Comarca Los Navarretes, Comarca Los Navarretes",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.018295,
+      "longitud": -86.260567
     },
     {
       "numero": 145,
@@ -1884,8 +1884,8 @@
       "localidad": "Del cuadro de béisbol 1 c. al sur , Los Ríos",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.123547,
+      "longitud": -86.323101
     },
     {
       "numero": 146,
@@ -1897,8 +1897,8 @@
       "localidad": "CDI San Judas 2c. arriba, 2 c. al sur, Luther King",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.26289,
+      "longitud": -86.210531
     },
     {
       "numero": 147,
@@ -1910,8 +1910,8 @@
       "localidad": "Contiguo a CONMEMA Zona 2, , 19 de Julio",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.290346,
+      "longitud": -86.295767
     },
     {
       "numero": 148,
@@ -1923,8 +1923,8 @@
       "localidad": "Comunidad El zambrano., Zambrano",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.059634,
+      "longitud": -86.289256
     },
     {
       "numero": 149,
@@ -1936,8 +1936,8 @@
       "localidad": "Bo. Memorial Sandino frente a la Cancha, Memorial Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.13478,
+      "longitud": -86.196716
     },
     {
       "numero": 150,
@@ -1949,8 +1949,8 @@
       "localidad": "Instalación de Conmema, Mercado Municipal, Reparto Juan Ramón Padilla / Instalación de Conmema, Mercado Municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.127042,
+      "longitud": -86.385387
     },
     {
       "numero": 151,
@@ -1962,8 +1962,8 @@
       "localidad": "Mesas de Asicaya, Mesas de Asicaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.03465,
+      "longitud": -86.290614
     },
     {
       "numero": 152,
@@ -1975,8 +1975,8 @@
       "localidad": "De las huellas de Acahualinca 1c. arriba., Acahualinca",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.133229,
+      "longitud": -86.317613
     },
     {
       "numero": 153,
@@ -1988,8 +1988,8 @@
       "localidad": "Contiguo Casa Comunal de San Andrés, Comarca San Andrés",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.148973,
+      "longitud": -86.209739
     },
     {
       "numero": 154,
@@ -2001,8 +2001,8 @@
       "localidad": "Del km 27 carretera vieja León, 500 mtrs sur y 6 cuadras abajo, Comunidad de Monte Fresco",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.170995,
+      "longitud": -86.166994
     },
     {
       "numero": 155,
@@ -2014,8 +2014,8 @@
       "localidad": "Km 9 Carretera nueva a León 500 mts al sur, 2 cuadras abajo, Motastepe",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.035736,
+      "longitud": -86.160419
     },
     {
       "numero": 156,
@@ -2027,8 +2027,8 @@
       "localidad": "Del km 34 1/2 carretera vieja a León, 3 cuadras norte y 1/2 cuadra arriba, Comunidad de Nandayosis",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.036547,
+      "longitud": -86.237187
     },
     {
       "numero": 157,
@@ -2040,8 +2040,8 @@
       "localidad": "Km. 11 1/2c Carretera Vieja León, detrás de gallera, Nejapa",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.031744,
+      "longitud": -86.389768
     },
     {
       "numero": 158,
@@ -2053,8 +2053,8 @@
       "localidad": "Sector A, punto de control 100 varas al norte, Setor A Bocay / Km 7 carretera sur, Semaforos 7 Sur, 2c. abajo, 1c. lago, 3c. Abajo., Bo. Niños Martires de Ayapal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.009933,
+      "longitud": -86.165813
     },
     {
       "numero": 159,
@@ -2066,8 +2066,8 @@
       "localidad": "Bo. Nueva Libia Rotonda Miguel Larreynaga 1c. al sur 1c abajo, Bo. Nueva Libia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.266346,
+      "longitud": -86.250065
     },
     {
       "numero": 160,
@@ -2079,8 +2079,8 @@
       "localidad": "Bo. Oronte Centeno del mamón 1 1/2c. arriba, Oronte Centeno",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.276073,
+      "longitud": -86.367947
     },
     {
       "numero": 161,
@@ -2092,8 +2092,8 @@
       "localidad": "Bo. Pochocuape Calle Principal, Comarca Pochocuape",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.127206,
+      "longitud": -86.209574
     },
     {
       "numero": 162,
@@ -2105,8 +2105,8 @@
       "localidad": "B. Rene Cisneros Semáforos CAS 1c arriba 1c abajo 1c al lago, René Cisneros",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.095573,
+      "longitud": -86.35329
     },
     {
       "numero": 163,
@@ -2118,8 +2118,8 @@
       "localidad": "De la casa de la mujer 3 cudra al lago 20 vr arriva, Rene Polanco",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.250554,
+      "longitud": -86.220867
     },
     {
       "numero": 164,
@@ -2131,8 +2131,8 @@
       "localidad": "Donde fué la Ferretería 4, 4c. arriba, Reparto Segovia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.210473,
+      "longitud": -86.134781
     },
     {
       "numero": 165,
@@ -2144,8 +2144,8 @@
       "localidad": "Puente La Reynaga 3c. Al oeste, 1 ½ al sur, Bo. Larreynaga / Costado norte Casa de las Artesanias , Reparto San Juan",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.052265,
+      "longitud": -86.170391
     },
     {
       "numero": 166,
@@ -2157,8 +2157,8 @@
       "localidad": "Instalación de Conmema, Mercado , Carlos Fonseca / Instalación de Conmema, Mercado",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.033908,
+      "longitud": -86.368949
     },
     {
       "numero": 167,
@@ -2170,8 +2170,8 @@
       "localidad": "Comarca Sábana Grande 1, Sábana Grande / Comunidad Sabana Grande, Comunidad Sabana Grande / CRUCES de los rieles 3 cuadras arriba a mano izquierda , Sabana Grande / Comunidad Sabana Grande, Sabana Grande",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.167433,
+      "longitud": -86.274184
     },
     {
       "numero": 168,
@@ -2183,8 +2183,8 @@
       "localidad": "De donde fué el cine ideal una arriba una al este , Salomón Moreno",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.294989,
+      "longitud": -86.155797
     },
     {
       "numero": 169,
@@ -2196,8 +2196,8 @@
       "localidad": "Del km 40 carretera Masachapa, 1 km abajo, Comunidad de Samaria",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.117125,
+      "longitud": -86.297035
     },
     {
       "numero": 170,
@@ -2209,8 +2209,8 @@
       "localidad": "Comarca San Blas, San Blas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.068176,
+      "longitud": -86.199414
     },
     {
       "numero": 171,
@@ -2222,8 +2222,8 @@
       "localidad": "Terminal de buses 2c. Abajo Comarca San Cayetano, Comarca San Cayetano",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.044568,
+      "longitud": -86.369929
     },
     {
       "numero": 172,
@@ -2235,8 +2235,8 @@
       "localidad": "Costado Este al Parque San Cristóbal, San Cristóbal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.283715,
+      "longitud": -86.233852
     },
     {
       "numero": 173,
@@ -2248,8 +2248,8 @@
       "localidad": "Policía Nacional 1C. al este, Bo. Zona 3 / Comarca San José de la Vega, Comarca San José de la Vega / Del Reloj 3c. Abajo, 4c. Al sur, Barrio la Libertad, Barrio La Libertad / Km 54 carretera Nandaime, Comarca San José de Gracia / Parte trasera del Calvario, 1½c. Al Sur, Calvario / Del Museo 150 vrs al norte, Germán Pomares / Contiguo a la Casa Hacienda., San José / Frente a la antigua NACSA, Bo. El Rosario / Contiguo a la casa comunal, Comunidad de San José de Pire / Final de Calle Corrales, Contiguo al Laboratorio Regional, Barrio Calle Corrales / Barrio Villa Libertad, frente al consejo supremo electoral. / Sector D, entrada a la comunidad la Chata 50 varas al Oeste., Sector B Barrio Octavio Rizo / Comarca El Carmen, Frente a cancha de basketbol de la comunidad, Comunidad El Carmen / Salida a Condega (Casco Urbano), Barrio Zona 03 / Comunidad Los Cerrones, Comunidad Cerrones 1 / Mercado Municipal, Bo. Victor Renderos, Barrio William Pineda / Mercado Municipal, Bo. Victor Renderos / Comarca El Barro, Comarca El Barro / Salida a La Comunidad de la Manzana, Bo. Juan Francisco Estrada / Contiguo a Tanque de Agua, Barrio Augusto César Sandino / Asentamiento El Carmen, Comunidad El Carmen / Contiguo a la casa materna, Barrio Juan Francisco Estrada / Comunidad Villa El Carmen, Comunidad Villa El Carmern / Villa el carmen, km 42 carretera a Masachapa, 2 1/2 c. arriba, Villa El Carmen / Comunidad Villa El Carmen, de las bodegas de la Alcaldía 2c al oeste, contiguo al Centro de Salud / Contiguo a al estación 7 de la policía , Bo. Villa Venezuela / Bo. Venezuela, Clínica Don Bosco, 2c al norte, Bo. Venezuela / Empalme San Benito 1 1/2c al sur., San Benito / Km 54 Carretera San Rafel a Masachapa de la Iglesia Católica 20 Varas al sur, San José / Km 45 carretera a Masachapa, 2 km al sur carretera San Pablo, 12 km al este, San José de la Montaña / Bo. San José Oriental de la ITR, 2c al Sur 1c abajo 1/2 al lago, Bo. San José Oriental / Comunidad San José de Monterredondo., Comarca San Jose de Masatepe / Salida Carretera vieja a Matiguás La Virgen, contiguo a la antena movistar, Barrio La Virgen / De la escuela Rosada, 150 mt al este, Barrio Bello Amanecer / Contiguo a la escuela El Carmen, El Carmen / Mercado norte contiguo a la Intendencia, Mercado Barrio Guanuca / Barrio Guanuca / Frente al Campo de Baseball. , Comunidad San Benito / Comunidad Aldea San Jose, contiguo a la escuela, Comunidad Aldea San Jose / Frente a la iglesia católica, Comarca San Jose de Paiwas / Comedor Rosari Izaguirre 1/2 c norte / Alcaldía 1c. Norte Zona Urbana, B° Carlos Díaz / Comunidad San José del Guineo, San José del Guineo / San José, Frente a Campo de Futbol, Colonia San José / De la Alcaldía 800 mts norte, San Judas / Del juzgado local 50mts al sur, Casco urbano / Comunidad El Ostional, Ostional",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.040505,
+      "longitud": -86.197086
     },
     {
       "numero": 174,
@@ -2261,8 +2261,8 @@
       "localidad": "Frente a la Casa del Brigadista Francisca Burgalin., San Pablo 1 / Costado sur iglesia católica, Comunidad de San Pablo, San Pablo / Del empalme El Naranjo 12 Km al sur, Comunidad San Pablo / Comunidad San Pablo, San Pablo abajo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.184647,
+      "longitud": -86.366703
     },
     {
       "numero": 175,
@@ -2274,8 +2274,8 @@
       "localidad": "UNA 2 1/2 abajo, a mano derecha, El Rodeo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.221086,
+      "longitud": -86.306295
     },
     {
       "numero": 176,
@@ -2287,8 +2287,8 @@
       "localidad": "Bo. Selim Shible de la Perfecta 2c. al lago, 1c. arriba, Bo.Selim Shible",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.003938,
+      "longitud": -86.159462
     },
     {
       "numero": 177,
@@ -2300,8 +2300,8 @@
       "localidad": "Instalanción de Conmema Mercado Municipal, Conmema Mercado Municipal costado norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.284962,
+      "longitud": -86.193001
     },
     {
       "numero": 178,
@@ -2313,8 +2313,8 @@
       "localidad": "Parada los Juzgados 1c. Este 2 1/2c sur , Tierra Prometida",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.247054,
+      "longitud": -86.142125
     },
     {
       "numero": 179,
@@ -2326,8 +2326,8 @@
       "localidad": "Del km 34 1/2 carretera vieja a León, 3 km al norte y 500 mts al este, Comunidad El Valle Los Aburtos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.010464,
+      "longitud": -86.340971
     },
     {
       "numero": 180,
@@ -2339,8 +2339,8 @@
       "localidad": "Km 33 1 c alsur, 1 1/2 este , Villa 15 de Septiembre",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.185785,
+      "longitud": -86.137032
     },
     {
       "numero": 181,
@@ -2352,8 +2352,8 @@
       "localidad": "Los Rieles 1 1/2 al norte, Villa Dignidad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.074683,
+      "longitud": -86.109296
     },
     {
       "numero": 182,
@@ -2365,8 +2365,8 @@
       "localidad": "Costado oeste del Colegio Rubén Darío , Bo. Villa Flor",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.179265,
+      "longitud": -86.306637
     },
     {
       "numero": 183,
@@ -2378,8 +2378,8 @@
       "localidad": "Bo. Villa Israel Entrada del Mercado Mayoreo 3c. arriba, Villa Israel",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.225152,
+      "longitud": -86.377884
     },
     {
       "numero": 184,
@@ -2391,8 +2391,8 @@
       "localidad": "Semaforos de la Villa Miguel Gutiérrez, 1 cuadra al norte, 1 cuadra al este, Villa Miguel Gutiérrez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.290352,
+      "longitud": -86.13625
     },
     {
       "numero": 185,
@@ -2404,8 +2404,8 @@
       "localidad": "Rotonda la Virgen una cuadra al Este, 3 cuadra al sur, una cuadra, al oeste, Villa Progreso",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.196493,
+      "longitud": -86.335824
     },
     {
       "numero": 186,
@@ -2417,8 +2417,8 @@
       "localidad": "Planta Eléctrica 2 cuadra al Este, 2 cuadra al norte, Villa Reconciliación Norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.116797,
+      "longitud": -86.307144
     },
     {
       "numero": 187,
@@ -2430,8 +2430,8 @@
       "localidad": "Gasolinera 2 de Agosto PETRONIC 2 c abajo 1c al lago, Villa Reconciliación Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.095848,
+      "longitud": -86.296952
     },
     {
       "numero": 188,
@@ -2443,8 +2443,8 @@
       "localidad": "Contiguo Iglesia Católica, Villa Revolución, Villa Revolucion",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.028104,
+      "longitud": -86.117741
     },
     {
       "numero": 189,
@@ -2456,8 +2456,8 @@
       "localidad": "Villa San Jacinto contiguo a Casa Comunal, Villa San Jacinto",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.234289,
+      "longitud": -86.135974
     },
     {
       "numero": 190,
@@ -2469,8 +2469,8 @@
       "localidad": "Frente a la escuela Villa Soberana, Villa Soberana",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.252211,
+      "longitud": -86.225692
     },
     {
       "numero": 191,
@@ -2482,8 +2482,8 @@
       "localidad": "Colonia Cruz Roja Española, entrada 1 Km. Al norte, Virgen Nueva / Frente al Colegio Virgen Villa de Guadalupe, Villa Guadalupe / Del BDF una cuadra al sur, 1 1/2 c. Suroeste, Barrio Zona Central / Del empalme de La Virgen 25 vrs al oeste, La Virgen",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.019257,
+      "longitud": -86.233685
     },
     {
       "numero": 192,
@@ -2495,8 +2495,8 @@
       "localidad": "Donde fué La Maber Carretera Norte 3 cuadra al Sur, 1 cuadra al este, Waspan Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.050138,
+      "longitud": -86.102948
     },
     {
       "numero": 193,
@@ -2508,8 +2508,8 @@
       "localidad": "Bosques Xiloa. Del Segundo Portón 1c. al norte, Barrio Bosques de Xiloa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.145019,
+      "longitud": -86.369662
     },
     {
       "numero": 194,
@@ -2521,8 +2521,8 @@
       "localidad": "Bo. Yuri Ordoñez Iglesia Católica 2c abajo, Yuris Ordoñez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.085135,
+      "longitud": -86.335445
     },
     {
       "numero": 195,
@@ -2534,8 +2534,8 @@
       "localidad": "Entrada Ciudad Sandino 10 vrs abajo zona 7, José Luis Vergara",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.213337,
+      "longitud": -86.280766
     },
     {
       "numero": 196,
@@ -2547,8 +2547,8 @@
       "localidad": "Entrada al triunfo 6 km b arriba, Cristo Rey",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.051651,
+      "longitud": -86.292996
     },
     {
       "numero": 197,
@@ -2560,8 +2560,8 @@
       "localidad": "Estauta de Montoya 1 cuadra abajo 1 1/2 Sur / Estauta de Montoya 1 cuadra abajo 1 1/2 Sur, Altagracia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.015822,
+      "longitud": -86.394264
     },
     {
       "numero": 9991,

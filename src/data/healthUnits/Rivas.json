@@ -12,8 +12,8 @@
       "localidad": "Del parque central 3 c al este 1 c al sur, Bo. Los Ángeles",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.591576,
+      "longitud": -85.777638
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Comunidad La Cuesta, del centro de salud 200 metros al norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.543382,
+      "longitud": -85.693651
     },
     {
       "numero": 3,
@@ -38,8 +38,8 @@
       "localidad": "Comunidad Los Jiotes, del centro de salud 200 metros al norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.631513,
+      "longitud": -85.804041
     },
     {
       "numero": 4,
@@ -51,8 +51,8 @@
       "localidad": "Comunidad Las Pilas, del centro de salud 200 metros al norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.509069,
+      "longitud": -85.75429
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": "Comunidad Los Jirones, del centro de salud 200 metros al norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.546741,
+      "longitud": -85.684161
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "Comunidad Las Salinas, del centro de salud 200 metros al norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.609218,
+      "longitud": -85.680499
     },
     {
       "numero": 7,
@@ -90,8 +90,8 @@
       "localidad": "Comunidad San José Las Pilas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.36726,
+      "longitud": -85.648286
     },
     {
       "numero": 8,
@@ -103,8 +103,8 @@
       "localidad": "Mercado Municipal del Palí 4 cuadras al norte , Barrio Oscar Turcio / Mercado Municipal Del Pali 4 cuadras al Norte / Mercado Municipal, Bo. Santa Ana",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.615397,
+      "longitud": -85.626638
     },
     {
       "numero": 9,
@@ -116,8 +116,8 @@
       "localidad": "Comunidad El Ostional, Belén",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.648403,
+      "longitud": -85.795149
     },
     {
       "numero": 10,
@@ -129,8 +129,8 @@
       "localidad": "Comunidad La Concha, Belén",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.597477,
+      "longitud": -85.817603
     },
     {
       "numero": 11,
@@ -142,8 +142,8 @@
       "localidad": "Comunidad Las Vegas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.441762,
+      "longitud": -85.815723
     },
     {
       "numero": 12,
@@ -155,8 +155,8 @@
       "localidad": "Comunidad Las Salinas de Tola",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.439423,
+      "longitud": -85.691129
     },
     {
       "numero": 13,
@@ -168,8 +168,8 @@
       "localidad": "Comarca Las Pilas Orientales, Comunidad Las Pilas O ",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.587498,
+      "longitud": -85.675208
     },
     {
       "numero": 14,
@@ -181,8 +181,8 @@
       "localidad": "Alatagracia del la alcaldia 1 cuadra al norte",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.649614,
+      "longitud": -85.76588
     },
     {
       "numero": 15,
@@ -194,8 +194,8 @@
       "localidad": "Del estadio 1 cuadra al lagomedia al sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.510848,
+      "longitud": -85.661472
     },
     {
       "numero": 16,
@@ -207,8 +207,8 @@
       "localidad": "Frente a INATEC, Altagracia la Plaza",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.49621,
+      "longitud": -85.681622
     },
     {
       "numero": 17,
@@ -220,8 +220,8 @@
       "localidad": "Contiguo al Instituto Jose Dolores Rivera, San Jorge, Bo. 19 de Julio",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.638204,
+      "longitud": -85.602746
     },
     {
       "numero": 18,
@@ -233,8 +233,8 @@
       "localidad": "De la escuela Sn José 1 c al norte 1/2 c al este, Buenos Aires",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.501588,
+      "longitud": -85.842834
     },
     {
       "numero": 19,
@@ -246,8 +246,8 @@
       "localidad": "De la Casa Materna 50 vrs al este, Potosí, Calle en medio 1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.38907,
+      "longitud": -85.618777
     },
     {
       "numero": 20,
@@ -259,8 +259,8 @@
       "localidad": "Costado oeste de la policía, Bo. Gaspar Garcia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.417749,
+      "longitud": -85.799505
     },
     {
       "numero": 21,
@@ -272,8 +272,8 @@
       "localidad": "De la iglesia Bautista de Rivas 1 1/2 cuadra al sur, Bo. Eduardo Alvarado",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.350044,
+      "longitud": -85.653078
     },
     {
       "numero": 22,
@@ -285,8 +285,8 @@
       "localidad": "De la Escuela Eloy Canales 4 c. al lago 1 c. al sur., Reparto Carlos Aguilar",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.639739,
+      "longitud": -85.715026
     },
     {
       "numero": 23,
@@ -298,8 +298,8 @@
       "localidad": "Bo. Gaspar Garcia Laviana, Delegación de la Alcaldía, Barrio Gaspar García / Contiguo a la Iglesia Católica, San Juan de la Concepción, Barrio La Mascota / Km 113 carretera a Tola, Rivas, Bo. Pedro Espinoza / Rotonda Jesús del Rescate 300 mts. al este, carretera a San Jorge, Bo. Gaspar García Laviana / Frente a iglesia Nazareno de San Juan del Sur, Zona Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.40009,
+      "longitud": -85.733715
     },
     {
       "numero": 24,
@@ -311,8 +311,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.501542,
+      "longitud": -85.826246
     },
     {
       "numero": 25,
@@ -324,8 +324,8 @@
       "localidad": "Contiguo al CDI Bo. Barberena",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.510855,
+      "longitud": -85.62172
     },
     {
       "numero": 26,
@@ -337,8 +337,8 @@
       "localidad": "Bo. Jose Esteban Galeano parada Santa Marta 3 y media cuadras al Oeste",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.625899,
+      "longitud": -85.665374
     },
     {
       "numero": 27,
@@ -350,8 +350,8 @@
       "localidad": "Frente a la plaza municipal de Moyogalpa, Bo. Luis Alfonso",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.380552,
+      "longitud": -85.646754
     },
     {
       "numero": 28,
@@ -363,8 +363,8 @@
       "localidad": "De la iglesia católica de Apompuá, 3 c al este, Apompuá",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.373004,
+      "longitud": -85.732586
     },
     {
       "numero": 29,
@@ -376,8 +376,8 @@
       "localidad": "Frente cuadro de Basse Ball, Balgue",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.484661,
+      "longitud": -85.76355
     },
     {
       "numero": 30,
@@ -389,8 +389,8 @@
       "localidad": "Detrás de la escuela de la comunidad Cantimplora, Cantimplora",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.576682,
+      "longitud": -85.804491
     },
     {
       "numero": 31,
@@ -402,8 +402,8 @@
       "localidad": "Detrás de la Escuela de la comunidad Cañas de García, Cañas de Garcia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.377573,
+      "longitud": -85.764083
     },
     {
       "numero": 32,
@@ -415,8 +415,8 @@
       "localidad": "Frente al cuadro de Baseball de Chacalapa, Chacalapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.499292,
+      "longitud": -85.606622
     },
     {
       "numero": 33,
@@ -428,8 +428,8 @@
       "localidad": "Contiguo a la base militar de Colón, Colon",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.359528,
+      "longitud": -85.633751
     },
     {
       "numero": 34,
@@ -441,8 +441,8 @@
       "localidad": "Contiguo a la Escuela de la comunidad de Cuascoto, Cuascoto",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.42053,
+      "longitud": -85.649723
     },
     {
       "numero": 35,
@@ -454,8 +454,8 @@
       "localidad": "Comunidad La Flor, de la escuela 2c al norte, La Flor / Contiguo a la iglesia católica de la Comunidad La Flor, La Flor",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.504477,
+      "longitud": -85.579958
     },
     {
       "numero": 36,
@@ -467,8 +467,8 @@
       "localidad": "Del Santuario de Popoyuapa 1 c al sur y 1/2 al oeste, Popoyoapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.484296,
+      "longitud": -85.844673
     },
     {
       "numero": 37,
@@ -480,8 +480,8 @@
       "localidad": "De la cancha de la comunidad El Astillero 1 c y media al este, El Astillero",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.400378,
+      "longitud": -85.814012
     },
     {
       "numero": 38,
@@ -493,8 +493,8 @@
       "localidad": "Frente al cuadro de baseball comunidad El Bastón, El Baston",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.629983,
+      "longitud": -85.657833
     },
     {
       "numero": 39,
@@ -506,8 +506,8 @@
       "localidad": "Comunidad El Menco, El Menco",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.401134,
+      "longitud": -85.748718
     },
     {
       "numero": 40,
@@ -519,8 +519,8 @@
       "localidad": "Contiguo a la Iglesia Católica de Escalante, Escalante",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.436696,
+      "longitud": -85.825453
     },
     {
       "numero": 41,
@@ -532,8 +532,8 @@
       "localidad": "Frente a Rancho Tere, comunidad Escamequita, Escamequita",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.479482,
+      "longitud": -85.834172
     },
     {
       "numero": 42,
@@ -545,8 +545,8 @@
       "localidad": "De la escuela Sn José 300 mts norte., San Jose del Sur",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.477882,
+      "longitud": -85.822642
     },
     {
       "numero": 43,
@@ -558,8 +558,8 @@
       "localidad": "De la escuela de la comunidad Sn Marcos 200 mts al sur, San Marcos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.618499,
+      "longitud": -85.561179
     },
     {
       "numero": 44,
@@ -571,8 +571,8 @@
       "localidad": "De la cancha del Bo. Pedro Joaquín Chamorro 1 c al oeste contiguo al CDI, Pedro Joaquín Ch",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.563331,
+      "longitud": -85.563855
     },
     {
       "numero": 45,
@@ -584,8 +584,8 @@
       "localidad": "Del puente de la comunidad La Junta 300 mts al sur, La Junta",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.501516,
+      "longitud": -85.692057
     },
     {
       "numero": 46,
@@ -597,8 +597,8 @@
       "localidad": "Del Puente 1c. arriba, Las Banderas / Kilómetro 90 carretera panamericana sur, Las Banderas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.379763,
+      "longitud": -85.652623
     },
     {
       "numero": 47,
@@ -610,8 +610,8 @@
       "localidad": "De la biblioteca pública de Las Salinas 2 cuadras y media al sur, Las Salinas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.536129,
+      "longitud": -85.632725
     },
     {
       "numero": 48,
@@ -623,8 +623,8 @@
       "localidad": "De donde fué la Texaco 3 c al lago, Rivas, Bo. Gaspar Garcia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.494345,
+      "longitud": -85.834695
     },
     {
       "numero": 49,
@@ -636,8 +636,8 @@
       "localidad": "Contiguo a la escuela de la Comunidad La Chocolata, La Chocolata",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.388443,
+      "longitud": -85.822169
     },
     {
       "numero": 50,
@@ -649,8 +649,8 @@
       "localidad": "De la Alcaldía de San Jorge, 2 c al norte, Bo. Ramon Lopez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.353896,
+      "longitud": -85.637723
     },
     {
       "numero": 51,
@@ -662,8 +662,8 @@
       "localidad": "De la Escuela Robert Driw 150 vrs norte, Mérida",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.498957,
+      "longitud": -85.62659
     },
     {
       "numero": 52,
@@ -675,8 +675,8 @@
       "localidad": "De la escuela de la comunidad Los Cerros 200 metros al oeste, Los Cerros",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.470655,
+      "longitud": -85.669766
     },
     {
       "numero": 53,
@@ -688,8 +688,8 @@
       "localidad": "Del parque de la comunidad de Nancimí 1 cuadra al sur, Nancimí",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.511858,
+      "longitud": -85.803284
     },
     {
       "numero": 54,
@@ -701,8 +701,8 @@
       "localidad": "Entrada al Menco 25 mts al sur, Pica Pica",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.419708,
+      "longitud": -85.84669
     },
     {
       "numero": 55,
@@ -714,8 +714,8 @@
       "localidad": "Contiguo al CDI Estrellitas de amor, San Jorge, Bo. Jorge Camargo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.479929,
+      "longitud": -85.65735
     },
     {
       "numero": 56,
@@ -727,8 +727,8 @@
       "localidad": "De la Escuela Eloy Canales 75 mts al sur, Rivas, La Puebla",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.615775,
+      "longitud": -85.620234
     },
     {
       "numero": 57,
@@ -740,8 +740,8 @@
       "localidad": "Costado norte de Escuela de Tichaná, Tichaná",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.587709,
+      "longitud": -85.749351
     },
     {
       "numero": 58,
@@ -753,8 +753,8 @@
       "localidad": "Comunidad Tolesmayda, Tolesmaida",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.573232,
+      "longitud": -85.694916
     },
     {
       "numero": 59,
@@ -766,8 +766,8 @@
       "localidad": "De la Iglesia católica de Urbaite 250mts oeste, Urbaite",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.512472,
+      "longitud": -85.77356
     },
     {
       "numero": 60,
@@ -779,8 +779,8 @@
       "localidad": "Frente a iglesia Nazareno de San Juan del Sur, Zona Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.540267,
+      "longitud": -85.655607
     },
     {
       "numero": 61,
@@ -792,8 +792,8 @@
       "localidad": "Costado este de Escuela Silvia Herrera, comunidad El Limonal, Limonal 1",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.466639,
+      "longitud": -85.792648
     },
     {
       "numero": 62,
@@ -805,8 +805,8 @@
       "localidad": "Del centro de salud 1 cuadra al Oeste",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.551656,
+      "longitud": -85.775158
     },
     {
       "numero": 63,
@@ -818,8 +818,8 @@
       "localidad": "Contiguo a la policia nacional Bo. El Progreso",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.555049,
+      "longitud": -85.55628
     }
   ]
 }

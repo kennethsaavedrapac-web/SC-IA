@@ -12,8 +12,8 @@
       "localidad": "Comarca La Trinidad, Comarca La Trinidad",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.147815,
+      "longitud": -85.533308
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Contiguo a la Iglesia Católica, Bo. Guadalupe",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.129211,
+      "longitud": -85.545812
     },
     {
       "numero": 3,
@@ -51,8 +51,8 @@
       "localidad": "Contiguo a la Iglesia Católica , Bo. Sector 8",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.170905,
+      "longitud": -85.545205
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": "Frente al Parque José Nieborowsky, Bo. Olama",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1001,
+      "longitud": -85.756144
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "Antiguas instalaciones Hospital Jose Nieborowski, Bo. Alcides Miranda",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.086406,
+      "longitud": -85.51178
     },
     {
       "numero": 7,
@@ -90,8 +90,8 @@
       "localidad": "Entrada a Teustepe, contiguo al CDI",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.088239,
+      "longitud": -85.583801
     },
     {
       "numero": 8,
@@ -103,8 +103,8 @@
       "localidad": "Antigua instalaciones Hospital José Nieborowsky",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.062276,
+      "longitud": -85.625462
     },
     {
       "numero": 9,
@@ -116,8 +116,8 @@
       "localidad": "Del Ministerio Mi Familia 100 mts hacia el sur., Barrio San Nicolás",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.155506,
+      "longitud": -85.60032
     },
     {
       "numero": 10,
@@ -129,8 +129,8 @@
       "localidad": "Antiguas instalaciones del C/S, Bo. San Martín, del gallo mas gallo 15 vrs al oeste",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.007149,
+      "longitud": -85.537793
     },
     {
       "numero": 11,
@@ -142,8 +142,8 @@
       "localidad": "Instalaciones del hospital primario",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.144175,
+      "longitud": -85.682054
     },
     {
       "numero": 12,
@@ -155,8 +155,8 @@
       "localidad": "Instalaciones del Hospital Primario, Bo. El Papayal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.065771,
+      "longitud": -85.530613
     },
     {
       "numero": 13,
@@ -168,8 +168,8 @@
       "localidad": "Boaco, Carretera Boaco-Muy Muy , Bo. Jorge Smith",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.92137,
+      "longitud": -85.757695
     },
     {
       "numero": 14,
@@ -181,8 +181,8 @@
       "localidad": "KM 104 Carretera al Rama, Bo. El Papayal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.890105,
+      "longitud": -85.657364
     },
     {
       "numero": 15,
@@ -194,8 +194,8 @@
       "localidad": "Contiguo al Cenro de Salud Ramon Toledo Sotelo en las Antiguas instalaciones del HJN. / Sector No 1 Contiguo al Centro de salud, Barrio Pedro Altamirano",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.093795,
+      "longitud": -85.49874
     },
     {
       "numero": 16,
@@ -207,8 +207,8 @@
       "localidad": "Costado sur del Taburete, Bo. Guadalupe / Costado sur del Taburete",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.14467,
+      "longitud": -85.620527
     },
     {
       "numero": 17,
@@ -220,8 +220,8 @@
       "localidad": "Comarca Boaco Viejo, Comarca Boaco Viejo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.166625,
+      "longitud": -85.693984
     },
     {
       "numero": 18,
@@ -233,8 +233,8 @@
       "localidad": "Comarca Boaquito, Comarca Boaquito",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.077838,
+      "longitud": -85.623257
     },
     {
       "numero": 19,
@@ -246,8 +246,8 @@
       "localidad": "Antiguas instalaciones centro de salud San Francisco, Bo. San Martín",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.114027,
+      "longitud": -85.76153
     },
     {
       "numero": 20,
@@ -259,8 +259,8 @@
       "localidad": "Comunidad El Coyol, Comunidad El Coyol",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.989313,
+      "longitud": -85.690253
     },
     {
       "numero": 21,
@@ -272,8 +272,8 @@
       "localidad": "Empalme de Boaco KM 75 carretera Rama, El Empalme de Boaco / Comunidad El Empalme, Comunidad El Empalme",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.070367,
+      "longitud": -85.610983
     },
     {
       "numero": 22,
@@ -285,8 +285,8 @@
       "localidad": "Comarca El Incendio, Comarca El Incendio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.995332,
+      "longitud": -85.594923
     },
     {
       "numero": 23,
@@ -298,8 +298,8 @@
       "localidad": "Comarca Masapa, Comarca Masapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.928964,
+      "longitud": -85.638481
     },
     {
       "numero": 24,
@@ -311,8 +311,8 @@
       "localidad": "Mercado Municipal de Boaco",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.176606,
+      "longitud": -85.659887
     },
     {
       "numero": 25,
@@ -324,8 +324,8 @@
       "localidad": "Mercado Municipal de Boaco, Bo. San Francisco",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.119521,
+      "longitud": -85.58944
     },
     {
       "numero": 26,
@@ -337,8 +337,8 @@
       "localidad": "Contiguo a la Iglesia Católica, comarca Kumaica Sur, Kumaica Sur",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.963093,
+      "longitud": -85.519621
     },
     {
       "numero": 27,
@@ -350,8 +350,8 @@
       "localidad": "Comarca La Calamidad, Comarca La Calamidad",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.145033,
+      "longitud": -85.769028
     },
     {
       "numero": 28,
@@ -363,8 +363,8 @@
       "localidad": "Entrada del Crucero de Teustepe 5 Km al este, La Cuesta del Rosario",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.009344,
+      "longitud": -85.774479
     },
     {
       "numero": 29,
@@ -376,8 +376,8 @@
       "localidad": "Comarca La Embajada, Comarca La Embajada",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.096188,
+      "longitud": -85.694873
     },
     {
       "numero": 30,
@@ -389,8 +389,8 @@
       "localidad": "Comarca Las Cañitas del Instituto de Teustepe 25 Km al este, Comarca Las Cañitas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.993598,
+      "longitud": -85.567205
     },
     {
       "numero": 31,
@@ -402,8 +402,8 @@
       "localidad": "del poso comunal 250 mtros al oeste, la jaguita",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.077787,
+      "longitud": -85.55835
     },
     {
       "numero": 32,
@@ -415,8 +415,8 @@
       "localidad": "Comarca Las Lagunas, Comarca Las Lagunas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.106045,
+      "longitud": -85.547275
     },
     {
       "numero": 33,
@@ -428,8 +428,8 @@
       "localidad": "Comarca Las Lajas, Comarca Las Lajas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.92278,
+      "longitud": -85.735047
     },
     {
       "numero": 34,
@@ -441,8 +441,8 @@
       "localidad": "18 Kms al oeste del Centro de Salud comarca Los Bajos de Tomatoya, Los Bajos de Tomatoya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.999765,
+      "longitud": -85.551008
     },
     {
       "numero": 35,
@@ -454,8 +454,8 @@
       "localidad": "Comarca Los Cocos, Comarca Los Cocos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.077273,
+      "longitud": -85.581041
     },
     {
       "numero": 36,
@@ -467,8 +467,8 @@
       "localidad": "Mercado Municipal de Camoapa",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.146768,
+      "longitud": -85.562699
     },
     {
       "numero": 37,
@@ -480,8 +480,8 @@
       "localidad": "Comarca Miramontes, Comarca Miramontes",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.910179,
+      "longitud": -85.542826
     },
     {
       "numero": 38,
@@ -493,8 +493,8 @@
       "localidad": "Comarca Monte Verde, Comarca Monte Verde",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.14053,
+      "longitud": -85.620584
     },
     {
       "numero": 39,
@@ -506,8 +506,8 @@
       "localidad": "Comarca Platanar Norte, Comarca Platanar Norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.17435,
+      "longitud": -85.576946
     },
     {
       "numero": 40,
@@ -519,8 +519,8 @@
       "localidad": "Comarca San Buenaventura, San Buenaventura",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.106273,
+      "longitud": -85.503358
     },
     {
       "numero": 41,
@@ -532,8 +532,8 @@
       "localidad": "Carrtera hacia San José, de San Diego 15 Km en adelante, San Jerónimo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.000748,
+      "longitud": -85.780156
     },
     {
       "numero": 42,
@@ -545,8 +545,8 @@
       "localidad": "Contiguo a la Iglesia Juan Pablo II., Bo. San Nicolás",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.080095,
+      "longitud": -85.549564
     },
     {
       "numero": 43,
@@ -558,8 +558,8 @@
       "localidad": "Asentamiento Santa Elisa, Santa Elisa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.146234,
+      "longitud": -85.487692
     },
     {
       "numero": 44,
@@ -571,8 +571,8 @@
       "localidad": "Comarca Santa Inés, Comarca Santa Inés",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.015184,
+      "longitud": -85.625958
     },
     {
       "numero": 45,
@@ -584,8 +584,8 @@
       "localidad": "Kilómetro 101 Carretera al Rama, Bo. German Pomares Ordoñez",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.125019,
+      "longitud": -85.663695
     },
     {
       "numero": 46,
@@ -597,8 +597,8 @@
       "localidad": "Comarca Tierra Azul, Tierra Azúl",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.951825,
+      "longitud": -85.696164
     },
     {
       "numero": 47,
@@ -610,8 +610,8 @@
       "localidad": "Comarca Yula Sacal, Comarca Yula Sacal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.894048,
+      "longitud": -85.564622
     }
   ]
 }
