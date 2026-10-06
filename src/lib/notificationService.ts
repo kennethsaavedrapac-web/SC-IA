@@ -196,18 +196,25 @@ export const subscribeToPushNotifications = async (userId: string) => {
     const registration = await navigator.serviceWorker.ready;
     let subscription = await registration.pushManager.getSubscription();
     
-    
     if (!subscription) {
       const publicVapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-      if (!publicVapidKey || publicVapidKey === "tu_vapid_public_key_aqui" || publicVapidKey.includes("YOUR_")) {
+      if (!publicVapidKey || publicVapidKey === "tu_vapid_public_key_aqui" || publicVapidKey.includes("YOUR_") || publicVapidKey.length < 80) {
         console.warn("VITE_VAPID_PUBLIC_KEY no está configurada con una clave válida. Saltando suscripción Push.");
         return false;
       }
       
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-      });
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+      } catch (subscribeErr) {
+        if (subscribeErr instanceof DOMException && (subscribeErr.name === "AbortError" || subscribeErr.name === "InvalidAccessError")) {
+          console.warn("No se pudo registrar la suscripción Push (clave VAPID inválida o bloqueo de red).", subscribeErr);
+          return false;
+        }
+        throw subscribeErr;
+      }
     }
 
     

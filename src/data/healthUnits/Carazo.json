@@ -12,8 +12,8 @@
       "localidad": "Iglesia de Esquipulas, 100 mts arriba, Esquipulas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.976266,
+      "longitud": -86.018258
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Comunidad San Marcos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.952493,
+      "longitud": -85.937151
     },
     {
       "numero": 3,
@@ -38,8 +38,8 @@
       "localidad": "Casares",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.96114,
+      "longitud": -86.094666
     },
     {
       "numero": 4,
@@ -51,8 +51,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.848343,
+      "longitud": -85.971508
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.875856,
+      "longitud": -86.143167
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "Instituto Juan XXII, 1 ½c. Al norte, colonia Manuel Moya, Manuel Moya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.92881,
+      "longitud": -86.113456
     },
     {
       "numero": 7,
@@ -90,8 +90,8 @@
       "localidad": "De PLASTINIC 6c. Abajo 1 1/2 c. Al Sur, Dolores Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.004282,
+      "longitud": -86.034591
     },
     {
       "numero": 8,
@@ -103,8 +103,8 @@
       "localidad": "Detrás de la iglesia católica, El Rosario Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.102163,
+      "longitud": -85.998184
     },
     {
       "numero": 9,
@@ -116,8 +116,8 @@
       "localidad": "Costado norte de la iglesia católica, El Calvario / Centro Salud 100 varas al este , Bo. El Calvario",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.898167,
+      "longitud": -86.368406
     },
     {
       "numero": 10,
@@ -129,8 +129,8 @@
       "localidad": "Contiguo al estadio municipal de Santa Teresa, Barrio San José, Casco Urbano",
       "zona": "Urbano / Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.989417,
+      "longitud": -86.056943
     },
     {
       "numero": 11,
@@ -142,8 +142,8 @@
       "localidad": "Contiguo a Talller de los Espinozas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.820553,
+      "longitud": -85.967702
     },
     {
       "numero": 12,
@@ -155,8 +155,8 @@
       "localidad": "Detrás de la colonia del Maestro, Sector Román Esteban",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.999995,
+      "longitud": -86.197289
     },
     {
       "numero": 13,
@@ -168,8 +168,8 @@
       "localidad": "Costado Sur Estadio Fútbol Cacique Diriangén, Barrio Roberto López",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.006127,
+      "longitud": -86.168966
     },
     {
       "numero": 14,
@@ -181,8 +181,8 @@
       "localidad": "De Bancentro 6 Cuadras Al Sur Jinotepe,carazo, Jinotepe, Carazo",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.891554,
+      "longitud": -86.307317
     },
     {
       "numero": 15,
@@ -194,8 +194,8 @@
       "localidad": "Km 49 1/2 Carretera Sur Jinotepe-Nandaime, Carazo, Jinotepe, Nicaragua",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.892077,
+      "longitud": -86.341013
     },
     {
       "numero": 16,
@@ -207,8 +207,8 @@
       "localidad": "Primera entrada barrio José Antonio Sánchez, Barrio Josè Antonio Sànchez Salazar",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.102691,
+      "longitud": -86.106272
     },
     {
       "numero": 17,
@@ -220,8 +220,8 @@
       "localidad": "Costado Oeste Centro de Salud, Reparto Eduardo Lòpez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.822644,
+      "longitud": -86.144967
     },
     {
       "numero": 18,
@@ -233,8 +233,8 @@
       "localidad": "De la Estaciòn de Bomberos 75 vrs al Norte, Bo. Ernesto Navarrete",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.084478,
+      "longitud": -85.968769
     },
     {
       "numero": 19,
@@ -246,8 +246,8 @@
       "localidad": "Instalaciones del C/S Manuel de Jesus Rivera, Santa Cecilia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.99463,
+      "longitud": -86.299984
     },
     {
       "numero": 20,
@@ -259,8 +259,8 @@
       "localidad": "Escuela Luis León, 3c. Al este, Ana Virgen",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.84035,
+      "longitud": -86.093095
     },
     {
       "numero": 21,
@@ -272,8 +272,8 @@
       "localidad": "Comunidad Cañas Blancas , Cañas Blanca",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.877295,
+      "longitud": -85.974338
     },
     {
       "numero": 22,
@@ -285,8 +285,8 @@
       "localidad": "Costado norte del colegio Rubén Darío, Casares",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.910493,
+      "longitud": -86.070175
     },
     {
       "numero": 23,
@@ -298,8 +298,8 @@
       "localidad": "Contiguo a la iglesia, Sector 2 del Aguacate.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.038832,
+      "longitud": -86.117117
     },
     {
       "numero": 24,
@@ -311,8 +311,8 @@
       "localidad": "De la Parada, 100 mts al este, Comarca El Sol",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.989944,
+      "longitud": -86.291537
     },
     {
       "numero": 25,
@@ -324,8 +324,8 @@
       "localidad": "Iglesia 2c. Abajo, Guisquiliapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.00773,
+      "longitud": -86.124127
     },
     {
       "numero": 26,
@@ -337,8 +337,8 @@
       "localidad": "Contiguo a la escuela Huehuete, Huehuete",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.039841,
+      "longitud": -86.051746
     },
     {
       "numero": 27,
@@ -350,8 +350,8 @@
       "localidad": "Donde fue Palmas del Mar, Centro Turisticos, La Boquita",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.872439,
+      "longitud": -86.008185
     },
     {
       "numero": 28,
@@ -363,8 +363,8 @@
       "localidad": "Contiguo a la escuela La chona, La Chona",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.932444,
+      "longitud": -86.219079
     },
     {
       "numero": 29,
@@ -376,8 +376,8 @@
       "localidad": "Esquina opuesta al Hospital San José, Barrio La Libertad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.948928,
+      "longitud": -86.121196
     },
     {
       "numero": 30,
@@ -389,8 +389,8 @@
       "localidad": "Mercado Municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.11228,
+      "longitud": -86.059084
     },
     {
       "numero": 31,
@@ -402,8 +402,8 @@
       "localidad": "Mercado municipal, costado oeste, La Mascota",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.901281,
+      "longitud": -85.93347
     },
     {
       "numero": 32,
@@ -415,8 +415,8 @@
       "localidad": "Contiguo al retiro La Palmera, barrio La Palmera, La Palmera",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.097997,
+      "longitud": -85.99287
     },
     {
       "numero": 33,
@@ -428,8 +428,8 @@
       "localidad": "Frente a la escuela de La Pita , Comarca La Pita",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.930609,
+      "longitud": -86.017856
     },
     {
       "numero": 34,
@@ -441,8 +441,8 @@
       "localidad": "Barrio La Trinidad, Primera parada 300 vrs al norte, La Trinidad",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.837392,
+      "longitud": -86.137674
     },
     {
       "numero": 35,
@@ -454,8 +454,8 @@
       "localidad": "Sector Central de La Vainilla, Comarca La Vainilla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.923417,
+      "longitud": -86.159478
     },
     {
       "numero": 36,
@@ -467,8 +467,8 @@
       "localidad": "Contiguo a la escuela Marvín Corrales, Marvin Corrales",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.938477,
+      "longitud": -86.091088
     },
     {
       "numero": 37,
@@ -480,8 +480,8 @@
       "localidad": "Puesto de la Policía, 4c al oeste 1c al sur , Las Esquinas",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.864695,
+      "longitud": -86.111279
     },
     {
       "numero": 38,
@@ -493,8 +493,8 @@
       "localidad": "Primera entrada comunidad la Solera, Comarca La Solera",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.89377,
+      "longitud": -86.218003
     },
     {
       "numero": 39,
@@ -506,8 +506,8 @@
       "localidad": "Frente a los bomberos, Barrio San Josè / Costado Sur de AGRIMERSA 1/2 c. Al sur, San Felipe",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.025136,
+      "longitud": -86.039435
     },
     {
       "numero": 40,
@@ -519,8 +519,8 @@
       "localidad": "Basurero Municipal 2km al oeste, Roma Esteban",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.929389,
+      "longitud": -85.967962
     },
     {
       "numero": 41,
@@ -532,8 +532,8 @@
       "localidad": "Esquina opuesta a la iglesia católica, San Gregorio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.072282,
+      "longitud": -85.957942
     },
     {
       "numero": 42,
@@ -545,8 +545,8 @@
       "localidad": "Frente a la iglesia católica, San Vicente",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.022895,
+      "longitud": -86.078614
     },
     {
       "numero": 43,
@@ -558,8 +558,8 @@
       "localidad": "Del Puente 400 mts al norte, 100 mts al este, 50 mts al norte, Santa Lucia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.888042,
+      "longitud": -85.946966
     },
     {
       "numero": 44,
@@ -571,8 +571,8 @@
       "localidad": "Del Hospital del Maestro, 2 cuadras al oeste, Barrio Silvio Gonzàlez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.987535,
+      "longitud": -86.113041
     },
     {
       "numero": 45,
@@ -584,8 +584,8 @@
       "localidad": "Contiguo al parque Villa Madre Poletaria #1, Villa Madre Proletaria",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.969655,
+      "longitud": -86.03169
     },
     {
       "numero": 46,

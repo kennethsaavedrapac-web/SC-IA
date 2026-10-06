@@ -6,6 +6,7 @@ import { AlertTriangle, Phone, Siren, Building2, Hospital, Pill, Stethoscope } f
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabaseClient";
 import MedicalCategoryCarousel, { type MedicalCategory } from "./MedicalCategoryCarousel";
+import { getGoogleMapsRouteUrl } from "../lib/routeUtils";
 
 interface CentrosViewProps {
   onNavigate?: (tab: "home" | "consulta" | "buscar" | "premium" | "perfil") => void;
@@ -90,7 +91,7 @@ function getNearestHospital(
 
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
-  const [locationQuery, setLocationQuery] = useState("Granada");
+  const [locationQuery, setLocationQuery] = useState("");
   const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
     HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
   );
@@ -105,6 +106,10 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const [mergedCenters, setMergedCenters] = useState<HealthCenter[]>(HEALTH_CENTERS);
   const [selectedCarouselCategory, setSelectedCarouselCategory] = useState("centros");
   const [isDarkMode, setIsDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+
+  const userLocationRef = React.useRef<UserLocation | null>(null);
+  const hasInitialLocatedRef = React.useRef(false);
+  const lastGeocodedCoordsRef = React.useRef<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -245,12 +250,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           longitude: position.coords.longitude,
           accuracy: position.coords.accuracy,
         };
+        userLocationRef.current = userLoc;
         setUserLocation(userLoc);
         setGeoStatus("ready");
         setGeoError("");
         setLocationMode("nearby");
-
-
 
         const nearestCenter = mergedCenters
           .filter((center) => center.latitude && center.longitude)
@@ -292,34 +296,35 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           accuracy: position.coords.accuracy,
         };
 
-
-
+        const prevLoc = userLocationRef.current;
         let shouldUpdate = true;
-        if (userLocation) {
-          const distanceMeters = getDistanceKm(userLoc, userLocation as unknown as HealthCenter) * 1000;
-
-
-          if (distanceMeters < 10) {
+        if (prevLoc) {
+          const distanceMeters = getDistanceKm(userLoc, prevLoc as unknown as HealthCenter) * 1000;
+          if (distanceMeters < 15) {
             shouldUpdate = false;
           }
         }
 
         if (shouldUpdate) {
+          userLocationRef.current = userLoc;
           setUserLocation(userLoc);
           setGeoStatus("ready");
           setGeoError("");
-          setLocationMode("nearby");
 
+          // Solo auto-seleccionar el centro más cercano en la primera detección
+          if (!hasInitialLocatedRef.current) {
+            hasInitialLocatedRef.current = true;
+            setLocationMode("nearby");
 
+            const nearestCenter = mergedCenters
+              .filter((center) => center.latitude && center.longitude)
+              .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+              .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
-          const nearestCenter = mergedCenters
-            .filter((center) => center.latitude && center.longitude)
-            .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-            .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-          if (nearestCenter) {
-            setActiveFilter("centro");
-            setSelectedCenter(nearestCenter);
+            if (nearestCenter) {
+              setActiveFilter("centro");
+              setSelectedCenter(nearestCenter);
+            }
           }
         }
       },
@@ -336,10 +341,21 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters, activeFilter, selectedCenter]);
+  }, [mergedCenters]);
 
   useEffect(() => {
     if (!userLocation) return;
+
+    // Throttle: no repetir reverse geocode si el usuario no se movió más de 1 km
+    if (lastGeocodedCoordsRef.current) {
+      const distKm = getDistanceKm(
+        userLocation,
+        { latitude: lastGeocodedCoordsRef.current.lat, longitude: lastGeocodedCoordsRef.current.lng } as HealthCenter
+      );
+      if (distKm < 1.0) {
+        return;
+      }
+    }
 
     const nearestCenter = mergedCenters
       .filter((center) => center.latitude && center.longitude)
@@ -358,10 +374,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         const data = await response.json();
         const address = data.address || {};
         const city = address.city || address.town || address.village || address.municipality || address.county || fallbackCity;
+        lastGeocodedCoordsRef.current = { lat: userLocation.latitude, lng: userLocation.longitude };
         setDetectedCity(city);
         setLocationQuery(city || "Mi ubicación");
       } catch (error) {
         if (!controller.signal.aborted) {
+          lastGeocodedCoordsRef.current = { lat: userLocation.latitude, lng: userLocation.longitude };
           setDetectedCity(fallbackCity);
           setLocationQuery(fallbackCity || "Mi ubicación");
         }
@@ -373,99 +391,104 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     return () => controller.abort();
   }, [userLocation, mergedCenters]);
 
-  const filteredCenters = useMemo(() => {
-    const typeFilteredCenters = mergedCenters.filter((center) => {
+  // Pre-normalizar atributos estáticos de búsqueda para evitar cálculos repetitivos en cada render
+  const normalizedCenters = useMemo(() => {
+    return mergedCenters.map((center) => {
       const typeText = normalizeQuery(center.type);
       const centerId = center.id || "";
-
-      // Doctor IDs always start with "doctor-"
-      const isDoctorEntry = centerId.startsWith("doctor-") ||
+      const isDoctorEntry =
+        centerId.startsWith("doctor-") ||
         typeText.includes("medico de familia") ||
         typeText.includes("nefrologo") ||
         typeText.includes("clinica ambulatoria");
-
       const isHospital = typeText.includes("hospital") && !isDoctorEntry;
       const isFarmacia = typeText.includes("farmacia") || typeText.includes("botica");
+      const isCentro =
+        !isHospital && !isFarmacia && !isDoctorEntry && (typeText.includes("centro") || typeText.includes("puesto"));
 
-      let matchesType = false;
+      const searchableText = normalizeQuery(
+        [center.name, center.department, center.municipality, center.locality, center.silais]
+          .filter(Boolean)
+          .join(" "),
+      );
 
-      if (activeFilter === "hospital") {
-        matchesType = isHospital;
-      } else if (activeFilter === "centro") {
-        // Centros/Puestos de salud: exclude hospitals, pharmacies, and doctors
-        matchesType = !isHospital && !isFarmacia && !isDoctorEntry &&
-          (typeText.includes("centro") || typeText.includes("puesto"));
-      } else if (activeFilter === "farmacia") {
-        matchesType = isFarmacia;
-      } else if (activeFilter === "medico") {
-        matchesType = isDoctorEntry;
-      } else {
-        // "todos" - show everything
-        matchesType = true;
-      }
+      const centerCity = normalizeQuery(center.municipality ?? "");
 
-      return matchesType;
-    });
-
-
-    const centersWithStatus = typeFilteredCenters.map(center => {
-      const status = getCenterOperatingStatus(center.type, center.schedule);
       return {
-        ...center,
-        distanceKm: userLocation ? getDistanceKm(userLocation, center) : undefined,
-        isOpenNow: status.isOpen
+        center,
+        isDoctorEntry,
+        isHospital,
+        isFarmacia,
+        isCentro,
+        searchableText,
+        centerCity,
       };
     });
+  }, [mergedCenters]);
 
-    let finalCenters = centersWithStatus;
+  // FIX 1 ─ Separar filtrado estable (sin userLocation) del cálculo de distancias.
+  // La lista filtrada para el MAPA no debe re-crearse cuando el GPS cambia;
+  // solo re-crea cuando cambia el filtro, la búsqueda o los centros base.
+  const filteredCentersBase = useMemo(() => {
+    const typeFiltered = normalizedCenters.filter((item) => {
+      if (activeFilter === "hospital") return item.isHospital;
+      if (activeFilter === "centro") return item.isCentro;
+      if (activeFilter === "farmacia") return item.isFarmacia;
+      if (activeFilter === "medico") return item.isDoctorEntry;
+      return true;
+    });
 
+    let finalItems = typeFiltered;
+
+    if (locationMode !== "nearby") {
+      const query = normalizeQuery(locationQuery.trim());
+      if (query) {
+        finalItems = typeFiltered.filter((item) => item.searchableText.includes(query));
+      }
+    }
+
+    return finalItems.map((item) => {
+      const status = getCenterOperatingStatus(item.center.type, item.center.schedule);
+      return {
+        ...item.center,
+        _searchableText: item.searchableText,
+        _centerCity: item.centerCity,
+        isOpenNow: status.isOpen,
+      };
+    });
+  }, [activeFilter, locationMode, locationQuery, normalizedCenters]);
+
+  // FIX 2 ─ Aplicar filtro de cercanos y distancias SOLO para la lista UI;
+  // este memo cambia con GPS pero NO se conecta a centersData del mapa.
+  const filteredCenters = useMemo(() => {
     if (locationMode === "nearby" && userLocation) {
       const normalizedCity = normalizeQuery(detectedCity);
-
-
-      const centersByDistance = centersWithStatus
-        .filter((center) => center.latitude && center.longitude && center.distanceKm! <= NEARBY_RADIUS_KM)
+      const withDistance = filteredCentersBase.map((c) => ({
+        ...c,
+        distanceKm: getDistanceKm(userLocation, c),
+      }));
+      const centersByDistance = withDistance
+        .filter((c) => c.latitude && c.longitude && (c.distanceKm ?? Infinity) <= NEARBY_RADIUS_KM)
         .sort((a, b) => {
           if (a.isOpenNow && !b.isOpenNow) return -1;
           if (!a.isOpenNow && b.isOpenNow) return 1;
           return (a.distanceKm ?? 0) - (b.distanceKm ?? 0);
         });
-
-      const centersInDetectedCity = centersByDistance
-        .filter((center) => {
-          const centerCity = normalizeQuery(center.municipality ?? "");
-          return (
-            !normalizedCity ||
-            centerCity.includes(normalizedCity) ||
-            normalizedCity.includes(centerCity)
-          );
-        });
-
-      finalCenters = centersInDetectedCity.length > 0 ? centersInDetectedCity : centersByDistance;
-    } else {
-      const query = normalizeQuery(locationQuery.trim());
-      if (query) {
-        finalCenters = centersWithStatus.filter((center) => {
-          const searchableText = normalizeQuery(
-            [center.name, center.department, center.municipality, center.locality, center.silais]
-              .filter(Boolean)
-              .join(" "),
-          );
-          return searchableText.includes(query);
-        });
-      }
+      const centersInCity = centersByDistance.filter(
+        (c) => !normalizedCity || c._centerCity.includes(normalizedCity) || normalizedCity.includes(c._centerCity)
+      );
+      return centersInCity.length > 0 ? centersInCity : centersByDistance;
     }
+    return filteredCentersBase.map((c) => ({ ...c, distanceKm: undefined }));
+  }, [filteredCentersBase, locationMode, userLocation, detectedCity]);
 
-    return finalCenters;
-  }, [activeFilter, detectedCity, locationMode, locationQuery, userLocation, mergedCenters]);
-  const visibleCenters = filteredCenters.slice(0, 60);
+  const visibleCenters = useMemo(() => filteredCenters.slice(0, 60), [filteredCenters]);
 
   useEffect(() => {
     if (!filteredCenters.length) {
       setSelectedCenter(null);
       return;
     }
-
     if (!selectedCenter || !filteredCenters.some((center) => center.id === selectedCenter.id)) {
       setSelectedCenter(filteredCenters[0]);
     }
@@ -479,124 +502,146 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
   const selectedLocationLabel = locationMode === "nearby"
     ? detectedCity || "Mi ubicación"
     : locationQuery.trim() || "Nicaragua";
-  const selectedCenterSearch = selectedCenter
-    ? [
-      selectedCenter.name,
-      selectedCenter.locality,
-      selectedCenter.municipality,
-      selectedCenter.department,
-      "Nicaragua",
-    ]
-      .filter(Boolean)
-      .join(", ")
-    : `${selectedLocationLabel}, Nicaragua`;
-  const selectedCenterMapQuery =
-    selectedCenter?.latitude && selectedCenter?.longitude
-      ? `${selectedCenter.latitude},${selectedCenter.longitude}`
-      : userLocation
-        ? `${userLocation.latitude},${userLocation.longitude}`
-        : selectedCenterSearch;
-  const openStreetMapSearchUrl =
-    userLocation && selectedCenter?.latitude && selectedCenter?.longitude
-      ? `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${userLocation.latitude}%2C${userLocation.longitude}%3B${selectedCenter.latitude}%2C${selectedCenter.longitude}`
-      : `https://www.openstreetmap.org/search?query=${encodeURIComponent(selectedCenterMapQuery)}`;
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const getMapCategory = (type: string, id?: string): "hospital" | "centro_salud" | "farmacia" | "medico" | null => {
     const t = normalizeQuery(type || "");
     const centerId = id || "";
-
     const isDoctor = centerId.startsWith("doctor-") ||
-      t.includes("medico de familia") ||
-      t.includes("nefrologo") ||
-      t.includes("cardiologia") ||
-      t.includes("dermatologia") ||
-      t.includes("pediatria") ||
-      t.includes("ginecologia") ||
-      t.includes("traumatologia") ||
-      t.includes("medicina general") ||
-      t.includes("clinica ambulatoria");
-
+      t.includes("medico de familia") || t.includes("nefrologo") || t.includes("cardiologia") ||
+      t.includes("dermatologia") || t.includes("pediatria") || t.includes("ginecologia") ||
+      t.includes("traumatologia") || t.includes("medicina general") || t.includes("clinica ambulatoria");
     if (isDoctor) return "medico";
     if (t.includes("hospital")) return "hospital";
     if (centerId.startsWith("pharmacy-") || t.includes("farmacia") || t.includes("botica")) return "farmacia";
     return "centro_salud";
   };
 
-  const mapCentersData = (centers: typeof filteredCenters) => {
-    return centers
+  // FIX 3 ─ centersData solo depende de filteredCentersBase (estable), no de userLocation.
+  // El mapa no necesita las distancias; solo lat/lng/category/id/name.
+  const centersData = useMemo(() => {
+    return filteredCentersBase
       .filter((c) => c.latitude && c.longitude)
       .map((c) => {
         const category = getMapCategory(c.type, c.id);
         if (!category) return null;
-        return {
-          id: c.id,
-          name: c.name,
-          type: c.type,
-          lat: c.latitude,
-          lng: c.longitude,
-          category,
-        };
+        return { id: c.id, name: c.name, type: c.type, lat: c.latitude!, lng: c.longitude!, category };
       })
       .filter((c): c is NonNullable<typeof c> => c !== null);
-  };
+  }, [filteredCentersBase]);
+
+  const lastSentCentersRef = React.useRef<typeof centersData>([]);
+  const lastSelectedIdRef = React.useRef<string | null>(null);
+  // FIX 4 ─ Refs para acceder a valores actuales dentro de listeners estables
+  const mergedCentersRef = React.useRef(mergedCenters);
+  mergedCentersRef.current = mergedCenters;
+  const centersDataRef = React.useRef(centersData);
+  centersDataRef.current = centersData;
+  const selectedCenterRef = React.useRef(selectedCenter);
+  selectedCenterRef.current = selectedCenter;
+  const userLocationRef2 = React.useRef(userLocation);
+  userLocationRef2.current = userLocation;
+  const isDarkModeRef = React.useRef(isDarkMode);
+  isDarkModeRef.current = isDarkMode;
+
+  // El GPS se resuelve de forma asíncrona respecto a la carga del iframe. Al
+  // llegar, se reenvía al mapa para que pueda hacer su único encuadre inicial.
+  useEffect(() => {
+    if (!userLocation) return;
+    iframeRef.current?.contentWindow?.postMessage({
+      type: "UPDATE_USER_LOCATION",
+      userLocation,
+      initialCenter: true,
+    }, "*");
+  }, [userLocation]);
 
   const handleRecenter = () => {
     if (userLocation) {
       iframeRef.current?.contentWindow?.postMessage({
-        type: "UPDATE_DATA",
-        centers: mapCentersData(filteredCenters),
-        selectedId: selectedCenter?.id || null,
+        type: "UPDATE_USER_LOCATION",
         userLocation: userLocation,
-        forceCenterOnUser: true,
+        forceCenter: true,
       }, "*");
     } else {
       requestCurrentLocation();
     }
   };
 
-
+  // FIX 5 ─ Listener de mensajes del mapa con dependencia en ref, no en estado.
+  // Esto evita que el listener se destruya y re-cree en cada update de mergedCenters.
   useEffect(() => {
     const handleMapMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === "SELECT_CENTER") {
-        const center = mergedCenters.find((c) => c.id === event.data.centerId);
+        const center = mergedCentersRef.current.find((c) => c.id === event.data.centerId);
         if (center) {
-          setSelectedCenter(center);
+          setSelectedCenter((prev) => (prev?.id === center.id ? prev : center));
         }
       }
     };
     window.addEventListener("message", handleMapMessage);
     return () => window.removeEventListener("message", handleMapMessage);
-  }, [mergedCenters]);
+  }, []); // [] ─ se registra una sola vez para toda la vida del componente
 
+  // FIX 6 ─ Enviar al mapa solo lo que cambió.
+  // centersData ya no depende de userLocation, así que este efecto solo corre
+  // cuando los centros o la selección cambian, NO en cada tick de GPS.
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
 
+    const centersChanged = lastSentCentersRef.current !== centersData;
+    const selectionChanged = lastSelectedIdRef.current !== (selectedCenter?.id || null);
+
+    if (centersChanged) {
+      lastSentCentersRef.current = centersData;
+      lastSelectedIdRef.current = selectedCenter?.id || null;
+      iframe.contentWindow.postMessage({
+        type: "UPDATE_DATA",
+        centers: centersData,
+        selectedId: selectedCenter?.id || null,
+        userLocation: userLocationRef2.current,
+        centerOnId: selectedCenter?.id || null,
+        zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
+        isDark: isDarkMode,
+      }, "*");
+    } else if (selectionChanged) {
+      lastSelectedIdRef.current = selectedCenter?.id || null;
+      iframe.contentWindow.postMessage({
+        type: "UPDATE_SELECTION",
+        selectedId: selectedCenter?.id || null,
+        centerOnId: selectedCenter?.id || null,
+        zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
+      }, "*");
+    }
+  }, [centersData, selectedCenter, isDarkMode]); // userLocation eliminado intencionalmente
+
+  // FIX 7 ─ Listener de carga del iframe estable (usa refs, no deps que cambian).
+  // El listener anterior se re-adjuntaba en cada cambio de centersData/selectedCenter.
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
-
-    const message = {
-      type: "UPDATE_DATA",
-      centers: mapCentersData(filteredCenters),
-      selectedId: selectedCenter?.id || null,
-      userLocation: userLocation,
-      centerOnId: selectedCenter?.id || null,
-      zoomLevel: selectedCenter?.latitude && selectedCenter?.longitude ? 15 : undefined,
-      isDark: isDarkMode,
-    };
-
-    const sendUpdate = () => {
+    const sendFullUpdate = () => {
+      const cd = centersDataRef.current;
+      const sc = selectedCenterRef.current;
+      const ul = userLocationRef2.current;
+      const dm = isDarkModeRef.current;
       if (iframe.contentWindow) {
-        iframe.contentWindow.postMessage(message, "*");
+        lastSentCentersRef.current = cd;
+        lastSelectedIdRef.current = sc?.id || null;
+        iframe.contentWindow.postMessage({
+          type: "UPDATE_DATA",
+          centers: cd,
+          selectedId: sc?.id || null,
+          userLocation: ul,
+          centerOnId: sc?.id || null,
+          zoomLevel: sc?.latitude && sc?.longitude ? 15 : undefined,
+          isDark: dm,
+        }, "*");
       }
     };
-
-    sendUpdate();
-
-    iframe.addEventListener("load", sendUpdate);
-    return () => {
-      iframe.removeEventListener("load", sendUpdate);
-    };
-  }, [filteredCenters, selectedCenter, userLocation, isDarkMode]);
+    iframe.addEventListener("load", sendFullUpdate);
+    return () => iframe.removeEventListener("load", sendFullUpdate);
+  }, []); // [] ─ adjunta el listener una sola vez; siempre lee los refs actuales
 
   const mapBlobUrl = useMemo(() => {
     const cartoApiKey = import.meta.env.VITE_CARTO_API_KEY || '';
@@ -620,6 +665,34 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       0% { transform: scale(1); opacity: 1; }
       100% { transform: scale(2.5); opacity: 0; }
     }
+    /* FIX 8 ─ Sin transition en marcadores: las CSS transitions obligan al navegador
+       a crear capas de compositing separadas para cada marcador y recalcular
+       sus geometrías en cada frame durante el pan. En móvil esto congela la UI.
+       El estado selected/unselected se aplica directamente va JS sin animación. */
+    .sc-marker-pin {
+      display: block;
+      user-select: none;
+      cursor: pointer;
+      pointer-events: auto;
+      will-change: auto;
+      filter: drop-shadow(0 2px 3px rgba(15,23,42,0.28));
+    }
+    .sc-marker-pin:active { transform: scale(0.94); }
+    .sc-cluster-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-weight: 700;
+      border-radius: 50%;
+      user-select: none;
+      cursor: pointer;
+      pointer-events: auto;
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .sc-cluster-badge:active { transform: scale(0.95); }
   </style>
 </head>
 <body>
@@ -628,23 +701,53 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     let map = null;
     let markersGroup = null;
     let userLocationMarker = null;
-    let markersMap = new Map();
+    let allCenters = [];
     let currentSelectedId = null;
     let pendingMessage = null;
+    let renderedMarkers = new Map();
+    let renderDebounceTimer = null;
+    let hasInitialUserLocation = false;
+
+    function centerOnInitialUserLocation(loc) {
+      if (hasInitialUserLocation || !loc || !loc.latitude || !loc.longitude || !map) return false;
+      hasInitialUserLocation = true;
+      // Zoom 19 cubre aproximadamente 100–200 m en el ancho de un móvil.
+      // No se anima: evita que una selección inicial vuelva a alejar el mapa.
+      map.setView([loc.latitude, loc.longitude], 19, { animate: false });
+      scheduleRender(0);
+      return true;
+    }
 
     function initLeafletMap() {
       if (typeof L === 'undefined' || map) return;
       try {
         map = L.map('map', {
           zoomControl: true,
-          attributionControl: false
-        }).setView([12.1364, -86.2514], 9);
+          attributionControl: false,
+          preferCanvas: true,
+          wheelDebounceTime: 60,
+          // Raster tiles are already the dominant paint cost on modest Android
+          // devices. Avoid adding a second animation/compositing pass to each
+          // tile and marker while the user is navigating the map.
+          fadeAnimation: false,
+          markerZoomAnimation: false,
+          zoomAnimation: false
+        }).setView([12.1364, -86.2514], 19);
 
         L.tileLayer('${cartoTileUrl}', {
-          maxZoom: 19
+          maxZoom: 19,
+          updateWhenIdle: true,
+          updateWhenZooming: false,
+          // Three retained tile rings can leave roughly 3x more decoded images
+          // in memory than a phone viewport needs. One ring keeps panning
+          // seamless while substantially reducing decode and GPU composition.
+          keepBuffer: 1
         }).addTo(map);
 
         markersGroup = L.layerGroup().addTo(map);
+
+        map.on('moveend', () => scheduleRender(40));
+        map.on('zoomend', () => scheduleRender(40));
 
         if (pendingMessage) {
           processMessage(pendingMessage);
@@ -655,55 +758,235 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       }
     }
 
-    function updateMarkers(centers, selectedId) {
-      if (!markersGroup) return;
-      markersGroup.clearLayers();
-      markersMap.clear();
+// FIX 9 ─ Caché de iconos por categoría+estado.
+    // createCenterIcon es llamada frecuentemente (en cada renderVisible).
+    // Al cachear los L.divIcon por clave, evitamos string-concat y creación
+    // de nuevos objetos DOM en cada frame.
+    const iconCache = new Map();
+    function createCenterIcon(c, isSelected) {
+      const key = c.category + (isSelected ? '_sel' : '_nor');
+      if (iconCache.has(key)) return iconCache.get(key);
 
-      centers.forEach(c => {
-        if (!c.lat || !c.lng) return;
-        
-        const isSelected = c.id === selectedId;
-        const size = isSelected ? 38 : 28;
-        const anchor = size / 2;
-        const borderSize = isSelected ? '3px' : '2px';
-        const borderColor = isSelected ? '#3b82f6' : '#ffffff';
-        const shadow = isSelected ? '0 0 12px #3b82f6' : '0 2px 6px rgba(0,0,0,0.2)';
-        
-        let bgColor = '#ef4444';
-        let label = '+';
-        let fontSize = isSelected ? 19 : 15;
-        
-        if (c.category === 'hospital') {
-          bgColor = '#10b981';
-          label = 'H';
-          fontSize = isSelected ? 15 : 12;
-        } else if (c.category === 'farmacia') {
-          bgColor = '#2563eb';
-          label = 'F';
-          fontSize = isSelected ? 15 : 12;
-        } else if (c.category === 'medico') {
-          bgColor = '#8b5cf6';
-          label = 'M';
-          fontSize = isSelected ? 15 : 12;
+      const scale = isSelected ? 1.06 : 1;
+      const width = 36;
+      const height = 45;
+      const colors = { centro_salud: '#1677e8', hospital: '#e6323e', farmacia: '#16a765', medico: '#7139df' };
+      const color = colors[c.category] || '#1677e8';
+      const glyphs = {
+        centro_salud: '<path d="M19 21V7l-7-4-7 4v14"/><path d="M9 21v-6h6v6M12 8v5M9.5 10.5h5"/>',
+        hospital: '<path d="M4 21V7h5V4h6v3h5v14M2 21h20M12 8v6M9 11h6M8 21v-3h3v3M14 18h3"/>',
+        farmacia: '<path d="m8 16 8-8a4.2 4.2 0 0 1 6 6l-8 8a4.2 4.2 0 0 1-6-6Z" transform="translate(-3 -3)"/><path d="M7 12h6M10 9v6"/>',
+        medico: '<circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2M12 15v5M9.5 17.5h5"/>'
+      };
+      const html = '<div class="sc-marker-pin" style="width:' + width + 'px;height:' + height + 'px;transform:scale(' + scale + ');transform-origin:50% 86%;">'
+        + '<svg viewBox="0 0 48 60" width="' + width + '" height="' + height + '" aria-hidden="true">'
+        + '<path d="M24 59C20 52 2 34 2 22a22 22 0 1 1 44 0c0 12-18 30-22 37Z" fill="' + color + '" stroke="' + color + '" stroke-width="2"/>'
+        + '<circle cx="24" cy="22" r="16" fill="#fff"/>'
+        + '<g transform="translate(12 10) scale(0.88)" fill="none" stroke="' + color + '" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + (glyphs[c.category] || glyphs.centro_salud) + '</g></svg></div>';
+
+      const icon = L.divIcon({ html, className: '', iconSize: [width, height], iconAnchor: [width / 2, height - 2] });
+      iconCache.set(key, icon);
+      return icon;
+    }
+
+    // La caché de íconos de selección se invalida cuando cambia el ID seleccionado
+    function invalidateSelectionCache() {
+      iconCache.delete('hospital_sel'); iconCache.delete('hospital_nor');
+      iconCache.delete('farmacia_sel'); iconCache.delete('farmacia_nor');
+      iconCache.delete('medico_sel');   iconCache.delete('medico_nor');
+      iconCache.delete('centro_salud_sel'); iconCache.delete('centro_salud_nor');
+    }
+
+    function createClusterIcon(count) {
+      const key = 'cluster_' + (count >= 50 ? 'xl' : count >= 15 ? 'lg' : 'sm');
+      if (iconCache.has(key)) return iconCache.get(key);
+
+      let size = 32, fontSize = 12;
+      let bgGradient = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+      if (count >= 50) { size = 42; fontSize = 14; bgGradient = 'linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%)'; }
+      else if (count >= 15) { size = 36; fontSize = 13; bgGradient = 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'; }
+
+      const anchor = size / 2;
+      const displayCount = count > 999 ? '999+' : count;
+      const html = '<div class="sc-cluster-badge" style="background:' + bgGradient + ';width:' + size + 'px;height:' + size + 'px;font-size:' + fontSize + 'px;">' + displayCount + '</div>';
+      const icon = L.divIcon({ html, className: '', iconSize: [size, size], iconAnchor: [anchor, anchor] });
+      iconCache.set(key, icon);
+      return icon;
+    }
+
+    function scheduleRender(delay = 50) {
+      if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+      renderDebounceTimer = setTimeout(() => {
+        renderVisible();
+      }, delay);
+    }
+
+    function renderVisible() {
+      if (!map || !markersGroup) return;
+
+      const zoom = map.getZoom();
+      const bounds = map.getBounds().pad(0.15);
+
+      const visibleCenters = [];
+      for (let i = 0; i < allCenters.length; i++) {
+        const c = allCenters[i];
+        if (c.lat && c.lng && bounds.contains([c.lat, c.lng])) {
+          visibleCenters.push(c);
         }
-        
-        const htmlIcon = '<div style="background-color: ' + bgColor + '; width: ' + size + 'px; height: ' + size + 'px; border-radius: 50%; border: ' + borderSize + ' solid ' + borderColor + '; display: flex; align-items: center; justify-content: center; color: white; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: ' + fontSize + 'px; box-shadow: ' + shadow + '; transition: all 0.2s;">' + label + '</div>';
+      }
 
-        const icon = L.divIcon({
-          html: htmlIcon,
-          className: '',
-          iconSize: [size, size],
-          iconAnchor: [anchor, anchor]
-        });
+      const shouldCluster = zoom <= 12 && visibleCenters.length > 25;
+      const newItems = new Map();
 
-        const marker = L.marker([c.lat, c.lng], { icon: icon }).addTo(markersGroup);
-        markersMap.set(c.id, { marker, lat: c.lat, lng: c.lng });
+      if (!shouldCluster) {
+        for (let i = 0; i < visibleCenters.length; i++) {
+          const c = visibleCenters[i];
+          const isSelected = c.id === currentSelectedId;
+          newItems.set('c_' + c.id, {
+            isCluster: false,
+            lat: c.lat,
+            lng: c.lng,
+            center: c,
+            isSelected: isSelected
+          });
+        }
+      } else {
+        const gridSize = 55;
+        const grid = new Map();
 
-        marker.on('click', () => {
-          window.parent.postMessage({ type: 'SELECT_CENTER', centerId: c.id }, '*');
-        });
+        for (let i = 0; i < visibleCenters.length; i++) {
+          const c = visibleCenters[i];
+          if (c.id === currentSelectedId) {
+            newItems.set('c_' + c.id, {
+              isCluster: false,
+              lat: c.lat,
+              lng: c.lng,
+              center: c,
+              isSelected: true
+            });
+            continue;
+          }
+
+          const pt = map.project([c.lat, c.lng], zoom);
+          const cellKey = Math.floor(pt.x / gridSize) + '_' + Math.floor(pt.y / gridSize);
+
+          let cell = grid.get(cellKey);
+          if (!cell) {
+            cell = [];
+            grid.set(cellKey, cell);
+          }
+          cell.push(c);
+        }
+
+        grid.forEach((items, cellKey) => {
+          if (items.length === 1) {
+            const c = items[0];
+            newItems.set('c_' + c.id, {
+              isCluster: false,
+              lat: c.lat,
+              lng: c.lng,
+              center: c,
+              isSelected: false
+            });
+          } else {
+            let sumLat = 0;
+            let sumLng = 0;
+            for (let j = 0; j < items.length; j++) {
+              sumLat += items[j].lat;
+              sumLng += items[j].lng;
+            }
+            newItems.set('cl_' + cellKey, {
+              isCluster: true,
+              lat: sumLat / items.length,
+              lng: sumLng / items.length,
+              count: items.length
+            });
+          }
+});
+      }
+
+      // 1. Remove markers no longer visible
+      renderedMarkers.forEach((entry, key) => {
+        if (!newItems.has(key)) {
+          markersGroup.removeLayer(entry.marker);
+          renderedMarkers.delete(key);
+        }
       });
+
+      // 2. Add or update visible markers
+      newItems.forEach((config, key) => {
+        const existing = renderedMarkers.get(key);
+        if (existing) {
+          if (!config.isCluster && existing.isSelected !== config.isSelected) {
+            existing.isSelected = config.isSelected;
+            existing.marker.setIcon(createCenterIcon(config.center, config.isSelected));
+            existing.marker.setZIndexOffset(config.isSelected ? 1000 : 0);
+          }
+        } else {
+          let marker;
+          if (config.isCluster) {
+            const icon = createClusterIcon(config.count);
+            marker = L.marker([config.lat, config.lng], { icon: icon, zIndexOffset: 50 });
+            marker.on('click', () => {
+              const targetZoom = Math.min(map.getZoom() + 2, 16);
+              map.setView([config.lat, config.lng], targetZoom, { animate: true });
+            });
+          } else {
+            const icon = createCenterIcon(config.center, config.isSelected);
+            marker = L.marker([config.lat, config.lng], {
+              icon: icon,
+              zIndexOffset: config.isSelected ? 1000 : 0
+            });
+            marker.on('click', () => {
+              window.parent.postMessage({ type: 'SELECT_CENTER', centerId: config.center.id }, '*');
+            });
+          }
+          marker.addTo(markersGroup);
+          renderedMarkers.set(key, {
+            marker: marker,
+            isCluster: config.isCluster,
+            isSelected: config.isSelected || false,
+            center: config.center,
+            lat: config.lat,
+            lng: config.lng
+          });
+        }
+      });
+    }
+
+    function selectCenter(selectedId, centerOnId, zoomLevel) {
+      if (currentSelectedId === selectedId && !centerOnId) return; // sin cambio
+      currentSelectedId = selectedId;
+      invalidateSelectionCache(); // limpiar caché para forzar re-render de íconos
+
+      renderedMarkers.forEach((entry, key) => {
+        if (!entry.isCluster) {
+          const centerId = key.substring(2);
+          const shouldBeSelected = centerId === selectedId;
+          if (entry.isSelected !== shouldBeSelected) {
+            entry.isSelected = shouldBeSelected;
+            if (entry.center) {
+              entry.marker.setIcon(createCenterIcon(entry.center, shouldBeSelected));
+              entry.marker.setZIndexOffset(shouldBeSelected ? 1000 : 0);
+            }
+          }
+        }
+      });
+
+      // FIX 10 ─ Solo hacer setView si el centro no está ya en la vista actual.
+      // Llamar setView({animate:true}) interrumpe el gesto de pan en móvil.
+      if (centerOnId) {
+        const center = allCenters.find(c => c.id === centerOnId);
+        if (center && map) {
+          const targetLatLng = L.latLng(center.lat, center.lng);
+          const bounds = map.getBounds();
+          // Si el punto ya es visible con margen, no mover el mapa
+          if (!bounds.pad(-0.1).contains(targetLatLng)) {
+            const isMobile = window.innerWidth < 768;
+            map.setView(targetLatLng, zoomLevel || 15, { animate: !isMobile, duration: 0.4 });
+          }
+        }
+      }
     }
 
     function updateUserLocation(loc) {
@@ -719,15 +1002,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           iconSize: [14, 14],
           iconAnchor: [7, 7]
         });
-        userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon }).addTo(map);
-      }
-    }
-
-    function centerOnSelected(selectedId, zoomLevel) {
-      if (!map) return;
-      const data = markersMap.get(selectedId);
-      if (data) {
-        map.setView([data.lat, data.lng], zoomLevel || 15);
+        userLocationMarker = L.marker([loc.latitude, loc.longitude], { icon: userIcon, zIndexOffset: 900 }).addTo(map);
       }
     }
 
@@ -737,22 +1012,49 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         return;
       }
       if (msg.type === 'UPDATE_DATA') {
-        updateMarkers(msg.centers, msg.selectedId);
+        allCenters = msg.centers || [];
+        currentSelectedId = msg.selectedId || null;
         updateUserLocation(msg.userLocation);
-        
+        const didCenterOnInitialUserLocation = centerOnInitialUserLocation(msg.userLocation);
+
         if (msg.forceCenterOnUser && msg.userLocation) {
-          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15);
-        } else if (msg.centerOnId) {
-          currentSelectedId = msg.centerOnId;
-          centerOnSelected(msg.centerOnId, msg.zoomLevel);
-        } else if (!msg.centerOnId) {
-          currentSelectedId = null;
+          const isMobile = window.innerWidth < 768;
+          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
+        } else if (!didCenterOnInitialUserLocation && !hasInitialUserLocation && msg.centerOnId) {
+          selectCenter(msg.selectedId, msg.centerOnId, msg.zoomLevel);
+        } else if (!didCenterOnInitialUserLocation) {
+          scheduleRender(50); // FIX 11 ─ debounce mínimo en UPDATE_DATA (era scheduleRender(0))
+        }
+      } else if (msg.type === 'UPDATE_CENTERS') {
+        allCenters = msg.centers || [];
+        scheduleRender(50);
+      } else if (msg.type === 'UPDATE_SELECTION') {
+        selectCenter(msg.selectedId, msg.centerOnId, msg.zoomLevel);
+      } else if (msg.type === 'UPDATE_USER_LOCATION') {
+        updateUserLocation(msg.userLocation);
+        if (msg.initialCenter) {
+          centerOnInitialUserLocation(msg.userLocation);
+        } else if (msg.forceCenter && msg.userLocation) {
+          const isMobile = window.innerWidth < 768;
+          map.setView([msg.userLocation.latitude, msg.userLocation.longitude], 15, { animate: !isMobile, duration: 0.4 });
         }
       }
     }
 
     window.addEventListener('message', (event) => {
       processMessage(event.data);
+    });
+
+    window.addEventListener('unload', () => {
+      if (renderDebounceTimer) clearTimeout(renderDebounceTimer);
+      if (map) {
+        map.off();
+        map.remove();
+        map = null;
+      }
+      markersGroup = null;
+      renderedMarkers.clear();
+      allCenters = [];
     });
 
     if (typeof L !== 'undefined') {
@@ -966,7 +1268,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                 return (
                   <motion.div
                     key={hc.id}
-                    layout
+                    // `layout` measured and animated every result card after a
+                    // selection. On mobile that forced synchronous layout work
+                    // for the whole list; only the selected detail needs motion.
                     className={`rounded-2xl p-3.5 transition-all bg-white dark:bg-slate-950 border ${isSelected
                       ? "border-blue-600 dark:border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.08)]"
                       : "border-slate-100 dark:border-slate-800 shadow-[0_1px_4px_rgba(0,0,0,0.01)]"
@@ -1067,10 +1371,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
                             { }
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1.5">
                               <a
-                                href={openStreetMapSearchUrl}
+                                href={getGoogleMapsRouteUrl(hc, userLocation)}
                                 target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                                rel="noopener noreferrer"
+                                title="Trazar ruta en Google Maps"
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2.5 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                               >
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -1229,10 +1534,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <a
-                    href={openStreetMapSearchUrl}
+                    href={selectedCenter ? getGoogleMapsRouteUrl(selectedCenter, userLocation) : "#"}
                     target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
+                    rel="noopener noreferrer"
+                    title="Trazar ruta en Google Maps"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2 px-3 shadow-[0_2px_8px_rgba(37,99,235,0.18)] active:scale-95 transition-all text-center"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />

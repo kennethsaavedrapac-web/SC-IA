@@ -1,20 +1,7 @@
 {
   "departamento": "CHINANDEGA",
-  "total_registros": 118,
+  "total_registros": 116,
   "unidades_salud": [
-    {
-      "numero": 1,
-      "silais": "CHINANDEGA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud ",
-      "departamento_region": "Chinandega",
-      "municipio": "Chinandega",
-      "localidad": "Barrio Augusto César Snisterio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / ",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": null,
-      "longitud": null
-    },
     {
       "numero": 2,
       "silais": "CHINANDEGA",
@@ -25,8 +12,8 @@
       "localidad": "Frente al juzgado, La Bananera",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.691349,
+      "longitud": -87.104818
     },
     {
       "numero": 3,
@@ -38,8 +25,8 @@
       "localidad": "Comunidad Calle Real, de la escuela primaria Calle Real, 300 vrs al este, 50 vrs al norte, Calle Real",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.648505,
+      "longitud": -87.074546
     },
     {
       "numero": 4,
@@ -51,8 +38,8 @@
       "localidad": "Rotonda los encuentros 120 mts al Norte,Carretera Panemericana. Chinandega",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.741482,
+      "longitud": -86.987364
     },
     {
       "numero": 5,
@@ -64,8 +51,8 @@
       "localidad": "Costado Oeste del CSFC José Shendell , contigua Alcaldía Municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.718612,
+      "longitud": -87.260007
     },
     {
       "numero": 6,
@@ -77,8 +64,8 @@
       "localidad": "Costado Sur de Hospital Primario José Shendell, Contiguo a Iglesia Morava Sector 2",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.592929,
+      "longitud": -87.249864
     },
     {
       "numero": 7,
@@ -90,8 +77,8 @@
       "localidad": "CSFC Carolina Osejo 2 cuadras arriba / Del Centro de Salud Carolina Osejo, 2 cuadras arriba, Sector 6",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.71374,
+      "longitud": -87.2696
     },
     {
       "numero": 8,
@@ -103,8 +90,8 @@
       "localidad": "Contiguo a CSFC Villa 15 de Julio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.703825,
+      "longitud": -86.997249
     },
     {
       "numero": 9,
@@ -116,8 +103,8 @@
       "localidad": "Contiguo al cementerio, casco urbano Villanueva, Sector 6",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.716876,
+      "longitud": -87.238387
     },
     {
       "numero": 10,
@@ -129,8 +116,8 @@
       "localidad": "Del empalme de Posoltega, 1,500 mts al Sur, frente a la antena de claro, Juan XXIII Zona 2",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.733986,
+      "longitud": -87.121182
     },
     {
       "numero": 11,
@@ -142,8 +129,8 @@
       "localidad": "De la Alcaldía 1c. Al este, Oro Verde",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.606958,
+      "longitud": -87.220715
     },
     {
       "numero": 12,
@@ -155,8 +142,8 @@
       "localidad": "Donde fue el cine Lirice, 1c. Abajo, colonia Roberto González, Roberto González",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.658813,
+      "longitud": -87.099206
     },
     {
       "numero": 13,
@@ -168,8 +155,8 @@
       "localidad": "Costado sur del juzgado municipal, 25 de febrero",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.772284,
+      "longitud": -87.27378
     },
     {
       "numero": 14,
@@ -181,8 +168,8 @@
       "localidad": "Donde fue Interbank, 20 vrs al este, Santa Ana / Del Parque Rubén Darío 30 vrs. al Oeste. Barrio Guadalupe San Francisco., Germán Pomares",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.723988,
+      "longitud": -87.243754
     },
     {
       "numero": 15,
@@ -194,8 +181,8 @@
       "localidad": "Comunidad Villa 15 de Julio, de la Texaco 1½c. Al este, Villa 15 de Julio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.580955,
+      "longitud": -87.034382
     },
     {
       "numero": 16,
@@ -207,8 +194,8 @@
       "localidad": "Antiguo Banic 2 1 2c al Sur, Chinandega Chinandega - Chinandega.",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.723628,
+      "longitud": -87.021239
     },
     {
       "numero": 17,
@@ -220,8 +207,8 @@
       "localidad": "Contiguo a Hospital Primario Raymundo García, carretera Cinco Pinos",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.701191,
+      "longitud": -87.11523
     },
     {
       "numero": 18,
@@ -233,8 +220,8 @@
       "localidad": "Costado Norte del CSFC Hermanos Asturias",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.542794,
+      "longitud": -87.145979
     },
     {
       "numero": 19,
@@ -246,8 +233,8 @@
       "localidad": "De INATEC, ½ cuadra al sur, Reparto Pedro Joaquín",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.74285,
+      "longitud": -87.201603
     },
     {
       "numero": 20,
@@ -259,8 +246,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.742102,
+      "longitud": -87.274993
     },
     {
       "numero": 21,
@@ -272,8 +259,8 @@
       "localidad": "Colonia Roberto González, del Boulevard, 2 cuadras al sur, contiguo al SILAIS Chinandega, Colonia Roberto González",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.630555,
+      "longitud": -87.11832
     },
     {
       "numero": 22,
@@ -285,8 +272,8 @@
       "localidad": "Del Mercado Central, 3Km. Hacia carretera Cinco Pinos, Las Colinas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.529339,
+      "longitud": -87.072071
     },
     {
       "numero": 23,
@@ -298,8 +285,8 @@
       "localidad": "Contiguo a Iglesia Morava Corinto Sector 2, Reparto Gonzalo Brenes / Cuerpo de Bomberos, 1c. Norte Corinto Sector 4, Isla del amor",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.570614,
+      "longitud": -87.029914
     },
     {
       "numero": 24,
@@ -311,8 +298,8 @@
       "localidad": "Comunidad Río Viejo carretera Jiquilillo Km 161, Río Viejo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.715758,
+      "longitud": -87.269295
     },
     {
       "numero": 25,
@@ -324,8 +311,8 @@
       "localidad": "Costado Noroeste de Hospital Primario Teodoro Kint, carretera a Jiquilillo Km 161",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.706635,
+      "longitud": -87.089861
     },
     {
       "numero": 26,
@@ -337,8 +324,8 @@
       "localidad": "Contiguo a la iglesia del municipio a 3 kilómtros de la unidad de salud",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.590135,
+      "longitud": -87.244226
     },
     {
       "numero": 27,
@@ -350,8 +337,8 @@
       "localidad": "Colonia Roberto González, contiguo al Hospital España en instalaciones del SILAIS, Colonia Roberto González",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.722842,
+      "longitud": -87.258844
     },
     {
       "numero": 28,
@@ -363,8 +350,8 @@
       "localidad": "Del CSFC Alma Nubia López 1 1/2 Km al sur a mano izquierda",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.578128,
+      "longitud": -87.235116
     },
     {
       "numero": 29,
@@ -376,8 +363,8 @@
       "localidad": "Contiguo a la unidad de salud (Contiguo a Escuela Pedro J. Chamorro )",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.672577,
+      "longitud": -87.256526
     },
     {
       "numero": 30,
@@ -389,8 +376,8 @@
       "localidad": "Parte trasera del CSFC José Rubi Sommariba, frente al juzgado municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.752653,
+      "longitud": -87.209452
     },
     {
       "numero": 31,
@@ -402,8 +389,8 @@
       "localidad": "2 cuadras al norte del CSFC",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.69808,
+      "longitud": -87.220595
     },
     {
       "numero": 32,
@@ -415,8 +402,8 @@
       "localidad": "Colonia 12 de septiembre, de la cancha deportiva ,10 vrs abajo, frente escuela Marcos Dessi, 12 de Septiembre",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.612385,
+      "longitud": -87.057666
     },
     {
       "numero": 33,
@@ -428,8 +415,8 @@
       "localidad": "Barrio La Florida, bloquera La Fé, 1c. Al Sur, Augusto César Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.607259,
+      "longitud": -87.122924
     },
     {
       "numero": 34,
@@ -441,8 +428,8 @@
       "localidad": "Detrás de la Escuela Primaria María Auxiliadora, Alemania Federal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.588079,
+      "longitud": -87.040157
     },
     {
       "numero": 35,
@@ -454,8 +441,8 @@
       "localidad": "Comunidad Palo Grande, Frente a la escuela primaria de Palo Grande, Palo Grande",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.580182,
+      "longitud": -87.130669
     },
     {
       "numero": 36,
@@ -467,8 +454,8 @@
       "localidad": "Comarca El Bonete, de la cancha deportiva, 500 varas arriba, sector 6, Comarca el Bonete",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.531853,
+      "longitud": -87.277646
     },
     {
       "numero": 37,
@@ -480,8 +467,8 @@
       "localidad": "Contiguo a casa cural, El Calvario, El Calvario",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.537883,
+      "longitud": -87.076453
     },
     {
       "numero": 38,
@@ -493,21 +480,8 @@
       "localidad": "Comarca Aserradores, contiguo a escuela José de la Cruz Mena, Aserradores",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
-    },
-    {
-      "numero": 39,
-      "silais": "CHINANDEGA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "Chinandega",
-      "municipio": "Chinandega",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.654724,
+      "longitud": -87.1233
     },
     {
       "numero": 40,
@@ -519,8 +493,8 @@
       "localidad": "Comarca Belén, tanque de agua, 1c. Abajo, Belén",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.688969,
+      "longitud": -87.080945
     },
     {
       "numero": 41,
@@ -532,8 +506,8 @@
       "localidad": "Comunidad Calle Real, de la escuela primaria Calle Real, 300 vrs al este, 50 vrs al norte, Calle Real",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.626015,
+      "longitud": -86.995623
     },
     {
       "numero": 42,
@@ -545,8 +519,8 @@
       "localidad": "Dentro de las instalaciones del Puesto de Salud Julio Durán, Las Palmeras",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.664241,
+      "longitud": -87.086071
     },
     {
       "numero": 43,
@@ -558,8 +532,8 @@
       "localidad": "Del Juzgado, 1c. Al Sur, Zona 4",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.778386,
+      "longitud": -87.034306
     },
     {
       "numero": 44,
@@ -571,8 +545,8 @@
       "localidad": "Reparto Omar Torrijos, Frente Ferretería Monserrat, Reparto Omar Torrijo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.649546,
+      "longitud": -87.227918
     },
     {
       "numero": 45,
@@ -584,8 +558,8 @@
       "localidad": "Asentamiento Los Limones, del Instituto, 1 1/2 cuadra al sur, Los Limones",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.597778,
+      "longitud": -87.077242
     },
     {
       "numero": 46,
@@ -597,8 +571,8 @@
       "localidad": "Comunidad cosiguina carretera a Potosí, contigua a casa Comunal de Cosiguina, Cosiguina",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.751197,
+      "longitud": -87.249141
     },
     {
       "numero": 47,
@@ -610,8 +584,8 @@
       "localidad": "Del escuela primaria Héctor Maradiaga, 300 mts. al oeste, Cosmapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.603942,
+      "longitud": -87.160166
     },
     {
       "numero": 48,
@@ -623,8 +597,8 @@
       "localidad": "Comunidad El Bejuco, contiguo a la escuela Hermanas Mercedarias, El Bejuco",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.597989,
+      "longitud": -87.169346
     },
     {
       "numero": 49,
@@ -636,8 +610,8 @@
       "localidad": "Comarca El Chaparral terreno antigua escuela, Chaparral",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.484988,
+      "longitud": -87.00537
     },
     {
       "numero": 50,
@@ -649,8 +623,8 @@
       "localidad": "Comunidad El Congo, Km 170, frente escuela primaria El Congo, El Congo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.515366,
+      "longitud": -87.270711
     },
     {
       "numero": 51,
@@ -662,8 +636,8 @@
       "localidad": "Aduana Fronteriza Nicaragua - Honduras, Guasaule",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.719031,
+      "longitud": -87.115216
     },
     {
       "numero": 52,
@@ -675,8 +649,8 @@
       "localidad": "Carretera a Las Marías, El Higueral",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.625201,
+      "longitud": -87.010833
     },
     {
       "numero": 53,
@@ -688,8 +662,8 @@
       "localidad": "Comunidad La Grecia 3, de la escuela, 1 cuadra abajo , Villa Santa Catalina",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.781492,
+      "longitud": -87.008417
     },
     {
       "numero": 54,
@@ -701,8 +675,8 @@
       "localidad": "Finca San Fernando, El Pastoral, El Pastoral",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.601696,
+      "longitud": -86.984352
     },
     {
       "numero": 55,
@@ -714,8 +688,8 @@
       "localidad": "Frente a la escuela Pellizco Occidental, El Pellizco Occidental",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.581012,
+      "longitud": -87.037491
     },
     {
       "numero": 56,
@@ -727,8 +701,8 @@
       "localidad": "Comunidad El Rodeito, frente a la escuela primaria, El Rodeito",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.774744,
+      "longitud": -87.014194
     },
     {
       "numero": 57,
@@ -740,8 +714,8 @@
       "localidad": "Comunidad El Tololar I, De la escuela Francisco Ortíz 100 vrs al oeste, El Tololar I",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.666176,
+      "longitud": -86.997691
     },
     {
       "numero": 58,
@@ -753,8 +727,8 @@
       "localidad": "Barrio Emigdia Catin, de la entrada 1 cuadra abajo, Emigdia Catín",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.722955,
+      "longitud": -87.082825
     },
     {
       "numero": 59,
@@ -766,8 +740,8 @@
       "localidad": "Entrada del Reparto Erick Ramírez, del Puente 1c. al oeste, Reparto Erick Ramírez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.681463,
+      "longitud": -86.984003
     },
     {
       "numero": 60,
@@ -779,8 +753,8 @@
       "localidad": "Del campo Teodoro Kint, 6 cuadras al norte y 1 cuadra al oeste, Esquipulas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.594525,
+      "longitud": -87.09157
     },
     {
       "numero": 61,
@@ -792,8 +766,8 @@
       "localidad": "Comarca Rincón de García, carretera al Sauce, Rincón García",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.774971,
+      "longitud": -87.18805
     },
     {
       "numero": 62,
@@ -805,8 +779,8 @@
       "localidad": "Carretera a Punta Ñata comunidad Apascalí, contigua a escuela primaria Chamulca, Apascalí",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.637041,
+      "longitud": -87.121295
     },
     {
       "numero": 63,
@@ -818,8 +792,8 @@
       "localidad": "Comarca Paugil, del parque de la comunidad, 25 varas arriba, Comarca Paugil",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.737907,
+      "longitud": -87.009037
     },
     {
       "numero": 64,
@@ -831,8 +805,8 @@
       "localidad": "Frente a iglesia Divino Niño, Cuatro Esquina de Amayo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.64856,
+      "longitud": -87.01158
     },
     {
       "numero": 65,
@@ -844,8 +818,8 @@
       "localidad": "Contiguo a iglesia católica, Barrio Central",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.633888,
+      "longitud": -87.005195
     },
     {
       "numero": 66,
@@ -857,8 +831,8 @@
       "localidad": "Comarca Guanacastal, contigua escuela primaria, Paises Bajos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.701095,
+      "longitud": -87.199138
     },
     {
       "numero": 67,
@@ -870,8 +844,8 @@
       "localidad": "Comarca el Guasimal, de la casa comunal ADP, 200 varas al Sur, Guasimal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.484511,
+      "longitud": -87.183623
     },
     {
       "numero": 68,
@@ -883,8 +857,8 @@
       "localidad": "Comarca Los Laureles, de la escuela Jicarito, anexo Nicaragua, 4 km al norte, Los Laureles",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.7645,
+      "longitud": -87.206516
     },
     {
       "numero": 69,
@@ -896,8 +870,8 @@
       "localidad": "Comarca El Becerro, entrada a La Jolota, Becerro No. 1 La Carreta",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.491744,
+      "longitud": -87.121093
     },
     {
       "numero": 70,
@@ -909,8 +883,8 @@
       "localidad": "Reparto Wells, 3ra. Calle, Reparto Well",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.694455,
+      "longitud": -87.171842
     },
     {
       "numero": 71,
@@ -922,8 +896,8 @@
       "localidad": "Contiguo a la Escuela Jesús de la Buena Esperanza, Jesús de la Buena Esperanza",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.616334,
+      "longitud": -87.089037
     },
     {
       "numero": 72,
@@ -935,8 +909,8 @@
       "localidad": "Comunidad Jiñocuao, contiguo al Instituto, Jiñocuao",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.710015,
+      "longitud": -87.209267
     },
     {
       "numero": 73,
@@ -948,8 +922,8 @@
       "localidad": "Comunidad Punta Caliente, 1 Km, hacia abajo, Jiquilillo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.557489,
+      "longitud": -87.170485
     },
     {
       "numero": 74,
@@ -961,8 +935,8 @@
       "localidad": "Costado sur escuela Rafaela Herrera, reparto José Benito Centeno, José Benito Centeno",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.755976,
+      "longitud": -87.045331
     },
     {
       "numero": 75,
@@ -974,8 +948,8 @@
       "localidad": "Empalme Posoltega 1½ KM al Sur, Juan XXIII Zona 3",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.509792,
+      "longitud": -87.279982
     },
     {
       "numero": 76,
@@ -987,8 +961,8 @@
       "localidad": "Barrio Las Palmeras, contiguo al Juzgado, Las Palmeras",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.688868,
+      "longitud": -87.064964
     },
     {
       "numero": 77,
@@ -1000,8 +974,8 @@
       "localidad": "Comunidad de Kilaka, carretera a Cosiguina, frente a casa Comunal de Kilaka, Kilaka",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.699255,
+      "longitud": -87.137595
     },
     {
       "numero": 78,
@@ -1013,8 +987,8 @@
       "localidad": "Contiguo a iglesia católica, Ramón Antonio López",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.513425,
+      "longitud": -87.279669
     },
     {
       "numero": 79,
@@ -1026,8 +1000,8 @@
       "localidad": "De la entrada Los Manglares, 2 Km. Al norte, La Curva",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.579642,
+      "longitud": -87.125881
     },
     {
       "numero": 80,
@@ -1039,8 +1013,8 @@
       "localidad": "Comarca La Rastra, del Instituto Georgina Andrade, 75 metros al Sur, La Rastra",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.752678,
+      "longitud": -87.094251
     },
     {
       "numero": 81,
@@ -1052,8 +1026,8 @@
       "localidad": "Comarca Lagartillo, frente al escuela primaria Río Negro, Río Negro",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.75245,
+      "longitud": -87.194045
     },
     {
       "numero": 82,
@@ -1065,8 +1039,8 @@
       "localidad": "Entrada a la comunidad Las Pozas, frente a la casa Daniel, Las Pozas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.653275,
+      "longitud": -87.075463
     },
     {
       "numero": 83,
@@ -1078,8 +1052,8 @@
       "localidad": "Kilómetro 13, contiguo al cruce Los Mangos, Los Kilómetros",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.680667,
+      "longitud": -87.000483
     },
     {
       "numero": 84,
@@ -1091,8 +1065,8 @@
       "localidad": "Comarca Cayantipe, entrada a la Comunidad después de Cañafistola, Comarca Cayantipe",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.561935,
+      "longitud": -87.050955
     },
     {
       "numero": 85,
@@ -1104,8 +1078,8 @@
       "localidad": "Barrio Managuita contiguo al CDI , Managuita",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.630337,
+      "longitud": -87.236598
     },
     {
       "numero": 86,
@@ -1117,8 +1091,8 @@
       "localidad": "Comarca San Ramón, entrada a la Comunidad Rincón García, contiguo a cancha deportiva",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.645025,
+      "longitud": -87.225706
     },
     {
       "numero": 87,
@@ -1130,8 +1104,8 @@
       "localidad": "Comunidad Mechapa, Contiguo a la escuela Tesoatega, Mechapa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.604553,
+      "longitud": -86.994186
     },
     {
       "numero": 88,
@@ -1143,8 +1117,8 @@
       "localidad": "Del Supermercado Palí, 2C. Al norte , Santa Ana",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.757796,
+      "longitud": -87.206312
     },
     {
       "numero": 89,
@@ -1156,8 +1130,8 @@
       "localidad": "De la iglesia El Calvario, 150 metros al este, El Calvario / De la iglesia el calvario 150 metros al este.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.717985,
+      "longitud": -87.09003
     },
     {
       "numero": 90,
@@ -1169,8 +1143,8 @@
       "localidad": "Costado Norte del parque central , La Parroquia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.495726,
+      "longitud": -87.200662
     },
     {
       "numero": 91,
@@ -1182,8 +1156,8 @@
       "localidad": "Costado Norte del Parque Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.679906,
+      "longitud": -87.182564
     },
     {
       "numero": 92,
@@ -1195,8 +1169,8 @@
       "localidad": "Comunidad Nuevo Amanecer, frente a la escuela primaria de Nuevo Amanecer, Nuevo Amanecer ",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.53051,
+      "longitud": -87.101066
     },
     {
       "numero": 93,
@@ -1208,8 +1182,8 @@
       "localidad": "Comunidad Ojo de Agua, iglesia evangélica, 100 vrs al este, Ojo de Agua",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.625849,
+      "longitud": -87.089565
     },
     {
       "numero": 94,
@@ -1221,8 +1195,8 @@
       "localidad": "Comunidad Paso Hondo, iglesia católica, 300 vrs al sur, Paso Hondo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.615242,
+      "longitud": -87.180873
     },
     {
       "numero": 95,
@@ -1234,8 +1208,8 @@
       "localidad": "Colonia Pedro Joaquín Chamorro, 1ra. Entrada, 2c. Al este, 1 ½c. Al sur, Pedro Joaquín Chamorro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.684534,
+      "longitud": -86.993357
     },
     {
       "numero": 96,
@@ -1247,8 +1221,8 @@
       "localidad": "Puerto de Potosí, 50 mts antes de llegar a Capitanía, Potosí",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.499905,
+      "longitud": -87.204801
     },
     {
       "numero": 97,
@@ -1260,8 +1234,8 @@
       "localidad": "Iglesia Morazán 50 vrs al sur, Sector 1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.531105,
+      "longitud": -87.259864
     },
     {
       "numero": 98,
@@ -1273,8 +1247,8 @@
       "localidad": "Contiguo a casa comunal Ranchería, Ranchería",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.574207,
+      "longitud": -87.003789
     },
     {
       "numero": 99,
@@ -1286,8 +1260,8 @@
       "localidad": "Contiguo a la entrada principal del Mercado Municipal, Barrio Rigoberto López Pérez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.70672,
+      "longitud": -87.079751
     },
     {
       "numero": 100,
@@ -1299,8 +1273,8 @@
       "localidad": "Entrada a Bananera Elisa, 2 Km, hacia abajo, Rio chiquito abajo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.560617,
+      "longitud": -87.216377
     },
     {
       "numero": 101,
@@ -1312,8 +1286,8 @@
       "localidad": "Comunidad Rodeo Grande, 2 1/2 Km al norte de Instituto Rodeo Grande, Rodeo Grande",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.546861,
+      "longitud": -87.221739
     },
     {
       "numero": 102,
@@ -1325,8 +1299,8 @@
       "localidad": "Texaco El Faro, 1c. Al Sur Corinto Sector 7, Sector 7",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.645557,
+      "longitud": -87.246062
     },
     {
       "numero": 103,
@@ -1338,8 +1312,8 @@
       "localidad": "Portón 3 de Portuaria, 75 metros al oeste a mano izquierda , Sector 8",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.484109,
+      "longitud": -87.067592
     },
     {
       "numero": 104,
@@ -1351,8 +1325,8 @@
       "localidad": "Contiguo a la escuela, Comunidad San Lorenzo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.581802,
+      "longitud": -86.993031
     },
     {
       "numero": 105,
@@ -1364,8 +1338,8 @@
       "localidad": "Comarca San Remigio, del empalme de Buenavista, 3 km al norte, San Remigio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.778123,
+      "longitud": -87.020755
     },
     {
       "numero": 106,
@@ -1377,8 +1351,8 @@
       "localidad": "Comunidad Santa Matilde, Contiguo a escuela primaria Santa Matilde, Santa Matilde",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.519472,
+      "longitud": -87.021851
     },
     {
       "numero": 107,
@@ -1390,8 +1364,8 @@
       "localidad": "Comarca Santo Tomás, contiguo a escuela primaria, Comunidad de Santo Tomás.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.609378,
+      "longitud": -87.093793
     },
     {
       "numero": 108,
@@ -1403,8 +1377,8 @@
       "localidad": "Comunidad Sirama, frente a la escuela Los Laureles , Sirama Norte",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.717756,
+      "longitud": -87.083836
     },
     {
       "numero": 109,
@@ -1416,8 +1390,8 @@
       "localidad": "Comunidad El Tanque, esquina opuesta del colegio José Dolores Estrada, El Tanque",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.678306,
+      "longitud": -87.200438
     },
     {
       "numero": 110,
@@ -1429,8 +1403,8 @@
       "localidad": "Comarca Terencio Munguía, contiguo escuela José Dolores Estrada, Terencio Munguía",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.743916,
+      "longitud": -87.225137
     },
     {
       "numero": 111,
@@ -1442,8 +1416,8 @@
       "localidad": "Contiguo a escuela Ligia Martínez Tom valle Km 156, Tom Valle",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.619539,
+      "longitud": -87.204374
     },
     {
       "numero": 112,
@@ -1455,8 +1429,8 @@
       "localidad": "Contiguo al centro de salud, Oro Verde",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.75174,
+      "longitud": -87.008053
     },
     {
       "numero": 113,
@@ -1468,8 +1442,8 @@
       "localidad": "Del Parque Central 16 de septiembre, 1 cuadra al sur, Augusto César Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.639827,
+      "longitud": -86.999133
     },
     {
       "numero": 114,
@@ -1481,8 +1455,8 @@
       "localidad": "Comarca Las Pilas, entrada a al Comunidad Las Pilas, 1 cuadra al Sur",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.493133,
+      "longitud": -87.108758
     },
     {
       "numero": 115,
@@ -1494,8 +1468,8 @@
       "localidad": "Comarca Israel, frente a cancha deportiva, Comarca Israel",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.651851,
+      "longitud": -87.180748
     },
     {
       "numero": 116,
@@ -1507,8 +1481,8 @@
       "localidad": "Comunidad Villa Camilo Ortega, contiguo al Comedor Infantil",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.544598,
+      "longitud": -87.212437
     },
     {
       "numero": 117,
@@ -1520,8 +1494,8 @@
       "localidad": "Comunidad Zanjones III, frente escuela Julia Martínez, Zanjones III",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.507024,
+      "longitud": -87.066407
     },
     {
       "numero": 118,
@@ -1533,8 +1507,8 @@
       "localidad": "Costado Este del colegio San Luis Beltrán",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.680236,
+      "longitud": -87.0984
     }
   ]
 }

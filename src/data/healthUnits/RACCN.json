@@ -1,6 +1,6 @@
 {
   "departamento": "RACCN",
-  "total_registros": 152,
+  "total_registros": 150,
   "unidades_salud": [
     {
       "numero": 1,
@@ -12,8 +12,8 @@
       "localidad": "Comunidad El Empalme, Comunidad El Empalme",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.499084,
+      "longitud": -84.545384
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "San Jerónimo, Comunidad de San Jeronimo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.4866,
+      "longitud": -84.476444
     },
     {
       "numero": 3,
@@ -38,34 +38,8 @@
       "localidad": "Bo Santa Inés contiguo a clinica Santa Inés",
       "zona": "Rural / Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
-    },
-    {
-      "numero": 4,
-      "silais": "CHINANDEGA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "RACCN",
-      "municipio": "Somotillo",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": null,
-      "longitud": null
-    },
-    {
-      "numero": 5,
-      "silais": "CHINANDEGA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "RACCN",
-      "municipio": "Somotillo",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.603207,
+      "longitud": -84.505472
     },
     {
       "numero": 6,
@@ -77,8 +51,8 @@
       "localidad": "Contiguo a la Plaza de ferias, Sahsa Lawas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.592889,
+      "longitud": -84.530227
     },
     {
       "numero": 7,
@@ -90,8 +64,8 @@
       "localidad": "Comunidad El Caracolito",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.572363,
+      "longitud": -84.421679
     },
     {
       "numero": 8,
@@ -103,8 +77,8 @@
       "localidad": "Comunidad Las Breñas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.45907,
+      "longitud": -84.647978
     },
     {
       "numero": 9,
@@ -116,8 +90,8 @@
       "localidad": "Comunidad Campo Azul",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.536541,
+      "longitud": -84.606709
     },
     {
       "numero": 10,
@@ -129,8 +103,8 @@
       "localidad": "Bo. Los Angeles. Frente a la Farmacia Familiar, casco Urbano",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.562086,
+      "longitud": -84.555716
     },
     {
       "numero": 11,
@@ -142,8 +116,8 @@
       "localidad": "Centro del casco urbano, Karawala",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.595865,
+      "longitud": -84.379856
     },
     {
       "numero": 12,
@@ -155,8 +129,8 @@
       "localidad": "El Hospital, Waslala",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.474771,
+      "longitud": -84.504651
     },
     {
       "numero": 13,
@@ -168,8 +142,8 @@
       "localidad": "Centro del casco urbano, Nueva Sembrada",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.573289,
+      "longitud": -84.407239
     },
     {
       "numero": 14,
@@ -181,8 +155,8 @@
       "localidad": "Bo, Sol de Libertad, detrás del CDI-Siuna",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.369642,
+      "longitud": -84.596838
     },
     {
       "numero": 15,
@@ -194,8 +168,8 @@
       "localidad": "Comunidad el Hormiguero, a 150 mts del PSFC Hormiguero",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.642902,
+      "longitud": -84.488099
     },
     {
       "numero": 16,
@@ -207,8 +181,8 @@
       "localidad": "Frente al supermercado Monter, Libertad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.626349,
+      "longitud": -84.503648
     },
     {
       "numero": 17,
@@ -220,8 +194,8 @@
       "localidad": "Alamikanbang, Frente a la Primer casa de Medicos",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.461078,
+      "longitud": -84.462541
     },
     {
       "numero": 18,
@@ -233,8 +207,8 @@
       "localidad": "Barrio Sol de Libertad, Costado Norte Oficina Proyecto Alcaldía",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.638117,
+      "longitud": -84.556097
     },
     {
       "numero": 19,
@@ -246,8 +220,8 @@
       "localidad": "Bonanza, Bo. Marcos Antonio Somarriba, contiguo al Hospital",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.374573,
+      "longitud": -84.557643
     },
     {
       "numero": 20,
@@ -259,8 +233,8 @@
       "localidad": "Rosita, Barrio 28 de mayo, frente a Casa Materna, Rosita, Barrio, 28 de mayo, frente a Casa Materna",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.62394,
+      "longitud": -84.466826
     },
     {
       "numero": 21,
@@ -272,8 +246,8 @@
       "localidad": "Siuna, Barrio Sol de Libertad, detrás de Agencia Claro, Siuna, Barrio Sol de Libertad, detrás de Agencia Claro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.465018,
+      "longitud": -84.442519
     },
     {
       "numero": 22,
@@ -285,8 +259,8 @@
       "localidad": "Mulukukú, Barrio El Tranque, contiguo al Hospital Primario , Barrio El Tranque.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.372923,
+      "longitud": -84.415604
     },
     {
       "numero": 23,
@@ -298,8 +272,8 @@
       "localidad": "Bonanza, Barrio Marcos Antonio Somarriba, Barrio Marcos Antonio Somarriba",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.401358,
+      "longitud": -84.39063
     },
     {
       "numero": 24,
@@ -311,8 +285,8 @@
       "localidad": "Barrio Esteban Jaenz.Casco Urbano Waspam , Bo. Esteban Jaens",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.570462,
+      "longitud": -84.376453
     },
     {
       "numero": 25,
@@ -324,8 +298,8 @@
       "localidad": "Alamikamba, Alamikambang",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.550905,
+      "longitud": -84.569162
     },
     {
       "numero": 26,
@@ -337,8 +311,8 @@
       "localidad": "Bo Libertad Contiguo casa departamental sandinista",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.441989,
+      "longitud": -84.442983
     },
     {
       "numero": 27,
@@ -350,8 +324,8 @@
       "localidad": "Rosita, 28 de mayo, frente al Hospital Rosario Pravia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.608163,
+      "longitud": -84.61548
     },
     {
       "numero": 28,
@@ -363,8 +337,8 @@
       "localidad": "Mulukukú, Bo, el Tranque, contiguo al Hospital Carlos Fonseca",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.57036,
+      "longitud": -84.45013
     },
     {
       "numero": 29,
@@ -376,8 +350,8 @@
       "localidad": "Bo. Sol de Libertad, frente a la cancha municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.621493,
+      "longitud": -84.497676
     },
     {
       "numero": 30,
@@ -389,8 +363,8 @@
       "localidad": "Barrio El Cocal, Antiguo Edificio de la Universidad BICU",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.612848,
+      "longitud": -84.445222
     },
     {
       "numero": 31,
@@ -402,8 +376,8 @@
       "localidad": "Comunidad El Guayabo, El Guayabo / Comunidad El Guayabo, Comunidad El Guayabo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.412595,
+      "longitud": -84.381357
     },
     {
       "numero": 32,
@@ -415,8 +389,8 @@
       "localidad": "Barrio 1ero de Mayo. Al lado de la casa de Tebas , Bo. 1ero. de mayo",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.489959,
+      "longitud": -84.454485
     },
     {
       "numero": 33,
@@ -428,8 +402,8 @@
       "localidad": "Comunidad Aguas Claras, Aguas Claras",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.552852,
+      "longitud": -84.582741
     },
     {
       "numero": 34,
@@ -441,8 +415,8 @@
       "localidad": "Comunidad Andrés, Comunidad de Andris",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.479589,
+      "longitud": -84.551534
     },
     {
       "numero": 35,
@@ -454,8 +428,8 @@
       "localidad": "Asang, Comunidad de Asang",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.50292,
+      "longitud": -84.45697
     },
     {
       "numero": 36,
@@ -467,8 +441,8 @@
       "localidad": "Auhya Pihni, Auhya Pihni",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.56055,
+      "longitud": -84.490805
     },
     {
       "numero": 37,
@@ -480,8 +454,8 @@
       "localidad": "Awas Yari, Awas Yari",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.640287,
+      "longitud": -84.554491
     },
     {
       "numero": 38,
@@ -493,8 +467,8 @@
       "localidad": "Awastara, Awastara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.561219,
+      "longitud": -84.547876
     },
     {
       "numero": 39,
@@ -506,8 +480,8 @@
       "localidad": "Awastigni, Comunidad de Awastigni",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.367066,
+      "longitud": -84.498781
     },
     {
       "numero": 40,
@@ -519,8 +493,8 @@
       "localidad": "Comunidad Aza Central, Comunidad Central",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.452048,
+      "longitud": -84.462517
     },
     {
       "numero": 41,
@@ -532,8 +506,8 @@
       "localidad": "Comunidad Banacruz, Comunidad Banacruz",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.588866,
+      "longitud": -84.42828
     },
     {
       "numero": 42,
@@ -545,8 +519,8 @@
       "localidad": "Comunidad Betania, Comunidad Betania",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.386605,
+      "longitud": -84.469016
     },
     {
       "numero": 43,
@@ -558,8 +532,8 @@
       "localidad": "Comunidad Betlehem, Comunidad Betlehem",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.64163,
+      "longitud": -84.389082
     },
     {
       "numero": 44,
@@ -571,8 +545,8 @@
       "localidad": "Comunidad Biltignia, Comunidad Biltignia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.534955,
+      "longitud": -84.622938
     },
     {
       "numero": 45,
@@ -584,8 +558,8 @@
       "localidad": "Bilwaskarma, Comunidad de Bilwaskarma",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.431785,
+      "longitud": -84.490527
     },
     {
       "numero": 46,
@@ -597,8 +571,8 @@
       "localidad": "Bismona, Comunidad de Bismona",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.530712,
+      "longitud": -84.547108
     },
     {
       "numero": 47,
@@ -610,8 +584,8 @@
       "localidad": "Boom Sirpi, Boom Sirpi",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.618882,
+      "longitud": -84.419187
     },
     {
       "numero": 48,
@@ -623,8 +597,8 @@
       "localidad": "Bulkiamp, Comunidad de Bulkiamp",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.363047,
+      "longitud": -84.39663
     },
     {
       "numero": 49,
@@ -636,8 +610,8 @@
       "localidad": "Comunidad de Cabo Gracias a Dios, Comunidad de Cabo Gracias a Dios",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.436896,
+      "longitud": -84.535619
     },
     {
       "numero": 50,
@@ -649,8 +623,8 @@
       "localidad": "Comunidad Campo Uno, Comunidad Campo Uno",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.636126,
+      "longitud": -84.452462
     },
     {
       "numero": 51,
@@ -662,8 +636,8 @@
       "localidad": "Columbus, Columbus",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.411388,
+      "longitud": -84.590456
     },
     {
       "numero": 52,
@@ -675,8 +649,8 @@
       "localidad": "Comunidad Cooperna, Comunidad Cooperna",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.522594,
+      "longitud": -84.563057
     },
     {
       "numero": 53,
@@ -688,8 +662,8 @@
       "localidad": "Comunidad de Dakban, Comunidad de Dakban",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.412027,
+      "longitud": -84.541451
     },
     {
       "numero": 54,
@@ -701,8 +675,8 @@
       "localidad": "Comunidad de Dakura, Comunidad de Dakura",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.630394,
+      "longitud": -84.366652
     },
     {
       "numero": 55,
@@ -714,8 +688,8 @@
       "localidad": "Bo. El Cocal. De la Iglesia Catlocia 1C. Al Este, Barrio El Cocal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.38267,
+      "longitud": -84.450378
     },
     {
       "numero": 56,
@@ -727,8 +701,8 @@
       "localidad": "Comunidad Consuelo, Comunidad Consuelo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.397196,
+      "longitud": -84.569891
     },
     {
       "numero": 57,
@@ -740,8 +714,8 @@
       "localidad": "Comunidad El Hormiguero, Comunidad El Hormiguero",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.583202,
+      "longitud": -84.546076
     },
     {
       "numero": 58,
@@ -753,8 +727,8 @@
       "localidad": "Comunidad El Lajón, Comunidad El Lajón",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.389962,
+      "longitud": -84.404594
     },
     {
       "numero": 59,
@@ -766,8 +740,8 @@
       "localidad": "Bo. El Muelle. De la Entrada a Guillieland 1C. Al Oeste, Barrio El Muelle",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.445894,
+      "longitud": -84.469055
     },
     {
       "numero": 60,
@@ -779,8 +753,8 @@
       "localidad": "Comunidad Españolina, Comunidad Españolina",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.611156,
+      "longitud": -84.434374
     },
     {
       "numero": 61,
@@ -792,8 +766,8 @@
       "localidad": "Comunidad Floripón, Comunidad Floripón",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.467223,
+      "longitud": -84.448604
     },
     {
       "numero": 62,
@@ -805,8 +779,8 @@
       "localidad": "Francia Sirpi, Comunidad de Francia Sirpi",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.452631,
+      "longitud": -84.412706
     },
     {
       "numero": 63,
@@ -818,8 +792,8 @@
       "localidad": "Comunidad Fruta de Pan, Comunidad Fruta de Pan",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.41513,
+      "longitud": -84.415693
     },
     {
       "numero": 64,
@@ -831,8 +805,8 @@
       "localidad": "Greytown, Greytown",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.553888,
+      "longitud": -84.518187
     },
     {
       "numero": 65,
@@ -844,8 +818,8 @@
       "localidad": "Comunidad El Guineo, Comunidad El Guineo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.396612,
+      "longitud": -84.515537
     },
     {
       "numero": 66,
@@ -857,8 +831,8 @@
       "localidad": "Halover, Halover",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.462873,
+      "longitud": -84.518463
     },
     {
       "numero": 67,
@@ -870,8 +844,8 @@
       "localidad": "Bo. Luis Alfonso Flores, Frente a Sandra Blandon., Bo. Luis Alfonso Flores, Frente a Sandra Blandon.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.580386,
+      "longitud": -84.484698
     },
     {
       "numero": 68,
@@ -883,8 +857,8 @@
       "localidad": "Comunidad Isnawas, Isnawas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.396777,
+      "longitud": -84.396566
     },
     {
       "numero": 69,
@@ -896,8 +870,8 @@
       "localidad": "Kahka, Kahka",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.531817,
+      "longitud": -84.481283
     },
     {
       "numero": 70,
@@ -909,8 +883,8 @@
       "localidad": "Kamla, Kamla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.351285,
+      "longitud": -84.563359
     },
     {
       "numero": 71,
@@ -922,8 +896,8 @@
       "localidad": "Comunidad de Karata, Comunidad de Karata",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.553779,
+      "longitud": -84.46894
     },
     {
       "numero": 72,
@@ -935,8 +909,8 @@
       "localidad": "Kisalaya, Comunidad de Kisalaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.420008,
+      "longitud": -84.535179
     },
     {
       "numero": 73,
@@ -948,8 +922,8 @@
       "localidad": "Kitaski , Comunidad de Kistaski",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.58948,
+      "longitud": -84.399271
     },
     {
       "numero": 74,
@@ -961,8 +935,8 @@
       "localidad": "Comunidad kiwastara, Comunidad de Kiwastara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.510511,
+      "longitud": -84.365703
     },
     {
       "numero": 75,
@@ -974,8 +948,8 @@
       "localidad": "Comunidad Klar, Comunidad de Klar",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.569254,
+      "longitud": -84.388277
     },
     {
       "numero": 76,
@@ -987,8 +961,8 @@
       "localidad": "Kligna, Kligna",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.567007,
+      "longitud": -84.585338
     },
     {
       "numero": 77,
@@ -1000,8 +974,8 @@
       "localidad": "Comunidad Klisnack, Comunidad de Klisnac",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.388835,
+      "longitud": -84.50789
     },
     {
       "numero": 78,
@@ -1013,8 +987,8 @@
       "localidad": "Koom, Comunidad de Koom",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.609586,
+      "longitud": -84.627688
     },
     {
       "numero": 79,
@@ -1026,8 +1000,8 @@
       "localidad": "Krasa, Comunidad de Krasa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.622932,
+      "longitud": -84.38805
     },
     {
       "numero": 80,
@@ -1039,8 +1013,8 @@
       "localidad": "Comunidad Krin - Krin, Comunidad Krin Krin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.518841,
+      "longitud": -84.497453
     },
     {
       "numero": 81,
@@ -1052,8 +1026,8 @@
       "localidad": "Krukira, Krukira",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.524185,
+      "longitud": -84.449508
     },
     {
       "numero": 82,
@@ -1065,8 +1039,8 @@
       "localidad": "Kuiwitigni, Comunidad de Kuiwitigni",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.474273,
+      "longitud": -84.458838
     },
     {
       "numero": 83,
@@ -1078,8 +1052,8 @@
       "localidad": "Laguna de Kukalaya, Kukalaya / Comunidad Kukalaya, Comunidad Kukalaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.425273,
+      "longitud": -84.633941
     },
     {
       "numero": 84,
@@ -1091,8 +1065,8 @@
       "localidad": "Kururia, Comunidad de Kururia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.355272,
+      "longitud": -84.574751
     },
     {
       "numero": 85,
@@ -1104,8 +1078,8 @@
       "localidad": "Kwakwill, Kwakwill",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.58396,
+      "longitud": -84.489173
     },
     {
       "numero": 86,
@@ -1117,8 +1091,8 @@
       "localidad": "Kwamwatla, Kuamwatla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.471636,
+      "longitud": -84.401339
     },
     {
       "numero": 87,
@@ -1130,8 +1104,8 @@
       "localidad": "Laguntara, Comunidad de Laguntara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.609404,
+      "longitud": -84.448535
     },
     {
       "numero": 88,
@@ -1143,8 +1117,8 @@
       "localidad": "Lamlaya, Lamlaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.633243,
+      "longitud": -84.472871
     },
     {
       "numero": 89,
@@ -1156,8 +1130,8 @@
       "localidad": "Lapan, Lapan",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.40328,
+      "longitud": -84.366132
     },
     {
       "numero": 90,
@@ -1169,8 +1143,8 @@
       "localidad": "Comunidad Lawas, Comunidad Lawas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.558785,
+      "longitud": -84.45433
     },
     {
       "numero": 91,
@@ -1182,8 +1156,8 @@
       "localidad": "Layasiksa, Layasiksa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.401351,
+      "longitud": -84.49957
     },
     {
       "numero": 92,
@@ -1195,8 +1169,8 @@
       "localidad": "Lidaukra, Lidaukra",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.498242,
+      "longitud": -84.356888
     },
     {
       "numero": 93,
@@ -1208,8 +1182,8 @@
       "localidad": "Comunidad Lisawe, Comunidad Lisawe",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.41921,
+      "longitud": -84.635051
     },
     {
       "numero": 94,
@@ -1221,8 +1195,8 @@
       "localidad": "Livinkreek, Comunidad de Livinkreeck",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.374948,
+      "longitud": -84.491182
     },
     {
       "numero": 95,
@@ -1234,8 +1208,8 @@
       "localidad": "Maniwatla, Maniwatla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.583011,
+      "longitud": -84.644806
     },
     {
       "numero": 96,
@@ -1247,8 +1221,8 @@
       "localidad": "Miguel Bikan, Comunidad de Miguel Bikan",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.4648,
+      "longitud": -84.416057
     },
     {
       "numero": 97,
@@ -1260,8 +1234,8 @@
       "localidad": "Comunidad Mongallo, Comunidad Mongallo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.609022,
+      "longitud": -84.397989
     },
     {
       "numero": 98,
@@ -1273,8 +1247,8 @@
       "localidad": "Comunidad Mukuswas, Comunidad Mukuswas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.618419,
+      "longitud": -84.447122
     },
     {
       "numero": 99,
@@ -1286,8 +1260,8 @@
       "localidad": "Comunidad Musawas, Comunidad Musawas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.638881,
+      "longitud": -84.411148
     },
     {
       "numero": 100,
@@ -1299,8 +1273,8 @@
       "localidad": "Naranjal, Naranjal",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.480925,
+      "longitud": -84.601484
     },
     {
       "numero": 101,
@@ -1312,8 +1286,8 @@
       "localidad": "Nazareth 1, Nazareth 1",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.542819,
+      "longitud": -84.504654
     },
     {
       "numero": 102,
@@ -1325,8 +1299,8 @@
       "localidad": "Comunidad Ninayari, Comunidad Ninayari",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.36554,
+      "longitud": -84.530544
     },
     {
       "numero": 103,
@@ -1338,8 +1312,8 @@
       "localidad": "Comunidad Oconwas, Comunidad Oconwas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.365189,
+      "longitud": -84.388834
     },
     {
       "numero": 104,
@@ -1351,8 +1325,8 @@
       "localidad": "Pahara, Pahara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.620691,
+      "longitud": -84.408796
     },
     {
       "numero": 105,
@@ -1364,8 +1338,8 @@
       "localidad": "Comunidad Peñas Blancas, Comunidad Peñas Blancas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.423753,
+      "longitud": -84.649011
     },
     {
       "numero": 106,
@@ -1377,8 +1351,8 @@
       "localidad": "Philpilia, Comunidad Philpilia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.64474,
+      "longitud": -84.367836
     },
     {
       "numero": 107,
@@ -1390,8 +1364,8 @@
       "localidad": "Comunidad platano, Comunidad Platano",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.567447,
+      "longitud": -84.614939
     },
     {
       "numero": 108,
@@ -1403,8 +1377,8 @@
       "localidad": "Comunidad Barra de Prinzapolka, Barra de Prinzapolka / Frente a la iglesia Morava, Comunidad La Barra",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.617496,
+      "longitud": -84.417896
     },
     {
       "numero": 109,
@@ -1416,8 +1390,8 @@
       "localidad": "Rahawawatla, Rahawawatla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.524884,
+      "longitud": -84.592885
     },
     {
       "numero": 110,
@@ -1429,8 +1403,8 @@
       "localidad": "Comunidad Risco de Oro, Comunidad Risco de Oro / Conunidad Risco de Oro.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.593743,
+      "longitud": -84.547775
     },
     {
       "numero": 111,
@@ -1442,8 +1416,8 @@
       "localidad": "Comunidad Rosa Grande, Comunidad Rosa Grande",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.471565,
+      "longitud": -84.526839
     },
     {
       "numero": 112,
@@ -1455,8 +1429,8 @@
       "localidad": "Sagnilaya, Sagnilaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.499158,
+      "longitud": -84.571798
     },
     {
       "numero": 113,
@@ -1468,8 +1442,8 @@
       "localidad": "Comunidad de Sahsa, Comunidad de Sahsa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.558645,
+      "longitud": -84.584991
     },
     {
       "numero": 114,
@@ -1481,8 +1455,8 @@
       "localidad": "Saklin, Comunidad de Saklin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.375528,
+      "longitud": -84.605024
     },
     {
       "numero": 115,
@@ -1494,8 +1468,8 @@
       "localidad": "San Alberto, Comunidad de San Alberto",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.499839,
+      "longitud": -84.599165
     },
     {
       "numero": 116,
@@ -1507,8 +1481,8 @@
       "localidad": "Sang Sang, Comunidad de Sang Sang",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.394961,
+      "longitud": -84.448331
     },
     {
       "numero": 117,
@@ -1520,8 +1494,8 @@
       "localidad": "Santa Martha, Santa Martha",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.553778,
+      "longitud": -84.566445
     },
     {
       "numero": 118,
@@ -1533,8 +1507,8 @@
       "localidad": "En frente de la Farmacia Popular, Bo. Carlos Salas / Comunidad Santa Rita, Comunidad Santa Rita / Comunidad Santa Rita, frente al PSFC.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.408551,
+      "longitud": -84.473137
     },
     {
       "numero": 119,
@@ -1546,8 +1520,8 @@
       "localidad": "Saupuka, Comunidad de Saupuka",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.381996,
+      "longitud": -84.64377
     },
     {
       "numero": 120,
@@ -1559,8 +1533,8 @@
       "localidad": "Sawa, Comunidad de Sawa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.481423,
+      "longitud": -84.633742
     },
     {
       "numero": 121,
@@ -1572,8 +1546,8 @@
       "localidad": "Comunidad Sikilta, Comunidad Sikilta",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.643986,
+      "longitud": -84.550199
     },
     {
       "numero": 122,
@@ -1585,8 +1559,8 @@
       "localidad": "Silibila, Silibila",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.353445,
+      "longitud": -84.389118
     },
     {
       "numero": 123,
@@ -1598,8 +1572,8 @@
       "localidad": "Sisin, Sisin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.5739,
+      "longitud": -84.521833
     },
     {
       "numero": 124,
@@ -1611,8 +1585,8 @@
       "localidad": "Bo. José Centeno. Detrás de la Escuela Ingnika Raya, Jose Centeno",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.380086,
+      "longitud": -84.446509
     },
     {
       "numero": 125,
@@ -1624,8 +1598,8 @@
       "localidad": "Sukatping, Sukatping",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.509536,
+      "longitud": -84.558905
     },
     {
       "numero": 126,
@@ -1637,8 +1611,8 @@
       "localidad": "Comunidad de Sumubila, Comunidad de Sumubila",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.369865,
+      "longitud": -84.624075
     },
     {
       "numero": 127,
@@ -1650,8 +1624,8 @@
       "localidad": "Comunidad Susun, Comunidad Susun",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.574651,
+      "longitud": -84.608144
     },
     {
       "numero": 128,
@@ -1663,8 +1637,8 @@
       "localidad": "Comunidad Tadazna, Comunidad Tadazna",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.574227,
+      "longitud": -84.476729
     },
     {
       "numero": 129,
@@ -1676,8 +1650,8 @@
       "localidad": "Tasba Pain, Comunidad de Tasba Pain",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.514754,
+      "longitud": -84.509205
     },
     {
       "numero": 130,
@@ -1689,8 +1663,8 @@
       "localidad": "Tronquera, Comunidad de Tronquera",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.606374,
+      "longitud": -84.353845
     },
     {
       "numero": 131,
@@ -1702,8 +1676,8 @@
       "localidad": "Tuapi, Tuapi",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.468312,
+      "longitud": -84.363158
     },
     {
       "numero": 132,
@@ -1715,8 +1689,8 @@
       "localidad": "Comunidad de Tuara, Comunidad de Tuara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.607885,
+      "longitud": -84.567119
     },
     {
       "numero": 133,
@@ -1728,8 +1702,8 @@
       "localidad": "Tuburus, Tuburus",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.579796,
+      "longitud": -84.552798
     },
     {
       "numero": 134,
@@ -1741,8 +1715,8 @@
       "localidad": "Tuskru Sirpi, Comunidad de Tuskru Sirpi",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.512821,
+      "longitud": -84.43926
     },
     {
       "numero": 135,
@@ -1754,8 +1728,8 @@
       "localidad": "Tuskrutara, Comunidad de Tuskru Tara",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.369418,
+      "longitud": -84.463194
     },
     {
       "numero": 136,
@@ -1767,8 +1741,8 @@
       "localidad": "Uhri, Comunidad de Uhry",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.639735,
+      "longitud": -84.562631
     },
     {
       "numero": 137,
@@ -1780,8 +1754,8 @@
       "localidad": "Comunidad Unikuas, Comunidad Unikuas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.563801,
+      "longitud": -84.549424
     },
     {
       "numero": 138,
@@ -1793,8 +1767,8 @@
       "localidad": "Comunidad Unión Labú, Comunidad Unión Labú",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.465018,
+      "longitud": -84.51193
     },
     {
       "numero": 139,
@@ -1806,8 +1780,8 @@
       "localidad": "Comunidad Vesubio, Comunidad Vesubio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.46269,
+      "longitud": -84.382259
     },
     {
       "numero": 140,
@@ -1819,8 +1793,8 @@
       "localidad": "Walpasiksa, Walpasiksa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.612884,
+      "longitud": -84.468657
     },
     {
       "numero": 141,
@@ -1832,8 +1806,8 @@
       "localidad": "Comunidad Wany, Comunidad Wany",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.536563,
+      "longitud": -84.500412
     },
     {
       "numero": 142,
@@ -1845,8 +1819,8 @@
       "localidad": "Comunidad Wasakin, Comunidad Wasakin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.596149,
+      "longitud": -84.455419
     },
     {
       "numero": 143,
@@ -1858,8 +1832,8 @@
       "localidad": "Wasla, Comunidad de Wasla",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.426011,
+      "longitud": -84.382985
     },
     {
       "numero": 144,
@@ -1871,8 +1845,8 @@
       "localidad": "Wawa Bar, Wawa Bar",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.377363,
+      "longitud": -84.53055
     },
     {
       "numero": 145,
@@ -1884,8 +1858,8 @@
       "localidad": "Comunidad de Wisconsin, Comunidad de Wisconsin",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.41179,
+      "longitud": -84.405007
     },
     {
       "numero": 146,
@@ -1897,8 +1871,8 @@
       "localidad": "Comunidad Wiwas, Comunidad Wiwas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.479733,
+      "longitud": -84.56799
     },
     {
       "numero": 147,
@@ -1910,8 +1884,8 @@
       "localidad": "Wiwinack, Comunidad de Wiwinak",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.369245,
+      "longitud": -84.54666
     },
     {
       "numero": 148,
@@ -1923,8 +1897,8 @@
       "localidad": "Wontabar, Wontabar",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.577687,
+      "longitud": -84.472963
     },
     {
       "numero": 149,
@@ -1936,8 +1910,8 @@
       "localidad": "Yulu, Yulu",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.62201,
+      "longitud": -84.555805
     },
     {
       "numero": 150,
@@ -1949,8 +1923,8 @@
       "localidad": "Comunidad Zapote Kum, Comunidad Zapote Kum",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.572527,
+      "longitud": -84.518567
     },
     {
       "numero": 151,
@@ -1962,8 +1936,8 @@
       "localidad": "Calle Principal, contiguo a a iglesia Morava",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.479051,
+      "longitud": -84.383017
     },
     {
       "numero": 152,
@@ -1975,8 +1949,8 @@
       "localidad": "Bo 4 de mayo Frente a la casa del mecanico Taly",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 14.361331,
+      "longitud": -84.365344
     }
   ]
 }

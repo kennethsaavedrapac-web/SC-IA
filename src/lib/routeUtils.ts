@@ -89,3 +89,58 @@ export function isRouteDeviated(userLoc: Coordinate, routePath: Coordinate[], th
   const currentDeviation = getDistanceToRoute(userLoc, routePath);
   return currentDeviation > thresholdMeters;
 }
+
+export interface RouteTarget {
+  latitude?: number | null;
+  longitude?: number | null;
+  name?: string;
+  address?: string;
+  locality?: string;
+  municipality?: string;
+  department?: string;
+}
+
+/**
+ * Builds a universal Google Maps directions URL that calculates and displays the route.
+ * If origin coordinates are provided, it explicitly sets the starting point.
+ * Otherwise, Google Maps defaults to the user's current device GPS location.
+ */
+export function getGoogleMapsRouteUrl(
+  destination: RouteTarget,
+  origin?: Coordinate | null
+): string {
+  const params = new URLSearchParams();
+  params.set("api", "1");
+
+  if (
+    origin &&
+    typeof origin.latitude === "number" &&
+    typeof origin.longitude === "number" &&
+    !isNaN(origin.latitude) &&
+    !isNaN(origin.longitude)
+  ) {
+    params.set("origin", `${origin.latitude},${origin.longitude}`);
+  }
+
+  if (
+    typeof destination.latitude === "number" &&
+    typeof destination.longitude === "number" &&
+    !isNaN(destination.latitude) &&
+    !isNaN(destination.longitude)
+  ) {
+    params.set("destination", `${destination.latitude},${destination.longitude}`);
+  } else {
+    const parts = [
+      destination.name,
+      destination.address,
+      destination.locality,
+      destination.municipality,
+      destination.department,
+      "Nicaragua",
+    ].filter(Boolean);
+    params.set("destination", parts.join(", ") || "Nicaragua");
+  }
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+

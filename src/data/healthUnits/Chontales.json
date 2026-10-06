@@ -12,8 +12,8 @@
       "localidad": "Comunidad San Lorenzo, de la escuela 200 mts oeste, San Lorenzo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.01607,
+      "longitud": -85.163541
     },
     {
       "numero": 2,
@@ -25,8 +25,8 @@
       "localidad": "Comunidad Buena Vista, frente a la escuela, Buena Vista",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.124014,
+      "longitud": -85.216635
     },
     {
       "numero": 3,
@@ -38,8 +38,8 @@
       "localidad": "En predio de Centro de Salud Familiar. Sede Municipal",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.005617,
+      "longitud": -85.293075
     },
     {
       "numero": 4,
@@ -51,8 +51,8 @@
       "localidad": "Gasolinera El Puma 4c. oeste 1c. al sur",
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.068777,
+      "longitud": -85.135449
     },
     {
       "numero": 5,
@@ -64,8 +64,8 @@
       "localidad": "De la gasolinera Petronic 300 mts. al Este., Barrio Babiera Zona B",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.047774,
+      "longitud": -85.04816
     },
     {
       "numero": 6,
@@ -77,8 +77,8 @@
       "localidad": "Costado Sur de Catedral Asunción., Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.999116,
+      "longitud": -85.196046
     },
     {
       "numero": 7,
@@ -90,8 +90,8 @@
       "localidad": "Zona No. 3 Esquina de Juana Tapia, 3c. Al Sur., Barrio La Unión",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.900025,
+      "longitud": -85.027907
     },
     {
       "numero": 8,
@@ -103,8 +103,8 @@
       "localidad": "De la Alcaldia 1/2c al Norte., Zona # 2",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.071393,
+      "longitud": -85.259642
     },
     {
       "numero": 9,
@@ -116,8 +116,8 @@
       "localidad": "Club Social 1/2c. al Norte., Zona 2, San Pedro de Lóvago Chontales",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.010475,
+      "longitud": -85.033216
     },
     {
       "numero": 10,
@@ -129,8 +129,8 @@
       "localidad": "Frente al Cementerio de La Libertad., Barrio Miguel Merel",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.98091,
+      "longitud": -85.191384
     },
     {
       "numero": 11,
@@ -142,8 +142,8 @@
       "localidad": "Costado Oeste del Parque Central., Barrio Pablo Ubeda",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.089352,
+      "longitud": -85.22176
     },
     {
       "numero": 12,
@@ -155,8 +155,8 @@
       "localidad": "Frente al Cementerio de Santo Domingo., Barrio Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.848225,
+      "longitud": -85.034405
     },
     {
       "numero": 13,
@@ -168,8 +168,8 @@
       "localidad": "De la Alcaldia 2c al Oeste., Zona # 4, Villa Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.893526,
+      "longitud": -85.091112
     },
     {
       "numero": 14,
@@ -181,8 +181,8 @@
       "localidad": "Zona No. 1. Frente a Restaurante El Vaquero",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.070242,
+      "longitud": -85.135033
     },
     {
       "numero": 15,
@@ -194,8 +194,8 @@
       "localidad": "Barrio el Rodeo. Frente a Restaurante Las Posadas.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.020657,
+      "longitud": -85.259049
     },
     {
       "numero": 16,
@@ -207,8 +207,8 @@
       "localidad": "Del Centro de Salud Familiar 1c. Al Oeste 2c. Al Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.975249,
+      "longitud": -85.251387
     },
     {
       "numero": 17,
@@ -220,8 +220,8 @@
       "localidad": "Frente al Mercado Mayales, Juigalpa., Barrio Héctor Ugarte II",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.071536,
+      "longitud": -85.316498
     },
     {
       "numero": 18,
@@ -233,8 +233,8 @@
       "localidad": "Km 141 carretera Managua - El Rama., La Repetidora",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.963227,
+      "longitud": -85.064888
     },
     {
       "numero": 19,
@@ -246,8 +246,8 @@
       "localidad": "De la alcaldía 2c. Al Este, donde fue el Centro de Salud",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.000322,
+      "longitud": -85.0182
     },
     {
       "numero": 20,
@@ -259,8 +259,8 @@
       "localidad": "Juigalpa, Contiguo a BANPRO., Barrio Central",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.928449,
+      "longitud": -85.147231
     },
     {
       "numero": 21,
@@ -272,8 +272,8 @@
       "localidad": "Barrio Valle Verde",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.963943,
+      "longitud": -85.111911
     },
     {
       "numero": 22,
@@ -285,8 +285,8 @@
       "localidad": "Contigo a la casa Comunal., Comunidad Betulia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.988165,
+      "longitud": -85.07986
     },
     {
       "numero": 23,
@@ -298,8 +298,8 @@
       "localidad": "Finca Santa Rita. Comarca Zanzibar., Comarca Bulún",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.98637,
+      "longitud": -85.209798
     },
     {
       "numero": 24,
@@ -311,8 +311,8 @@
       "localidad": "Iglesia Católica 50 varas al este., Comarca Bulún 2",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.857752,
+      "longitud": -85.217024
     },
     {
       "numero": 25,
@@ -324,8 +324,8 @@
       "localidad": "Carretera a San Carlos. Entrada a Guasimal, 18 Km hacia adentro., Comunidad El Chinal.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.0795,
+      "longitud": -85.054443
     },
     {
       "numero": 26,
@@ -337,8 +337,8 @@
       "localidad": "Contiguo a la escuela. , Comunidad Carquita",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.932997,
+      "longitud": -85.27647
     },
     {
       "numero": 27,
@@ -350,8 +350,8 @@
       "localidad": "Contiguo a la casa de don Eladio Masís., Comunidad Bambú",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.122917,
+      "longitud": -85.018182
     },
     {
       "numero": 28,
@@ -363,8 +363,8 @@
       "localidad": "De la Clancha, 200 mts. Al este., Comunidad. Concepción.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.939993,
+      "longitud": -85.226084
     },
     {
       "numero": 29,
@@ -376,8 +376,8 @@
       "localidad": "Escuela Cuisalá, 100 mts. Al Sur., Cuisala",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.878472,
+      "longitud": -85.19062
     },
     {
       "numero": 30,
@@ -389,8 +389,8 @@
       "localidad": "Zona # 7. Mercado Mayales. Salida carretera a Rama.",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.032788,
+      "longitud": -85.166458
     },
     {
       "numero": 31,
@@ -402,8 +402,8 @@
       "localidad": "Zona # 7 Mercado Mayales Salida carretera a El Rama., Hector Ugarte No. 2",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.894034,
+      "longitud": -85.210194
     },
     {
       "numero": 32,
@@ -415,8 +415,8 @@
       "localidad": "Carretera a Puerto Díaz entrada a Guapinolapa 3 Km al norte., Comunidad El Arrayan.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.028822,
+      "longitud": -85.294836
     },
     {
       "numero": 33,
@@ -428,8 +428,8 @@
       "localidad": "Del Instituto de Villa Sandino , 45 kms. sobre la trocha, contiguo al parque del Guabo., Comunidad Guabo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.917144,
+      "longitud": -85.10349
     },
     {
       "numero": 34,
@@ -441,8 +441,8 @@
       "localidad": "Comarca el jobito, Ubicado al final del Caserío, En Límite de Finca de Mario Urbina y Humberto Urbina",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.893295,
+      "longitud": -85.021912
     },
     {
       "numero": 35,
@@ -454,8 +454,8 @@
       "localidad": "Cooperativa El Juste 1/2 C AL N. Juste No. 1., Comarca El Juste",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.904309,
+      "longitud": -85.080707
     },
     {
       "numero": 36,
@@ -467,8 +467,8 @@
       "localidad": "Del parque de la comunidad 300 metros al este., Pochote",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.132621,
+      "longitud": -85.159539
     },
     {
       "numero": 37,
@@ -480,8 +480,8 @@
       "localidad": "De la escuela el Silencio 2, 1 Km. al Este, frente a la finca la Esperanza., Comunidad El Silencio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.109766,
+      "longitud": -85.031048
     },
     {
       "numero": 38,
@@ -493,8 +493,8 @@
       "localidad": "Comunidad San Ignacio, Frente a la Escuela",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.857019,
+      "longitud": -85.176067
     },
     {
       "numero": 39,
@@ -506,8 +506,8 @@
       "localidad": "Comunidad Garrobo Grande., Comunidad Garrobo Grande",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.081632,
+      "longitud": -85.07786
     },
     {
       "numero": 40,
@@ -519,8 +519,8 @@
       "localidad": "Zona No. 7. Del Portón Hospital Asunción 3 c al oeste, Hector Ugarte No. 1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.955916,
+      "longitud": -85.289201
     },
     {
       "numero": 41,
@@ -532,8 +532,8 @@
       "localidad": "Del rastro municipal 17kms. sobre la trocha, (de la iglesia catolica 1 c oeste)., Comunidad Jicarito",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.882664,
+      "longitud": -85.242945
     },
     {
       "numero": 42,
@@ -545,8 +545,8 @@
       "localidad": "Frente a la Escuela Gabino Gainza., Jicotepe",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.881412,
+      "longitud": -85.05134
     },
     {
       "numero": 43,
@@ -558,8 +558,8 @@
       "localidad": "Del puente la pita, 30 km.s sobre la trocha , contiguo a la escuela., Comunidad Oropéndola",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.000695,
+      "longitud": -85.141715
     },
     {
       "numero": 44,
@@ -571,8 +571,8 @@
       "localidad": "Contiguo a la Casa Comunal de la Comunidad., La Palma",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.091042,
+      "longitud": -85.123696
     },
     {
       "numero": 45,
@@ -584,8 +584,8 @@
       "localidad": "Frente a la Escuela Pitahaya., Pitahaya",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.962636,
+      "longitud": -85.041573
     },
     {
       "numero": 46,
@@ -597,8 +597,8 @@
       "localidad": "Empalme Llano Grande, 1 Km sobre carretera. Costado Oeste del parque., Comunidad Llano Grande",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.856334,
+      "longitud": -85.147842
     },
     {
       "numero": 47,
@@ -610,8 +610,8 @@
       "localidad": "Rotonda 150 metros al norte., Comarca Los Chinamos",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.880559,
+      "longitud": -85.045044
     },
     {
       "numero": 48,
@@ -623,8 +623,8 @@
       "localidad": "Del puente la pita, 15kms. sobre la trocha frente al campo de beisbol., Comunidad Mollejones",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.956717,
+      "longitud": -85.059268
     },
     {
       "numero": 49,
@@ -636,8 +636,8 @@
       "localidad": "Contiguo a la Escuela de la Comunidad de Lóvago., Lóvago",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.976083,
+      "longitud": -85.192781
     },
     {
       "numero": 50,
@@ -649,8 +649,8 @@
       "localidad": "De la parada de buses de Palo de Hule 1 c al norte., Barrio Pedro Joaquín Chamorro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.974649,
+      "longitud": -85.212171
     },
     {
       "numero": 51,
@@ -662,8 +662,8 @@
       "localidad": "Al fnal del caserío Nawawas, salida a Nueva Luz., Comarca Nawawas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1143,
+      "longitud": -85.204316
     },
     {
       "numero": 52,
@@ -675,8 +675,8 @@
       "localidad": "Entrada del poblado. Contiguo a la finca de la señora Felipa Salazar., Comarca Nueva Luz",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.981627,
+      "longitud": -85.236389
     },
     {
       "numero": 53,
@@ -688,8 +688,8 @@
       "localidad": "Zona # 7 Cancha Padre Miguel, 1/2c. al Sur., Padre Miguel",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.075443,
+      "longitud": -85.202257
     },
     {
       "numero": 54,
@@ -701,8 +701,8 @@
       "localidad": "Contigo a la Iglesia católica., Comunidad Palmira II",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.025836,
+      "longitud": -85.311286
     },
     {
       "numero": 55,
@@ -714,8 +714,8 @@
       "localidad": "De la venta de Jeannette Oporta 40 vrs. al Oeste., Pikin Guerrero",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.890802,
+      "longitud": -85.117371
     },
     {
       "numero": 56,
@@ -727,8 +727,8 @@
       "localidad": "Contiguo a la Iglesia Católica, finca de don Atilio Díaz ., Comarca Poza Redonda",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.925974,
+      "longitud": -85.049147
     },
     {
       "numero": 57,
@@ -740,8 +740,8 @@
       "localidad": "Contiguo a Casa de Féliz Cruz., Puerto Díaz",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.094873,
+      "longitud": -85.069924
     },
     {
       "numero": 58,
@@ -753,8 +753,8 @@
       "localidad": "Km. 128, Carretera a Managua 300 mts. Al Este., Comunidad. San Esteban.",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.851287,
+      "longitud": -85.052735
     },
     {
       "numero": 59,
@@ -766,8 +766,8 @@
       "localidad": "Contiguo a la Capilla de la Comunidad., San Felipe",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.92301,
+      "longitud": -85.294531
     },
     {
       "numero": 60,
@@ -779,8 +779,8 @@
       "localidad": "Km. 108 carretera Managua - El Rama, San Patricio",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.128274,
+      "longitud": -85.106248
     },
     {
       "numero": 61,
@@ -792,8 +792,8 @@
       "localidad": "Contiguo al Juzgado Municipal., Barrio Sandino",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.047129,
+      "longitud": -85.018
     },
     {
       "numero": 62,
@@ -805,8 +805,8 @@
       "localidad": "Frente al predio del Campo de Béisbol., Comunidad Tawa",
       "zona": "Rural",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.120265,
+      "longitud": -85.097604
     },
     {
       "numero": 63,
@@ -818,8 +818,8 @@
       "localidad": "Zona No. 2. Detrás del Colegio Flor Esmilda., Pedro Joaquín Chamorro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.000325,
+      "longitud": -85.080296
     },
     {
       "numero": 64,
@@ -831,8 +831,8 @@
       "localidad": "Zona No. 3. De Bancentro 1 1/2 al Oeste, Bo. Cruz Verde",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.118996,
+      "longitud": -85.172063
     },
     {
       "numero": 65,
@@ -844,8 +844,8 @@
       "localidad": "Zona. No. 4. Del Puente El Santuario 2c al sur 1c 1/2 al este., El Santuario",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.990812,
+      "longitud": -85.034506
     },
     {
       "numero": 66,
@@ -857,8 +857,8 @@
       "localidad": "Zona No. 6. Contiguo al Polideportivo Alexis Arguello., Tamanes",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 11.931683,
+      "longitud": -85.110591
     },
     {
       "numero": 67,
@@ -870,8 +870,8 @@
       "localidad": "Zona # 8. Del depósito de Pollo Tip Top 2c. Al Este., La Repetidora",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.074184,
+      "longitud": -85.061685
     },
     {
       "numero": 68,
@@ -883,8 +883,8 @@
       "localidad": "De ENITEL 2c al Oeste., Zona D",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.002579,
+      "longitud": -85.229554
     },
     {
       "numero": 69,
@@ -896,8 +896,8 @@
       "localidad": "Zona No. 2. De la Petronic 1/2 c. al Oeste, Bo. Hector Ugarte No. 1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.080559,
+      "longitud": -85.290057
     }
   ]
 }
