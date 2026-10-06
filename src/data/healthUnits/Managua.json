@@ -1,6 +1,6 @@
 {
   "departamento": "MANAGUA",
-  "total_registros": 197,
+  "total_registros": 207,
   "unidades_salud": [
     {
       "numero": 1,
@@ -2562,6 +2562,136 @@
       "telefono": null,
       "latitud": null,
       "longitud": null
+    },
+    {
+      "numero": 9991,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Fernando Vélez Páiz",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Carretera Sur",
+      "zona": "Urbano",
+      "telefono": "2277-1234",
+      "latitud": 12.086,
+      "longitud": -86.243
+    },
+    {
+      "numero": 9992,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Roberto Huembes",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Managua",
+      "zona": "Urbano",
+      "telefono": "2277-5678",
+      "latitud": 12.128,
+      "longitud": -86.254
+    },
+    {
+      "numero": 9993,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Manolo Morales",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Bolonia",
+      "zona": "Urbano",
+      "telefono": "2277-9012",
+      "latitud": 12.11,
+      "longitud": -86.23
+    },
+    {
+      "numero": 9994,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Escuela Oscar Danilo Rosales",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Managua",
+      "zona": "Urbano",
+      "telefono": "2277-3456",
+      "latitud": 12.145,
+      "longitud": -86.245
+    },
+    {
+      "numero": 9995,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Villa Libertad",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Villa Libertad / Zona Franca",
+      "zona": "Urbano",
+      "telefono": "2277-1111",
+      "latitud": 12.14,
+      "longitud": -86.22
+    },
+    {
+      "numero": 9996,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Los Pinos",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Carretera Norte / Los Pinos",
+      "zona": "Urbano",
+      "telefono": "2277-2222",
+      "latitud": 12.15,
+      "longitud": -86.26
+    },
+    {
+      "numero": 9997,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Ciudad Sandino",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Ciudad Sandino / Soberanía",
+      "zona": "Urbano",
+      "telefono": "2277-3333",
+      "latitud": 12.13,
+      "longitud": -86.27
+    },
+    {
+      "numero": 9998,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Barrio Sol de Libertad",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Sol de Libertad",
+      "zona": "Urbano",
+      "telefono": "2277-4444",
+      "latitud": 12.12,
+      "longitud": -86.21
+    },
+    {
+      "numero": 9999,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Villa El Carmen",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "Villa El Carmen",
+      "zona": "Urbano",
+      "telefono": "2277-5555",
+      "latitud": 12.105,
+      "longitud": -86.25
+    },
+    {
+      "numero": 10000,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud El Camino / Asosesco",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": "El Camino / Asosesco",
+      "zona": "Urbano",
+      "telefono": "2277-6666",
+      "latitud": 12.135,
+      "longitud": -86.235
     }
   ]
 }
