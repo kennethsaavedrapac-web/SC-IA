@@ -1,6 +1,6 @@
 {
   "departamento": "MATAGALPA",
-  "total_registros": 215,
+  "total_registros": 201,
   "unidades_salud": [
     {
       "numero": 1,
@@ -27,19 +27,6 @@
       "telefono": null,
       "latitud": 13.059423,
       "longitud": -85.916172
-    },
-    {
-      "numero": 3,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Somotillo",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 13.043555,
-      "longitud": -86.045258
     },
     {
       "numero": 4,
@@ -287,19 +274,6 @@
       "telefono": null,
       "latitud": 12.789253,
       "longitud": -85.870584
-    },
-    {
-      "numero": 23,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Carlos Fonseca Amador (antes Noel Morales 5)",
-      "tipo_unidad_salud": "Puesto de Salud / Centro Especializado Oftalmológico",
-      "departamento_region": "Matagalpa",
-      "municipio": "Matagalpa",
-      "localidad": "Sistema penitenciario, 2½c. Al Sur, costado Oeste, Carlos Fonseca Amador / De la Iglesia católica San Lorenzo, 2½c. Al oeste, Carlos Fonseca Amador / Contiguo Alcaldía Municipal , Barrio 18 de Julio / Tipitapa. Farmacia Tipitapa 1 1/2 c. arriba, Noel Morales 5 / Contiguo al Mercado, Noel Morales 4 / De la gasolinera gas central, 5 c. Al sur, Barrio Otoniel Arauz",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 12.894041,
-      "longitud": -85.992305
     },
     {
       "numero": 24,
@@ -900,19 +874,6 @@
       "longitud": -86.082597
     },
     {
-      "numero": 70,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud El Castillo Arriba",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "La Libertad",
-      "localidad": "Entrada principal a la Comunidad., Comunidad Castillo II / Contiguo a la escuela primaria de la comunidad El Castillo Arriba, Comunidad El Castillo Arriba",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 12.96681,
-      "longitud": -85.968436
-    },
-    {
       "numero": 71,
       "silais": "MATAGALPA",
       "nombre": "Puesto de salud el Chile # 2",
@@ -1041,19 +1002,6 @@
       "telefono": null,
       "latitud": 13.030092,
       "longitud": -86.017615
-    },
-    {
-      "numero": 81,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud El Naranjo",
-      "tipo_unidad_salud": "Puesto de Salud / Casa Materna",
-      "departamento_region": "Matagalpa",
-      "municipio": "Comalapa",
-      "localidad": "Pasada del Río El narajo 200 mts. Al Sur., Comunidad. El Naranjo. / Frente a la Hidroelectrica / Frente a la Hidroeléctrica, Comunidad Naranjo Central / Contiguo a la escuela del Naranjo, Comunidad El Naranjo / Comunidad Naranjo Central, Contiguo a la Filial de la Alcaldia Municipal, El Naranjo Central",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 12.868529,
-      "longitud": -86.057312
     },
     {
       "numero": 82,
@@ -1654,19 +1602,6 @@
       "longitud": -85.785023
     },
     {
-      "numero": 128,
-      "silais": "MATAGALPA",
-      "nombre": "Policlínico Adulto Mayor \"Lidia Saavedra de Ortega\"",
-      "tipo_unidad_salud": "Casa Materna / Clínicas Médicas Provisionales / Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Matagalpa",
-      "localidad": "Zona # 5 Mercado 1c.Sur, en las instalaciones del Hospital Primario / Del Ministerio del Trabajo 2c. arriba 2c. al lago / Semáforos del parque Darío, 2 1/2 c. Al oeste, Barrio El Progreso",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 12.920324,
-      "longitud": -85.847388
-    },
-    {
       "numero": 129,
       "silais": "MATAGALPA",
       "nombre": "Puesto de Salud Likia Abajo",
@@ -1953,19 +1888,6 @@
       "longitud": -85.95089
     },
     {
-      "numero": 151,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Pancasán",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Granada",
-      "localidad": "Costado norte Casa Comunal, Barrio Villa Sultana #1 / Barrio Pancasán, Terminal de buses 1 1/2 al este, Pancasán / Del Parque municipal, 1 cuadra al sur y 1 cuadra al este, Barrio Pancasán / Costado Norte Campo de Baseball , Bario Pancasan",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 12.851661,
-      "longitud": -85.814699
-    },
-    {
       "numero": 152,
       "silais": "MATAGALPA",
       "nombre": "Puesto de Salud Papayo 2",
@@ -2161,19 +2083,6 @@
       "longitud": -85.868181
     },
     {
-      "numero": 167,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Rubén Darío II (Urbano)",
-      "tipo_unidad_salud": "Puesto de Salud / Centro de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "León",
-      "localidad": "Preescolar 5c. Abajo Reparto Rubén Darío, Reparto Ruben Dario / Comunidad de Veracruz, Comunidad Veracruz / Km. 90 1/2 salida a Matagalpa, Barrio Finlandia / De la Escuela Hugo Chavez 1 C al sur y media al Oeste, Barrio Ruben Dario / Frente al parque municipal, Barrio Rubén Darío",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 13.066468,
-      "longitud": -85.810943
-    },
-    {
       "numero": 168,
       "silais": "MATAGALPA",
       "nombre": "Puesto de Salud Sabadell",
@@ -2226,32 +2135,6 @@
       "longitud": -85.881132
     },
     {
-      "numero": 172,
-      "silais": "MATAGALPA",
-      "nombre": "Hospital Alfredo Pellas - Ingenio San Antonio",
-      "tipo_unidad_salud": "Puesto de Salud / Otros Hospitales(Pago directo, IPSS)",
-      "departamento_region": "Matagalpa",
-      "municipio": "Camoapa",
-      "localidad": "Comarca San Antonio, Comarca San Antonio / Contiguo a escuela Reparto San Antonio, San Antonio / Comarca Valle San Antonio, Comunidad Valle Centro, Valle San Antonio / Comarca SAS Club Casa España, Comarca San Antonio Sur / Finca de familia Torres, comunidad Anzuelo San Antonio / Entre la carretera de Waslala a San Antonio de Yaró,45 Km de Waslala, de la capilla 100 varas al noreste, San Antonio de Yaro / Comunidad San Antonio, Comunidad de San Antonio / Frente a la Escuela de la Colonia San Antonio., Colonia San Antonio / Contiguo a la Iglesia Católica, San Antonio kukarawala",
-      "zona": "Rural / Urbano",
-      "telefono": null,
-      "latitud": 13.05526,
-      "longitud": -85.949761
-    },
-    {
-      "numero": 173,
-      "silais": "MATAGALPA",
-      "nombre": "Hospital Primario San Francisco de Asís",
-      "tipo_unidad_salud": "Hospital Primario / Puesto de Salud / Centro de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Camoapa",
-      "localidad": "De la farmacia del Divino Niño 7 c. al norte / empalme de Camoapa , San Francisco., Comarca San Francisco / Del portón Quinta Lidia, 100 metros al Norte., Barrio Villa Hermosa / Zona # 1. Colegio San Francisco 1 1/2 al Sur. Frente a la UNI., Virgen María / Comunidad San Francisco, Comunidad San Francisco / Comunidad de San Francisco, Comunidad San Francisco / Barrio San Francisco, en el antiguo Centro de Salud, del parque municipal 1/2 c. Al oeste, San Francisco / De el emaplme el corozo 100 ms al norte, San francisco Pancasan / Contiguo a la delegación Policial la Aurora, La Aurora",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 12.880497,
-      "longitud": -85.945592
-    },
-    {
       "numero": 174,
       "silais": "MATAGALPA",
       "nombre": "Puesto de Salud San Juanillo",
@@ -2263,32 +2146,6 @@
       "telefono": null,
       "latitud": 12.84657,
       "longitud": -85.929729
-    },
-    {
-      "numero": 175,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud San Luis de Caratera",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Puerto Morazán",
-      "localidad": "Contiguo a escuela primaria San Isidro, San Luis de Amayo / Frente a la iglesia evangélica, Comunidad de San Luis / Contiguo al cuadro de baseball de carretera, Caratera",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 13.020442,
-      "longitud": -85.847747
-    },
-    {
-      "numero": 176,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud San Miguel de Chachagua",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Waslala",
-      "localidad": "Comunidad San Miguel Dudú, de la iglesia Angostura de Dudú 4 km al noroeste, contiguo a la escuela de San Miguel Dudú, San Miguel Dudu / Frente a la plaza en la Comunidad San Miguel Las Vallas, San Miguel Las Vallas / Comunidad San Miguel de Chachagua, Chachagua / Frente a la Escuela e la Comunidad San Miguel., Colonia San Miguel",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 13.083043,
-      "longitud": -85.909557
     },
     {
       "numero": 177,
@@ -2317,19 +2174,6 @@
       "longitud": -85.938119
     },
     {
-      "numero": 179,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Santa Clara",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "San Nicolás",
-      "localidad": "Contiguo a la iglesia evangélica de la comunidad, Comunidad Santa Clara / Contiguo a la escuela primaria del barrio Santa Clara, Barrio Santa Clara / Santa Clara, Comunidad de Santa Clara",
-      "zona": "Rural / Urbano",
-      "telefono": null,
-      "latitud": 12.928792,
-      "longitud": -85.80814
-    },
-    {
       "numero": 180,
       "silais": "MATAGALPA",
       "nombre": "Puesto de Salud Santa Emilia",
@@ -2341,32 +2185,6 @@
       "telefono": null,
       "latitud": 12.832193,
       "longitud": -86.013319
-    },
-    {
-      "numero": 181,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Santa María de Los Ángeles",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "Managua",
-      "localidad": "Bo. Riguero detrás de Talleres Modernos, El Riguero / Comunidad Santa María de Kubaly, al tope de la carretera de Santa María, Santa MarÍa Kubali / Detrás de la casa de la Familia Fox, Barrio Arlen Siu / Comunidad Santa María, Comunidad Santa María / De la Escuela 2c al oeste, Colonia Los Angeles / Del parque de la comunidad Los Angeles 200mts al norte, Los Angeles / Comunidad Los Angeles, Los Angeles",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 13.001705,
-      "longitud": -85.833833
-    },
-    {
-      "numero": 182,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud Santa Rosa de los  Parrales",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Matagalpa",
-      "municipio": "El Cuá",
-      "localidad": "Comarca Santa Rosa, Comunidad Santa Rosa / De la escuela 500 mts al sur, Santa Rosa 2 / Contiguo a Escuela Primaria Santa Rosa, Comunidad Santa Rosa / De la COTRAN san Isidro, 3 Km al este, Comunidad Santa Rosa / Esquina opuesta al aeropuerto, Barrio santa Rosa",
-      "zona": "Rural / Urbano",
-      "telefono": null,
-      "latitud": 12.784621,
-      "longitud": -85.784477
     },
     {
       "numero": 183,

@@ -1,6 +1,6 @@
 {
   "departamento": "ESTELÍ",
-  "total_registros": 66,
+  "total_registros": 65,
   "unidades_salud": [
     {
       "numero": 1,
@@ -573,19 +573,6 @@
       "telefono": null,
       "latitud": 13.1106,
       "longitud": -86.228426
-    },
-    {
-      "numero": 45,
-      "silais": "CARAZO",
-      "nombre": "Puesto de Salud Los Encuentros",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Estelí",
-      "municipio": "Santa Teresa",
-      "localidad": "Entrada principal de los encuentros, mano derecha sobre el camino, Comarca Los Encuentros / De la casa del Brigadista Norlan Martínez 25 varas al este., Comunidad Los Encuentros",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 13.095078,
-      "longitud": -86.318061
     },
     {
       "numero": 46,

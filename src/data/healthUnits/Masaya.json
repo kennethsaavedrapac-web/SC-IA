@@ -1,6 +1,6 @@
 {
   "departamento": "MASAYA",
-  "total_registros": 50,
+  "total_registros": 46,
   "unidades_salud": [
     {
       "numero": 1,
@@ -51,8 +51,8 @@
       "localidad": "De laboratory Divina 1 km hacia arriba. Contiguo al CDI, Reparto Rubén Darío",
       "zona": "Urbano (Norte)",
       "telefono": null,
-      "latitud": 12.029581,
-      "longitud": -86.178036
+      "latitud": 11.909581,
+      "longitud": -86.258036
     },
     {
       "numero": 5,
@@ -81,19 +81,6 @@
       "longitud": -86.039544
     },
     {
-      "numero": 7,
-      "silais": "MASAYA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "Masaya",
-      "municipio": "Somotillo",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 11.988276,
-      "longitud": -86.073875
-    },
-    {
       "numero": 8,
       "silais": "MASAYA",
       "nombre": "Adilia Trejos",
@@ -105,19 +92,6 @@
       "telefono": null,
       "latitud": 11.878996,
       "longitud": -86.232727
-    },
-    {
-      "numero": 9,
-      "silais": "MASAYA",
-      "nombre": "Puesto de Salud Arlen Siú",
-      "tipo_unidad_salud": "Casa Materna / Puesto de Salud",
-      "departamento_region": "Masaya",
-      "municipio": "El Rosario",
-      "localidad": "Estadio Municipal 300 mts arriba, Bertha Dìaz / Contiguo a la unidad de salud (Contiguo a Iglesia Católica) / Frente al Mined / Casa Comunal del Barrio Arlen Siú, Bo. Arlen Siú / Sector No 8 , Del Insituto Nacional de Masatepe 20 vras al norte Barrio Evenor Calero / Contiguo al Centro de Salud Rubén Darío",
-      "zona": "Rural / Urbano",
-      "telefono": null,
-      "latitud": 11.965679,
-      "longitud": -85.955717
     },
     {
       "numero": 10,
@@ -142,8 +116,8 @@
       "localidad": "Frente a Servicios Municipales Masaya , Mauricio Montenegro",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 12.056139,
-      "longitud": -86.158648
+      "latitud": 11.936139,
+      "longitud": -86.238648
     },
     {
       "numero": 12,
@@ -337,8 +311,8 @@
       "localidad": "De la Escuela Dinamarca 150 metros al oeste 25 metros al sur, Comunidad Santa Cruz",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.107565,
-      "longitud": -86.223695
+      "latitud": 12.007565,
+      "longitud": -86.173695
     },
     {
       "numero": 27,
@@ -389,21 +363,8 @@
       "localidad": "Comunidad El Portillo, Comunidad El Portillo",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.062677,
-      "longitud": -86.142193
-    },
-    {
-      "numero": 31,
-      "silais": "MASAYA",
-      "nombre": "Puesto de Salud Francisco Real (Valle de la Laguna)",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Masaya",
-      "municipio": "Masaya",
-      "localidad": "Del Cacao de los Chavarria 8Km al Oeste, La Laguna / Contiguo a cancha municipal, Comunidad La Laguna / Comunidad El Valle de la Laguna, contiguo a la Iglesia Católica, Comunidad La Ermita / Comunidad La Laguna , La Laguna",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 12.074662,
-      "longitud": -86.005482
+      "latitud": 11.942677,
+      "longitud": -86.222193
     },
     {
       "numero": 32,
@@ -441,8 +402,8 @@
       "localidad": "Contiguo al puesto de agua, Comunidad La Ceibita",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.097459,
-      "longitud": -86.136457
+      "latitud": 11.977459,
+      "longitud": -86.216457
     },
     {
       "numero": 35,
@@ -454,21 +415,8 @@
       "localidad": "Comunidad Santa Isabel, Comunidad Santa Isabel / Comunidad la Colonia Carretera a San Marcos, La Colonia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.080708,
-      "longitud": -86.122611
-    },
-    {
-      "numero": 36,
-      "silais": "MASAYA",
-      "nombre": "Puesto de Salud La Montañita no. 1",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Masaya",
-      "municipio": "Estelí",
-      "localidad": "Comunidad La Montañita, Contiguo a la Policia, Comarca La Montañita / Comarca La Montañita, Montañita / De la Escuela Paula López 200 metros al norte y 100 al oeste, Comunidad La Montañita",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 11.825917,
-      "longitud": -86.124606
+      "latitud": 11.960708,
+      "longitud": -86.202611
     },
     {
       "numero": 37,
@@ -493,8 +441,8 @@
       "localidad": "Comunidad las Crucitas, Comunidad Las Crucitas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 12.07342,
-      "longitud": -86.168363
+      "latitud": 11.95342,
+      "longitud": -86.248363
     },
     {
       "numero": 39,
@@ -649,8 +597,8 @@
       "localidad": "Sector No 1, Contiguo al C/S Jose Npoleón García Nandasmo, Barrio Octaviano Téllez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 12.016622,
-      "longitud": -86.203609
+      "latitud": 11.896622,
+      "longitud": -86.283609
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "departamento": "BOACO",
-  "total_registros": 47,
+  "total_registros": 46,
   "unidades_salud": [
     {
       "numero": 1,
@@ -183,19 +183,6 @@
       "telefono": null,
       "latitud": 11.890105,
       "longitud": -85.657364
-    },
-    {
-      "numero": 15,
-      "silais": "BOACO",
-      "nombre": "Margarita Calderón",
-      "tipo_unidad_salud": "Casa Materna",
-      "departamento_region": "Boaco",
-      "municipio": "Boaco",
-      "localidad": "Contiguo al Cenro de Salud Ramon Toledo Sotelo en las Antiguas instalaciones del HJN. / Sector No 1 Contiguo al Centro de salud, Barrio Pedro Altamirano",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 12.093795,
-      "longitud": -85.49874
     },
     {
       "numero": 16,

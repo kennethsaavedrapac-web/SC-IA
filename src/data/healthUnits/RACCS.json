@@ -1,6 +1,6 @@
 {
   "departamento": "RACCS",
-  "total_registros": 128,
+  "total_registros": 121,
   "unidades_salud": [
     {
       "numero": 1,
@@ -250,19 +250,6 @@
       "longitud": -83.607856
     },
     {
-      "numero": 20,
-      "silais": "RACCS",
-      "nombre": "Centro de Salud Perla María Nororí",
-      "tipo_unidad_salud": "Centro de Salud",
-      "departamento_region": "RACCS",
-      "municipio": "León",
-      "localidad": "Instituto Nacional de Occidente 1c. Norte 2c. Oeste, Emir Cabeza / Barrio 19 de Julio contiguo al Instituto las Perlas, Bo. 19 de Julio, Laguna de Perlas",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 11.928079,
-      "longitud": -83.529934
-    },
-    {
       "numero": 21,
       "silais": "RACCS",
       "nombre": "Esperanza y Vida",
@@ -302,19 +289,6 @@
       "longitud": -83.545557
     },
     {
-      "numero": 24,
-      "silais": "MANAGUA",
-      "nombre": "Hospital Primario Carlos Roberto Huembes",
-      "tipo_unidad_salud": "Otros Hospitales(Pago directo, IPSS) / Centro de Salud / Puesto de Salud / Hospital Primario",
-      "departamento_region": "RACCS",
-      "municipio": "Managua",
-      "localidad": "Triangulo La Gallina 1/2 c. al norte , Cruz de Mayo / De los tanques de ENCAL 1c. Al este, Mario Latino / Kilómetro 284 Carretera Managua-Rama 400 mts al oeste, poblado la Esperanza , La Esperanza",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 12.114153,
-      "longitud": -83.378349
-    },
-    {
       "numero": 25,
       "silais": "RACCS",
       "nombre": "Hospital Primario Ethel Kandler",
@@ -339,19 +313,6 @@
       "telefono": null,
       "latitud": 12.142641,
       "longitud": -83.522844
-    },
-    {
-      "numero": 27,
-      "silais": "ZELAYA CENTRAL",
-      "nombre": "Hospital Primario Muelle de los Bueyes",
-      "tipo_unidad_salud": "Centro de Salud / Hospital Primario",
-      "departamento_region": "RACCS",
-      "municipio": "Muelle de los Bueyes",
-      "localidad": "Frente a la Segunda parada principal de buses carretera Managua-Rama , Barrio San Francisco / De la Entrada Principal Rótulo Municipal km 249 Carretra Managua-Rama , Muelle de los Bueyes",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 12.142524,
-      "longitud": -83.365912
     },
     {
       "numero": 28,
@@ -640,19 +601,6 @@
       "longitud": -83.549481
     },
     {
-      "numero": 50,
-      "silais": "MATAGALPA",
-      "nombre": "Puesto de Salud El Cacao",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "RACCS",
-      "municipio": "Rancho Grande",
-      "localidad": "Contiguo a escuela Gabriela Mistral, Comunidad El Cacao / Del comedor Angelita, 1/2 c. Al este, Comunidad El Cacao / Del Puente 1/2c al oeste, Poblado Cacao, Comunidad El Cacao",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 11.857366,
-      "longitud": -83.431251
-    },
-    {
       "numero": 51,
       "silais": "RACCS",
       "nombre": "Puesto de Salud El Castaño",
@@ -703,19 +651,6 @@
       "telefono": null,
       "latitud": 11.966518,
       "longitud": -83.555359
-    },
-    {
-      "numero": 55,
-      "silais": "MANAGUA",
-      "nombre": "Puesto de Salud El Recreo",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "RACCS",
-      "municipio": "Managua",
-      "localidad": "Bo. El Recreo Col. Benjamin Zeledón 2c arriba, 2 c lago, 1/2 c arriba, Bo. El Recreo / Kilómetro 284 Carretera Managua-Rama 1,000 mts al oeste poblado del Recreo, Barrio El Recreo",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 11.945024,
-      "longitud": -83.599561
     },
     {
       "numero": 56,
@@ -1431,32 +1366,6 @@
       "telefono": null,
       "latitud": 11.900443,
       "longitud": -83.594161
-    },
-    {
-      "numero": 111,
-      "silais": "BOACO",
-      "nombre": "Puesto de Salud San Isidro de la Cruz Verde",
-      "tipo_unidad_salud": "Puesto de Salud / Casa Materna",
-      "departamento_region": "RACCS",
-      "municipio": "Teustepe",
-      "localidad": "Frente Iglesia Evangélica de la Profecía KM 68 Carretera Rama, La Cruz / Barrio La Cruz, contiguo a la iglesia católica, La Cruz / Frente a la Cancha múltiple del parque central, La Cruz / Costado Este Hospital Primario Ada María Lopez / Comarca San Isidro de la Cruz Verde entrada 1Km al sur, San Isidro de la Cruz Verde / Frente a la pulpería Rosario , Comunidad Soledad de la Cruz / Barrio Germán Pomares Ordoñez II, Ciudad de Rama de la Rotonda 200 mts al oeste., Barrio German Pomares Ordoñez II / Comunidad San Isidro, Frente al campo de futbol, Colonia San Isidro / Comunidad La Cruz Verde, De la Escuela 1 cuadra al este., La Cruz Verde",
-      "zona": "Rural / Urbano",
-      "telefono": null,
-      "latitud": 11.882773,
-      "longitud": -83.390236
-    },
-    {
-      "numero": 112,
-      "silais": "LEON",
-      "nombre": "Puesto de Salud Ciudadela San Martín",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "RACCS",
-      "municipio": "Nagarote",
-      "localidad": "Del Palí 3 c. arriba, 1/2 c al norte., Porvenir / II Etapa de Ciudadela, Ciudadela San Martin / Frente a la Escuela de la Comunidad San Martín., Colonia San Martin",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 11.853417,
-      "longitud": -83.592723
     },
     {
       "numero": 113,

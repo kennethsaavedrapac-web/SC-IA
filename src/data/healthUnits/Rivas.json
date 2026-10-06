@@ -1,6 +1,6 @@
 {
   "departamento": "RIVAS",
-  "total_registros": 63,
+  "total_registros": 62,
   "unidades_salud": [
     {
       "numero": 1,
@@ -90,8 +90,8 @@
       "localidad": "Comunidad San José Las Pilas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 11.36726,
-      "longitud": -85.648286
+      "latitud": 11.41726,
+      "longitud": -85.598286
     },
     {
       "numero": 8,
@@ -246,8 +246,8 @@
       "localidad": "De la Casa Materna 50 vrs al este, Potosí, Calle en medio 1",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.38907,
-      "longitud": -85.618777
+      "latitud": 11.43907,
+      "longitud": -85.568777
     },
     {
       "numero": 20,
@@ -272,8 +272,8 @@
       "localidad": "De la iglesia Bautista de Rivas 1 1/2 cuadra al sur, Bo. Eduardo Alvarado",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.350044,
-      "longitud": -85.653078
+      "latitud": 11.400044,
+      "longitud": -85.603078
     },
     {
       "numero": 22,
@@ -287,19 +287,6 @@
       "telefono": null,
       "latitud": 11.639739,
       "longitud": -85.715026
-    },
-    {
-      "numero": 23,
-      "silais": "RIVAS",
-      "nombre": "Hospital Departamental Gaspar García Laviana",
-      "tipo_unidad_salud": "Puesto de Salud / Hospital Departamental / Clínicas del Manejo Integral del Dolor / Hospital Primario",
-      "departamento_region": "Rivas",
-      "municipio": "Rivas",
-      "localidad": "Bo. Gaspar Garcia Laviana, Delegación de la Alcaldía, Barrio Gaspar García / Contiguo a la Iglesia Católica, San Juan de la Concepción, Barrio La Mascota / Km 113 carretera a Tola, Rivas, Bo. Pedro Espinoza / Rotonda Jesús del Rescate 300 mts. al este, carretera a San Jorge, Bo. Gaspar García Laviana / Frente a iglesia Nazareno de San Juan del Sur, Zona Central",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 11.40009,
-      "longitud": -85.733715
     },
     {
       "numero": 24,
@@ -350,8 +337,8 @@
       "localidad": "Frente a la plaza municipal de Moyogalpa, Bo. Luis Alfonso",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.380552,
-      "longitud": -85.646754
+      "latitud": 11.430552,
+      "longitud": -85.596754
     },
     {
       "numero": 28,
@@ -363,8 +350,8 @@
       "localidad": "De la iglesia católica de Apompuá, 3 c al este, Apompuá",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 11.373004,
-      "longitud": -85.732586
+      "latitud": 11.423004,
+      "longitud": -85.682586
     },
     {
       "numero": 29,
@@ -402,8 +389,8 @@
       "localidad": "Detrás de la Escuela de la comunidad Cañas de García, Cañas de Garcia",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 11.377573,
-      "longitud": -85.764083
+      "latitud": 11.427573,
+      "longitud": -85.714083
     },
     {
       "numero": 32,
@@ -428,8 +415,8 @@
       "localidad": "Contiguo a la base militar de Colón, Colon",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 11.359528,
-      "longitud": -85.633751
+      "latitud": 11.409528,
+      "longitud": -85.583751
     },
     {
       "numero": 34,
@@ -597,8 +584,8 @@
       "localidad": "Del Puente 1c. arriba, Las Banderas / Kilómetro 90 carretera panamericana sur, Las Banderas",
       "zona": "Rural",
       "telefono": null,
-      "latitud": 11.379763,
-      "longitud": -85.652623
+      "latitud": 11.429763,
+      "longitud": -85.602623
     },
     {
       "numero": 47,
@@ -649,8 +636,8 @@
       "localidad": "De la Alcaldía de San Jorge, 2 c al norte, Bo. Ramon Lopez",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": 11.353896,
-      "longitud": -85.637723
+      "latitud": 11.403896,
+      "longitud": -85.587723
     },
     {
       "numero": 51,

@@ -1,20 +1,7 @@
 {
   "departamento": "RÍO SAN JUAN",
-  "total_registros": 56,
+  "total_registros": 48,
   "unidades_salud": [
-    {
-      "numero": 1,
-      "silais": "CHINANDEGA",
-      "nombre": "Puesto de Salud Mercado el mayoreo el Bisne  (Chinandega)",
-      "tipo_unidad_salud": "Puesto de Salud / Puesto de Salud en Mercados / Clínicas del Manejo Integral del Dolor / Hospital Primario / Casa Materna / Centro Nacional Especializado / Centro de Salud",
-      "departamento_region": "Río San Juan",
-      "municipio": "Somotillo",
-      "localidad": "Barrio Augusto César Sandino, contiguo escuela San Ignacio de Loyola, Augusto César Sandino 1 / Frente al Sector de las verduras, Barrio Concepción / Frente al Sector de las Verduras / Barrio El Rosario, frente donde fue la estación , El Rosario / De la Intendencia, 120 Vrs al sur, San Agustín / De la Intendencia 120 Vrs al sur. / De la iglesia evangélica 200 metros al sur, Comunidad El Jícaro / Comunidad La Thompson , Bo. Rosario Murillo / Barrio El Rosario de donde fue la Policía 2c. al Este 1c. al Sur, Barrio Rosario / Mercado Municipal, Sector A Barrio Ernesto Gutiérrez / Mercado Municipal / Sector No 1 Frente al Mercado Municipal , Sector No 1 / ASOGASA 500mts al norte, Rochester / Alcaldia municipal 1 c. sur 1/2 c. este, Barrio Centro / Mercado Municipal, Barrio Cerro de hule / Carretera a Poneloya, Comarca San Carlos, Comarca San Carlos / Mercado Municipal, Barrio Ramiro Corrales / Mercado Municipal, Barrio Constantino Maldonado / Barrio Arlen Siú, contiguo al juzgado municipal / Zona # 5 Mercado 1c. sur, Francisco Alvares / Frente a Trapiche entrada al adoquinado 1c. Al Sur, Agusto Cesar Sandino / Del Centro de Cultura ( Antigua Estación del Ferrocarril ), 1 c. al este , Pedro Altamirano / En el centro del mercado municipal, Barrio El Rosario / Rosario central contiguo a la iglesia católica El Rosario, El Rosario / Frente a la terminal de buses del barrio Róger Rizo, Barrio Róger Rizo / Bo. Libertad, Antigua salidad a Murra., Barrio Libertad / El Rosario, Rosario Sector 1. / Bo. Libertad, silos de ENABAS 21/2c al este, Barrio Libertad / Mercado municipal, Carlos Rosales / Centro de Salud 1/2 c norte, contiguo a Policía Nacional / Comunidad el Rosario Kukalaya, Comunidad Rosario Kukalaya / San Carlos, Comunidad de San Carlos / Zona 1 Mercado Municipal de Nueva Guinea, Zona 1 Nueva Guinea / Mercado Municipal de Nueva Guinea / Mercado Municipal El Rama, Barrio Central / Contiguo al ministerio de la familia / Comunida El Jícaro, de la escuela primaria 2 cuadra al este, El Jícaro / Frente a la Parada de Buses, Mercado Municipal de San Carlos, Sector 3, San Carlos / Mercado Municipal de San carlos / Contiguo al SILAIS Río San Juan, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 10.996379,
-      "longitud": -83.59058
-    },
     {
       "numero": 2,
       "silais": "RIO SAN JUAN",
@@ -79,19 +66,6 @@
       "telefono": null,
       "latitud": 11.14704,
       "longitud": -83.480507
-    },
-    {
-      "numero": 7,
-      "silais": "CARAZO",
-      "nombre": "Hospital Primario CMP Blanca Aráuz",
-      "tipo_unidad_salud": "Casa Materna / Hospital Primario",
-      "departamento_region": "Río San Juan",
-      "municipio": "La Conquista",
-      "localidad": "Escuela Mélida Lovo, 1c sur, 1c al este, Reparto Rigoberto López Pérez / Esc. Melida Lovo 1c sur 1c al este Reparto Rigoberto Lòpez Pèrez / Barrio Luis Zeledón , contiguo tanques de ENACAL / Gasolinera UNO 2 1/2 c. al oeste, Barrio 20 de mayo / Contiguo al instituto Arnoldo Toruño Rojas / Sector No 5 El Calvarito, Detrás del Centro de Salud, Zona 5 / Frente al Hospital Primario La Dalia / Peralta Cofee 100 mts al sur / El Almendro, Bo. Manos Unidas, Fte. A la Barrera Municipal / San Juan de Nicaragua, del Puesto de Salud 1 cuadra al Oeste / De la Policia Nacional 2 y media cuadras al Sur / Costado sur de la Iglesia católica / De anvial 60 metros al sur",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 10.919404,
-      "longitud": -83.585328
     },
     {
       "numero": 8,
@@ -185,32 +159,6 @@
       "longitud": -83.365635
     },
     {
-      "numero": 15,
-      "silais": "RIO SAN JUAN",
-      "nombre": "Filial Instituto de Medicina Natural y Terapias Complementarias Rio San Juan",
-      "tipo_unidad_salud": "Clínicas Médicas Provisionales / Clínicas del Manejo Integral del Dolor / Hospital Regional / Puesto de Salud / Puesto de Salud en Mercados / Filial Instituto",
-      "departamento_region": "Río San Juan",
-      "municipio": "San Carlos",
-      "localidad": "Sector #3, Radio San Carlos 1 ½c. al sur, donde fué el Centro de Salud San Carlos / Salida sur de Estelí Km 146 , Bo. Justo Flores / Antiguo Hospital Alejandro Dávila Bolaños / Comarca San Juan de Awaswas, San Juan 2 / Asentamiento San Juan de Somoto, Comunidad San Juan de Somoto / San Juan del Chaguite, contiguo a la escuela, San Juan Plywood / Mercado sur, contiguo a la Intendencia, Mercado Barrio El Progreso / Barrio El Progreso / De la entrada de los manguitos 50 vrs al oeste sobre la carretera a Rio Blanco, Comunidad Sais San Juan / De la iglesia evangélica, 300 vrs al este, Comunidad Valle San Juan / Frente al CDI Las Colmenitas, Barrio Linda Vista II / Mercado Municipal San Juan del Sur, Zona Central / Mercado Municipal / Contiguo a la escuela de San Juan Viejo, San Juan Viejo",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 10.993012,
-      "longitud": -83.528802
-    },
-    {
-      "numero": 16,
-      "silais": "CHINANDEGA",
-      "nombre": "Hospital Departamental \"Dr. Luis Felipe Moncada\"",
-      "tipo_unidad_salud": "Centro de Salud / Puesto de Salud / Hospital Primario / Clínicas del Manejo Integral del Dolor / Hospital Departamental",
-      "departamento_region": "Río San Juan",
-      "municipio": "Cinco Pinos",
-      "localidad": "Entrada Comarca La Honda , Llano / Frente al parque municipal, Sector 2 / Zona 6, contiguo a la Colonia El Maestro , Zona 6 / Santa María Casco Urbano, sector 2 frente al parque, Santa María / Frente a Rayitos de Sol, San Carlos, Sector 4, San Carlos",
-      "zona": "Urbano",
-      "telefono": null,
-      "latitud": 11.077232,
-      "longitud": -83.493331
-    },
-    {
       "numero": 17,
       "silais": "LEON",
       "nombre": "Hospital Primario San Miguelito",
@@ -237,19 +185,6 @@
       "longitud": -83.386532
     },
     {
-      "numero": 19,
-      "silais": "CARAZO",
-      "nombre": "Puesto de Salud Buena Vista del Norte",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Río San Juan",
-      "municipio": "La Conquista",
-      "localidad": "Contiguo a la escuela Buena Vista, comarca Buena Vista, Buena Vista / Costado norte del colegio Buena Vista Norte, Buena Vista del Norte / Frente a la iglesia católica, Buena Vista del Sur / Km. 21 carretera a Managua 2 Km al norte, Comunidad Buena Vista / Empalme de Guabule, 25 Km al Norte, Comunidad Buena Vista / Comunidad Buena Vista contiguo a la Escuela Primaria, Buena Vista",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 11.014993,
-      "longitud": -83.375008
-    },
-    {
       "numero": 20,
       "silais": "RIO SAN JUAN",
       "nombre": "Puesto de Salud Caracito",
@@ -261,19 +196,6 @@
       "telefono": null,
       "latitud": 10.925388,
       "longitud": -83.599232
-    },
-    {
-      "numero": 21,
-      "silais": "MADRIZ",
-      "nombre": "Puesto de Salud Che Guevara (Laureles Sur)",
-      "tipo_unidad_salud": "Centro de Salud / Puesto de Salud",
-      "departamento_region": "Río San Juan",
-      "municipio": "Totogalpa",
-      "localidad": "Parque central 3c. al este, Barrio Enrique Bermúdez / Bo. Laureles Sur Terminal Ruta 168, Bo. Laureles Sur / Comunidad Che Guevara, de la escuela 2 cuadra al Este, Che Guevara / Frente entrada a la comunidad La Calera, Sapoa",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 10.856796,
-      "longitud": -83.610303
     },
     {
       "numero": 22,
@@ -404,19 +326,6 @@
       "telefono": null,
       "latitud": 11.131378,
       "longitud": -83.525492
-    },
-    {
-      "numero": 32,
-      "silais": "CARAZO",
-      "nombre": "Centro de Salud La Conquista",
-      "tipo_unidad_salud": "Centro de Salud / Puesto de Salud",
-      "departamento_region": "Río San Juan",
-      "municipio": "La Conquista",
-      "localidad": "De la iglesia católica 1c. al oeste, Conquista Central / Comunidad La Conquista, frente al empalme de Mal paso arriba , Conquista / Comunidad La Conquista, de la escuela 3 cuadras al noreste, La Conquista",
-      "zona": "Urbano / Rural",
-      "telefono": null,
-      "latitud": 10.864413,
-      "longitud": -83.398724
     },
     {
       "numero": 33,
@@ -677,19 +586,6 @@
       "telefono": null,
       "latitud": 11.047609,
       "longitud": -83.453831
-    },
-    {
-      "numero": 53,
-      "silais": "MADRIZ",
-      "nombre": "Puesto de Salud Santa Isabel",
-      "tipo_unidad_salud": "Puesto de Salud",
-      "departamento_region": "Río San Juan",
-      "municipio": "Somoto",
-      "localidad": "Comunidad Santa Isabel, Comunidad Santa Isabel / Santa Isabel, Comunidad de Santa Isabel / Comunidad Santa Isabel, del empalme 300 varas al Este, Santa Isabel",
-      "zona": "Rural",
-      "telefono": null,
-      "latitud": 10.891626,
-      "longitud": -83.506131
     },
     {
       "numero": 54,
