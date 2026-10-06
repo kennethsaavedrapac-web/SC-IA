@@ -767,9 +767,9 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       const key = c.category + (isSelected ? '_sel' : '_nor');
       if (iconCache.has(key)) return iconCache.get(key);
 
-      const scale = isSelected ? 1.12 : 1;
-      const width = 46;
-      const height = 58;
+      const scale = isSelected ? 1.06 : 1;
+      const width = 36;
+      const height = 45;
       const colors = { centro_salud: '#1677e8', hospital: '#e6323e', farmacia: '#16a765', medico: '#7139df' };
       const color = colors[c.category] || '#1677e8';
       const glyphs = {
@@ -782,7 +782,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         + '<svg viewBox="0 0 48 60" width="' + width + '" height="' + height + '" aria-hidden="true">'
         + '<path d="M24 59C20 52 2 34 2 22a22 22 0 1 1 44 0c0 12-18 30-22 37Z" fill="' + color + '" stroke="' + color + '" stroke-width="2"/>'
         + '<circle cx="24" cy="22" r="16" fill="#fff"/>'
-        + '<g fill="none" stroke="' + color + '" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + (glyphs[c.category] || glyphs.centro_salud) + '</g></svg></div>';
+        + '<g transform="translate(12 10) scale(0.88)" fill="none" stroke="' + color + '" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + (glyphs[c.category] || glyphs.centro_salud) + '</g></svg></div>';
 
       const icon = L.divIcon({ html, className: '', iconSize: [width, height], iconAnchor: [width / 2, height - 2] });
       iconCache.set(key, icon);
