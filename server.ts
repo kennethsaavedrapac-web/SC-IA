@@ -118,7 +118,7 @@ async function startServer() {
     credentials: true,
   }));
   
-  app.use(express.json({ limit: "100kb" })); 
+  app.use(express.json({ limit: "12mb" })); 
   app.use(cookieParser());
 
   // Helper para autenticar requests mediante Bearer token o Cookie HttpOnly
@@ -443,7 +443,7 @@ async function startServer() {
         const authUser = await extractUser(req);
         const authenticated = Boolean(authUser);
 
-        const { message, history, userProfile } = req.body;
+        const { message, history, userProfile, fileData } = req.body;
         
         if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 10) {
           console.log("Using simulated response (unconfigured API key).");
@@ -533,7 +533,28 @@ Condiciones: ${safeConditions}`;
         const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
 El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
 
-        const finalSystemInstruction = systemInstruction + timeContext + profileContext + historyContext;
+        // If a file/image is attached, add document analysis instructions
+        let documentAnalysisContext = "";
+        if (fileData && fileData.base64 && fileData.mimeType) {
+          const isImage = fileData.mimeType.startsWith('image/');
+          const isPdf = fileData.mimeType === 'application/pdf';
+          const fileType = isImage ? 'imagen médica' : isPdf ? 'documento PDF' : 'archivo';
+          documentAnalysisContext = `\n\n[ANÁLISIS DE DOCUMENTO/IMAGEN ADJUNTO]
+El usuario ha adjuntado un(a) ${fileType} (${fileData.fileName || 'sin nombre'}). DEBES analizar el contenido del archivo adjunto y proporcionar:
+1. Una descripción de lo que observas en el archivo
+2. Observaciones relevantes relacionadas con salud
+3. Recomendaciones generales basadas en lo observado
+
+RESTRICCIONES ESTRICTAS PARA ANÁLISIS DE DOCUMENTOS:
+- NO proporcionar diagnósticos definitivos
+- NO inventar información que no esté visible en el documento
+- Si el documento/imagen no es legible o no se puede interpretar correctamente, indicarlo claramente
+- Si el contenido no está relacionado con salud, indicarlo amablemente
+- Siempre recomendar consultar con un profesional de salud para interpretación definitiva
+- Tratar toda información médica visible con confidencialidad y profesionalismo`;
+        }
+
+        const finalSystemInstruction = systemInstruction + timeContext + profileContext + historyContext + documentAnalysisContext;
 
         let aiModel = "gemini-2.5-flash-lite";
         try {
@@ -566,8 +587,24 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
         // Send message and get response
         let responseText = "";
         try {
-          const result = await chat.sendMessage(message);
-          responseText = result.response ? result.response.text() : "";
+          if (fileData && fileData.base64 && fileData.mimeType) {
+            // Multimodal request: file + text
+            const parts: any[] = [
+              {
+                inlineData: {
+                  mimeType: fileData.mimeType,
+                  data: fileData.base64,
+                },
+              },
+              { text: message },
+            ];
+            const result = await chat.sendMessage(parts);
+            responseText = result.response ? result.response.text() : "";
+          } else {
+            // Text-only request via chat
+            const result = await chat.sendMessage(message);
+            responseText = result.response ? result.response.text() : "";
+          }
         } catch (aiErr: any) {
           console.error("AI Generation Error:", aiErr);
           if (aiErr?.message?.includes("SAFETY")) {

@@ -189,6 +189,17 @@ export const chatTriageRequestSchema = z.object({
     })
     .optional()
     .nullable(),
+  fileData: z
+    .object({
+      base64: z.string().max(15_000_000, { message: 'El archivo excede el tamaño máximo permitido (~10MB)' }),
+      mimeType: z.enum([
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf',
+      ], { message: 'Tipo de archivo no soportado. Use imágenes (JPEG, PNG, WEBP) o PDF.' }),
+      fileName: z.string().max(255).optional(),
+    })
+    .optional()
+    .nullable(),
 });
 
 // ==============================================================================

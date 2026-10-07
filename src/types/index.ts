@@ -54,12 +54,20 @@ export interface HealthCenter {
   hasCoordinates?: boolean;
 }
 
+export interface ChatAttachment {
+  name: string;
+  type: string; // MIME type: image/jpeg, image/png, application/pdf, etc.
+  previewUrl?: string; // data URL or object URL for preview
+  size: number; // bytes
+}
+
 export interface ChatMessage {
   id: string;
   text: string;
   sender: "user" | "bot";
   timestamp: string;
   createdAt?: string;
+  attachment?: ChatAttachment;
 }
 
 export interface Appointment {
