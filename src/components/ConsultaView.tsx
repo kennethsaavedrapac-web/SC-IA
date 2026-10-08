@@ -688,20 +688,6 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               Reiniciar
             </button>
           )}
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            onClick={onTriggerEmergency}
-            className="relative flex flex-col items-center justify-center w-[52px] h-[52px] rounded-full overflow-hidden"
-            style={{
-              background: "#fb7185",
-              boxShadow: "0 6px 20px rgba(251,113,133,0.25)",
-            }}
-          >
-            { }
-            <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
-            <Siren className="w-5 h-5 text-white relative z-10 mb-[1px]" />
-            <span className="text-white text-[10px] font-bold relative z-10 leading-none mt-[-1px]">128</span>
-          </motion.button>
         </div>
       </motion.header>
 
@@ -1172,6 +1158,24 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Botón flotante de Emergencia */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.92 }}
+        onClick={onTriggerEmergency}
+        className="fixed bottom-24 right-6 z-50 flex flex-col items-center justify-center w-[56px] h-[56px] rounded-full overflow-hidden shadow-2xl"
+        style={{
+          background: "#fb7185",
+          boxShadow: "0 8px 24px rgba(251,113,133,0.4)",
+        }}
+      >
+        <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
+        <Siren className="w-6 h-6 text-white relative z-10 mb-[2px]" />
+        <span className="text-white text-[11px] font-black relative z-10 leading-none">128</span>
+      </motion.button>
     </div>
   );
 }
