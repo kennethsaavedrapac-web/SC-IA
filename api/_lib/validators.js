@@ -87,10 +87,9 @@ export function validateMedicalData(data) {
     }
   }
 
-  // Validate cédula (if provided) — flexible format for Nicaragua
+  // Nicaraguan cédula: 3 digits, hyphen, 6 digits, hyphen, 4 digits, uppercase letter.
   if (sanitized.cedula) {
-    // Accept: 001-010190-0001A, 0010101900001A, or simple alphanumeric
-    const cedulaRegex = /^[A-Za-z0-9\-]{5,25}$/;
+    const cedulaRegex = /^\d{3}-\d{6}-\d{4}[A-Z]$/;
     if (!cedulaRegex.test(sanitized.cedula)) {
       errors.push("La cédula de identidad tiene un formato inválido.");
     }

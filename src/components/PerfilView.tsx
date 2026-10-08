@@ -14,6 +14,8 @@ import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNoti
 import MfaEnrollmentModal from "./MfaEnrollmentModal";
 import { createToast, type ToastData } from "./Toast";
 
+const NICARAGUAN_CEDULA_REGEX = /^\d{3}-\d{6}-\d{4}[A-Z]$/;
+
 interface PerfilViewProps {
   user: UserProfile;
   isPremium: boolean;
@@ -84,6 +86,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleUpdateMedicalData = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cedula = localMedicalData.cedula.trim().toUpperCase();
+    if (cedula && !NICARAGUAN_CEDULA_REGEX.test(cedula)) {
+      setMedicalSaveError("La cédula debe tener el formato 000-000000-0000A (13 números, 2 guiones y una letra mayúscula).");
+      return;
+    }
     setIsSavingMedical(true);
     setMedicalSaveError(null);
 
@@ -319,6 +326,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     }
     if (editPhone && !validatePhone(editPhone)) {
       alert(t('phoneInvalid'));
+      return;
+    }
+    const cedula = localMedicalData.cedula.trim().toUpperCase();
+    if (cedula && !NICARAGUAN_CEDULA_REGEX.test(cedula)) {
+      alert("La cédula debe tener el formato 000-000000-0000A (13 números, 2 guiones y una letra mayúscula).");
       return;
     }
 
@@ -1147,13 +1159,17 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <label className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
                                     <ShieldCheck className="w-3 h-3" /> {t('idCard')}
                                   </label>
-                                  <input
-                                    type="text"
-                                    value={localMedicalData.cedula}
-                                    onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value })}
-                                    placeholder={t('idCardPlaceholder')}
-                                    className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
-                                  />
+                                   <input
+                                     type="text"
+                                     value={localMedicalData.cedula}
+                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, cedula: e.target.value.toUpperCase().slice(0, 16) })}
+                                     maxLength={16}
+                                     minLength={16}
+                                     pattern="[0-9]{3}-[0-9]{6}-[0-9]{4}[A-Z]"
+                                     title="Formato requerido: 000-000000-0000A"
+                                     placeholder="000-000000-0000A"
+                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
+                                   />
                                 </div>
                                 <div className="space-y-1.5 lg:col-span-2">
                                   <label htmlFor="input-edit-usersex" className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider flex items-center gap-1.5">
