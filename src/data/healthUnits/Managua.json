@@ -1,6 +1,6 @@
 {
   "departamento": "MANAGUA",
-  "total_registros": 197,
+  "total_registros": 202,
   "unidades_salud": [
     {
       "numero": 1,
@@ -272,8 +272,8 @@
       "localidad": "Detrás del Mercado Roberto Huembes, Carlos Fonseca",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1189,
+      "longitud": -86.2581
     },
     {
       "numero": 22,
@@ -558,8 +558,8 @@
       "localidad": "B. Altagracia Frente a Costado Sur Policía Nacional Distrito No. 3, Altagracia",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1294,
+      "longitud": -86.2917
     },
     {
       "numero": 44,
@@ -597,8 +597,8 @@
       "localidad": "Bo. San Judas Contiguo al Mercado , Barrio San Judas",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1267,
+      "longitud": -86.3089
     },
     {
       "numero": 47,
@@ -714,8 +714,8 @@
       "localidad": "Contiguo al Palacio de Justicia, Barrio Augusto C. Sandino / Carretera Norte Gasolinera uno waspan una cuadra, al Norte, una Cuadra al Este., Jorge Casaly",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1511,
+      "longitud": -86.2194
     },
     {
       "numero": 56,
@@ -727,8 +727,8 @@
       "localidad": "Portón del Cememterio General 2c. Al Norte, Santa Ana Sur",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1553,
+      "longitud": -86.2812
     },
     {
       "numero": 57,
@@ -753,8 +753,8 @@
       "localidad": "Barrio Villa Libertad , Barrio Villa Libertad / Frente a los pozos de ENACAL , Villa Libertad",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1064,
+      "longitud": -86.2083
     },
     {
       "numero": 59,
@@ -896,8 +896,8 @@
       "localidad": "Reparto Los Arcos, Managua, Reparto Los Arcos, Managua",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1481,
+      "longitud": -86.3039
     },
     {
       "numero": 70,
@@ -909,8 +909,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1416,
+      "longitud": -86.2625
     },
     {
       "numero": 71,
@@ -948,8 +948,8 @@
       "localidad": "Del Banco Central de Nicaragua 1 c. arriba, Tierra Prometida",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1221,
+      "longitud": -86.3051
     },
     {
       "numero": 74,
@@ -987,8 +987,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.0967,
+      "longitud": -86.2342
     },
     {
       "numero": 77,
@@ -1117,8 +1117,8 @@
       "localidad": null,
       "zona": null,
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1481,
+      "longitud": -86.2892
     },
     {
       "numero": 87,
@@ -1130,8 +1130,8 @@
       "localidad": "De donde la fué la Pepsi 2c. al sur, Barrio los Angeles",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1492,
+      "longitud": -86.2504
     },
     {
       "numero": 88,
@@ -1338,8 +1338,8 @@
       "localidad": "Frente a INATEC (Centro cívico), Héroes y Máartires del Bocay / Gasolinera El Guegüense 1 cuadra al sur, 1 cuadra abajo, 1/2 cuadra al sur, 1/2 cuadra abajo, Bo. Bertha Calderón",
       "zona": "Urbano",
       "telefono": null,
-      "latitud": null,
-      "longitud": null
+      "latitud": 12.1243,
+      "longitud": -86.2986
     },
     {
       "numero": 104,
@@ -2562,6 +2562,71 @@
       "telefono": null,
       "latitud": null,
       "longitud": null
+    },
+    {
+      "numero": 198,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Militar Escuela Dr. Alejandro Dávila Bolaños",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": null,
+      "zona": null,
+      "telefono": null,
+      "latitud": 12.1353,
+      "longitud": -86.2694
+    },
+    {
+      "numero": 199,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Carlos Roberto Huembes",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": null,
+      "zona": null,
+      "telefono": null,
+      "latitud": 12.1312,
+      "longitud": -86.2736
+    },
+    {
+      "numero": 200,
+      "silais": "MANAGUA",
+      "nombre": "Hospital Central de Managua",
+      "tipo_unidad_salud": "Hospital",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": null,
+      "zona": null,
+      "telefono": null,
+      "latitud": 12.1158,
+      "longitud": -86.2504
+    },
+    {
+      "numero": 201,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Francisco Buitrago",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": null,
+      "zona": null,
+      "telefono": null,
+      "latitud": 12.1458,
+      "longitud": -86.2389
+    },
+    {
+      "numero": 202,
+      "silais": "MANAGUA",
+      "nombre": "Centro de Salud Israel Galeano",
+      "tipo_unidad_salud": "Centro de Salud",
+      "departamento_region": "Managua",
+      "municipio": "Managua",
+      "localidad": null,
+      "zona": null,
+      "telefono": null,
+      "latitud": 12.0917,
+      "longitud": -86.2014
     }
   ]
 }
