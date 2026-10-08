@@ -23,7 +23,14 @@ const NEARBY_RADIUS_KM = 25;
 const COORDINATED_CENTER_COUNT = HEALTH_CENTERS.filter((center) => center.latitude && center.longitude).length;
 
 function getDistanceKm(from: UserLocation, to: HealthCenter): number {
-  if (!to.latitude || !to.longitude) return Number.POSITIVE_INFINITY;
+  if (
+    !Number.isFinite(from.latitude) ||
+    !Number.isFinite(from.longitude) ||
+    !Number.isFinite(to.latitude) ||
+    !Number.isFinite(to.longitude)
+  ) {
+    return Number.POSITIVE_INFINITY;
+  }
 
   const earthRadiusKm = 6371;
   const toRadians = (value: number) => (value * Math.PI) / 180;
@@ -36,6 +43,27 @@ function getDistanceKm(from: UserLocation, to: HealthCenter): number {
     Math.cos(fromLat) * Math.cos(toLat) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
 
   return earthRadiusKm * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function isHealthFacilityForNearest(center: HealthCenter): boolean {
+  const id = (center.id || "").toLowerCase();
+  const type = (center.type || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (
+    id.startsWith("doctor-") ||
+    id.startsWith("pharmacy-") ||
+    type.includes("farmacia") ||
+    type.includes("botica") ||
+    type.includes("medico") ||
+    type.includes("nefrologo")
+  ) {
+    return false;
+  }
+  return type.includes("hospital") || type.includes("centro") || type.includes("puesto");
+}
+
+function isCenterForNearest(center: HealthCenter): boolean {
+  const type = (center.type || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return !type.includes("hospital") && (type.includes("centro") || type.includes("puesto"));
 }
 
 function getCenterOperatingStatus(type: string, schedule?: string): { isOpen: boolean; text: string; is24h: boolean } {
@@ -92,9 +120,7 @@ function getNearestHospital(
 export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosViewProps) {
   const { t } = useLanguage();
   const [locationQuery, setLocationQuery] = useState("");
-  const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(
-    HEALTH_CENTERS.find((center) => center.department?.toLowerCase().includes("granada")) ?? HEALTH_CENTERS[0],
-  );
+  const [selectedCenter, setSelectedCenter] = useState<HealthCenter | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [detectedCity, setDetectedCity] = useState("");
   const [locationMode, setLocationMode] = useState<"nearby" | "manual">("nearby");
@@ -148,7 +174,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     if (!userLocation) return null;
 
     return mergedCenters
-      .filter((center) => center.latitude && center.longitude)
+      .filter(
+        (center) =>
+          isCenterForNearest(center) &&
+          Number.isFinite(center.latitude) &&
+          Number.isFinite(center.longitude),
+      )
       .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center ?? null;
   }, [mergedCenters, userLocation]);
@@ -234,7 +265,75 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-  const requestCurrentLocation = useCallback(() => {
+  const acceptLocation = useCallback((position: GeolocationPosition, forceCenter = false) => {
+    const { latitude, longitude, accuracy } = position.coords;
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      latitude < -90 || latitude > 90 ||
+      longitude < -180 || longitude > 180
+    ) {
+      return;
+    }
+
+    const userLoc = { latitude, longitude, accuracy: Number.isFinite(accuracy) ? accuracy : 1000 };
+    const previous = userLocationRef.current;
+    let shouldUpdate = !previous;
+    if (previous) {
+      const distanceMeters = getDistanceKm(userLoc, previous as unknown as HealthCenter) * 1000;
+      const accuracyMeters = Math.max(previous.accuracy, userLoc.accuracy);
+      const staleCoarseFix = userLoc.accuracy > Math.max(500, previous.accuracy * 4);
+      const movementIsWithinNoise = distanceMeters < Math.max(5, Math.min(accuracyMeters * 0.5, 50));
+      shouldUpdate = !staleCoarseFix && (!movementIsWithinNoise || userLoc.accuracy < previous.accuracy * 0.8);
+    }
+
+    setGeoStatus("ready");
+    setGeoError("");
+    setLocationMode("nearby");
+    if (shouldUpdate) {
+      userLocationRef.current = userLoc;
+      setUserLocation(userLoc);
+      if (!hasInitialLocatedRef.current) {
+        hasInitialLocatedRef.current = true;
+        const nearest = mergedCenters
+          .filter(
+            (center) =>
+              isHealthFacilityForNearest(center) &&
+              Number.isFinite(center.latitude) &&
+              Number.isFinite(center.longitude),
+          )
+          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
+          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
+        if (nearest) {
+          setActiveFilter((nearest.type || "").toLowerCase().includes("hospital") ? "hospital" : "centro");
+          setSelectedCenter(nearest);
+        }
+      }
+    }
+
+    if (forceCenter) {
+      iframeRef.current?.contentWindow?.postMessage({
+        type: "UPDATE_USER_LOCATION",
+        userLocation: userLoc,
+        forceCenter: true,
+      }, "*");
+    }
+  }, [mergedCenters]);
+
+  const reportLocationError = useCallback((error: GeolocationPositionError) => {
+    const message = error.code === 1
+      ? "Activa el permiso de ubicación para encontrar centros cercanos."
+      : error.code === 2
+        ? "No se pudo determinar tu ubicación. Revisa el GPS o la señal del dispositivo."
+        : "La ubicación tardó demasiado. Inténtalo de nuevo en un lugar con mejor señal.";
+    setGeoError(message);
+    if (!userLocationRef.current) {
+      setGeoStatus("error");
+      setLocationMode("manual");
+    }
+  }, []);
+
+  const requestCurrentLocation = useCallback((forceCenter = false) => {
     if (!("geolocation" in navigator)) {
       setGeoStatus("error");
       setGeoError("Tu navegador no permite usar ubicación en tiempo real.");
@@ -244,40 +343,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
     setGeoStatus("loading");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-        userLocationRef.current = userLoc;
-        setUserLocation(userLoc);
-        setGeoStatus("ready");
-        setGeoError("");
-        setLocationMode("nearby");
-
-        const nearestCenter = mergedCenters
-          .filter((center) => center.latitude && center.longitude)
-          .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-          .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-        if (nearestCenter) {
-          setActiveFilter("centro");
-          setSelectedCenter(nearestCenter);
-        }
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
+      (position) => acceptLocation(position, forceCenter),
+      reportLocationError,
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 },
     );
-  }, [mergedCenters]);
+  }, [acceptLocation, reportLocationError]);
 
   useEffect(() => {
     if (!("geolocation" in navigator)) {
@@ -289,59 +359,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
 
     setGeoStatus("loading");
     const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        const userLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        };
-
-        const prevLoc = userLocationRef.current;
-        let shouldUpdate = true;
-        if (prevLoc) {
-          const distanceMeters = getDistanceKm(userLoc, prevLoc as unknown as HealthCenter) * 1000;
-          if (distanceMeters < 15) {
-            shouldUpdate = false;
-          }
-        }
-
-        if (shouldUpdate) {
-          userLocationRef.current = userLoc;
-          setUserLocation(userLoc);
-          setGeoStatus("ready");
-          setGeoError("");
-
-          // Solo auto-seleccionar el centro más cercano en la primera detección
-          if (!hasInitialLocatedRef.current) {
-            hasInitialLocatedRef.current = true;
-            setLocationMode("nearby");
-
-            const nearestCenter = mergedCenters
-              .filter((center) => center.latitude && center.longitude)
-              .map((center) => ({ center, distanceKm: getDistanceKm(userLoc, center) }))
-              .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
-
-            if (nearestCenter) {
-              setActiveFilter("centro");
-              setSelectedCenter(nearestCenter);
-            }
-          }
-        }
-      },
-      (error) => {
-        setGeoStatus("error");
-        setGeoError(error.message || "No se pudo obtener tu ubicación.");
-        setLocationMode("manual");
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 30000,
-        timeout: 12000,
-      },
+      (position) => acceptLocation(position),
+      reportLocationError,
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 },
     );
-
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [mergedCenters]);
+  }, [acceptLocation, reportLocationError]);
 
   useEffect(() => {
     if (!userLocation) return;
@@ -358,7 +381,12 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }
 
     const nearestCenter = mergedCenters
-      .filter((center) => center.latitude && center.longitude)
+      .filter(
+        (center) =>
+          isHealthFacilityForNearest(center) &&
+          Number.isFinite(center.latitude) &&
+          Number.isFinite(center.longitude),
+      )
       .map((center) => ({ center, distanceKm: getDistanceKm(userLocation, center) }))
       .sort((a, b) => a.distanceKm - b.distanceKm)[0]?.center;
 
@@ -555,17 +583,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     }, "*");
   }, [userLocation]);
 
-  const handleRecenter = () => {
-    if (userLocation) {
-      iframeRef.current?.contentWindow?.postMessage({
-        type: "UPDATE_USER_LOCATION",
-        userLocation: userLocation,
-        forceCenter: true,
-      }, "*");
-    } else {
-      requestCurrentLocation();
-    }
-  };
+  const handleRecenter = () => requestCurrentLocation(true);
 
   // FIX 5 ─ Listener de mensajes del mapa con dependencia en ref, no en estado.
   // Esto evita que el listener se destruya y re-cree en cada update de mergedCenters.
@@ -709,11 +727,11 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
     let hasInitialUserLocation = false;
 
     function centerOnInitialUserLocation(loc) {
-      if (hasInitialUserLocation || !loc || !loc.latitude || !loc.longitude || !map) return false;
+      if (hasInitialUserLocation || !loc || !Number.isFinite(loc.latitude) || !Number.isFinite(loc.longitude) || !map) return false;
       hasInitialUserLocation = true;
-      // Zoom 19 cubre aproximadamente 100–200 m en el ancho de un móvil.
-      // No se anima: evita que una selección inicial vuelva a alejar el mapa.
-      map.setView([loc.latitude, loc.longitude], 19, { animate: false });
+      const accuracy = Number.isFinite(loc.accuracy) ? loc.accuracy : 500;
+      const zoom = accuracy <= 50 ? 17 : accuracy <= 150 ? 16 : 14;
+      map.setView([loc.latitude, loc.longitude], zoom, { animate: false });
       scheduleRender(0);
       return true;
     }
@@ -732,7 +750,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
           fadeAnimation: false,
           markerZoomAnimation: false,
           zoomAnimation: false
-        }).setView([12.1364, -86.2514], 19);
+        }).setView([12.1364, -86.2514], 12);
 
         L.tileLayer('${cartoTileUrl}', {
           maxZoom: 19,
@@ -995,7 +1013,7 @@ export default function CentrosView({ onNavigate, onTriggerEmergency }: CentrosV
         map.removeLayer(userLocationMarker);
         userLocationMarker = null;
       }
-      if (loc && loc.latitude && loc.longitude) {
+      if (loc && Number.isFinite(loc.latitude) && Number.isFinite(loc.longitude)) {
         const userIcon = L.divIcon({
           html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
           className: '',
