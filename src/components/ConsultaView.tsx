@@ -273,6 +273,18 @@ async function saveConsultationToSupabase(
   }
 }
 
+/** Elimina todas las consultas guardadas para el usuario autenticado. */
+async function clearConsultationsFromSupabase(userId: string): Promise<void> {
+  const { error } = await supabase
+    .from("consultations")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: ConsultaViewProps) {
   const { t, language } = useLanguage();
   const [activeChip, setActiveChip] = useState("fiebre");
@@ -285,6 +297,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isClearingHistory, setIsClearingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -624,14 +637,22 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
     setMessages([]);
   };
 
-  const handleClearHistory = () => {
-    setMessages([]);
-    setStoredHistory([]);
-    setIsHistoryOpen(false);
+  const handleClearHistory = async () => {
+    setIsClearingHistory(true);
+    setHistoryError(null);
     try {
+      if (user.id) {
+        await clearConsultationsFromSupabase(user.id);
+      }
       localStorage.removeItem(getTriageHistoryKey(user.id));
+      setMessages([]);
+      setStoredHistory([]);
+      setIsHistoryOpen(false);
     } catch (err) {
-      console.warn("No se pudo limpiar el historial de triaje:", err);
+      console.error("No se pudo limpiar el historial de triaje:", err);
+      setHistoryError("No se pudo eliminar el historial. Inténtalo de nuevo.");
+    } finally {
+      setIsClearingHistory(false);
     }
   };
 
@@ -976,9 +997,10 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   {historyMessages.length > 0 && (
                     <button
                       onClick={handleClearHistory}
+                      disabled={isClearingHistory}
                       className="text-[11px] font-black text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-full px-3 py-1.5 transition-colors"
                     >
-                      Limpiar historial
+                      {isClearingHistory ? "Eliminando..." : "Limpiar historial"}
                     </button>
                   )}
                 </div>
