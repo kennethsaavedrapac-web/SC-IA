@@ -89,7 +89,7 @@ export default async function handler(req, res) {
     const data = dataValidation.sanitized;
     const ctx = contextValidation.sanitized;
 
-    console.log(`[${requestId}] Validated data for user: ${ctx.userId || "unknown"}, cédula: ${data.cedula || "none"}`);
+    console.log(`[${requestId}] Datos médicos y contexto validados.`);
 
     // ─── Find or prepare Patient ─────────────────────────────────
     let existingPatient = null;

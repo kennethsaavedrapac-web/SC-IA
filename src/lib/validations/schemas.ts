@@ -24,11 +24,23 @@ export const optionalSafeString = (max = 500) =>
 export const REGEX = {
   EMAIL: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   PHONE_NI: /^(\+?505)?[2578]\d{7}$/, // Formato Nicaragua
+  PHONE: /^\+?[\d][\d\s()\-]*$/,
+  CEDULA_NI: /^\d{3}-\d{6}-\d{4}[A-Z]$/,
   NAME: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.'-]{2,100}$/,
   TOTP_CODE: /^\d{6}$/,
   UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
   BLOOD_TYPE: /^(A|B|AB|O)[+-]$/,
 };
+
+function isValidPastOrPresentDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return false;
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return date.getTime() <= today;
+}
 
 // ==============================================================================
 // 1. ESQUEMAS DE AUTENTICACIÓN
@@ -104,12 +116,13 @@ export const userProfileUpdateSchema = z.object({
     .nullable(),
   ciudad: safeString(2, 100).optional(),
   pais: safeString(2, 100).optional(),
-  sexo: z.string().optional().nullable(),
-  fecha_nacimiento: z.string().optional().nullable(),
+  sexo: z.enum(['female', 'male', 'intersex', 'prefer_not_to_say']).or(z.literal('')).optional().nullable(),
+  fecha_nacimiento: z.string().refine((val) => !val || isValidPastOrPresentDate(val), { message: 'La fecha de nacimiento debe ser válida y no futura' }).optional().nullable(),
   emergencyPhone: z
     .string()
     .trim()
-    .max(30, { message: 'El teléfono no puede exceder 30 caracteres' })
+    .max(20, { message: 'El teléfono no puede exceder 20 caracteres' })
+    .refine((val) => !val || (REGEX.PHONE.test(val) && val.replace(/\D/g, '').length >= 7 && val.replace(/\D/g, '').length <= 15), { message: 'El teléfono debe contener entre 7 y 15 dígitos' })
     .optional()
     .nullable()
     .transform((val) => (val ? sanitizeString(val) : undefined)),
@@ -119,7 +132,7 @@ export const userProfileUpdateSchema = z.object({
     .optional()
     .nullable()
     .or(z.literal('')),
-  healthConditions: z.array(z.string().max(100).transform((val) => sanitizeString(val))).optional(),
+  healthConditions: z.array(z.string().trim().max(100).transform((val) => sanitizeString(val))).max(50).optional(),
 });
 
 // ==============================================================================
@@ -139,7 +152,7 @@ export const medicalRecordSchema = z.object({
 });
 
 export const fhirMedicalFormSchema = z.object({
-  cedula: z.string().trim().min(3).max(30).transform((val) => sanitizeString(val)),
+  cedula: z.string().trim().max(16).regex(REGEX.CEDULA_NI, { message: 'La cédula debe tener el formato 000-000000-0000A' }).or(z.literal('')).transform((val) => sanitizeString(val)),
   enfermedades: optionalSafeString(1000),
   alergias: optionalSafeString(1000),
   tipoSangre: z.string().max(10).optional().nullable(),

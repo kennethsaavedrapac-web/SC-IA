@@ -44,7 +44,7 @@ export function stripHtml(input: string): string {
  * Compatible con la regex usada en LoginView y RegisterView.
  */
 export function validateEmail(email: string): boolean {
-  if (!email) return false;
+  if (!email || email.trim().length > 254) return false;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
 }
@@ -93,8 +93,22 @@ export function validateName(name: string): { valid: boolean; error?: string } {
  */
 export function validatePhone(phone: string): boolean {
   if (!phone || !phone.trim()) return true; // Campo opcional
-  const phoneRegex = /^\+?[\d\s\-()]{7,20}$/;
-  return phoneRegex.test(phone.trim());
+  const normalized = phone.trim();
+  const digits = normalized.replace(/\D/g, "");
+  const phoneRegex = /^\+?[\d][\d\s()\-]*$/;
+  return normalized.length <= 20 && digits.length >= 7 && digits.length <= 15 && phoneRegex.test(normalized);
+}
+
+/** Valida una fecha YYYY-MM-DD real que no esté en el futuro. */
+export function validateBirthDate(value: string): boolean {
+  if (!value) return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date <= today;
 }
 
 /**

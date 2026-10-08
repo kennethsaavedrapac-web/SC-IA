@@ -35,6 +35,45 @@ export interface FhirLoadResult {
   patientId?: string;
 }
 
+const VALID_BLOOD_TYPES = new Set(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]);
+const CEDULA_REGEX = /^\d{3}-\d{6}-\d{4}[A-Z]$/;
+
+/** Client-side guard so invalid values never enter the local cache as a fallback. */
+export function validateMedicalFormData(data: MedicalFormData): string | null {
+  const limits: Record<keyof MedicalFormData, number> = {
+    enfermedades: 500, alergias: 500, tipoSangre: 3, tratamientos: 500,
+    pastillas: 500, vacunas: 500, peso: 10, altura: 10, cedula: 16,
+    contactoEmergencia: 20,
+  };
+  for (const [field, maxLength] of Object.entries(limits) as [keyof MedicalFormData, number][]) {
+    const value = data[field];
+    if (typeof value !== "string") return `El campo ${field} debe ser texto.`;
+    if (value.length > maxLength) return `El campo ${field} no puede exceder ${maxLength} caracteres.`;
+  }
+  if (data.tipoSangre && !VALID_BLOOD_TYPES.has(data.tipoSangre)) return "Selecciona un tipo de sangre válido.";
+  if (data.cedula && !CEDULA_REGEX.test(data.cedula.trim().toUpperCase())) return "La cédula debe tener el formato 000-000000-0000A.";
+
+  for (const [field, value, min, max, unit] of [
+    ["peso", data.peso, 1, 500, "kg"],
+    ["altura", data.altura, 30, 300, "cm"],
+  ] as const) {
+    if (!value) continue;
+    const numericValue = Number(value.replace(",", "."));
+    if (!/^\d+(?:[.,]\d{1,2})?$/.test(value) || !Number.isFinite(numericValue) || numericValue < min || numericValue > max) {
+      return `El campo ${field} debe ser un número entre ${min} y ${max} ${unit}.`;
+    }
+  }
+
+  if (data.contactoEmergencia) {
+    const phone = data.contactoEmergencia.trim();
+    const digits = phone.replace(/\D/g, "");
+    if (phone.length > 20 || !/^\+?[\d][\d\s()\-]*$/.test(phone) || digits.length < 7 || digits.length > 15) {
+      return "El teléfono de emergencia debe tener entre 7 y 15 dígitos.";
+    }
+  }
+  return null;
+}
+
 // ─── Constants ───────────────────────────────────────────────────────
 
 const LOCAL_STORAGE_KEY_PREFIX = "medicalData_";
@@ -86,9 +125,13 @@ export async function saveMedicalData(
     pais?: string;
   }
 ): Promise<FhirSaveResult> {
+  const normalizedData = { ...data, cedula: data.cedula.trim().toUpperCase() };
+  const validationError = validateMedicalFormData(normalizedData);
+  if (validationError) throw new Error(validationError);
+
   // Always save to localStorage as cache/fallback
   try {
-    localStorage.setItem(getLocalStorageKey(userId), JSON.stringify(data));
+    localStorage.setItem(getLocalStorageKey(userId), JSON.stringify(normalizedData));
   } catch (e) {
     console.warn("[FHIR Service] localStorage save failed:", e);
   }
@@ -99,7 +142,7 @@ export async function saveMedicalData(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        medicalData: data,
+        medicalData: normalizedData,
         userContext: {
           userId,
           nombre: userContext?.nombre || "",

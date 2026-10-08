@@ -7,9 +7,9 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { uploadAvatar } from "../lib/avatarService";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabaseClient";
-import { sanitizeAndTrim, validateEmail, validateName, validatePhone } from "../lib/security";
+import { sanitizeAndTrim, validateBirthDate, validateEmail, validateName, validatePhone } from "../lib/security";
 import TwoFactorSetup from "./TwoFactorSetup";
-import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, type MedicalFormData } from "../lib/fhirService";
+import { saveMedicalData, loadMedicalData, getEmptyMedicalForm, validateMedicalFormData, type MedicalFormData } from "../lib/fhirService";
 import { getTodaysNotificationHistory, markTodaysNotificationsRead, type AppNotificationRecord } from "../lib/notificationService";
 import MfaEnrollmentModal from "./MfaEnrollmentModal";
 import { createToast, type ToastData } from "./Toast";
@@ -91,6 +91,11 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       setMedicalSaveError("La cédula debe tener el formato 000-000000-0000A (13 números, 2 guiones y una letra mayúscula).");
       return;
     }
+    const medicalValidationError = validateMedicalFormData(localMedicalData);
+    if (medicalValidationError) {
+      setMedicalSaveError(medicalValidationError);
+      return;
+    }
     setIsSavingMedical(true);
     setMedicalSaveError(null);
 
@@ -125,7 +130,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
       }
     } catch (err: any) {
       console.error("Medical data save error:", err);
-      setMedicalSaveError("Error inesperado al guardar datos médicos.");
+      setMedicalSaveError(err?.message || "Error inesperado al guardar datos médicos.");
       // Still show alert since localStorage fallback in the service saved the data
       setIsSavedAlertOpen(true);
       setTimeout(() => {
@@ -231,7 +236,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
 
   const handleAddCondition = useCallback(() => {
     const trimmed = newCondition.trim();
-    if (trimmed && !editConditions.includes(trimmed)) {
+    if (trimmed && trimmed.length <= 100 && editConditions.length < 50 && !editConditions.includes(trimmed)) {
       setEditConditions(prev => [...prev, trimmed]);
       setNewCondition("");
     }
@@ -326,6 +331,26 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
     }
     if (editPhone && !validatePhone(editPhone)) {
       alert(t('phoneInvalid'));
+      return;
+    }
+    if (!validateBirthDate(editBirthDate)) {
+      alert("La fecha de nacimiento debe ser una fecha válida y no puede estar en el futuro.");
+      return;
+    }
+    if (editCity.trim().length < 2 || editCountry.trim().length < 2) {
+      alert("La ciudad y el país deben tener al menos 2 caracteres.");
+      return;
+    }
+    if (editCity.trim().length > 100 || editCountry.trim().length > 100) {
+      alert("La ciudad y el país no pueden exceder 100 caracteres.");
+      return;
+    }
+    if (editSex && !["female", "male", "intersex", "prefer_not_to_say"].includes(editSex)) {
+      alert("Selecciona una opción válida para sexo.");
+      return;
+    }
+    if (editConditions.length > 50 || editConditions.some((condition) => condition.length > 100)) {
+      alert("Puedes guardar hasta 50 condiciones, con un máximo de 100 caracteres cada una.");
       return;
     }
     const cedula = localMedicalData.cedula.trim().toUpperCase();
@@ -1043,6 +1068,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
+                                    maxLength={100}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     required
                                   />
@@ -1056,6 +1082,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="email"
                                     value={editEmail}
                                     onChange={(e) => setEditEmail(e.target.value)}
+                                    maxLength={254}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-mono font-semibold transition-all"
                                     required
                                   />
@@ -1069,6 +1096,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={editCity}
                                     onChange={(e) => setEditCity(e.target.value)}
+                                    maxLength={100}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     required
                                   />
@@ -1081,6 +1109,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={editCountry}
                                     onChange={(e) => setEditCountry(e.target.value)}
+                                    maxLength={100}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     required
                                   />
@@ -1150,7 +1179,8 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                   <input
                                     type="tel"
                                     value={editPhone}
-                                    onChange={(e) => setEditPhone(e.target.value)}
+                                    onChange={(e) => setEditPhone(e.target.value.slice(0, 20))}
+                                    maxLength={20}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-400 text-xs font-semibold transition-all"
                                     placeholder="+505 0000-0000"
                                   />
@@ -1278,6 +1308,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={localMedicalData.enfermedades}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, enfermedades: e.target.value })}
+                                    maxLength={500}
                                     placeholder={t('diseasesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1290,6 +1321,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={localMedicalData.alergias}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, alergias: e.target.value })}
+                                    maxLength={500}
                                     placeholder={t('allergiesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1322,6 +1354,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={localMedicalData.tratamientos}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, tratamientos: e.target.value })}
+                                    maxLength={500}
                                     placeholder={t('treatmentsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1334,6 +1367,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={localMedicalData.pastillas}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, pastillas: e.target.value })}
+                                    maxLength={500}
                                     placeholder={t('pillsPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1346,6 +1380,7 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="text"
                                     value={localMedicalData.vacunas}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, vacunas: e.target.value })}
+                                    maxLength={500}
                                     placeholder={t('vaccinesPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1358,6 +1393,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="number"
                                     value={localMedicalData.peso}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, peso: e.target.value })}
+                                    min={1}
+                                    max={500}
+                                    step="0.01"
+                                    inputMode="decimal"
                                     placeholder={t('weightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />
@@ -1370,6 +1409,10 @@ export default function PerfilView({ user, isPremium, onGoBack, onUpdateUser, on
                                     type="number"
                                     value={localMedicalData.altura}
                                     onChange={(e) => setLocalMedicalData({ ...localMedicalData, altura: e.target.value })}
+                                    min={30}
+                                    max={300}
+                                    step="0.01"
+                                    inputMode="decimal"
                                     placeholder={t('heightPlaceholder')}
                                     className="w-full text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 py-2.5 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 text-xs font-semibold transition-all"
                                   />

@@ -63,14 +63,14 @@ export default async function handler(req, res) {
 
   const sanitizedCedula = cedula.replace(/<[^>]*>/g, "").trim().substring(0, 30);
 
-  console.log(`[${requestId}] GET /api/fhir-get — cédula: ${sanitizedCedula}`);
+  console.log(`[${requestId}] GET /api/fhir-get — buscando paciente por identificador.`);
 
   try {
     // ─── Find Patient ────────────────────────────────────────────
     const patient = await findPatientByIdentifier(sanitizedCedula);
 
     if (!patient) {
-      console.log(`[${requestId}] No patient found for cédula: ${sanitizedCedula}`);
+      console.log(`[${requestId}] No se encontró paciente para el identificador recibido.`);
       return res.status(404).json({
         found: false,
         message: "No se encontraron datos médicos para esta cédula.",

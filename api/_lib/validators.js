@@ -44,18 +44,39 @@ export function validateMedicalData(data) {
     return { valid: false, errors: ["Los datos médicos son inválidos o están vacíos."] };
   }
 
+  const fieldLimits = {
+    enfermedades: 500,
+    alergias: 500,
+    tipoSangre: 3,
+    tratamientos: 500,
+    pastillas: 500,
+    vacunas: 500,
+    peso: 10,
+    altura: 10,
+    cedula: 16,
+    contactoEmergencia: 20,
+  };
+  for (const [field, maxLength] of Object.entries(fieldLimits)) {
+    const value = data[field];
+    if (value !== undefined && value !== null && typeof value !== "string") {
+      errors.push(`El campo ${field} debe ser texto.`);
+    } else if (typeof value === "string" && value.length > maxLength) {
+      errors.push(`El campo ${field} no puede exceder ${maxLength} caracteres.`);
+    }
+  }
+
   // Sanitize all text fields
   const sanitized = {
     enfermedades: sanitizeText(data.enfermedades),
     alergias: sanitizeText(data.alergias),
-    tipoSangre: sanitizeText(data.tipoSangre, 5),
+    tipoSangre: sanitizeText(data.tipoSangre, 3),
     tratamientos: sanitizeText(data.tratamientos),
     pastillas: sanitizeText(data.pastillas),
     vacunas: sanitizeText(data.vacunas),
     peso: sanitizeText(data.peso, 10),
     altura: sanitizeText(data.altura, 10),
     cedula: sanitizeText(data.cedula, 30),
-    contactoEmergencia: sanitizeText(data.contactoEmergencia, 30),
+    contactoEmergencia: sanitizeText(data.contactoEmergencia, 20),
   };
 
   // Validate blood type (if provided)
@@ -65,25 +86,29 @@ export function validateMedicalData(data) {
 
   // Validate weight (if provided)
   if (sanitized.peso) {
-    const peso = parseFloat(sanitized.peso);
-    if (isNaN(peso) || peso < 1 || peso > 500) {
+    const normalizedPeso = sanitized.peso.replace(",", ".");
+    const peso = Number(normalizedPeso);
+    if (!/^\d+(?:[.,]\d{1,2})?$/.test(sanitized.peso) || !Number.isFinite(peso) || peso < 1 || peso > 500) {
       errors.push("El peso debe ser un número entre 1 y 500 kg.");
     }
   }
 
   // Validate height (if provided)
   if (sanitized.altura) {
-    const altura = parseFloat(sanitized.altura);
-    if (isNaN(altura) || altura < 30 || altura > 300) {
+    const normalizedAltura = sanitized.altura.replace(",", ".");
+    const altura = Number(normalizedAltura);
+    if (!/^\d+(?:[.,]\d{1,2})?$/.test(sanitized.altura) || !Number.isFinite(altura) || altura < 30 || altura > 300) {
       errors.push("La altura debe ser un número entre 30 y 300 cm.");
     }
   }
 
   // Validate phone (if provided) — accept digits, spaces, dashes, plus, parens
   if (sanitized.contactoEmergencia) {
-    const phoneRegex = /^[+\d\s\-()]{6,25}$/;
-    if (!phoneRegex.test(sanitized.contactoEmergencia)) {
-      errors.push("El número de teléfono de emergencia tiene un formato inválido.");
+    const phone = sanitized.contactoEmergencia;
+    const phoneRegex = /^\+?[\d][\d\s()\-]*$/;
+    const digitCount = phone.replace(/\D/g, "").length;
+    if (!phoneRegex.test(phone) || digitCount < 7 || digitCount > 15) {
+      errors.push("El teléfono de emergencia debe tener entre 7 y 15 dígitos.");
     }
   }
 
@@ -116,10 +141,25 @@ export function validateUserContext(userContext) {
     return { valid: false, error: "Contexto de usuario inválido." };
   }
 
+  const contextLimits = { userId: 100, nombre: 100, email: 254, ciudad: 100, pais: 100 };
+  for (const [field, maxLength] of Object.entries(contextLimits)) {
+    const value = userContext[field];
+    if (value !== undefined && value !== null && typeof value !== "string") {
+      return { valid: false, error: `El campo ${field} debe ser texto.` };
+    }
+    if (typeof value === "string" && value.length > maxLength) {
+      return { valid: false, error: `El campo ${field} no puede exceder ${maxLength} caracteres.` };
+    }
+  }
+
+  if (userContext.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userContext.email.trim())) {
+    return { valid: false, error: "El correo del perfil tiene un formato inválido." };
+  }
+
   const sanitizedContext = {
     userId: sanitizeText(userContext.userId, 100),
-    nombre: sanitizeText(userContext.nombre, 200),
-    email: sanitizeText(userContext.email, 200),
+    nombre: sanitizeText(userContext.nombre, 100),
+    email: sanitizeText(userContext.email, 254),
     ciudad: sanitizeText(userContext.ciudad, 100),
     pais: sanitizeText(userContext.pais, 100),
   };
