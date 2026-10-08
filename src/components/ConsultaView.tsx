@@ -838,6 +838,11 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                     </div>
                   )}
                   {formatMessageText(msg.text)}
+                  {msg.sender === "bot" && (
+                    <p className="mt-3 border-t border-slate-200 pt-2.5 text-[11px] leading-relaxed text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                      La información de Salud Conecta IA es orientativa y puede contener errores; no sustituye la valoración de un profesional de salud.
+                    </p>
+                  )}
                   <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-brand-100" : "text-slate-400"}`}>
                     {msg.timestamp}
                   </div>
