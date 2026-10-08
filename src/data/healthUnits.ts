@@ -38,6 +38,8 @@ interface DepartmentSource {
   unidades_salud: HealthUnitSource[];
 }
 
+import { getMunicipioCoordenada } from "./municipioCoordenadas";
+
 const HEALTH_UNIT_DATABASE = [
   boaco,
   carazo,
@@ -76,6 +78,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function coordinateToMapPosition(unit: HealthUnitSource, index: number): { lat: number; lng: number; hasCoordinates: boolean } {
+  // 1. Si el centro tiene coordenadas reales, convertirlas directamente
   if (typeof unit.latitud === "number" && typeof unit.longitud === "number") {
     const top = ((NICARAGUA_BOUNDS.north - unit.latitud) / (NICARAGUA_BOUNDS.north - NICARAGUA_BOUNDS.south)) * 100;
     const left = ((unit.longitud - NICARAGUA_BOUNDS.west) / (NICARAGUA_BOUNDS.east - NICARAGUA_BOUNDS.west)) * 100;
@@ -87,6 +90,23 @@ function coordinateToMapPosition(unit: HealthUnitSource, index: number): { lat: 
     };
   }
 
+  // 2. Si el centro no tiene coordenadas, intentar usar coordenadas del municipio
+  const municipioKey = unit.municipio?.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  if (municipioKey) {
+    const municipioCoord = getMunicipioCoordenada(unit.municipio);
+    if (municipioCoord) {
+      const top = ((NICARAGUA_BOUNDS.north - municipioCoord.lat) / (NICARAGUA_BOUNDS.north - NICARAGUA_BOUNDS.south)) * 100;
+      const left = ((municipioCoord.lng - NICARAGUA_BOUNDS.west) / (NICARAGUA_BOUNDS.east - NICARAGUA_BOUNDS.west)) * 100;
+
+      return {
+        lat: clamp(top, 6, 94),
+        lng: clamp(left, 6, 94),
+        hasCoordinates: true,
+      };
+    }
+  }
+
+  // 3. Fallback: Ubicación distribuida por cuadrícula
   const row = Math.floor(index / 18);
   const col = index % 18;
 
