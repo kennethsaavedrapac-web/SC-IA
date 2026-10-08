@@ -287,13 +287,28 @@ async function saveConsultationToSupabase(
 
 /** Elimina todas las consultas guardadas para el usuario autenticado. */
 async function clearConsultationsFromSupabase(userId: string): Promise<void> {
-  const { error } = await supabase
+  // PostgREST puede devolver éxito aunque RLS oculte las filas del DELETE.
+  // Comparamos el total visible antes y el total eliminado para detectar ese caso.
+  const { count: existingCount, error: countError } = await supabase
     .from("consultations")
-    .delete()
+    .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 
-  if (error) {
-    throw error;
+  if (countError) {
+    throw countError;
+  }
+
+  const { count: deletedCount, error: deleteError } = await supabase
+    .from("consultations")
+    .delete({ count: "exact" })
+    .eq("user_id", userId);
+
+  if (deleteError) {
+    throw deleteError;
+  }
+
+  if ((existingCount ?? 0) !== (deletedCount ?? 0)) {
+    throw new Error("Supabase no eliminó todas las consultas. Revisa la política DELETE de la tabla consultations.");
   }
 }
 
@@ -752,7 +767,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       setIsHistoryOpen(false);
     } catch (err) {
       console.error("No se pudo limpiar el historial de triaje:", err);
-      setHistoryError("No se pudo eliminar el historial. Inténtalo de nuevo.");
+      setHistoryError("No se eliminó el historial. La base de datos no autorizó el borrado; aplica la migración de consultas e inténtalo de nuevo.");
     } finally {
       setIsClearingHistory(false);
     }
