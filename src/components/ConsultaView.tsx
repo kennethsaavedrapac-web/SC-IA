@@ -660,7 +660,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className={`flex justify-between items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
+        className={`flex justify-end items-center px-6 pt-[env(safe-area-inset-top,44px)] pb-2 z-20 relative w-full max-w-5xl mx-auto ${isChatMode ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0" : ""}`}
         style={{ paddingTop: "max(env(safe-area-inset-top, 20px), 40px)" }}
       >
         { }
@@ -1161,15 +1161,18 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
       {/* Botón flotante de Emergencia */}
       <motion.button
+        drag
+        dragMomentum={false}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.92 }}
         onClick={onTriggerEmergency}
-        className="fixed bottom-24 right-6 z-50 flex flex-col items-center justify-center w-[56px] h-[56px] rounded-full overflow-hidden shadow-2xl"
+        className="fixed bottom-24 right-6 z-50 flex flex-col items-center justify-center w-[56px] h-[56px] rounded-full overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing"
         style={{
           background: "#fb7185",
           boxShadow: "0 8px 24px rgba(251,113,133,0.4)",
+          touchAction: "none"
         }}
       >
         <div className="absolute inset-0 rounded-full" style={{ background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 60%)" }} />
