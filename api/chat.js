@@ -100,7 +100,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, userProfile, language } = req.body;
+    const { message, userProfile, language, history, fileData } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
@@ -185,7 +185,29 @@ INSTRUCCIÓN IMPORTANTE: Considera estrictamente estas condiciones médicas pree
     const languageContext = language === "mi" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA MISKITO. DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN IDIOMA MISKITO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN MISKITO." : language === "kr" ? "\n\n[INSTRUCCIÓN DE IDIOMA CRÍTICA]\nEL USUARIO HA SELECCIONADO EL IDIOMA INGLÉS CRIOLLO (KRIOL NICARAGÜENSE). DEBES RESPONDER ABSOLUTAMENTE TODAS TUS EVALUACIONES Y RECOMENDACIONES CLÍNICAS EN INGLÉS CRIOLLO DE LA FORMA MÁS PRECISA POSIBLE, ADAPTANDO LOS TÉRMINOS MÉDICOS PARA QUE SEAN COMPRENSIBLES EN ESE IDIOMA. MANTÉN EL FORMATO ESTRUCTURADO Y LOS EMOJIS, PERO EL TEXTO DEBE SER EN INGLÉS CRIOLLO (KRIOL)." : "";
     const historyContext = `\n\n[USO DEL HISTORIAL DE TRIAGE]
 El historial de conversación puede incluir consultas de los últimos 14 días con fecha y hora. Úsalo SOLO cuando los síntomas actuales parezcan relacionados, sean una continuación, recurrencia o empeoramiento de algo previo. Si los síntomas actuales no tienen relación clara con el historial, ignóralo y evalúa la consulta actual por sí sola. No menciones el historial salvo que aporte valor clínico.`;
-    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext;
+
+    // Document analysis context for file uploads
+    let documentAnalysisContext = "";
+    if (fileData && fileData.base64 && fileData.mimeType) {
+      const isImage = fileData.mimeType.startsWith('image/');
+      const isPdf = fileData.mimeType === 'application/pdf';
+      const fileType = isImage ? 'imagen médica' : isPdf ? 'documento PDF' : 'archivo';
+      documentAnalysisContext = `\n\n[ANÁLISIS DE DOCUMENTO/IMAGEN ADJUNTO]
+El usuario ha adjuntado un(a) ${fileType} (${fileData.fileName || 'sin nombre'}). DEBES analizar el contenido del archivo adjunto y proporcionar:
+1. Una descripción de lo que observas en el archivo
+2. Observaciones relevantes relacionadas con salud
+3. Recomendaciones generales basadas en lo observado
+
+RESTRICCIONES ESTRICTAS PARA ANÁLISIS DE DOCUMENTOS:
+- NO proporcionar diagnósticos definitivos
+- NO inventar información que no esté visible en el documento
+- Si el documento/imagen no es legible o no se puede interpretar correctamente, indicarlo claramente
+- Si el contenido no está relacionado con salud, indicarlo amablemente
+- Siempre recomendar consultar con un profesional de salud para interpretación definitiva
+- Tratar toda información médica visible con confidencialidad y profesionalismo`;
+    }
+
+    const systemPrompt = dynamicSystemPrompt + timeContext + profileContext + languageContext + historyContext + documentAnalysisContext;
 
     // Obtener aiModel dinámico desde Supabase
     let aiModel = "gemini-2.5-flash-lite";
@@ -210,16 +232,37 @@ El historial de conversación puede incluir consultas de los últimos 14 días c
       systemInstruction: systemPrompt,
     });
 
-    // Iniciar chat sin historial (ahorro máximo de tokens - no se envía historial a la API)
-    const chat = model.startChat({
-      history: [],
-    });
+    // Iniciar chat con historial si está presente para contextualizar consultas de seguimiento
+    const formattedHistory = Array.isArray(history)
+      ? history.map((turn) => ({
+          role: turn.sender === "user" || turn.role === "user" ? "user" : "model",
+          parts: [{ text: turn.text || turn.content || "" }],
+        }))
+      : [];
 
+    const chat = model.startChat({
+      history: formattedHistory,
+    });
 
     // Generate response
     let response;
     try {
-      response = await chat.sendMessage(message);
+      if (fileData && fileData.base64 && fileData.mimeType) {
+        // Multimodal request: file + text
+        const parts = [
+          {
+            inlineData: {
+              mimeType: fileData.mimeType,
+              data: fileData.base64,
+            },
+          },
+          { text: message },
+        ];
+        response = await chat.sendMessage(parts);
+      } else {
+        // Text-only request via chat
+        response = await chat.sendMessage(message);
+      }
     } catch (sendErr) {
       console.error("Gemini Send Message Error:", sendErr);
       // Si el error es por seguridad o filtros

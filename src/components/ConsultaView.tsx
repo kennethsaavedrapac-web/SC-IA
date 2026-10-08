@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { UserProfile, ChatMessage } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import { motion, AnimatePresence } from "motion/react";
-import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2 } from "lucide-react";
+import { Siren, Mic, MicOff, History, X, CalendarDays, Clock3, MessageCircle, Loader2, Paperclip, FileText, Eye } from "lucide-react";
 import { getOfflineTriageResponse } from "../lib/offlineTriage";
 import { getMiskitoTriageResponse } from "../lib/miskitoTriage";
 import { getKriolTriageResponse } from "../lib/kriolTriage";
@@ -170,7 +170,19 @@ const loadTriageHistory = (userId?: string): ChatMessage[] => {
 const saveTriageHistory = (userId: string | undefined, messages: ChatMessage[]) => {
   try {
     const normalized = normalizeStoredMessages(messages);
-    localStorage.setItem(getTriageHistoryKey(userId), JSON.stringify(normalized));
+    const sanitized = normalized.map((m) => {
+      if (m.attachment && m.attachment.previewUrl && m.attachment.previewUrl.length > 50000) {
+        return {
+          ...m,
+          attachment: {
+            ...m.attachment,
+            previewUrl: undefined,
+          },
+        };
+      }
+      return m;
+    });
+    localStorage.setItem(getTriageHistoryKey(userId), JSON.stringify(sanitized));
     return normalized;
   } catch (err) {
     console.warn("No se pudo guardar el historial de triaje:", err);
@@ -300,6 +312,66 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   const [isClearingHistory, setIsClearingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  // --- ATTACHMENT STATE ---
+  interface PendingAttachment {
+    name: string;
+    type: string;
+    size: number;
+    base64: string;
+    previewUrl: string;
+  }
+  const [selectedFile, setSelectedFile] = useState<PendingAttachment | null>(null);
+  const [previewModalUrl, setPreviewModalUrl] = useState<{ url: string; name: string; type: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Límite de 10MB
+    const MAX_MB = 10;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      alert(`El archivo seleccionado excede el tamaño máximo permitido (${MAX_MB}MB).`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const allowedMimes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
+    ];
+
+    if (!allowedMimes.includes(file.type)) {
+      alert("Formato no soportado. Por favor selecciona una imagen médica (JPG, PNG, WEBP) o un documento PDF.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const base64 = dataUrl.split(",")[1] || "";
+      setSelectedFile({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        base64,
+        previewUrl: dataUrl,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   // --- SPEECH RECOGNITION ---
   const [isRecording, setIsRecording] = useState(false);
@@ -468,24 +540,50 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if ((!inputValue.trim() && !selectedFile) || isLoading) return;
 
     const userText = inputValue.trim();
+    const currentAttachment = selectedFile ? {
+      name: selectedFile.name,
+      type: selectedFile.type,
+      size: selectedFile.size,
+      previewUrl: selectedFile.previewUrl,
+    } : undefined;
+
+    const currentFileData = selectedFile ? {
+      base64: selectedFile.base64,
+      mimeType: selectedFile.type,
+      fileName: selectedFile.name,
+    } : undefined;
+
+    const defaultPrompt = selectedFile
+      ? (selectedFile.type === 'application/pdf'
+          ? "Por favor analiza este documento médico adjunto y explícame sus observaciones y recomendaciones de salud."
+          : "Por favor analiza esta imagen adjunta y proporciona observaciones y recomendaciones de salud.")
+      : "";
+
+    const displayText = userText || defaultPrompt;
+
     const newUserMsg: ChatMessage = {
       id: Date.now().toString(),
-      text: userText,
+      text: displayText,
       sender: "user",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      attachment: currentAttachment,
     };
 
     setMessages(prev => [...prev, newUserMsg]);
     setInputValue("");
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
     setIsLoading(true);
 
     if (language === 'mi') {
       setTimeout(() => {
-        const miskitoResponse = getMiskitoTriageResponse(userText, user);
+        const miskitoResponse = getMiskitoTriageResponse(displayText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: miskitoResponse,
@@ -497,7 +595,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         setIsLoading(false);
         // Guardar en Supabase si el usuario está autenticado
         if (user.id) {
-          saveConsultationToSupabase(user.id, userText, miskitoResponse).catch(() => {});
+          saveConsultationToSupabase(user.id, displayText, miskitoResponse).catch(() => {});
         }
       }, 800);
       return;
@@ -505,7 +603,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
     if (language === 'kr') {
       setTimeout(() => {
-        const kriolResponse = getKriolTriageResponse(userText, user);
+        const kriolResponse = getKriolTriageResponse(displayText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: kriolResponse,
@@ -517,7 +615,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         setIsLoading(false);
         // Guardar en Supabase si el usuario está autenticado
         if (user.id) {
-          saveConsultationToSupabase(user.id, userText, kriolResponse).catch(() => {});
+          saveConsultationToSupabase(user.id, displayText, kriolResponse).catch(() => {});
         }
       }, 800);
       return;
@@ -525,7 +623,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
     if (!navigator.onLine) {
       setTimeout(() => {
-        const offlineResponse = getOfflineTriageResponse(userText, user);
+        const offlineResponse = getOfflineTriageResponse(displayText, user);
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
@@ -537,7 +635,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         setIsLoading(false);
         // Intentar guardar en Supabase aunque sea modo offline (puede fallarcasi siempre, pero no bloquea)
         if (user.id) {
-          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+          saveConsultationToSupabase(user.id, displayText, offlineResponse).catch(() => {});
         }
       }, 800);
       return;
@@ -547,7 +645,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userText, userProfile: user, language })
+        body: JSON.stringify({
+          message: displayText,
+          userProfile: user,
+          language,
+          history: buildHistoryForApi(messages.slice(-8)),
+          fileData: currentFileData,
+        })
       });
 
       let data: any;
@@ -562,7 +666,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       if (!response.ok) {
         console.error("API Error Response:", data);
         console.error("Response status:", response.status);
-        const offlineResponse = getOfflineTriageResponse(userText, user);
+        const offlineResponse = getOfflineTriageResponse(displayText, user);
         const errorMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           text: offlineResponse,
@@ -573,18 +677,16 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         setMessages(prev => [...prev, errorMsg]);
         // Guardar en Supabase incluso con respuesta de fallback offline
         if (user.id) {
-          saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+          saveConsultationToSupabase(user.id, displayText, offlineResponse).catch(() => {});
         }
         return;
       }
-
 
       if (data.simulated) {
         console.warn("[ConsultaView] Simulated response received:", data.warning);
       }
 
       let botText = data.text || "Lo siento, no pude procesar la respuesta.";
-
 
       if (data.simulated && data.warning) {
         botText = `📋 ${data.warning}\n\n${botText}`;
@@ -602,13 +704,13 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
 
       // Guardar el par consulta/respuesta en Supabase (si el usuario está autenticado)
       if (user.id) {
-        saveConsultationToSupabase(user.id, userText, botText).catch((err) =>
+        saveConsultationToSupabase(user.id, displayText, botText).catch((err) =>
           console.warn("[Supabase] No se guardó la consulta:", err)
         );
       }
     } catch (error) {
       console.error("Fetch error:", error);
-      const offlineResponse = getOfflineTriageResponse(userText, user);
+      const offlineResponse = getOfflineTriageResponse(displayText, user);
       const errorMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: offlineResponse,
@@ -619,7 +721,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
       setMessages(prev => [...prev, errorMsg]);
       // Guardar en Supabase incluso cuando hay error de red
       if (user.id) {
-        saveConsultationToSupabase(user.id, userText, offlineResponse).catch(() => {});
+        saveConsultationToSupabase(user.id, displayText, offlineResponse).catch(() => {});
       }
     } finally {
       setIsLoading(false);
@@ -823,7 +925,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
         </AnimatePresence>
       ) : (
 
-        <div className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
+        <div ref={messagesContainerRef} className="flex-1 w-full max-w-5xl mx-auto px-5 py-4 overflow-y-auto z-10 flex flex-col gap-4">
           <AnimatePresence>
             {messages.map((msg, idx) => (
               <motion.div
@@ -839,6 +941,49 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                     : "bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-tl-sm"
                     }`}
                 >
+                  {msg.attachment && (
+                    <div className="mb-2.5">
+                      {msg.attachment.type.startsWith("image/") ? (
+                        <div
+                          className="rounded-xl overflow-hidden border border-black/10 dark:border-white/10 cursor-pointer group relative bg-black/5 dark:bg-black/20"
+                          onClick={() => setPreviewModalUrl({ url: msg.attachment!.previewUrl || '', name: msg.attachment!.name, type: msg.attachment!.type })}
+                        >
+                          <img
+                            src={msg.attachment.previewUrl}
+                            alt={msg.attachment.name}
+                            className="max-h-60 w-auto max-w-full rounded-xl object-contain transition-transform group-hover:scale-[1.01]"
+                          />
+                          <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium gap-1.5 backdrop-blur-[1px]">
+                            <Eye className="w-4 h-4" /> Ver imagen completa
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => {
+                            if (msg.attachment?.previewUrl) {
+                              const win = window.open();
+                              if (win) win.document.write(`<iframe src="${msg.attachment.previewUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                            }
+                          }}
+                          className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all ${
+                            msg.sender === "user"
+                              ? "bg-white/15 border-white/20 hover:bg-white/25 text-white"
+                              : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-rose-500/20 text-rose-500 flex items-center justify-center font-bold text-xs shrink-0">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold truncate">{msg.attachment.name}</p>
+                            <p className="text-[10px] opacity-80">
+                              PDF • {(msg.attachment.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {formatMessageText(msg.text)}
                   <div className={`text-[10px] mt-1.5 opacity-70 text-right ${msg.sender === "user" ? "text-brand-100" : "text-slate-400"}`}>
                     {msg.timestamp}
@@ -877,30 +1022,93 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
           className={`relative overflow-hidden transition-all duration-300 bg-white dark:bg-slate-900 rounded-[28px] p-[20px_18px_14px_18px] border-1.5 ${isFocused ? "border-brand-600 shadow-[0_12px_35px_rgba(37,99,235,0.15)]" : "border-slate-200 dark:border-slate-800 shadow-[0_8px_30px_rgba(15,23,42,0.08)]"
             }`}
         >
-          { }
+          {/* Fondo sutil */}
           <div className="absolute inset-0 pointer-events-none opacity-50 dark:opacity-10" style={{ background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, transparent 40%)", borderRadius: "28px" }} />
 
-          { }
+          {/* Vista previa del archivo seleccionado antes de enviar */}
+          {selectedFile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative z-10 flex items-center gap-3 p-2.5 mb-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 shadow-xs"
+            >
+              {selectedFile.type.startsWith("image/") ? (
+                <img
+                  src={selectedFile.previewUrl}
+                  alt={selectedFile.name}
+                  className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40 flex flex-col items-center justify-center font-bold text-[10px] shrink-0">
+                  <FileText className="w-5 h-5 mb-0.5" />
+                  <span>PDF</span>
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                  {selectedFile.name}
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • {selectedFile.type.startsWith("image/") ? "Imagen médica" : "Documento PDF"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveFile}
+                className="w-7 h-7 flex items-center justify-center rounded-full text-slate-400 hover:text-rose-600 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                title="Quitar archivo"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+
+          {/* Campo de texto */}
           <textarea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
-            placeholder={isChatMode ? "Escribe tu consulta aquí..." : "Describe tus síntomas…"}
+            placeholder={
+              selectedFile
+                ? "Añade una pregunta sobre el archivo o presiona Enviar…"
+                : isChatMode
+                ? "Escribe tu consulta aquí..."
+                : "Describe tus síntomas…"
+            }
             disabled={isLoading}
             className="relative z-10 w-full bg-transparent outline-none resize-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-800 dark:text-slate-200 disabled:opacity-50"
             style={{ height: "56px", fontSize: "15px", lineHeight: 1.5, fontWeight: 400, fontFamily: "'Inter', sans-serif", paddingLeft: "4px", paddingRight: "4px" }}
           />
 
-          { }
+          {/* Barra inferior: Botón adjuntar + Micrófono + Enviar */}
           <div className="flex justify-between items-center relative z-10 mt-1">
-            { }
-            <motion.button whileTap={{ scale: 0.9 }} className="flex items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" style={{ width: "42px", height: "42px", borderRadius: "50%", color: "#64748b" }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
+            {/* Input oculto para subir archivos */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+              className="hidden"
+            />
+            {/* Botón de adjuntar documento o imagen */}
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.9 }}
+              onClick={() => fileInputRef.current?.click()}
+              title="Adjuntar imagen médica o documento PDF"
+              className={`flex items-center justify-center transition-all ${
+                selectedFile
+                  ? "text-brand-600 bg-brand-50 dark:bg-brand-950/40"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
+              style={{ width: "42px", height: "42px", borderRadius: "50%" }}
+            >
+              <Paperclip className="w-5 h-5" />
             </motion.button>
 
-            { }
             <div className="flex items-center gap-2">
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -913,7 +1121,7 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
+                disabled={(!inputValue.trim() && !selectedFile) || isLoading}
                 className="flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105"
                 style={{ width: "52px", height: "52px", borderRadius: "50%", background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", boxShadow: "0 6px 20px rgba(37,99,235,0.32), 0 2px 6px rgba(37,99,235,0.15)", color: "#ffffff" }}
               >
@@ -1065,6 +1273,46 @@ export default function ConsultaView({ user, onNavigate, onTriggerEmergency }: C
                   </div>
                 )}
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal para visualizar imagen médica adjunta en pantalla completa */}
+      <AnimatePresence>
+        {previewModalUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6"
+            onClick={() => setPreviewModalUrl(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-4xl max-h-[90vh] flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-full flex justify-between items-center mb-3 px-2 text-white">
+                <span className="text-xs sm:text-sm font-semibold truncate max-w-xs sm:max-w-md">
+                  {previewModalUrl.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPreviewModalUrl(null)}
+                  className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  title="Cerrar vista previa"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <img
+                src={previewModalUrl.url}
+                alt={previewModalUrl.name}
+                className="max-h-[80vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/10 bg-black/40"
+              />
             </motion.div>
           </motion.div>
         )}
