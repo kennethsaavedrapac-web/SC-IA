@@ -168,7 +168,7 @@ async function startServer() {
     }
   }
 
-  // Enforce HTTPS in production
+  // Enforce HTTPS in production (except for internal healthchecks)
   app.use((req: Request, res: Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'production') {
       // Docker y el proxy comprueban la salud dentro de la red privada por HTTP.
