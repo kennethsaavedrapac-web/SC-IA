@@ -13,10 +13,12 @@ yarn-debug.log*
 .git
 .gitignore
 
-# Docker (evita recursión)
+# Docker y Nginx (evita recursión y problemas de permisos con certbot)
 Dockerfile
 docker-compose.yml
 .dockerignore
+nginx
+nginx/certbot
 
 # Documentación y scripts de desarrollo
 README.md
@@ -24,7 +26,7 @@ docs
 scripts
 script
 *.md
-!public
+!.public
 
 # Herramientas locales
 .vscode
