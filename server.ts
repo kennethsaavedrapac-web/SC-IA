@@ -128,18 +128,19 @@ async function startServer() {
   const configuredFrontend = process.env.FRONTEND_URL?.replace(/\/$/, "");
   const allowedOrigins = [
     "https://scia-vm-salud-conecta.northcentralus.cloudapp.azure.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
     ...(configuredFrontend ? [configuredFrontend] : [])
   ];
+  if (process.env.NODE_ENV !== "production") {
+    allowedOrigins.push("http://localhost:3000", "http://127.0.0.1:3000");
+  }
 
   app.use(cors({
     origin: (origin, callback) => {
       // Permitir solicitudes del mismo origen (sin header origin), herramientas internas o si está en la lista permitida
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true);
+        callback(null, false);
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
