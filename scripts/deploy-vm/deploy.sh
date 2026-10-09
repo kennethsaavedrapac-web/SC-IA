@@ -1,50 +1,69 @@
 #!/bin/bash
-# ==============================================================================
-# deploy.sh — Despliegue automatizado de SC-IA en la VM Azure
-# Uso:  bash deploy.sh
-# Requisito: ya estar conectado por SSH como scuser, con el repo clonado en ~/scia
-# ==============================================================================
-set -e
+# deploy.sh — Despliegue automatizado de Salud-Conecta IA en la VM Azure.
+# Uso: bash scripts/deploy-vm/deploy.sh [dominio]
+set -Eeuo pipefail
 
-DOMAIN="${1:-TU_DOMINIO_AQUI}"   # pasa tu dominio como argumento
+DOMAIN="${1:-scia-vm-salud-conecta.northcentralus.cloudapp.azure.com}"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-echo "=== 1. Instalar Docker ==="
-if ! command -v docker &> /dev/null; then
+echo "=== 1. Verificar Docker ==="
+if ! command -v docker >/dev/null 2>&1; then
     curl -fsSL https://get.docker.com | sh
     sudo usermod -aG docker "$USER"
-    newgrp docker
+    echo "Docker fue instalado. Cierra la sesion SSH, vuelve a entrar y ejecuta este script otra vez."
+    exit 0
 fi
 docker --version
+docker compose version
 
-echo "=== 2. Clonar/actualizar código ==="
-if [ ! -d ~/scia ]; then
-    sudo apt-get update && sudo apt-get install -y git
-    git clone https://github.com/kennethsaavedrapac-web/SC-IA.git ~/scia
-fi
-cd ~/scia
-git pull origin main 2>/dev/null || true
+echo "=== 2. Actualizar codigo ==="
+cd "$PROJECT_DIR"
+git pull --ff-only origin main
 
-echo "=== 3. Directorios para certificados ==="
+echo "=== 3. Verificar configuracion ==="
 mkdir -p nginx/certbot/conf nginx/certbot/www
-
-echo "=== 4. Verificar .env ==="
 if [ ! -f .env ]; then
-    echo "!! ERROR: crea primero ~/scia/.env con tus variables reales (ver docs/DEPLOY.md)"
-    echo "   Copia .env.example y completa: Supabase, Gemini, CARTO, VAPID, FRONTEND_URL=$DOMAIN"
+    echo "ERROR: falta $PROJECT_DIR/.env. Copia .env.example y agrega los valores reales."
     exit 1
 fi
-echo ".env encontrado ($(wc -l < .env) líneas)"
 
-echo "=== 5. Construir y levantar contenedores ==="
-docker compose up -d --build
-sleep 10
-docker compose ps
+required_variables=(VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY FRONTEND_URL)
+for variable in "${required_variables[@]}"; do
+    value="$(grep -E "^${variable}=" .env | tail -n 1 | cut -d= -f2- || true)"
+    if [ -z "$value" ]; then
+        echo "ERROR: $variable no esta configurada en .env."
+        exit 1
+    fi
+done
 
-echo "=== 6. Verificar salud ==="
-curl -s http://localhost:3000/health && echo " <- /health (app)"
-curl -s -o /dev/null -w "nginx:80 -> HTTP %{http_code}\n" http://localhost/health
+echo "=== 4. Construir aplicacion ==="
+docker compose up -d --build app
 
-echo ""
-echo "=== LISTO (sin SSL aún) ==="
-echo "Para activar HTTPS, ejecuta:"
-echo "  bash ssl.sh $DOMAIN"
+echo "=== 5. Verificar salud interna ==="
+healthy=false
+for _ in $(seq 1 12); do
+    if docker compose exec -T app wget -qO- http://127.0.0.1:3000/health >/dev/null 2>&1; then
+        healthy=true
+        break
+    fi
+    sleep 5
+done
+if [ "$healthy" != true ]; then
+    docker compose logs --tail=100 app
+    echo "ERROR: la aplicacion no supero la comprobacion de salud."
+    exit 1
+fi
+
+echo "=== 6. Configurar HTTPS ==="
+bash scripts/deploy-vm/ssl.sh "$DOMAIN"
+
+echo "=== 7. Programar renovacion automatica del certificado ==="
+RENEW_SCRIPT="$PROJECT_DIR/scripts/deploy-vm/renew-ssl.sh"
+CRON_MARKER="# salud-conecta-renew-ssl"
+CRON_LINE="17 3 * * * bash $RENEW_SCRIPT >> $PROJECT_DIR/nginx/certbot/renew.log 2>&1 $CRON_MARKER"
+(
+    crontab -l 2>/dev/null | grep -vF "$CRON_MARKER" || true
+    echo "$CRON_LINE"
+) | crontab -
+
+echo "Despliegue completado: https://$DOMAIN"

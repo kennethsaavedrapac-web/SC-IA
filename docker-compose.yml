@@ -54,10 +54,12 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt:ro
       - ./nginx/certbot/www:/var/www/certbot:ro
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     networks:
       - scia-net
 
 networks:
   scia-net:
+    name: scia-net
     driver: bridge
