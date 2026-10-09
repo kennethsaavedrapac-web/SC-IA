@@ -4,7 +4,7 @@
 # ==============================================================================
 
 # ---------- ETAPA 1: CONSTRUCCIÓN ----------
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /build
 
@@ -31,7 +31,7 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
 RUN npm run build
 
 # ---------- ETAPA 2: RUNTIME ----------
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Variables por defecto (se sobrescriben con variables de Azure/VM)
 ENV NODE_ENV=production \
