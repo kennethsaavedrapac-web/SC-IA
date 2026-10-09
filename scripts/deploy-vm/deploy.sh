@@ -26,8 +26,23 @@ if [ ! -f .env ]; then
     echo "ERROR: falta $PROJECT_DIR/.env. Copia .env.example y agrega los valores reales."
     exit 1
 fi
+chmod 600 .env
 
-required_variables=(VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY GEMINI_API_KEY FRONTEND_URL)
+# Mantener protegido el endpoint de notificaciones aunque CRON_SECRET se haya
+# omitido o se haya dejado con el valor de ejemplo.
+cron_secret="$(grep -E '^CRON_SECRET=' .env | tail -n 1 | cut -d= -f2- || true)"
+if [ -z "$cron_secret" ] || [[ "$cron_secret" == *"tu_"* || "$cron_secret" == *"_aqui"* ]]; then
+    cron_secret="$(openssl rand -hex 32)"
+    if grep -q '^CRON_SECRET=' .env; then
+        sed -i "s|^CRON_SECRET=.*|CRON_SECRET=$cron_secret|" .env
+    else
+        printf '\nCRON_SECRET=%s\n' "$cron_secret" >> .env
+    fi
+    chmod 600 .env
+    echo "Se genero un CRON_SECRET aleatorio y se guardo en .env."
+fi
+
+required_variables=(VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY GEMINI_API_KEY CRON_SECRET FRONTEND_URL)
 for variable in "${required_variables[@]}"; do
     value="$(grep -E "^${variable}=" .env | tail -n 1 | cut -d= -f2- || true)"
     if [ -z "$value" ] || [[ "$value" == *"tu_"* || "$value" == *"_aqui"* || "$value" == *"tu-proyecto"* ]]; then
