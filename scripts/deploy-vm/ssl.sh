@@ -75,6 +75,28 @@ else
     echo "=== 3. Certificado existente encontrado; no se solicita uno nuevo ==="
 fi
 
+# Certbot puede reutilizar un linaje creado previamente con sufijo (por ejemplo,
+# dominio-0001). Nginx usa una ruta estable sin sufijo, así que enlazamos ese
+# linaje válido en vez de solicitar otro certificado o copiar claves privadas.
+if [ ! -s "$CERT_PATH" ]; then
+    actual_lineage=""
+    for candidate in "$CERT_DIR/live/$DOMAIN"-*; do
+        if [ -s "$candidate/fullchain.pem" ] && [ -s "$candidate/privkey.pem" ]; then
+            actual_lineage="$candidate"
+            break
+        fi
+    done
+
+    if [ -n "$actual_lineage" ]; then
+        stable_lineage="$CERT_DIR/live/$DOMAIN"
+        if [ -e "$stable_lineage" ] || [ -L "$stable_lineage" ]; then
+            mv "$stable_lineage" "${stable_lineage}.invalid-$(date +%Y%m%d-%H%M%S)"
+        fi
+        ln -s "$(basename "$actual_lineage")" "$stable_lineage"
+        echo "Linaje SSL reutilizado: $(basename "$actual_lineage")"
+    fi
+fi
+
 test -s "$CERT_PATH"
 
 echo "=== 4. Levantar stack HTTPS ==="
