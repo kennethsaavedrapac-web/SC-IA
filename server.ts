@@ -171,6 +171,11 @@ async function startServer() {
   // Enforce HTTPS in production
   app.use((req: Request, res: Response, next: express.NextFunction) => {
     if (process.env.NODE_ENV === 'production') {
+      // Docker y el proxy comprueban la salud dentro de la red privada por HTTP.
+      // El puerto de la app no se publica hacia Internet.
+      if (req.path === '/health') {
+        return next();
+      }
       // Check if it's secure or if the proxy says it's secure
       if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
         return next();
