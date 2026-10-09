@@ -6,9 +6,15 @@
 
 services:
   app:
+    image: scia-app:latest
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+        VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY}
+        VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY}
     restart: unless-stopped
     environment:
       NODE_ENV: production

@@ -17,6 +17,17 @@ RUN npm ci --ignore-scripts
 # Copiar código y compilar assets estáticos + servidor
 COPY . .
 
+# Argumentos para compilación de frontend Vite
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_CARTO_API_KEY
+ARG VITE_VAPID_PUBLIC_KEY
+
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
+    VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
+    VITE_CARTO_API_KEY=$VITE_CARTO_API_KEY \
+    VITE_VAPID_PUBLIC_KEY=$VITE_VAPID_PUBLIC_KEY
+
 RUN npm run build
 
 # ---------- ETAPA 2: RUNTIME ----------
