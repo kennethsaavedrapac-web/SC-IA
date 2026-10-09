@@ -52,7 +52,33 @@ echo "=== 2. Liberar puertos 80/443 y limpiar intentos anteriores ==="
 docker compose stop nginx >/dev/null 2>&1 || true
 remove_temporary_containers
 
-if [ ! -s "$CERT_PATH" ]; then
+ensure_certificate_lineage() {
+    # Certbot crea los archivos como root; inspeccionar desde el contenedor
+    # evita confundir un certificado inaccesible con uno inexistente.
+    docker run --rm \
+        --entrypoint sh \
+        -v "$CERT_DIR:/etc/letsencrypt" \
+        certbot/certbot -c '
+            domain="$1"
+            live="/etc/letsencrypt/live/$domain"
+            if [ -s "$live/fullchain.pem" ] && [ -s "$live/privkey.pem" ]; then
+                exit 0
+            fi
+            for candidate in /etc/letsencrypt/live/"$domain"-*; do
+                if [ -s "$candidate/fullchain.pem" ] && [ -s "$candidate/privkey.pem" ]; then
+                    if [ -e "$live" ] || [ -L "$live" ]; then
+                        mv "$live" "${live}.invalid-$(date +%Y%m%d-%H%M%S)"
+                    fi
+                    ln -s "$(basename "$candidate")" "$live"
+                    echo "Linaje SSL reutilizado: $(basename "$candidate")"
+                    exit 0
+                fi
+            done
+            exit 1
+        ' sh "$DOMAIN"
+}
+
+if ! ensure_certificate_lineage; then
     echo "=== 3. Obtener certificado de Let's Encrypt para $DOMAIN ==="
     CERTBOT_REGISTRATION=(--register-unsafely-without-email)
     if [ -n "${CERTBOT_EMAIL:-}" ]; then
@@ -97,7 +123,7 @@ if [ ! -s "$CERT_PATH" ]; then
     fi
 fi
 
-test -s "$CERT_PATH"
+ensure_certificate_lineage
 
 echo "=== 4. Levantar stack HTTPS ==="
 remove_temporary_containers
