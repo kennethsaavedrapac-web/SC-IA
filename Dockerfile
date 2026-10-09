@@ -8,11 +8,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /build
 
-# Copiar solo manifestos primero para aprovechar caché de capas
-COPY package*.json ./
+# Copiar manifiestos y configuración npm para peer dependencies
+COPY package*.json .npmrc* ./
 
-# Dependencias completas (vite/tsx se necesitan para el build)
-RUN npm ci --ignore-scripts
+# Dependencias completas con soporte para React 19 peer-deps
+RUN npm ci --legacy-peer-deps --ignore-scripts
 
 # Copiar código y compilar assets estáticos + servidor
 COPY . .
@@ -41,8 +41,8 @@ ENV NODE_ENV=production \
 WORKDIR /app
 
 # Instalar solo dependencias de producción
-COPY --from=builder /build/package*.json ./
-RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
+COPY --from=builder /build/package*.json /build/.npmrc* ./
+RUN npm ci --omit=dev --legacy-peer-deps --ignore-scripts && npm cache clean --force
 
 # Copiar assets compilados + servidor empaquetado (dist/server.cjs)
 COPY --from=builder /build/dist ./dist
