@@ -1,0 +1,33 @@
+# Archivos de build y dependencias
+node_modules
+dist
+npm-debug.log*
+yarn-debug.log*
+
+# Variables de entorno (NUNCA en la imagen)
+.env
+.env.*
+!.env.example
+
+# VCS
+.git
+.gitignore
+
+# Docker (evita recursión)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentación y scripts de desarrollo
+README.md
+docs
+scripts
+script
+*.md
+!public
+
+# Herramientas locales
+.vscode
+.idea
+.kilo
+.claude

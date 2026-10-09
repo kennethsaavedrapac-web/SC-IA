@@ -328,6 +328,26 @@ CRON_SECRET=tu_clave_secreta_para_tareas_cron
 
 ---
 
+## ☁️ Despliegue en Azure y CI/CD con GitHub
+
+Para cumplir con los más altos estándares de disponibilidad y seguridad operacional, **Salud-Conecta IA** está optimizado para su despliegue en Microsoft Azure con un flujo de trabajo continuo desde GitHub.
+
+### 1. Certificado SSL y Seguridad HTTPS (Candado de Seguridad)
+Es de carácter **obligatorio** que el sistema opere bajo HTTPS para proteger la confidencialidad de la historia clínica.
+* **Azure App Service:** En el portal de Azure, ve a tu Web App > *TLS/SSL settings* > *HTTPS Only* y configúralo en **On**.
+* La aplicación ya cuenta con un middleware interno que fuerza la redirección a HTTPS en producción (validando la cabecera `X-Forwarded-Proto`).
+* Azure proporciona un certificado administrado gratuito de forma automática para subdominios `.azurewebsites.net`.
+
+### 2. Flujo de Trabajo CI/CD (Código Vinculado a GitHub)
+El código en ejecución en Azure es un espejo exacto de la rama `main` en GitHub, garantizando trazabilidad y control de versiones. Para habilitar este flujo automático sin intervención técnica:
+
+1. **Crear Workflow:** En la raíz del proyecto de GitHub, asegúrate de tener el archivo `.github/workflows/main_saludconecta.yml`.
+2. **Configurar Credenciales:** En el portal de Azure, descarga el "Publish Profile" (Perfil de publicación) de la Web App y agrégalo a los **Secrets** del repositorio de GitHub como `AZUREAPPSERVICE_PUBLISHPROFILE`.
+3. **Despliegue Automático:** Al hacer un `git push` a la rama `main`, GitHub Actions instalará las dependencias (`npm ci`), construirá el proyecto (`npm run build`), y desplegará la carpeta `dist/` e index del servidor al entorno de Azure automáticamente.
+4. **Variables de Entorno:** Configura las variables del `.env` (incluyendo `GEMINI_API_KEY` y claves de Supabase) dentro de Azure en *Configuration* > *Application settings*.
+
+---
+
 ## 🧪 Identificadores de Pruebas de Calidad (E2E & QA)
 
 Para facilitar la automatización de pruebas con Cypress, Playwright o Selenium, la aplicación incluye selectores estables:

@@ -1,0 +1,57 @@
+# ==============================================================================
+# Salud-Conecta IA — Orquestación de contenedores
+# Servicios: app (Node/Express) + nginx (proxy inverso)
+# La base de datos (Supabase) permanece gestionada externamente.
+# ==============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Las variables sensibles se inyectan desde el archivo .env del servidor
+      # (NO se suben al repo). Copia .env.example → .env en la VM.
+      VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+      VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY}
+      VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      VAPID_SUBJECT: ${VAPID_SUBJECT}
+      CRON_SECRET: ${CRON_SECRET}
+      # La URL pública (https://tu-dominio) define el CORS en producción
+      FRONTEND_URL: ${FRONTEND_URL}
+    expose:
+      - "3000"   # Solo interno: nginx es el único puerto expuesto
+    networks:
+      - scia-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+      - ./nginx/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    networks:
+      - scia-net
+
+networks:
+  scia-net:
+    driver: bridge

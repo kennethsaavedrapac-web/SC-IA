@@ -2,13 +2,24 @@ import express, { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
+import compression from "compression";
+
+// Manejadores de errores a nivel de proceso para evitar caídas del servidor
+process.on('uncaughtException', (err) => {
+  console.error('🔥 Uncaught Exception:', err);
+  // No salimos del proceso para mantener la app en línea (aunque PM2 o Azure la reiniciarían)
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 
 // Middleware y utilidades de validación y seguridad
 import { validateRequest } from "./src/lib/validations/validateMiddleware";
@@ -40,7 +51,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnon
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Almacén seguro en memoria para desafíos temporales de 2FA (TTL 5 minutos)
 interface MfaChallengeRecord {
@@ -93,6 +104,9 @@ const authLimiter = rateLimit({
 async function startServer() {
   const app = express();
   
+  // Compresión de respuestas HTTP (GZIP/Brotli) para carga más rápida
+  app.use(compression());
+  
   // Security middlewares
   app.use(helmet({
     contentSecurityPolicy: {
@@ -138,6 +152,19 @@ async function startServer() {
       return null;
     }
   }
+
+  // Enforce HTTPS in production
+  app.use((req: Request, res: Response, next: express.NextFunction) => {
+    if (process.env.NODE_ENV === 'production') {
+      // Check if it's secure or if the proxy says it's secure
+      if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+        return next();
+      }
+      // Redirect to https
+      return res.redirect(301, `https://${req.hostname}${req.url}`);
+    }
+    next();
+  });
 
   // ==============================================================================
   // 1. ENDPOINTS DE GESTIÓN SEGURA DE SESIÓN Y COOKIES HTTPONLY
@@ -678,9 +705,16 @@ RESTRICCIONES ESTRICTAS PARA ANÁLISIS DE DOCUMENTOS:
     }
   });
 
+  // Endpoint de salud para monitoreo básico (nginx / Docker healthcheck)
+  app.get("/health", (_req: Request, res: Response) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // Hot module reloading and client asset serving
   if (process.env.NODE_ENV !== "production") {
     console.log("Configuring Vite Development Server Middleware...");
+    // Import dinámico: 'vite' es devDependency y NO existe en la imagen de producción
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -694,6 +728,15 @@ RESTRICCIONES ESTRICTAS PARA ANÁLISIS DE DOCUMENTOS:
       res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }
+
+  // Confiar en el proxy inverso (nginx) para IPs y protocolo reales
+  app.set("trust proxy", true);
+
+  // Global error handler to prevent showing code/stacktrace to the user
+  app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
+    console.error("Internal Server Error:", err);
+    res.status(500).json({ error: "Ocurrió un error inesperado en el servidor. Por favor, inténtelo de nuevo más tarde." });
+  });
 
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Salud-Conecta IA Server running at http://0.0.0.0:${PORT}`);

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Mapa - Salud-Conecta IA</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { height: 100vh; width: 100%; }
+        #stats { position: absolute; top: 10px; right: 10px; z-index: 1000; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); max-width: 300px; }
+    </style>
+</head>
+<body>
+    <div id="stats">
+        <h3>📊 Estadísticas del Mapa</h3>
+        <div id="loading">Cargando centros...</div>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        // Inicializar mapa
+        const map = L.map('map', {
+            center: [12.865, -85.207],
+            zoom: 7,
+            preferCanvas: true,
+            fadeAnimation: false,
+            markerZoomAnimation: false,
+            zoomAnimation: false
+        });
+
+        const cartoApiKey = '';
+        const cartoTileUrl = cartoApiKey
+            ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`
+            : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
+        L.tileLayer(cartoTileUrl, {
+            maxZoom: 19,
+            updateWhenIdle: true,
+            updateWhenZooming: false,
+            keepBuffer: 1
+        }).addTo(map);
+
+        const markersGroup = L.layerGroup().addTo(map);
+
+        // Datos de prueba (simulando el flujo de la aplicación)
+        const testCenters = [
+            { id: "MANAGUA-1-0", name: "Puesto de Salud Nueva Vida", type: "Puesto de Salud", municipality: "Managua", department: "Managua", lat: 12.1364, lng: -86.2514, hasCoordinates: true },
+            { id: "MANAGUA-2-1", name: "Puesto de Salud Las Lomas", type: "Puesto de Salud", municipality: "San Francisco Libre", department: "Managua", lat: 12.0, lng: -86.35, hasCoordinates: true },
+            { id: "GRANADA-1-0", name: "Dr Blandino", type: "Clínica ambulatoria", municipality: "Granada", department: "Granada", lat: 11.945867797136797, lng: -85.95375189209479, hasCoordinates: true },
+            { id: "LEON-15-2", name: "Puesto de Salud Ejemplo", type: "Puesto de Salud", municipality: "Leon", department: "Leon", lat: 12.4333, lng: -86.875, hasCoordinates: true },
+            { id: "JINOTEGA-3-1", name: "Puesto de Salud Las Lomas", type: "Puesto de Salud", municipality: "Jinotega", department: "Jinotega", lat: 13.1, lng: -85.4833, hasCoordinates: true },
+            { id: "MANAGUA-207-206", name: "Puesto de Salud Villa Revolución", type: "Puesto de Salud", municipality: "Managua", department: "Managua", lat: 12.05, lng: -86.2, hasCoordinates: true },
+        ];
+
+        // Iconos personalizados
+        const colors = { centro_salud: '#1677e8', hospital: '#e6323e', farmacia: '#16a765', medico: '#7139df' };
+        
+        function createCenterIcon(c, isSelected) {
+            const scale = isSelected ? 1.06 : 1;
+            const width = 36;
+            const height = 45;
+            const color = colors[c.category] || '#1677e8';
+            const html = '<div class="sc-marker-pin" style="width:' + width + 'px;height:' + height + 'px;transform:scale(' + scale + ');transform-origin:50% 86%;">'
+                + '<svg viewBox="0 0 48 60" width="' + width + '" height="' + height + '" aria-hidden="true">'
+                + '<path d="M24 59C20 52 2 34 2 22a22 22 0 1 1 44 0c0 12-18 30-22 37Z" fill="' + color + '" stroke="' + color + '" stroke-width="2"/>'
+                + '<circle cx="24" cy="22" r="16" fill="#fff"/>'
+                + '<g transform="translate(12 10) scale(0.88)" fill="none" stroke="' + color + '" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V7l-7-4-7 4v14"/><path d="M9 21v-6h6v6M12 8v5M9.5 10.5h5"/></g></svg></div>';
+            return L.divIcon({ html, className: '', iconSize: [width, height], iconAnchor: [width / 2, height - 2] });
+        }
+
+        let renderedMarkers = new Map();
+
+        testCenters.forEach(c => {
+            const category = c.type.toLowerCase().includes("hospital") ? "hospital" : "centro_salud";
+            c.category = category;
+            
+            const marker = L.marker([c.lat, c.lng], { icon: createCenterIcon(c, false) }).addTo(markersGroup);
+            
+            marker.bindPopup(`<b>${c.name}</b><br>Municipio: ${c.municipality}<br>Departamento: ${c.department}<br>Coords: ${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}<br>✓ Tiene ubicación real`);
+            
+            renderedMarkers.set(c.id, marker);
+        });
+
+        // Añadir marcador de ubicación del usuario
+        const userIcon = L.divIcon({
+            html: '<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 10px rgba(59,130,246,0.6); position: relative;"><div style="position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #3b82f6; animation: pulse 2s infinite;"></div></div>',
+            className: '',
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+        L.marker([12.1364, -86.2514], { icon: userIcon }).addTo(markersGroup);
+
+        // Contar estadísticas
+        const total = testCenters.length;
+        const withCoordinates = testCenters.filter(c => c.hasCoordinates).length;
+        const noCoordinates = total - withCoordinates;
+
+        // Buscar en el DOM para actualizar las estadísticas
+        const statsDiv = document.getElementById('stats');
+        const loadingDiv = document.getElementById('loading');
+        
+        // Ocultar loading y mostrar estadísticas
+        setTimeout(() => {
+            loadingDiv.style.display = 'none';
+            statsDiv.innerHTML = `
+                <h3>📊 Estadísticas del Mapa</h3>
+                <p>🗺️ <strong>Total centros:</strong> ${total}</p>
+                <p>✅ <strong>Con ubicación real:</strong> ${withCoordinates}</p>
+                <p>❌ <strong>Sin ubicación:</strong> ${noCoordinates}</p>
+                <p style="color: green;"><strong>✓ Todos los centros con coordenadas reales se muestran</strong></p>
+                <p style="font-size: 12px; color: #666;">🔵 Marcador azul: Tu ubicación</p>
+            `;
+        }, 1000);
+
+        // Ajustar vista para mostrar todos los marcadores
+        const bounds = L.latLngBounds(testCenters.map(c => [c.lat, c.lng]));
+        map.fitBounds(bounds);
+
+        // Estilos CSS para los marcadores
+        const style = document.createElement('style');
+        style.textContent = `
+            .sc-marker-pin { cursor: pointer; pointer-events: auto; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

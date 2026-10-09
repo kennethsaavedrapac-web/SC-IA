@@ -18,6 +18,12 @@ export default defineConfig(() => {
           },
         },
       },
+      sourcemap: false,
+      minify: 'esbuild',
+      esbuild: {
+        drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
+        legalComments: 'none',
+      },
     },
     resolve: {
       alias: {
