@@ -11,10 +11,11 @@
 import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode";
 import crypto from "crypto";
+import { applyCors } from "../../_lib/cors.js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnonKey;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || (process.env.NODE_ENV !== "production" ? supabaseAnonKey : "");
 
 const supabaseAdmin = (supabaseUrl && supabaseServiceKey) ? createClient(supabaseUrl, supabaseServiceKey) : null;
 const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
@@ -106,14 +107,12 @@ async function extractAuthUser(req) {
 }
 
 export default async function handler(req, res) {
-  const allowedOrigin = process.env.FRONTEND_URL || req.headers.origin || "*";
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  if (!applyCors(req, res, "GET,POST,OPTIONS")) {
+    return res.status(403).json({ error: "Origen no permitido" });
+  }
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   // Extraer acción de la URL (soporta req.query.action o path de la URL)

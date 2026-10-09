@@ -13,7 +13,7 @@ services:
       args:
         VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
         VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
-        VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY}
+        VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY:-}
         VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY}
     restart: unless-stopped
     environment:
@@ -25,11 +25,11 @@ services:
       VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
-      VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY}
+      VITE_CARTO_API_KEY: ${VITE_CARTO_API_KEY:-}
       VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
-      VAPID_SUBJECT: ${VAPID_SUBJECT}
-      CRON_SECRET: ${CRON_SECRET}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:soporte@salud-conecta.com}
+      CRON_SECRET: ${CRON_SECRET:-}
       # La URL pública (https://tu-dominio) define el CORS en producción
       FRONTEND_URL: ${FRONTEND_URL}
     expose:

@@ -27,14 +27,21 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-required_variables=(VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY FRONTEND_URL)
+required_variables=(VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY GEMINI_API_KEY FRONTEND_URL)
 for variable in "${required_variables[@]}"; do
     value="$(grep -E "^${variable}=" .env | tail -n 1 | cut -d= -f2- || true)"
-    if [ -z "$value" ]; then
-        echo "ERROR: $variable no esta configurada en .env."
+    if [ -z "$value" ] || [[ "$value" == *"tu_"* || "$value" == *"_aqui"* || "$value" == *"tu-proyecto"* ]]; then
+        echo "ERROR: $variable no esta configurada con un valor real en .env."
         exit 1
     fi
 done
+
+frontend_url="$(grep -E '^FRONTEND_URL=' .env | tail -n 1 | cut -d= -f2- | sed 's:/*$::')"
+expected_frontend="https://$DOMAIN"
+if [ "$frontend_url" != "$expected_frontend" ]; then
+    echo "ERROR: FRONTEND_URL debe ser exactamente $expected_frontend para que CORS coincida con el dominio desplegado."
+    exit 1
+fi
 
 echo "=== 4. Construir aplicacion ==="
 docker compose up -d --build app

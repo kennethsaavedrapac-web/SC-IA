@@ -102,6 +102,20 @@ const authLimiter = rateLimit({
 });
 
 async function startServer() {
+  if (process.env.NODE_ENV === "production") {
+    const requiredEnv = [
+      "VITE_SUPABASE_URL",
+      "VITE_SUPABASE_ANON_KEY",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "GEMINI_API_KEY",
+      "FRONTEND_URL"
+    ];
+    const missingEnv = requiredEnv.filter((name) => !process.env[name]?.trim());
+    if (missingEnv.length > 0) {
+      throw new Error(`Missing required production environment variables: ${missingEnv.join(", ")}`);
+    }
+  }
+
   const app = express();
   
   // Compresión de respuestas HTTP (GZIP/Brotli) para carga más rápida
@@ -136,7 +150,7 @@ async function startServer() {
 
   app.use(cors({
     origin: (origin, callback) => {
-      // Permitir solicitudes del mismo origen (sin header origin), herramientas internas o si está en la lista permitida
+      // Permitir solicitudes del mismo origen o desde un origen configurado.
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {

@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { createClient } from "@supabase/supabase-js";
+import { applyCors } from "./_lib/cors.js";
 
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -82,17 +83,17 @@ RECUERDA: Siempre finaliza con la advertencia médica obligatoria.`;
 
 export default async function handler(req, res) {
 
-  const allowedOrigin = process.env.FRONTEND_URL || "*";
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
+  if (!applyCors(
+    req,
+    res,
+    "POST,OPTIONS",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
-  );
+  )) {
+    return res.status(403).json({ error: "Origin not allowed" });
+  }
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {

@@ -1,17 +1,19 @@
+import { applyCors } from "./_lib/cors.js";
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json");
 
-  const allowedOrigin = process.env.FRONTEND_URL || "*"; 
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
+  if (!applyCors(
+    req,
+    res,
+    "GET,OPTIONS",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
-  );
+  )) {
+    return res.status(403).json({ error: "Origin not allowed" });
+  }
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   const { lat, lng } = req.query;

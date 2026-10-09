@@ -1,16 +1,16 @@
+import { applyCors } from "../_lib/cors.js";
+
 /**
  * POST /api/auth/session — Serverless Handler for Secure Session Cookies (Vercel)
  */
 
 export default async function handler(req, res) {
-  const allowedOrigin = process.env.FRONTEND_URL || req.headers.origin || "*";
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+  if (!applyCors(req, res, "POST,OPTIONS")) {
+    return res.status(403).json({ error: "Origen no permitido" });
+  }
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {

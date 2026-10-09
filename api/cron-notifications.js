@@ -35,7 +35,10 @@ const RECORDATORIOS = [
 export default async function handler(req, res) {
   
   const authHeader = req.headers.authorization;
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET) {
+    return res.status(503).json({ error: 'CRON_SECRET is not configured' });
+  }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

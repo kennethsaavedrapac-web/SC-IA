@@ -42,20 +42,16 @@ import {
   buildTransactionBundle,
 } from "./_lib/fhir-builders.js";
 import crypto from "crypto";
+import { applyCors } from "./_lib/cors.js";
 
 export default async function handler(req, res) {
   // ─── CORS ────────────────────────────────────────────────────────
-  const allowedOrigin = process.env.FRONTEND_URL || "*";
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
+  if (!applyCors(req, res, "POST,OPTIONS")) {
+    return res.status(403).json({ error: "Origen no permitido" });
+  }
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end();
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {
